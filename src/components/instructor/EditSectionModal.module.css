@@ -1,0 +1,237 @@
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  background-color: white;
+  border-radius: 12px;
+  width: 650px;
+  max-width: 95%;
+  max-height: 90%;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  position: relative;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e4e4e7;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #3f3f46;
+  font-weight: 600;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #71717a;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.closeButton:hover {
+  color: #27272a;
+}
+
+.sectionTitleInput {
+  width: 90%;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.sectionTitleInput:focus {
+  outline: none;
+  border-color: #a1a1aa;
+}
+
+.topicRow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  transition: box-shadow 0.2s ease;
+}
+
+.topicRow:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.topicInput {
+  width: 85%;
+  padding: 10px 12px;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.topicInput:focus {
+  outline: none;
+  border-color: #a1a1aa;
+}
+
+.topicTypeContainer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.topicTypeSelect {
+  width: 20%;
+  padding: 10px 12px;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background-color: white;
+  transition: border-color 0.2s ease;
+}
+
+.topicTypeSelect:focus {
+  outline: none;
+  border-color: #a1a1aa;
+}
+
+.uploadContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f3f4f6;;
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadButton {
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+  align-self: center;
+}
+
+.uploadButton:hover {
+  background-color: #4f46e5;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e4e4e7;
+}
+
+.saveButton {
+  background-color: #10b981;
+  margin-top: 8px;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.saveButton:hover {
+  background-color: #059669;
+}
+
+.cancelButton {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+  margin-left: 10px;
+}
+
+.cancelButton:hover {
+  background-color: #e5e7eb;
+}
+
+.testInfo {
+  background-color: #f3f4f6;
+  padding: 12px;
+  border-radius: 6px;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.fileInfo {
+  background-color: #f1f5f9;
+  padding: 10px 12px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.sectionTitleContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.addTopicButton {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.removeTopicButton {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.topicActionButtons {
+  display: flex;
+  align-items: center;
+}

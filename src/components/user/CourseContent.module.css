@@ -1,0 +1,388 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f5f7fa;
+  color: #333;
+  width: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.mainContent {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Video container */
+.videoContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.videoPlayerArea {
+  position: relative;
+  background-color: #000;
+  flex: 1;
+  min-height: 70vh;
+}
+
+.videoPlayer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Navigation buttons */
+.navButtonLeft, .navButtonRight {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  transition: all 0.2s ease;
+  z-index: 100;
+}
+
+.navButtonLeft:hover, .navButtonRight:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.navButtonLeft {
+  left: 20px;
+}
+
+.navButtonRight {
+  right: 20px;
+}
+
+.headerControls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: #7c4dff;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  background-color: rgba(124, 77, 255, 0.08);
+  transform: translateX(-3px);
+}
+
+.markReadBtn {
+  background: none;
+  border: 1px solid #0bad15;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  padding: 0;
+  cursor: pointer;
+  color: #0c59b1;
+  transition: all 0.2s;
+}
+
+.markReadBtn:hover {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.lectureType {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+  gap: 1rem;
+}
+
+/* Course description */
+.courseDescription {
+  padding: 24px;
+  background-color: white;
+  border-top: 1px solid #e0e0e0;
+  box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.05);
+}
+
+.courseTitle {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.courseText {
+  color: #666;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 380px;
+  background-color: white;
+  color: #333;
+  border-left: 1px solid #e0e0e0;
+  overflow-y: auto;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.sidebarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.sidebarTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.closeButton {
+  color: #666;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  margin-top: 38px;
+}
+
+.closeButton:hover {
+  color: #333;
+}
+
+/* Section */
+.section {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: #f7f7f7;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sectionHeader:hover {
+  background-color: #edf2f7;
+}
+
+.sectionTitle {
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.sectionInfo {
+  font-size: 14px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.collapseButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+/* Lectures */
+.lecturesList {
+  padding: 0;
+}
+
+.lectureItem {
+  display: flex;
+  padding: 14px 20px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.lectureItem:hover {
+  background-color: #f0f4f8;
+}
+
+.lectureItem:last-child {
+  border-bottom: none;
+}
+
+.activeLesson {
+  background-color: #e6f2ff;
+}
+
+.activeLesson:hover {
+  background-color: #d9eaff;
+}
+
+.lectureCheckbox {
+  margin-top: 2px;
+  margin-right: 12px;
+  cursor: pointer;
+}
+
+.lectureContent {
+  flex: 1;
+}
+
+.lectureInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lectureTitle {
+  font-size: 15px;
+  color: #333;
+  font-weight: 500;
+}
+
+.lectureDuration {
+  font-size: 14px;
+  color: #666;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+/* Custom style for your VideoPlayer component */
+.videoContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.videoContainer video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  .videoPlayerArea {
+    min-height: 50vh;
+  }
+}
+
+.cleanPdfContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.cleanPdfFrame {
+  width: 100%;
+  height: calc(100% - 40px);
+  border: none;
+}
+
+.openTabButton {
+  height: 40px;
+  padding: 8px;
+  background: #f1f1f1;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  color: #444;
+}
+
+.openTabButton:hover {
+  background: #e1e1e1;
+  text-decoration: none;
+}
+
+.pdfLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 16px;
+  color: #666;
+}
+
+.hamburgerMenu {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 100;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-left: 95%;
+}
+
+.hamburgerMenu:hover {
+  background: #f5f5f5;
+}

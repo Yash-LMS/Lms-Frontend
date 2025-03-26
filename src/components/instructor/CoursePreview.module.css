@@ -1,0 +1,496 @@
+.coursePreviewContainer {
+  width: 85%;
+  margin: 2rem auto;
+  padding: 2.5rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(149, 157, 165, 0.15);
+}
+
+.backNavigation {
+  margin-bottom: 2rem;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: #7c4dff;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  background-color: rgba(124, 77, 255, 0.08);
+  transform: translateX(-3px);
+}
+
+.courseHeader {
+  border-bottom: 2px solid #f0f0f7;
+  padding-bottom: 1.8rem;
+  margin-bottom: 2.5rem;
+}
+
+.courseName {
+  font-size: 2.4rem;
+  color: #333;
+  margin-bottom: 1.2rem;
+  font-weight: 600;
+}
+
+.courseMetadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: center;
+}
+
+.metadataItem {
+  display: flex;
+  align-items: center;
+}
+
+.metadataLabel {
+  font-weight: 600;
+  color: #666;
+  margin-right: 0.7rem;
+}
+
+.metadataValue {
+  color: #333;
+  font-weight: 500;
+}
+
+.statusBadge {
+  padding: 0.35rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07);
+}
+
+.draft {
+  background-color: #f5f2ff;
+  color: #7c4dff;
+  border: 1px solid rgba(124, 77, 255, 0.3);
+}
+
+.approved {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+  border: 1px solid rgba(27, 94, 32, 0.3);
+}
+
+.not_approved,
+.rejected {
+  background-color: #ffebee;
+  color: #b71c1c;
+  border: 1px solid rgba(183, 28, 28, 0.3);
+}
+
+.pending {
+  background-color: #fff8e1;
+  color: #ff6f00;
+  border: 1px solid rgba(255, 111, 0, 0.3);
+}
+
+.hold {
+  background-color: #ede7f6;
+  color: #4527a0;
+  border: 1px solid rgba(69, 39, 160, 0.3);
+}
+
+.courseDescription {
+  margin-bottom: 2.8rem;
+  background-color: #f9f9fd;
+  padding: 1.8rem;
+  border-radius: 8px;
+}
+
+.courseDescription p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #444;
+}
+
+.sectionTitle {
+  font-size: 1.6rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-bottom: 0.6rem;
+}
+
+.sectionTitle::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 70px;
+  background-color: #7c4dff;
+  border-radius: 3px;
+}
+
+.sectionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.sectionCard {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  border: 1px solid #f0f0f7;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sectionCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(124, 77, 255, 0.12);
+}
+
+.sectionHeader {
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f7ff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-left: 4px solid #7c4dff;
+}
+
+.sectionHeader:hover {
+  background-color: #efebff;
+}
+
+.sectionName {
+  font-size: 1.25rem;
+  color: #333;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.sectionActions {
+  display: flex;
+  align-items: center;
+}
+
+.sectionSequence {
+  font-weight: 600;
+  margin-right: 0.7rem;
+  color: #7c4dff;
+}
+
+.expandIcon {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #7c4dff;
+  height: 28px;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #ffffff;
+  margin-left: 10px;
+}
+
+.topicsList {
+  padding: 0.5rem 0;
+}
+
+.topicItem {
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid #f0f0f7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  transition: background-color 0.2s ease;
+}
+
+.topicItem:hover {
+  background-color: #fafafa;
+}
+
+.topicItem:last-child {
+  border-bottom: none;
+}
+
+.topicDetails {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex: 1;
+}
+
+.topicSequence {
+  font-weight: 600;
+  color: #7c4dff;
+  min-width: 1.5rem;
+}
+
+.topicName {
+  font-size: 1.05rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.topicType {
+  padding: 0.25rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-left: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.video {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+}
+
+.docs {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.assignment {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+}
+
+.quiz {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.topicLinks {
+  display: flex;
+  gap: 1rem;
+}
+
+.resourceLink {
+  color: #7c4dff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+  background-color: #f5f2ff;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.resourceLink:hover {
+  background-color: #7c4dff;
+  color: white;
+}
+
+.loading {
+  text-align: center;
+  padding: 3.5rem 0;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.loading::after {
+  content: "";
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #7c4dff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.removeFileButton{
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  align-items: center;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  text-align: center;
+  padding: 2rem;
+  color: #d32f2f;
+  background-color: #ffebee;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border-left: 4px solid #d32f2f;
+}
+
+.notFound {
+  text-align: center;
+  padding: 4rem 0;
+  font-size: 1.5rem;
+  color: #666;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+}
+
+.noSections {
+  text-align: center;
+  padding: 3rem;
+  color: #757575;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .coursePreviewContainer {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .courseName {
+    font-size: 1.8rem;
+  }
+
+  .courseMetadata {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .topicItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .topicLinks {
+    margin-top: 0.5rem;
+    margin-left: 1.5rem;
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+.successMessage {
+  background-color: #d1fae5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.editBtn {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: 500;
+  margin-right: 20px;
+}
+
+.editBtn:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Video Player Modal Styles */
+.videoPlayerModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.videoPlayerContent {
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh; /* Added to prevent content from overflowing viewport */
+  background-color: #000;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.videoPlayerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background-color: #1a1a1a;
+  border-bottom: 1px solid #333;
+}
+
+.videoPlayerHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #aaa;
+  padding: 0;
+  line-height: 1;
+  margin-left: auto;
+}
+
+.closeButton:hover {
+  color: #fff;
+}
+
+
+.videoPlayerBody {
+  flex: 1;
+  overflow: hidden;
+  background-color: #000;
+  display: flex; /* Added to center video content */
+  justify-content: center; /* Added to center video content */
+  align-items: center; /* Added to center video content */
+}
+
+.noVideoMessage {
+  color: #dc3545;
+  background-color: #ffebee;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--error-color);
+}

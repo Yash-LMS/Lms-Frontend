@@ -1,0 +1,465 @@
+/* Main container */
+.mainContainer {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .testContent {
+    display: flex;
+    gap: 20px;
+  }
+  
+  /* Test panel (left side) */
+  .testPanel {
+    flex: 1;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .testHeader {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .testHeader h2 {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 0 15px 0;
+    color: #333;
+  }
+  
+  .testInfo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .infoItem {
+    font-size: 14px;
+    color: #555;
+  }
+  
+  /* Question container */
+  .questionContainer {
+    flex: 1;
+    margin-bottom: 30px;
+  }
+  
+  .questionNum {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .questionText {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 25px;
+    color: #333;
+  }
+  
+  .optionsList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .optionItem {
+    padding: 5px 0;
+  }
+  
+  .optionLabel {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    padding: 5px;
+  }
+  
+  .optionLabel input {
+    margin-right: 10px;
+    margin-top: 3px;
+  }
+  
+  .optionLabel.selected {
+    font-weight: 500;
+  }
+  
+  /* Navigation buttons */
+  .navigationContainer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+  
+  .navButton {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .prev {
+    background-color: #f1c40f;
+    color: #333;
+  }
+  
+  .next {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  .submit {
+    background-color: #2ecc71;
+    color: white;
+  }
+  
+  .disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  /* Sidebar (right side) */
+  .sidebar {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .timerPanel, 
+  .questionsPanel, 
+  .legendPanel {
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+  }
+  
+  .timerPanel h3, 
+  .questionsPanel h3 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 15px 0;
+    color: #333;
+  }
+  
+  /* Round Timer */
+  .roundTimerContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .roundTimer {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .timerText {
+    font-size: 16px;
+    font-weight: bold;
+    fill: #333;
+    dominant-baseline: middle;
+  }
+  
+  .timerSubText {
+    font-size: 12px;
+    fill: #666;
+    dominant-baseline: middle;
+  }
+  
+  .timeRemaining {
+    font-size: 14px;
+    color: #333;
+    margin-top: 5px;
+    text-align: center;
+  }
+  
+  /* Questions grid */
+  .questionsGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .questionDot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    color: #333;
+    border: 1px solid #ddd;
+  }
+  
+  .questionDot.orange {
+    background-color: #ff9800;
+    color: white;
+    border-color: #ff9800;
+  }
+  
+  .questionDot.green {
+    background-color: #4caf50;
+    color: white;
+    border-color: #4caf50;
+  }
+  
+  /* Legend */
+  .legendPanel {
+    font-size: 13px;
+  }
+  
+  .legendItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .legendDot {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin-right: 10px;
+    display: inline-block;
+  }
+  
+  .legendDot.orange {
+    background-color: #ff9800;
+  }
+  
+  .legendDot.green {
+    background-color: #4caf50;
+  }
+  
+  /* Loading and Error states */
+  .loading, 
+  .error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    width: 100%;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .error {
+    color: #e74c3c;
+  }
+  
+  .fullScreenContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #f5f5f5;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .testContent {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .testPanel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background-color: white;
+    padding: 20px;
+    margin: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar {
+    width: 320px;
+    background-color: white;
+    padding: 20px;
+    margin: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 20px);
+    overflow-y: auto;
+  }
+  
+  .fullscreenExitsInfo {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #eaeaea;
+  }
+  
+  .fullscreenExitCount {
+    font-size: 14px;
+    color: #ff5722;
+    font-weight: bold;
+  }
+  
+  .blurred {
+    filter: blur(5px);
+    pointer-events: none;
+  }
+  
+  
+  .fullscreenNotification {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .notificationContent {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    text-align: center;
+  }
+  
+  .returnToFullscreenBtn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .startScreen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full screen height */
+    background-color: #f0f2f7;
+    padding: 20px;
+    overflow: hidden; /* Prevent scrolling */
+  }
+  
+  .startCard {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    width: 90%;
+    max-width: 700px;
+    text-align: center;
+  }
+  
+  .startCard h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+  
+  .testInfoStart {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two columns */
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .infoItem {
+    background-color: #f5f8ff;
+    padding: 10px;
+    border-radius: 4px;
+    font-weight: 400;
+    color: #333;
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  .testRules {
+    background-color: #fffbf0;
+    border-radius: 4px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    text-align: left;
+    border-left: 4px solid #ffa000;
+    font-size: 14px;
+  }
+  
+  .testRules h3 {
+    color: #333;
+    font-size: 16px;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  
+  .testRules ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  
+  .testRules li {
+    margin-bottom: 6px;
+    line-height: 1.4;
+    color: #444;
+  }
+  
+  .startButton {
+    background-color: #ffa000;
+    color: white;
+    font-weight: 500;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .startButton:hover {
+    background-color: #f09000;
+  }
+  
+  @media (max-width: 600px) {
+    .testInfoStart {
+      grid-template-columns: repeat(1, 1fr); /* Single column on smaller screens */
+    }
+  
+    .startCard {
+      padding: 20px;
+    }
+  
+    .startButton {
+      width: 100%;
+    }
+  }
+  

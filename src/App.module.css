@@ -1,0 +1,196 @@
+:root {
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+  --lavender: #953bf6;
+}
+.appContainer {
+  min-height: 100vh;
+  background: #edf2f7;
+  display: flex;
+  flex-direction: column;
+}
+/* Navbar */
+.navbar {
+  background: white;
+  padding: 0;
+  color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.logoutBtn {
+  border-radius: 8px;
+}
+.navbarContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 2rem;
+  height: 40px;
+}
+.navbarBrand {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #333;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+.navbarLinks {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  height: 100%;
+}
+.navbarLinks button {
+  color: var(--lavender);
+  text-decoration: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  background-color: white;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  position: relative;
+}
+.navbarLinks span {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.navbarLinks button::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 50%;
+  background-color: var(--lavender);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+.navbarLinks button:hover::after {
+  width: 100%;
+}
+.navbarLinks button:hover {
+  background-color: transparent;
+}
+.navbarLinks button.logoutBtn:before {
+  font-size: 1.2rem;
+  align-items: center;
+}
+.navbarLinks button.logoutBtn:hover {
+  color: #edf2f7;
+  background-color: #8e6cef;
+  border-color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.navbarLinks button.logoutBtn:after{
+  display: none;
+}
+.mainContent {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+}
+
+/* User Profile Styles */
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  background-color: #f8f8f8;
+  max-height: 55px;
+  transition: all 0.3s ease;
+}
+
+.userProfile:hover {
+  background-color: #f0f0f0;
+  box-shadow: var(--shadow-sm);
+}
+
+.userAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--lavender);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.userName {
+  color: #333;
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.userRole {
+  color: #666;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbarContent {
+    padding: 0.75rem 1rem;
+  }
+  .navbarLinks {
+    gap: 1rem;
+  }
+  .userProfile {
+    padding: 0.25rem;
+  }
+}
+@media (max-width: 576px) {
+  .navbarContent {
+    flex-direction: column;
+    height: auto;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .navbarBrand {
+    font-size: 1.5rem;
+  }
+  .navbarLinks {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+  }
+  .navbarLinks a, 
+  .navbarLinks button {
+    width: 100%;
+    text-align: center;
+  }
+  .navbarLinks span {
+    text-align: center;
+    width: 100%;
+  }
+  .userProfile {
+    width: 100%;
+    justify-content: center;
+  }
+}

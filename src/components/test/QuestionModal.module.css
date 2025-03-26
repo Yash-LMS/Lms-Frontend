@@ -1,0 +1,277 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modalContent {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 24px;
+    width: 90%;
+    max-width: 700px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eaeaea;
+  }
+  
+  .modalHeader h2 {
+    margin: 0;
+    font-size: 22px;
+    color: #333;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+  }
+  
+  .closeButton:hover {
+    color: #333;
+  }
+  
+  .formGroup {
+    margin-bottom: 20px;
+  }
+  
+  .formGroup label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .questionInput {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    resize: vertical;
+  }
+  
+  .questionTypeContainer {
+    display: flex;
+    gap: 24px;
+    margin-top: 8px;
+  }
+  
+  .radioLabel {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .radioInput {
+    margin-right: 8px;
+  }
+  
+  .optionsContainer {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .optionsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .optionsHeader h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+  }
+
+  .addQuestionButton {
+    background-color: #4a6cf7;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+  }
+  
+  .addQuestionButton:hover {
+    background-color: #3a5ce6;
+  }
+  
+  .removeQuestionButton {
+    background-color: #f44336;
+    float: right;
+    margin-bottom: 20px;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+  }
+  
+  .removeQuestionButton:hover {
+    background-color: #d32f2f;
+  }
+  
+  .addOptionButton {
+    background-color: #5c6ac4;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s;
+  }
+  
+  .addOptionButton:hover {
+    background-color: #4a59b9;
+  }
+  
+  .addOptionButton:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+  }
+  
+  .optionItem {
+    background-color: white;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #e0e4e8;
+  }
+  
+  .optionContent {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .correctAnswerInput {
+    width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .correctRadio,
+  .correctCheckbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  
+  .optionInput {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-left: 20px;
+    width: 400px;
+  }
+  
+  .removeOptionButton {
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+    
+  }
+  
+  .removeOptionButton:hover {
+    background-color: #f03e3e;
+  }
+  
+  .removeOptionButton:disabled {
+    background-color: #cfcfcf;
+    cursor: not-allowed;
+  }
+  
+  .modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  
+  .cancelButton {
+    background-color: #f1f3f5;
+    color: #495057;
+    border: 1px solid #ced4da;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+  }
+  
+  .cancelButton:hover {
+    background-color: #e9ecef;
+  }
+  
+  .saveButton {
+    background-color: #20c997;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+  }
+  
+  .saveButton:hover {
+    background-color: #12b886;
+  }
+  
+  .errorMessage {
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+  }
+  
+  .successMessage {
+    background-color: #d1fae5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+  }

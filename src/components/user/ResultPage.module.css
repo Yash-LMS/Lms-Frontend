@@ -1,0 +1,310 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 40px 20px;
+  background-color: #f8f9fb;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 700px;
+  animation: fadeIn 0.5s ease-out;
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cardHeader {
+  padding: 24px;
+  border-bottom: 1px solid #eaedf3;
+  background-color: #f8f9fb;
+  text-align: center;
+}
+
+.cardHeader h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #eaedf3;
+  border-radius: 50%;
+  border-top-color: #4299e1;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Result Container */
+.resultContainer {
+  padding: 24px;
+}
+
+.resultHeader {
+  display: flex;
+  margin-bottom: 24px;
+}
+
+.scoreCircle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.scoreValue {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: white;
+}
+
+.scoreLabel {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.testInfo {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.testInfo h3 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.testDescription {
+  margin: 0 0 10px;
+  color: #4a5568;
+  font-size: 16px;
+}
+
+.testId {
+  margin: 0;
+  color: #718096;
+  font-size: 14px;
+}
+
+/* Metrics Row */
+.resultMetrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.metricCard {
+  background-color: #f7fafc;
+  border-radius: 8px;
+  padding: 20px 16px;
+  text-align: center;
+  border: 1px solid #edf2f7;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metricCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.07);
+}
+
+.metricValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 6px;
+}
+
+.metricLabel {
+  font-size: 14px;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Score Details */
+.scoreDetails {
+  margin-top: 30px;
+  background-color: #f8f9fb;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #edf2f7;
+}
+
+.scoreItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.scoreLabel {
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.scoreValue {
+  color: #2d3748;
+}
+
+/* Progress Bar */
+.progressBarContainer {
+  height: 10px;
+  background-color: #edf2f7;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 5px;
+  transition: width.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Footer */
+.cardFooter {
+  padding: 20px 24px;
+  border-top: 1px solid #eaedf3;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboardButton, .downloadBtn {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.dashboardButton {
+  background-color: #6c5ce7;
+  color: white;
+}
+
+.dashboardButton:hover {
+  background-color: #5a4bd1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.downloadBtn {
+  background-color: #edf2f7;
+  color: #4a5568;
+}
+
+.downloadBtn:hover {
+  background-color: #e2e8f0;
+  transform: translateY(-2px);
+}
+
+/* Status Colors */
+.excellent {
+  background-color: #38a169;
+  background: linear-gradient(135deg, #38a169 0%, #48bb78 100%);
+}
+
+.good {
+  background-color: #5fde90;
+  background: linear-gradient(135deg, #62cf7c 0%, #62df92 100%);
+}
+
+.average {
+  background-color: #ecc94b;
+  background: linear-gradient(135deg, #d69e2e 0%, #ecc94b 100%);
+}
+
+.belowAverage {
+  background-color: #ed8936;
+  background: linear-gradient(135deg, #dd6b20 0%, #ed8936 100%);
+}
+
+.poor {
+  background-color: #e53e3e;
+  background: linear-gradient(135deg, #c53030 0%, #e53e3e 100%);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .card {
+    max-width: 100%;
+  }
+  
+  .resultHeader {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .scoreCircle {
+    margin-right: 0;
+    margin-bottom: 24px;
+  }
+  
+  .testInfo {
+    text-align: center;
+  }
+  
+  .resultMetrics {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cardFooter {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .dashboardButton, .downloadBtn {
+    width: 100%;
+  }
+}

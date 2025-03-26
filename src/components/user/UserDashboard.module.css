@@ -1,0 +1,358 @@
+.dashboardContainer {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background-color: #f0f3f8;
+  gap: 0;
+}
+
+/* Header */
+.dashboardHeader {
+  height: 60px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+}
+
+.logo {
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 100%;
+  margin-right: 0.5rem;
+}
+
+.logo span {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Sidebar Styles */
+.dashboardSidebar {
+  width: 240px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  height: 100vh;
+  position: fixed;
+  top: 60px;
+  left: 0;
+  z-index: 100;
+  border-radius: 0;
+  padding: 1.5rem 0;
+}
+
+.sidebarNav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  margin-bottom: 0.5rem;
+}
+
+.navItem a {
+  display: flex;
+  margin-top: 10px;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #4a5568;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 16px;
+}
+
+.navItem.active a {
+  background: #f0f0ff;
+  color: #6c5ce7;
+  font-weight: 500;
+  border-left: 4px solid #6c5ce7;
+}
+
+.navItem a:hover {
+  background: #f5f5f5;
+}
+
+.navItem i {
+  margin-right: 12px;
+  font-size: 1.1rem;
+}
+
+/* Main Content */
+.dashboardMain {
+  padding: 2rem;
+  margin-left: 240px;
+  margin-top: 60px;
+}
+
+/* Welcome Banner */
+.welcomeBanner {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcomeContent h1 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.welcomeText {
+  font-size: 1rem;
+  color: #555;
+}
+
+.learningStats {
+  display: flex;
+  gap: 4rem;
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statNumber {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #6c5ce7;
+  margin-bottom: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.85rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+/* Section Headers */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.sectionHeader h2 {
+  font-size: 1.5rem;
+  color: #1a1a1a;
+  margin: 0;
+  font-weight: 600;
+}
+
+.viewAll {
+  color: #6c5ce7;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.viewAll:hover {
+  color: #5a4db6;
+  text-decoration: underline;
+}
+
+/* Learning Sections */
+.learningSection {
+  margin-bottom: 2.5rem;
+}
+
+/* Course Cards */
+.courseCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.courseCard {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease;
+}
+
+.courseCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.courseThumbnail {
+  position: relative;
+  height: 160px;
+  background: #f0f0f0;
+}
+
+.courseThumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.progressIndicator {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.courseInfo {
+  padding: 1.25rem;
+}
+
+.courseInfo h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.instructorName {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.courseDescription {
+  color: #555;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.courseDetails {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.courseType {
+  font-weight: normal;
+}
+
+.totalHours {
+  font-weight: 500;
+}
+
+.progressBar {
+  height: 4px;
+  background: #e5e5e5;
+  border-radius: 2px;
+  margin: 0.75rem 0;
+}
+
+.progress {
+  height: 100%;
+  background: #6c5ce7;
+  border-radius: 2px;
+}
+
+.previewBtn, .continueBtn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  text-align: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
+.previewBtn {
+  background: white;
+  color: #6c5ce7;
+  border: 1px solid #6c5ce7;
+}
+
+.previewBtn:hover {
+  background: #f8f7ff;
+}
+
+.continueBtn {
+  background: #6c5ce7;
+  color: white;
+  border: none;
+}
+
+.continueBtn:hover {
+  background: #5a4db6;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .courseCards {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .dashboardContainer {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboardSidebar {
+    width: 220px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .dashboardSidebar.active {
+    transform: translateX(0);
+  }
+  
+  .dashboardMain {
+    margin-left: 0;
+    padding: 1.5rem;
+  }
+  
+  .menuToggle {
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .welcomeBanner {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .learningStats {
+    justify-content: center;
+    gap: 2rem;
+  }
+  
+  .courseCards {
+    grid-template-columns: 1fr;
+  }
+}

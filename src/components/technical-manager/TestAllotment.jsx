@@ -1,0 +1,336 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import styles from "./TestAllotment.module.css";
+import TestBulkAllotment from "./TestBulkAllotment";
+import {
+  ALLOT_TEST_URL,
+  FIND_TEST_URL,
+  FIND_TRAINEE_URL,
+} from "../../constants/apiConstants";
+
+import Sidebar from "./Sidebar";
+
+const TestAllotment = () => {
+  const navigate = useNavigate();
+  const [userList, setUserList] = useState([]);
+  const [testList, setTestList] = useState([]);
+  const [rows, setRows] = useState([
+    { emailId: "", testId: "", startDate: "", endDate: "" },
+  ]);
+  const [errorRows, setErrorRows] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupStatus, setPopupStatus] = useState("");
+  const [activeTab, setActiveTab] = useState("testAllot");
+  const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const getUserData = () => {
+    try {
+      return {
+        user: JSON.parse(sessionStorage.getItem("user")),
+        token: sessionStorage.getItem("token"),
+        role: sessionStorage.getItem("role"),
+      };
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      return { user: null, token: null, role: null };
+    }
+  };
+
+  const fetchUserList = async () => {
+    try {
+      const userData = getUserData();
+      if (!userData.user || !userData.token) {
+        console.error("Missing user data or token");
+        return;
+      }
+      
+      const response = await axios.post(`${FIND_TRAINEE_URL}`, {
+        user: userData.user,
+        token: userData.token,
+      });
+      
+      if (response.data && response.data.payload) {
+        setUserList(response.data.payload);
+      } else {
+        setUserList([]);
+      }
+    } catch (error) {
+      console.error("Error fetching user list:", error);
+      setUserList([]);
+    }
+  };
+
+  const fetchTestList = async () => {
+    try {
+      const userData = getUserData();
+      if (!userData.user || !userData.token) {
+        console.error("Missing user data or token");
+        setIsLoading(false);
+        return;
+      }
+      
+      const response = await axios.post(`${FIND_TEST_URL}`, {
+        user: userData.user,
+        token: userData.token,
+      });
+      
+      if (response.data && response.data.payload) {
+        setTestList(response.data.payload);
+      } else {
+        setTestList([]);
+      }
+    } catch (error) {
+      console.error("Error fetching test list:", error);
+      setTestList([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserList();
+    fetchTestList();
+  }, []);
+
+  const handleUpdate = async () => {
+    try {
+      const userData = getUserData();
+      if (!userData.user || !userData.token) {
+        setPopupStatus("You need to be logged in to perform this action.");
+        setShowPopup(true);
+        return;
+      }
+      
+      const validRows = rows.filter(
+        (row) => row.emailId && row.testId && row.startDate && row.endDate
+      );
+
+      if (validRows.length === 0) {
+        setPopupStatus("Please fill in all fields for at least one row.");
+        setShowPopup(true);
+        return;
+      }
+
+      // Create the proper request structure to match ApiRequestModelTest
+      const requestData = {
+        user: userData.user,
+        token: userData.token,
+        testAllotmentList: validRows.map((row) => ({
+          emailId: row.emailId,
+          testId: parseInt(row.testId),
+          startDate: row.startDate, // yyyy-mm-dd format
+          endDate: row.endDate, // yyyy-mm-dd format
+        })),
+      };
+
+      await axios.post(`${ALLOT_TEST_URL}`, requestData, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      setPopupStatus("Success! Tests have been allotted.");
+      setRows([{ emailId: "", testId: "", startDate: "", endDate: "" }]);
+      setShowPopup(true);
+    } catch (error) {
+      console.error("Error updating tests:", error);
+      setPopupStatus("Error updating tests. Please try again.");
+      setShowPopup(true);
+    }
+  };
+
+  const addRow = () => {
+    setRows([...rows, { emailId: "", testId: "", startDate: "", endDate: "" }]);
+  };
+
+  const deleteRow = (index) => {
+    setRows(rows.filter((_, i) => i !== index));
+  };
+
+  const handleRowChange = (index, field, value) => {
+    const updatedRows = [...rows];
+    updatedRows[index] = { ...updatedRows[index], [field]: value };
+    setRows(updatedRows);
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
+  };
+
+  const toggleBulkUploadModal = () => {
+    setShowBulkUploadModal(!showBulkUploadModal);
+  };
+
+  const handleBulkUploadSuccess = () => {
+    setShowBulkUploadModal(false);
+    setPopupStatus("Success! Tests have been bulk allotted.");
+    setShowPopup(true);
+  };
+
+  return (
+    <div className={styles.dashboardContainer}>
+      {/* Sidebar Navigation */}
+      <Sidebar activeTab={activeTab} />
+
+      <div className={styles.dashboardContent}>
+        <div className={styles.mainContent}>
+          <header className={styles.pageHeader}>
+            <h1 className={styles.pageTitle}>Test Allotment</h1>
+          </header>
+
+          <div className={styles.cardLayout}>
+            {isLoading ? (
+              <div className={styles.loadingState}>Loading test data...</div>
+            ) : testList && testList.length > 0 ? (
+              <>
+                <table className={styles.dataTable}>
+                  <thead>
+                    <tr>
+                      <th>Employee</th>
+                      <th>Test</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((row, index) => (
+                      <tr
+                        key={index}
+                        className={
+                          errorRows.includes(index) ? styles.errorRow : ""
+                        }
+                      >
+                        <td>
+                          <select
+                            className={styles.selectField}
+                            value={row.emailId}
+                            onChange={(e) =>
+                              handleRowChange(index, "emailId", e.target.value)
+                            }
+                          >
+                            <option value="">Select Employee</option>
+                            {userList && userList.map((user) => (
+                              <option key={user.emailId} value={user.emailId}>
+                                {user.name}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <select
+                            className={styles.selectField}
+                            value={row.testId}
+                            onChange={(e) =>
+                              handleRowChange(index, "testId", e.target.value)
+                            }
+                          >
+                            <option value="">Select Test</option>
+                            {testList && testList.map((test) => (
+                              <option key={test.testId} value={test.testId}>
+                                {test.testName}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <input
+                            type="date"
+                            className={styles.dateField}
+                            value={row.startDate}
+                            onChange={(e) =>
+                              handleRowChange(
+                                index,
+                                "startDate",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="date"
+                            className={styles.dateField}
+                            value={row.endDate}
+                            onChange={(e) =>
+                              handleRowChange(index, "endDate", e.target.value)
+                            }
+                          />
+                        </td>
+                        <td>
+                          <button
+                            className={styles.deleteButton}
+                            onClick={() => deleteRow(index)}
+                            disabled={rows.length === 1}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <div className={styles.buttonGroup}>
+                  <button className={styles.addButton} onClick={addRow}>
+                    Add
+                  </button>
+                  <button
+                    className={styles.updateButton}
+                    onClick={handleUpdate}
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    className={styles.bulkButton}
+                    onClick={toggleBulkUploadModal}
+                  >
+                    Bulk Upload
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className={styles.noData}>
+                <p>No approved tests available for allotment.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Status Popup */}
+      {showPopup && (
+        <div className={styles.popup}>
+          <div className={styles.popupContent}>
+            <p>{popupStatus}</p>
+            <button className={styles.closeButton} onClick={closePopup}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Upload Modal */}
+      {showBulkUploadModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <div className={styles.modalHeader}>
+              <h2>Bulk Test Allotment</h2>
+              <button
+                className={styles.modalCloseButton}
+                onClick={toggleBulkUploadModal}
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles.modalContent}>
+              <TestBulkAllotment onUploadSuccess={handleBulkUploadSuccess} />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default TestAllotment;

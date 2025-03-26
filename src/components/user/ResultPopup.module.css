@@ -1,0 +1,342 @@
+.popupOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+  }
+  
+  .popup {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 600px;
+    animation: popupFadeIn 0.3s ease-out;
+    overflow: hidden;
+  }
+  
+  @keyframes popupFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .popupHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #eaedf3;
+    background-color: #f8f9fb;
+  }
+  
+  .popupHeader h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3748;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #718096;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+  
+  .closeButton:hover {
+    background-color: #edf2f7;
+    color: #2d3748;
+  }
+  
+  .popupContent {
+    padding: 0;
+  }
+  
+  /* Loading State */
+  .loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+  }
+  
+  .loadingSpinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #eaedf3;
+    border-radius: 50%;
+    border-top-color: #4299e1;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Error State */
+  .errorContainer {
+    padding: 40px 24px;
+    text-align: center;
+    color: #e53e3e;
+  }
+  
+  .errorIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #fff5f5;
+    border: 2px solid #fc8181;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .errorContainer h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+  }
+  
+  .errorContainer p {
+    margin: 0;
+    color: #718096;
+  }
+  
+  /* Result Container */
+  .resultContainer {
+    padding: 24px;
+  }
+  
+  .resultHeader {
+    display: flex;
+    margin-bottom: 24px;
+  }
+  
+  .scoreCircle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-right: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+  }
+  
+  .scoreValue {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: rgba(88, 84, 83, 0.979);
+  }
+  
+  .scoreLabel {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  .testInfo {
+    flex-grow: 1;
+  }
+  
+  .testInfo h3 {
+    margin: 0 0 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2d3748;
+  }
+  
+  .testDescription {
+    margin: 0 0 10px;
+    color: #4a5568;
+    font-size: 15px;
+  }
+  
+  .testId {
+    margin: 0;
+    color: #718096;
+    font-size: 14px;
+  }
+  
+  /* Metrics Row */
+  .resultMetrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  
+  .metricCard {
+    background-color: #f7fafc;
+    border-radius: 6px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid #edf2f7;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .metricCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .metricValue {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 4px;
+  }
+  
+  .metricLabel {
+    font-size: 13px;
+    color: #718096;
+  }
+  
+  /* Score Details */
+  .scoreDetails {
+    margin-top: 24px;
+    background-color: #ffffff;
+    border-radius: 6px;
+    padding: 16px;
+  }
+  
+  .scoreItem {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  .scoreLabel {
+    font-weight: 500;
+    color: #4a5568;
+  }
+  
+  /* Progress Bar */
+  .progressBarContainer {
+    height: 8px;
+    background-color: #edf2f7;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .progressBar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease-out;
+  }
+  
+  /* Footer */
+  .popupFooter {
+    padding: 16px 24px;
+    border-top: 1px solid #eaedf3;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .closeBtn, .downloadBtn {
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .closeBtn {
+    background-color: #edf2f7;
+    color: #4a5568;
+    border: none;
+  }
+  
+  .closeBtn:hover {
+    background-color: #e2e8f0;
+  }
+  
+  .downloadBtn {
+    background-color: #6c5ce7;
+    color: white;
+    border: none;
+  }
+  
+  .downloadBtn:hover {
+    background-color: #5a4bd1;
+  }
+  
+  /* Status Colors */
+  .excellent {
+    background-color: #38a169;
+    background: linear-gradient(135deg, #38a169 0%, #48bb78 100%);
+  }
+  
+  .good {
+    background-color: #5fde90;
+    background: linear-gradient(135deg, #62cf7c 0%, #62df92 100%);
+  }
+  
+  .average {
+    background-color: #ecc94b;
+    background: linear-gradient(135deg, #d69e2e 0%, #ecc94b 100%);
+  }
+  
+  .belowAverage {
+    background-color: #ed8936;
+    background: linear-gradient(135deg, #dd6b20 0%, #ed8936 100%);
+  }
+  
+  .poor {
+    background-color: #e53e3e;
+    background: linear-gradient(135deg, #c53030 0%, #e53e3e 100%);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 640px) {
+    .popup {
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .resultHeader {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .scoreCircle {
+      margin-right: 0;
+      margin-bottom: 24px;
+    }
+    
+    .resultMetrics {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+  }

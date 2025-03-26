@@ -1,0 +1,236 @@
+:root {
+  --primary-color: #8e6cef;
+  --primary-hover: #7559ce;
+  --secondary-color: #1c1d1f;
+  --text-primary: #1c1d1f;
+  --text-secondary: #6a6f73;
+  --border-color: #e5e7eb;
+  --background-main: #f5f7f9;
+  --background-card: #ffffff;
+  --sidebar-active: #f0e6ff;
+  --success-color: #1e7f2c;
+  --warning-color: #8b6f1c;
+  --error-color: #dc3545;
+  --info-color: #0d6efd;
+  --hold-color: #6c757d;
+}
+
+.testList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 0.5rem;
+}
+
+.testCard {
+  background-color: var(--background-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: visible;
+  width: 360px;
+  margin-left: 50px;
+}
+
+.testCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(142, 108, 239, 0.1);
+}
+
+/* Ribbon-style test tag */
+.testTag {
+    position: absolute;
+    top: 6px;
+    right: -19px;
+    background-color: #ff5722;
+    color: white;
+    padding: 2px 0;
+    font-weight: bold;
+    font-size: 12px;
+    width: 74px;
+    text-align: center;
+    transform: rotate(45deg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Corner flaps that fold behind the card */
+  .testTag:before,
+  .testTag:after {
+    content: "";
+    position: absolute;
+    width: 6px;
+    height: 12px;
+    z-index: -1;
+    background-color: #d7481d; /* Darker shade of the ribbon color */
+  }
+  
+  .testTag:before {
+    bottom: -4px;
+    left: -4px;
+    transform: skewY(-60deg);
+  }
+  
+  .testTag:after {
+    bottom: -4px;
+    right: -4px;
+    transform: skewY(60deg);
+  }
+
+.testHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  margin-top: 10px;
+}
+
+.testName {
+  color: var(--primary-color);
+  font-size: 1.125rem;
+  font-weight: 500;
+  margin: 0 0 0.5rem 0;
+}
+
+.statusBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Status badges */
+.statusApproved {
+  background-color: #ecf7ed;
+  color: var(--success-color);
+}
+
+.statusPending {
+  background-color: #fff8e5;
+  color: var(--warning-color);
+}
+
+.statusHold {
+  background-color: #f5f5f5;
+  color: var(--hold-color);
+}
+
+.statusNot_Approved,
+.statusRejected {
+  background-color: #ffebee;
+  color: var(--error-color);
+}
+
+.testDetails {
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
+}
+
+.detailItem {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.detailLabel {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.testActions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.editButton,
+.previewButton,
+.addQuestionsButton {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  flex: 1;
+  text-align: center;
+}
+
+.editButton {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.editButton:hover {
+  background-color: var(--primary-hover);
+}
+
+.previewButton {
+  background-color: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.previewButton:hover {
+  background-color: var(--sidebar-active);
+}
+
+.addQuestionsButton {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.addQuestionsButton:hover {
+  background-color: var(--primary-hover);
+}
+
+.loading,
+.error,
+.noTests {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  background-color: var(--background-card);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .testList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .testList {
+    grid-template-columns: 1fr;
+  }
+
+  .testHeader {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .statusBadge {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 576px) {
+  .testActions {
+    flex-direction: column;
+  }
+
+  .editButton,
+  .previewButton,
+  .addQuestionsButton {
+    width: 100%;
+  }
+}

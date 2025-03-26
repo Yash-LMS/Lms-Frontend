@@ -1,0 +1,392 @@
+.container {
+  display: flex;
+  flex-direction: column; 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  min-height: 100vh;
+  position: relative;
+  padding: 1.5rem;
+  margin-left: 250px; /* Keep margin to account for sidebar width */
+  transition: margin-left 0.3s ease; /* Smooth transition for responsive changes */
+  box-sizing: border-box; /* Ensure padding is included in width calculation */
+  width: calc(100% - 250px); /* Set width accounting for sidebar */
+}
+
+/* Header styles */
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #6c5ce7;
+  margin-bottom: 2rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Filter section styles */
+.filterSection {
+  width: 97%; /* Change to 100% from 90% to use full available width */
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.filterTitle {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 1.2rem;
+}
+
+.filterTypeContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.radioGroup {
+  margin-right: 1.5rem;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.radioInput {
+  margin-right: 0.5rem;
+  cursor: pointer;
+  accent-color: #6c5ce7;
+}
+
+.dropdownContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.selectGroup {
+  flex: 1;
+  min-width: 250px;
+}
+
+.selectLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #444;
+}
+
+.selectInput {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.selectInput:focus {
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.1);
+  outline: none;
+}
+
+/* Button styles */
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.resetButton {
+  padding: 0.7rem 1.5rem;
+  border-radius: 4px;
+  margin-top: -10px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.applyButton {
+  background-color: #4CAF50; 
+  color: white;
+}
+
+.applyButton:hover:not(:disabled) {
+  background-color: #388e3c;
+}
+
+.applyButton:disabled {
+  background-color: #a5d6a7;
+  cursor: not-allowed;
+}
+
+.resetButton {
+  background-color: #8e6cef; 
+  color: white;
+}
+
+.resetButton:hover {
+  background-color: #7559ce;
+}
+
+.errorMessage {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #f8d7da;
+  color: #721c24;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+/* Results section styles */
+.resultsSection {
+  width: 97%; /* Change to 100% from 90% to use full available width */
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.resultsTitle {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 1.2rem;
+}
+
+.tableContainer {
+  overflow-x: auto; /* This handles horizontal scrolling */
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.resultsTable {
+  min-width: 100%; /* Changed from width to min-width */
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  table-layout: auto; /* Changed from fixed to auto for better column sizing */
+}
+
+.resultsTable th,
+.resultsTable td {
+  padding: 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+  white-space: nowrap; /* Prevent text wrapping in cells */
+}
+
+.resultsTable th {
+  background-color: #f1f4f7;
+  font-weight: 600;
+  color: #495057;
+  position: sticky;
+  top: 0;
+  z-index: 1; /* Ensure header stays above content when scrolling */
+}
+
+.resultsTable tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.resultsTable tr:hover {
+  background-color: #f1f4f7;
+}
+
+/* Status indicators */
+.statusCompleted,
+.statusInProgress,
+.statusPending {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statusCompleted {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.statusInProgress {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.statusPending {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+/* Delete button in the screenshot */
+button[class*="delete"] {
+  background-color: #ff4757;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+button[class*="delete"]:hover {
+  background-color: #e8394a;
+}
+
+/* Sidebar container with proper z-index */
+.sidebarContainer {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: #f8f9fa;
+  z-index: 100;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* Allow scrolling for sidebar content */
+}
+
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    margin-left: 0; /* Remove margin on mobile */
+    padding: 1rem;
+    width: 100%; /* Full width on mobile */
+  }
+  
+  .filterTypeContainer {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .dropdownContainer {
+    grid-template-columns: 1fr;
+  }
+  
+  .buttonGroup {
+    flex-direction: column;
+  }
+  
+  .title {
+    font-size: 1.8rem;
+  }
+  
+  .filterSection,
+  .resultsSection {
+    width: 100%; /* Full width on mobile */
+    padding: 1rem;
+  }
+  
+  .filterTitle,
+  .resultsTitle {
+    font-size: 1.3rem;
+  }
+  
+  /* Adjust for mobile sidebar - make it collapse or show as a dropdown */
+  .sidebarContainer {
+    transform: translateX(-100%); /* Hide by default on mobile */
+    transition: transform 0.3s ease;
+  }
+  
+  /* When sidebar is active */
+  .sidebarContainer.active {
+    transform: translateX(0);
+    width: 100%;
+    height: auto;
+  }
+  
+  /* Add a menu toggle button for mobile */
+  .menuToggle {
+    display: block;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 101;
+    padding: 10px;
+    background: #6c5ce7;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+}
+
+/* Search bar styles */
+.searchContainer {
+  margin-bottom: 20px;
+  width: 97%;
+}
+
+.searchLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #555;
+}
+
+.searchInputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.searchInput {
+  width: 50%;
+  padding: 10px 35px 10px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  border-color: #7559ce;
+  outline: none;
+  box-shadow: 0 0 3px rgba(52, 152, 219, 0.3);
+}
+
+.clearSearchButton {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 5px;
+}
+
+.clearSearchButton:hover {
+  color: #333;
+}
+
+/* Results count display */
+.resultsCount {
+  padding: 10px 15px;
+  background-color: #f5f7fa;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+  color: #555;
+}
+
+/* No results message */
+.noResults {
+  padding: 30px;
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 16px;
+}

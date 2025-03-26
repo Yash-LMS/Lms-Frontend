@@ -1,0 +1,202 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f2f5;
+  }
+  
+  .pageContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  .headerSection {
+    background-color: #ffffff;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .testInfo {
+    display: flex;
+    gap: 20px;
+    font-size: 16px;
+    color: #6c757d;
+  }
+  
+  .contentWrapper {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+  }
+  
+  .mainContent {
+    display: flex;
+    width: 100%;
+  }
+  
+  .questionSection {
+    flex-grow: 1;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  
+  .questionHeader {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+  }
+  
+  .questionText {
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: #212529;
+  }
+
+  .questionDescription {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .questionMarks {
+    font-weight: bold;
+    color: #666;
+    text-align: right;
+  }
+  
+  .optionsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .optionLabel {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .optionLabel.correctOption {
+    background-color: #dbecdf;
+    border-color: #33a44e;
+    color: #1d562a;
+  }
+  
+  .radioInput {
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+  }
+  
+  .correctOptionMarker {
+    color: #28a745;
+    margin-left: 10px;
+    font-weight: bold;
+  }
+  
+  .navigationContainer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+  
+  .prevButton, .nextButton {
+    padding: 8px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .prevButton {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+  }
+  
+  .nextButton {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .prevButton:disabled, 
+  .nextButton:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+  }
+  
+  .sidePanel {
+    width: 250px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-left: 1px solid #e0e0e0;
+  }
+  
+  .questionsSection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .questionsSection h3 {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .questionBadge {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .questionBadge.activeQuestion {
+    background-color: #ffc107;
+    color: black;
+  }
+
+  .backButton {
+    background: none;
+    border: none;
+    color: #7c4dff;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    margin-left: 380px;
+  }
+  
+  .backButton:hover {
+    background-color: rgba(124, 77, 255, 0.08);
+    transform: translateX(-3px);
+  }
+  

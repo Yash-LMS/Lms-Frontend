@@ -1,0 +1,179 @@
+/* Main layout */
+.pageContainer {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f0f3f7;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Sidebar styling to match screenshot */
+.sidebarPlaceholder {
+  width: 260px;
+  background-color: white;
+  padding: 15px 0;
+  box-shadow: 1px 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.sidebarItem, .activeSidebarItem {
+  padding: 15px 25px;
+  font-size: 15px;
+  color: #5f6368;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebarItem:hover {
+  background-color: rgba(106, 68, 242, 0.05);
+  color: #6a44f2;
+}
+
+.activeSidebarItem {
+  background-color: rgba(106, 68, 242, 0.1);
+  color: #6a44f2;
+  font-weight: 500;
+  border-left: 4px solid #6a44f2;
+}
+
+/* Content area */
+.contentArea {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pageTitle {
+  font-size: 28px;
+  color: #6a44f2;
+  margin-bottom: 25px;
+  font-weight: 500;
+}
+
+/* Notification card */
+.notificationCard {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 30px;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+.messageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Message Styling */
+.message {
+  font-size: 20px;
+  color: #424242;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+/* Countdown Timer */
+.timer {
+  font-size: 56px;
+  font-weight: 600;
+  color: #6a44f2;
+  margin-bottom: 30px;
+  background: rgba(106, 68, 242, 0.08);
+  padding: 15px 30px;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Button */
+.redirectButton {
+  padding: 12px 25px;
+  font-size: 15px;
+  font-weight: 500;
+  color: white;
+  background-color: #6a44f2;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.2s;
+  min-width: 180px;
+}
+
+.redirectButton:hover:not(:disabled) {
+  background-color: #5836d8;
+  box-shadow: 0 4px 8px rgba(106, 68, 242, 0.2);
+}
+
+.redirectButton:disabled {
+  background-color: #d8d8d8;
+  color: #909090;
+  cursor: not-allowed;
+}
+
+/* Error styles for notification types */
+.errorMessage .timer {
+  color: #f44336;
+  background: rgba(244, 67, 54, 0.08);
+}
+
+.errorMessage .redirectButton {
+  background-color: #f44336;
+}
+
+.errorMessage .redirectButton:hover:not(:disabled) {
+  background-color: #e53935;
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.2);
+}
+
+/* Success styles */
+.successMessage .timer {
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.08);
+}
+
+.successMessage .redirectButton {
+  background-color: #4caf50;
+}
+
+.successMessage .redirectButton:hover:not(:disabled) {
+  background-color: #43a047;
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .pageContainer {
+    flex-direction: column;
+  }
+  
+  .sidebarPlaceholder {
+    width: 100%;
+    display: none; /* Hide sidebar on mobile */
+  }
+  
+  .contentArea {
+    padding: 20px;
+  }
+  
+  .notificationCard {
+    padding: 20px;
+  }
+  
+  .timer {
+    font-size: 40px;
+    width: 80px;
+    height: 80px;
+  }
+}
