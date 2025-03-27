@@ -14,7 +14,7 @@ const TestManagement = () => {
   const { loading, error, tests, questionAddSuccess } = useSelector((state) => state.tests);  
   const [activeTab, setActiveTab] = useState('tests');
   const [showAddTest, setShowAddTest] = useState(false);
-  const [showQuestionModal, setShowQuestionModal] = useState(false); // Add state for question modal
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [selectedTest, setSelectedTest] = useState(null);
@@ -22,7 +22,7 @@ const TestManagement = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
 
-  const testStatusOptions = ["APPROVED", "PENDING", "NOT_APPROVED", "REJECTED", "HOLD"];
+  const testStatusOptions = ["ALL", "APPROVED", "PENDING", "REJECTED"];
 
   const getUserData = () => {
     try {
@@ -50,10 +50,8 @@ const TestManagement = () => {
     fetchTests();
   }, [dispatch]);
 
-  // Watch for question add success and show message
   useEffect(() => {
     if (questionAddSuccess) {
-      // Close the question modal
       setShowQuestionModal(false);
       setSelectedTest(null);
     }
@@ -61,13 +59,12 @@ const TestManagement = () => {
 
   const handleAddQuestions = (test) => {
     setSelectedTest(test);
-    setShowQuestionModal(true); // Open the question modal
+    setShowQuestionModal(true);
     console.log('Adding questions to test:', test);
   };
 
   const handleEditTest = (test) => {
     setSelectedTest(test);
-    // Here you would open an edit modal
     console.log('Editing test:', test);
   };
 
@@ -96,7 +93,6 @@ const TestManagement = () => {
             setShowAddTest(false);
             setSuccessMessage("Test added successfully!");
             setShowSuccessModal(true);
-            // Optionally, you can fetch the updated list of tests here
             await dispatch(viewTest());
         }
     } catch (err) {
@@ -105,17 +101,21 @@ const TestManagement = () => {
     }
   };
 
-  // Filter tests based on search term and status filter
+  // Improved filter function to match testStatus from TestList
   const getFilteredTests = () => {
     if (!tests) return [];
 
     return tests.filter(test => {
-      // Add null check for test object
-      if (!test) return false;
+      // Robust null and undefined checks
+      if (!test || !test.testName) return false;
       
-      const matchesSearch = test.testName?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
-      const matchesStatus = statusFilter === 'all' || 
-                          (test.status?.toLowerCase() === statusFilter.toLowerCase()) || false;
+      // Case-insensitive search term matching
+      const matchesSearch = test.testName.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // Improved status filtering with ALL option and case-insensitive comparison
+      const matchesStatus = 
+        statusFilter === 'all' || 
+        (test.testStatus && test.testStatus.toLowerCase() === statusFilter.toLowerCase());
       
       return matchesSearch && matchesStatus;
     });
@@ -189,7 +189,6 @@ const TestManagement = () => {
               value={statusFilter}
               onChange={handleStatusFilterChange}
             >
-              <option value="all">All Status</option>
               {testStatusOptions.map(status => (
                 <option key={status} value={status.toLowerCase()}>
                   {status}

@@ -30,10 +30,6 @@ const TestList = ({ tests, loading, error, onAddQuestions, onEditTest }) => {
         return styles.statusApproved;
       case 'pending':
         return styles.statusPending;
-      case 'not_approved':
-        return styles.statusNotApproved;
-      case 'hold':
-        return styles.statusHold;
       case 'rejected':
         return styles.statusRejected;
       default:
@@ -103,7 +99,7 @@ const TestList = ({ tests, loading, error, onAddQuestions, onEditTest }) => {
                 Add Single Question
               </button>
               <button 
-                className={styles.bulkUploadButton}
+                className={styles.uploadButton}
                 onClick={() => handleOpenBulkUploadModal(test)}
               >
                 Bulk Upload

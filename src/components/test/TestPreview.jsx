@@ -125,7 +125,6 @@ const TestPreview = () => {
           <span>Test Type: {'MCQ'}</span>
           <span>Question Type: {currentQuestionData.questionType}</span>
           <span>Question: {currentQuestion}</span>
-          <span>Time: {currentQuestion.duration} min</span>
          
           <button 
             className={styles.backButton} 

@@ -30,8 +30,8 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   overflow: visible;
-  width: 360px;
-  margin-left: 50px;
+  width: 400px;
+  margin-left: 40px;
 }
 
 .testCard:hover {
@@ -233,4 +233,18 @@
   .addQuestionsButton {
     width: 100%;
   }
+}
+
+.uploadButton {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  align-items: center;
+  margin-left: 10px;
 }

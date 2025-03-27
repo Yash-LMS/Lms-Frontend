@@ -217,7 +217,7 @@ const ManagerDashboard = () => {
                         <strong>Instructor:</strong> {item.instructorName}
                       </p>
                       <p>
-                        <strong>Duration:</strong> {item.duration}
+                        <strong>Duration (in min):</strong> {item.duration}
                       </p>
                       <p>
                         <strong>Test Status:</strong>{" "}
