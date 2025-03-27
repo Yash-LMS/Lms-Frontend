@@ -9,7 +9,9 @@ const ManagerDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [dashboardItems, setDashboardItems] = useState([]);
-  const { loading, error, dashboardInfo } = useSelector((state) => state.manager);
+  const { loading, error, dashboardInfo } = useSelector(
+    (state) => state.manager
+  );
   const [activeTab, setActiveTab] = useState("dashboard");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -40,11 +42,11 @@ const ManagerDashboard = () => {
     const { user, token } = getUserData();
     if (user && token) {
       dispatch(
-        findDashboardInformation({ 
-          user, 
-          token, 
-          filter: typeFilter, 
-          status: statusFilter 
+        findDashboardInformation({
+          user,
+          token,
+          filter: typeFilter,
+          status: statusFilter,
         })
       ).then((action) => {
         if (action.payload && Array.isArray(action.payload.payload)) {
@@ -82,16 +84,16 @@ const ManagerDashboard = () => {
     return dashboardItems.filter((item) => {
       const name = item.courseName || item.testName;
       const instructorName = item.instructor || item.instructorName;
-      const matchesSearch = 
-        (name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (instructorName?.toLowerCase().includes(searchTerm.toLowerCase()));
-      
+      const matchesSearch =
+        name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        instructorName?.toLowerCase().includes(searchTerm.toLowerCase());
+
       const matchesStatus =
         statusFilter === "all" ||
         (item.courseStatus || item.testStatus)?.toLowerCase() === statusFilter;
-      
-      const matchesType = 
-        (typeFilter === "course" ? item.courseName : item.testName);
+
+      const matchesType =
+        typeFilter === "course" ? item.courseName : item.testName;
 
       return matchesSearch && matchesStatus && matchesType;
     });
@@ -113,6 +115,14 @@ const ManagerDashboard = () => {
   // Handle type filter change
   const handleTypeFilterChange = (e) => {
     setTypeFilter(e.target.value);
+  };
+
+  const handleCoursePreviewClick = (courseId) => {
+    navigate(`/course/view/${courseId}`);
+  };
+
+  const handleTestPreviewClick = (testId) => {
+    navigate(`/test/view/${testId}`);
   };
 
   return (
@@ -181,7 +191,9 @@ const ManagerDashboard = () => {
                     <div className={styles.courseHeader}>
                       <h2 className={styles.courseName}>{item.courseName}</h2>
                       <span
-                        className={`${styles.courseStatus} ${getStatusClass(item)}`}
+                        className={`${styles.courseStatus} ${getStatusClass(
+                          item
+                        )}`}
                       >
                         {item.courseStatus.toUpperCase()}
                       </span>
@@ -197,6 +209,15 @@ const ManagerDashboard = () => {
                         <strong>Course Status:</strong>{" "}
                         {item.courseStatus.toUpperCase()}
                       </p>
+
+                      <button
+                        className={`${styles.btn} ${styles.btnPreview}`}
+                        onClick={() =>
+                          handleCoursePreviewClick(item.courseId || course.id)
+                        }
+                      >
+                        Preview
+                      </button>
                     </div>
                   </>
                 )}
@@ -207,7 +228,9 @@ const ManagerDashboard = () => {
                     <div className={styles.courseHeader}>
                       <h2 className={styles.courseName}>{item.testName}</h2>
                       <span
-                        className={`${styles.courseStatus} ${getStatusClass(item)}`}
+                        className={`${styles.courseStatus} ${getStatusClass(
+                          item
+                        )}`}
                       >
                         {item.testStatus.toUpperCase()}
                       </span>
@@ -223,6 +246,13 @@ const ManagerDashboard = () => {
                         <strong>Test Status:</strong>{" "}
                         {item.testStatus?.toUpperCase()}
                       </p>
+
+                      <button
+                        className={styles.btnPreview}
+                        onClick={() => handleTestPreviewClick(item.testId)}
+                      >
+                        Preview
+                      </button>
                     </div>
                   </>
                 )}

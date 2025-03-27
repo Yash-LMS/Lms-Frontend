@@ -196,6 +196,17 @@
   border: none;
 }
 
+.btnPreview {
+  background-color: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  border-radius: 8px;
+}
+
+.btnPreview:hover {
+  background-color: var(--sidebar-active);
+}
+
 .error {
   color: var(--error-color);
   background-color: #ffebee;
