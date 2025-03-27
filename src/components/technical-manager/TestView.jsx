@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from "../test/TestPreview.module.css";
-import { viewTestQuestions } from '../../features/test/testActions';
+import { viewManagerTestQuestions} from '../../features/test/testActions';
 
 const getUserData = () => {
     try {
@@ -42,7 +42,7 @@ const TestPreview = () => {
 
       try {
         await dispatch(
-          viewTestQuestions({
+            viewManagerTestQuestions({
             testId: parseInt(testId),
             user,  // Pass full user object
             token,
@@ -97,7 +97,7 @@ const TestPreview = () => {
 
   // Navigate back to dashboard
   const handleBackToDashboard = () => {
-    navigate('/instructor/test');
+    navigate('/manager-dashboard');
   };
 
   // Get current question details
