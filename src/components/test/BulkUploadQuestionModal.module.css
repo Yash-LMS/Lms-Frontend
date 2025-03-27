@@ -13,12 +13,12 @@
   
   .modalContent {
     background: white;
-    padding: 20px;
     border-radius: 8px;
-    width: 80%;
-    max-width: 800px;
-    max-height: 90%;
+    width: 700px;
+    max-height: 90vh;
     overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
   }
   
   .modalHeader {
@@ -26,134 +26,145 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #e0e0e0;
-    padding-bottom: 10px;
+    padding-bottom: 15px;
     margin-bottom: 20px;
+  }
+  
+  .modalHeader h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
   }
   
   .closeButton {
     background: none;
     border: none;
     font-size: 24px;
-    cursor: pointer;
     color: #888;
+    cursor: pointer;
+    padding: 0;
   }
   
-  .uploadSection {
+  .closeButton:hover {
+    color: #333;
+  }
+  
+  .questionContainer {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .questionTextArea input {
+    width: 100%;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  
+  .marksSection {
     display: flex;
-    flex-direction: column;
     align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .marksSection label {
+    margin-right: 10px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .marksSection input {
+    width: 70px;
+    padding: 6px;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+  }
+  
+  .questionTypeSection {
+    margin-bottom: 15px;
+  }
+  
+  .questionTypeSection label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .radioGroup {
+    display: flex;
     gap: 15px;
   }
   
-  .downloadTemplateButton,
-  .uploadButton,
-  .saveButton,
-  .cancelButton {
-    padding: 10px 15px;
+  .radioGroup label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+  }
+  
+  .radioGroup input {
+    margin-right: 5px;
+  }
+  
+  .answerOptionsSection > label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .addOptionButton {
+    background-color: #6366f1;
+    color: white;
+    border: none;
+    padding: 6px 12px;
     border-radius: 4px;
+    margin-bottom: 10px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .downloadTemplateButton {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-  }
-  
-  .uploadButton {
-    background-color: #2196F3;
-    color: white;
-    border: none;
-  }
-  
-  .saveButton {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-  }
-  
-  .cancelButton {
-    background-color: #f44336;
-    color: white;
-    border: none;
-  }
-  
-  .fileUploadContainer {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .fileInput {
-    display: none;
-  }
-  
-  .errorMessage {
-    color: red;
-    text-align: center;
-    margin-bottom: 15px;
-  }
-  
-  .successMessage {
-    color: green;
-    text-align: center;
-    margin-bottom: 15px;
-  }
-  
-  .questionsContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .questionCard {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 15px;
-  }
-  
-  .questionHeader {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    align-items: center;
-  }
-  
-  .questionNumber {
-    font-weight: bold;
-    margin-right: 10px;
-  }
-  
-  .questionDescription {
-    flex-grow: 1;
-  }
-  
-  .questionMarks {
-    color: #666;
-  }
-  
-  .optionsContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
   }
   
   .optionRow {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 5px;
+    margin-bottom: 8px;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
     border-radius: 4px;
   }
   
-  .correctOption {
-    background-color: rgba(76, 175, 80, 0.2);
+  .optionRow input[type="text"] {
+    flex-grow: 1;
+    padding: 6px;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
   }
   
-  .correctOptionText {
-    color: green;
-    font-weight: bold;
+  .optionRow button {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .correctOption {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .correctOption input[type="text"] {
+    background-color: transparent;
+    color: white;
+  }
+  
+  .correctOption button {
+    background-color: rgba(255, 255, 255, 0.2);
   }
   
   .paginationControls {
@@ -162,62 +173,106 @@
     align-items: center;
     gap: 15px;
     margin-top: 20px;
+    padding: 10px 0;
+    border-top: 1px solid #e0e0e0;
   }
   
   .paginationControls button {
-    padding: 8px 15px;
-    background-color: #2196F3;
+    background-color: #6366f1;
     color: white;
     border: none;
+    padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
   }
   
   .paginationControls button:disabled {
-    background-color: #ccc;
+    background-color: #a5b4fc;
     cursor: not-allowed;
   }
-
-
-.questionDescriptionInput, 
-.questionMarksInput,
-.optionTextInput {
-  border: 1px solid #e0e0e0;
-  padding: 5px;
-  border-radius: 4px;
-  width: 100%;
-}
-
-.questionDescriptionInput {
-  flex-grow: 1;
-  margin-right: 10px;
-}
-
-.questionMarksInput {
-  width: 80px;
-  text-align: right;
-}
-
-.optionTextInput {
-  margin-left: 10px;
-  flex-grow: 1;
-}
-
-.addOptionButton {
-  margin-top: 10px;
-  padding: 8px 15px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.optionRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 5px;
-  border-radius: 4px;
-  margin-bottom: 5px;
-}
+  
+  .modalFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  .cancelButton {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .saveButton {
+    background-color: #6366f1;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .saveButton:disabled {
+    background-color: #a5b4fc;
+    cursor: not-allowed;
+  }
+  
+  .uploadSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+  }
+  
+  .downloadTemplateButton {
+    background-color: #6366f1;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .fileUploadContainer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .fileInput {
+    display: none;
+  }
+  
+  .uploadButton {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .errorMessage {
+    background-color: #fecaca;
+    color: #7f1d1d;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  .successMessage {
+    background-color: #d1fae5;
+    color: #064e3b;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    text-align: center;
+  }

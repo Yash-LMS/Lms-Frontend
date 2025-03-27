@@ -287,15 +287,21 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
     const totalPages = Math.ceil(questions.length / questionsPerPage);
 
     return (
-      <div className={styles.questionsContainer}>
+      <div className={styles.modalContent}>
+        <div className={styles.modalHeader}>
+          <h2>Save Question</h2>
+          <button className={styles.closeButton} onClick={onClose}>
+            ×
+          </button>
+        </div>
+
         {currentQuestions.map((question, questionDisplayIndex) => {
           // Calculate the actual question index in the original array
           const questionIndex = indexOfFirstQuestion + questionDisplayIndex;
           
           return (
-            <div key={question.id} className={styles.questionCard}>
-              <div className={styles.questionHeader}>
-                <span className={styles.questionNumber}>Q{questionIndex + 1}</span>
+            <div key={question.id} className={styles.questionContainer}>
+              <div className={styles.questionTextArea}>
                 <input 
                   type="text" 
                   value={question.description}
@@ -304,9 +310,12 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
                     updatedQuestions[questionIndex].description = e.target.value;
                     setQuestions(updatedQuestions);
                   }}
-                  className={styles.questionDescriptionInput}
-                  placeholder="Enter question description"
+                  placeholder="Enter your question here"
                 />
+              </div>
+
+              <div className={styles.marksSection}>
+                <label>Marks</label>
                 <input 
                   type="number" 
                   value={question.marks}
@@ -315,17 +324,52 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
                     updatedQuestions[questionIndex].marks = e.target.value;
                     setQuestions(updatedQuestions);
                   }}
-                  className={styles.questionMarksInput}
-                  placeholder="Marks"
+                  placeholder="1"
                 />
-                <button 
-                  onClick={() => handleDeleteQuestion(questionIndex)}
-                  className={styles.deleteQuestionButton}
-                >
-                  Delete Question
-                </button>
               </div>
-              <div className={styles.optionsContainer}>
+
+              <div className={styles.questionTypeSection}>
+                <label>Question Type</label>
+                <div className={styles.radioGroup}>
+                  <label>
+                    <input 
+                      type="radio" 
+                      name={`questionType-${questionIndex}`}
+                      checked={question.questionType === 'single_choice'}
+                      onChange={() => {
+                        const updatedQuestions = [...questions];
+                        updatedQuestions[questionIndex].questionType = 'single_choice';
+                        // Ensure only one option is correct for single choice
+                        const correctOptions = updatedQuestions[questionIndex].options.filter(opt => opt.isCorrect);
+                        if (correctOptions.length > 1) {
+                          updatedQuestions[questionIndex].options.forEach(opt => opt.isCorrect = false);
+                          correctOptions[0].isCorrect = true;
+                        }
+                        setQuestions(updatedQuestions);
+                      }}
+                    /> 
+                    Single Choice
+                  </label>
+                  <label>
+                    <input 
+                      type="radio" 
+                      name={`questionType-${questionIndex}`}
+                      checked={question.questionType === 'multiple_choice'}
+                      onChange={() => {
+                        const updatedQuestions = [...questions];
+                        updatedQuestions[questionIndex].questionType = 'multiple_choice';
+                        setQuestions(updatedQuestions);
+                      }}
+                    /> 
+                    Multiple Choice
+                  </label>
+                </div>
+              </div>
+
+              <div className={styles.answerOptionsSection}>
+                <label>Answer Options</label>
+                <button className={styles.addOptionButton}>+ Add Option</button>
+                
                 {question.options.map((option, optionIndex) => (
                   <div 
                     key={option.id} 
@@ -334,14 +378,14 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
                     {question.questionType === 'single_choice' ? (
                       <input
                         type="radio"
-                        name={`question-${question.id}`}
+                        name={`question-${questionIndex}`}
                         checked={option.isCorrect}
                         onChange={() => handleCorrectOptionToggle(questionIndex, optionIndex)}
                       />
                     ) : (
                       <input
                         type="checkbox"
-                        name={`question-${question.id}`}
+                        name={`question-${questionIndex}`}
                         checked={option.isCorrect}
                         onChange={() => handleCorrectOptionToggle(questionIndex, optionIndex)}
                       />
@@ -350,25 +394,16 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
                       type="text"
                       value={option.text}
                       onChange={(e) => handleOptionTextChange(questionIndex, optionIndex, e.target.value)}
-                      className={styles.optionTextInput}
                       placeholder={`Option ${optionIndex + 1}`}
                     />
                     <button 
                       onClick={() => handleDeleteOption(questionIndex, optionIndex)}
-                      className={styles.deleteOptionButton}
                       disabled={question.options.length <= 2}
                     >
-                      Delete
+                      Remove
                     </button>
                   </div>
                 ))}
-                <button 
-                  onClick={() => handleAddOption(questionIndex)}
-                  className={styles.addOptionButton}
-                  disabled={question.options.length >= 8}
-                >
-                  Add Option
-                </button>
               </div>
             </div>
           );
@@ -390,6 +425,22 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
             Next
           </button>
         </div>
+
+        <div className={styles.modalFooter}>
+          <button 
+            className={styles.cancelButton}
+            onClick={() => setIsPreviewMode(false)}
+          >
+            Cancel
+          </button>
+          <button 
+            className={styles.saveButton}
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? 'Saving...' : 'Save All Questions'}
+          </button>
+        </div>
       </div>
     );
   };
@@ -398,22 +449,22 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
 
   return (
     <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
-        <div className={styles.modalHeader}>
-          <h2>Bulk Upload Questions</h2>
-          <button className={styles.closeButton} onClick={onClose}>
-            ×
-          </button>
-        </div>
+      {!isPreviewMode ? (
+        <div className={styles.modalContent}>
+          <div className={styles.modalHeader}>
+            <h2>Bulk Upload Questions</h2>
+            <button className={styles.closeButton} onClick={onClose}>
+              ×
+            </button>
+          </div>
 
-        {errorMessage && (
-          <div className={styles.errorMessage}>{errorMessage}</div>
-        )}
-        {successMessage && (
-          <div className={styles.successMessage}>{successMessage}</div>
-        )}
+          {errorMessage && (
+            <div className={styles.errorMessage}>{errorMessage}</div>
+          )}
+          {successMessage && (
+            <div className={styles.successMessage}>{successMessage}</div>
+          )}
 
-        {!isPreviewMode ? (
           <div className={styles.uploadSection}>
             <button 
               onClick={downloadTemplate} 
@@ -437,27 +488,10 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
               </button>
             </div>
           </div>
-        ) : (
-          <>
-            {renderQuestionPreview()}
-            <div className={styles.previewActions}>
-              <button 
-                onClick={() => setIsPreviewMode(false)}
-                className={styles.cancelButton}
-              >
-                Back
-              </button>
-              <button 
-                onClick={handleSubmit}
-                className={styles.saveButton}
-                disabled={loading}
-              >
-                {loading ? 'Uploading...' : 'Upload Questions'}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+        </div>
+      ) : (
+        renderQuestionPreview()
+      )}
     </div>
   );
 };
