@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import styles from './TestList.module.css';
 import { useNavigate } from 'react-router-dom';
 import QuestionModal from './QuestionModal';
+import BulkUploadQuestionModal from './BulkUploadQuestionModal';
 
 const TestList = ({ tests, loading, error, onAddQuestions, onEditTest }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
+  const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
   const [selectedTest, setSelectedTest] = useState(null);
 
   const navigate = useNavigate();
@@ -39,13 +41,23 @@ const TestList = ({ tests, loading, error, onAddQuestions, onEditTest }) => {
     }
   };
 
-  const handleOpenModal = (test) => {
+  const handleOpenQuestionModal = (test) => {
     setSelectedTest(test);
-    setIsModalOpen(true);
+    setIsQuestionModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const handleOpenBulkUploadModal = (test) => {
+    setSelectedTest(test);
+    setIsBulkUploadModalOpen(true);
+  };
+
+  const handleCloseQuestionModal = () => {
+    setIsQuestionModalOpen(false);
+    setSelectedTest(null);
+  };
+
+  const handleCloseBulkUploadModal = () => {
+    setIsBulkUploadModalOpen(false);
     setSelectedTest(null);
   };
 
@@ -56,7 +68,6 @@ const TestList = ({ tests, loading, error, onAddQuestions, onEditTest }) => {
   const handlePreviewClick = (testId) => {
     navigate(`/test/preview/${testId}`);
   };
-
 
   return (
     <div className={styles.testList}>
@@ -84,21 +95,36 @@ const TestList = ({ tests, loading, error, onAddQuestions, onEditTest }) => {
             >
               Preview
             </button>
-            <button 
-              className={styles.addQuestionsButton}
-              onClick={() => handleOpenModal(test)}
-            >
-              Add Questions
-            </button>
+            <div className={styles.questionActionButtons}>
+              <button 
+                className={styles.addQuestionsButton}
+                onClick={() => handleOpenQuestionModal(test)}
+              >
+                Add Single Question
+              </button>
+              <button 
+                className={styles.bulkUploadButton}
+                onClick={() => handleOpenBulkUploadModal(test)}
+              >
+                Bulk Upload
+              </button>
+            </div>
           </div>
         </div>
       ))}
 
       {/* Question Modal */}
       <QuestionModal 
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        isOpen={isQuestionModalOpen}
+        onClose={handleCloseQuestionModal}
         onSave={handleSaveQuestion}
+        testId={selectedTest?.testId}
+      />
+
+      {/* Bulk Upload Modal */}
+      <BulkUploadQuestionModal 
+        isOpen={isBulkUploadModalOpen}
+        onClose={handleCloseBulkUploadModal}
         testId={selectedTest?.testId}
       />
     </div>
