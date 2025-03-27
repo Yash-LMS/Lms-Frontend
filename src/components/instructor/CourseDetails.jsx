@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewSection, viewCourse } from '../../features/course/courseActions'; 
 import styles from './CourseDetails.module.css';
+import { TEST_INSTRUCTOR_URL } from '../../constants/apiConstants';
+import axios from "axios";
+
 
 const CourseDetailsForm = ({ course, onCancel }) => {
   const dispatch = useDispatch();
@@ -11,6 +14,8 @@ const CourseDetailsForm = ({ course, onCancel }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [savingSectionIndex, setSavingSectionIndex] = useState(null); // Track which section is being saved
+  const [testList, setTestList] = useState([]);
+    
 
   // Get user data with role from user object
   const getUserData = () => {
@@ -28,6 +33,37 @@ const CourseDetailsForm = ({ course, onCancel }) => {
     }
   };
 
+   
+
+  const fetchTestList = async () => {
+    try {
+      console.log("Test List");
+      const userData = getUserData();
+      if (!userData.user || !userData.token) {
+        console.error("Missing user data or token");
+        return;
+      }
+      
+      const response = await axios.post(`${TEST_INSTRUCTOR_URL}`, {
+        user: userData.user,
+        token: userData.token,
+      });
+      
+      if (response.data.response='success') {
+        setTestList(response.data.payload);
+      } else {
+        setTestList([]);
+      }
+    } catch (error) {
+      console.error("Error fetching test list:", error);
+      setTestList([]);
+    } 
+  };
+      useEffect(() => {
+      
+        fetchTestList();
+      }, []);
+
   useEffect(() => {
     // Initialize with existing course sections if available
     if (course && course.sections && course.sections.length > 0) {
@@ -36,6 +72,7 @@ const CourseDetailsForm = ({ course, onCancel }) => {
         topics: section.topics || []
       })));
     }
+
   }, [course]);
 
   const fetchCourses = async () => {
@@ -95,6 +132,7 @@ const CourseDetailsForm = ({ course, onCancel }) => {
             topicType: 'video', 
             videoURL: '', 
             docsURL: '', 
+            testId: '',
             file: `${newTopicId}` 
           }]
         };
@@ -217,10 +255,13 @@ const CourseDetailsForm = ({ course, onCancel }) => {
         topicId: topic.topicId,
         topicName: topic.topicName,
         topicType: topic.topicType,
+        testId: topic.testId,
         videoURL: topic.videoURL || '',
         docsURL: topic.docsURL || '',
       })),
     };
+    
+    console.log(sectionData);
 
     const { user, token } = getUserData();
     const courseId = parseInt(course.courseId, 10) || 0;
@@ -440,11 +481,24 @@ const CourseDetailsForm = ({ course, onCancel }) => {
                       </div>
                     )}
 
-                    {topic.topicType === 'test' && (
-                      <div className={styles.testInfo}>
-                        <p>Test configuration will be added separately.</p>
-                      </div>
-                    )}
+                {topic.topicType === 'test' && (
+                <div className={styles.testInfo}>
+                  <p>Test configuration will be added separately.</p>
+                  <label htmlFor="testSelect">Select a Test:</label>
+                  <select 
+                    id="testSelect"
+                    value={topic.testId || ''}
+                    onChange={(e) => updateTopic(sectionIndex, topicIndex, 'testId', e.target.value)}
+                  >
+                    <option value="">Select Test</option>
+                    {testList.map(test => (
+                      <option key={test.testId} value={test.testId}>
+                        {test.testName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
                   </div>
                 ))}
 
