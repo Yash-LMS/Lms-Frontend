@@ -338,14 +338,21 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
                       checked={question.questionType === 'single_choice'}
                       onChange={() => {
                         const updatedQuestions = [...questions];
-                        updatedQuestions[questionIndex].questionType = 'single_choice';
-                        // Ensure only one option is correct for single choice
-                        const correctOptions = updatedQuestions[questionIndex].options.filter(opt => opt.isCorrect);
-                        if (correctOptions.length > 1) {
-                          updatedQuestions[questionIndex].options.forEach(opt => opt.isCorrect = false);
-                          correctOptions[0].isCorrect = true;
+                        const currentQuestion = updatedQuestions[questionIndex];
+                        
+                        // Change question type to single choice
+                        currentQuestion.questionType = 'single_choice';
+                        
+                        // Clear all current correct options
+                        currentQuestion.options.forEach(opt => opt.isCorrect = false);
+                        
+                        // If there are options, select the first one as default
+                        if (currentQuestion.options.length > 0) {
+                          currentQuestion.options[0].isCorrect = true;
                         }
+                        
                         setQuestions(updatedQuestions);
+                        setErrorMessage('Please select the correct option for the single-choice question.');
                       }}
                     /> 
                     Single Choice
@@ -357,8 +364,16 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
                       checked={question.questionType === 'multiple_choice'}
                       onChange={() => {
                         const updatedQuestions = [...questions];
-                        updatedQuestions[questionIndex].questionType = 'multiple_choice';
+                        const currentQuestion = updatedQuestions[questionIndex];
+                        
+                        // Change question type to multiple choice
+                        currentQuestion.questionType = 'multiple_choice';
+                        
+                        // Clear all current correct options
+                        currentQuestion.options.forEach(opt => opt.isCorrect = false);
+                        
                         setQuestions(updatedQuestions);
+                        setErrorMessage('Please select at least one correct option for the multiple-choice question.');
                       }}
                     /> 
                     Multiple Choice
@@ -368,7 +383,12 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
 
               <div className={styles.answerOptionsSection}>
                 <label>Answer Options</label>
-                <button className={styles.addOptionButton}>+ Add Option</button>
+                <button 
+                  className={styles.addOptionButton}
+                  onClick={() => handleAddOption(questionIndex)}
+                >
+                  + Add Option
+                </button>
                 
                 {question.options.map((option, optionIndex) => (
                   <div 
