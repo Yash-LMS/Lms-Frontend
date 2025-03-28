@@ -168,6 +168,8 @@ const CourseContent = () => {
         return (
           <UserFilePreview
             topicId={activeTopic.topicId}
+            allotmentId={allotmentId}
+        
             user={getUserData().user}
             token={getUserData().token}
             courseId={courseId}

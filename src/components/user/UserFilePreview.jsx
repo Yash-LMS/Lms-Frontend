@@ -3,7 +3,7 @@ import axios from "axios";
 import { USER_FILE_PREVIEW_URL } from "../../constants/apiConstants";
 import styles from "./CourseContent.module.css"; 
 
-const FilePreview = ({ topicId, user, token, courseId }) => {
+const FilePreview = ({ topicId,allotmentId, user, token, courseId }) => {
     const [pdfUrl, setPdfUrl] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
