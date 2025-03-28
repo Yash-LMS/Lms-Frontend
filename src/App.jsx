@@ -221,7 +221,7 @@ const AppContent = () => {
               <MyTests />
             </ProtectedRoute>
           } />
-          <Route path="/user/courseContent/:courseId" element={
+          <Route path="/user/courseContent/:courseId/:allotmentId" element={
             <ProtectedRoute>
               <CourseContent/>
             </ProtectedRoute>
