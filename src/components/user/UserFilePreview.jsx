@@ -21,7 +21,8 @@ const FilePreview = ({ topicId, user, token, courseId }) => {
                     topicId,
                     user: userJson,
                     token,
-                    courseId
+                    courseId,
+                    allotmentId
                 },
                 responseType: "blob",
             });
@@ -59,7 +60,7 @@ const FilePreview = ({ topicId, user, token, courseId }) => {
                 URL.revokeObjectURL(pdfUrl);
             }
         };
-    }, [topicId, user, token, courseId]);
+    }, [topicId, user, token, courseId, allotmentId]);
 
     const openPdfInNewTab = () => {
         if (pdfUrl) {

@@ -287,7 +287,7 @@ const MyCourses = () => {
 
                 <button
                   className={styles.continueButton}
-                  onClick={() => navigate(`/user/courseContent/${course.course.courseId}`)}
+                  onClick={() => navigate(`/user/courseContent/${course.course.courseId}/${course.allotmentId}`)}
                 >
                   {course.completionStatus === 0
                     ? "Start Learning"

@@ -22,7 +22,7 @@ const CourseContent = () => {
   const navigate = useNavigate();
 
   const { courseId } = useParams();
-  const{allotmentId}= useParams();
+  const{ allotmentId }= useParams();
 
   const getUserData = () => {
     try {
