@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import styles from './TestPreview.module.css';
-import { viewTestQuestions } from '../../features/test/testActions';
+import styles from "../test/TestPreview.module.css";
+import { viewManagerTestQuestions} from '../../features/test/testActions';
 
 const getUserData = () => {
     try {
@@ -10,7 +10,7 @@ const getUserData = () => {
       return {
         user: user,
         token: sessionStorage.getItem('token'),
-        role: user ? user.role : null
+        role: user ? user.role : null  // Restore role extraction
       };
     } catch (error) {
       console.error("Error parsing user data:", error);
@@ -27,32 +27,32 @@ const TestPreview = () => {
   // Select test data and loading state from Redux store
   const { questions, loading, error } = useSelector((state) => state.tests);
   
-  // Get user role to determine if instructor
-  const { role } = getUserData();
-  console.log(role)
-  const isInstructor = role === 'instructor';
+  // Get user role and check for technical manager
+  const { user, token, role } = getUserData();
+  const isAuthorized = role === 'technical_manager';
 
   // Fetch test questions when component mounts
   useEffect(() => {
     const fetchTestQuestions = async () => {
-      const { user, token } = getUserData();
-
       if (!user || !token) {
-        alert("User  session data is missing. Please log in again.");
+        alert("User session data is missing. Please log in again.");
         navigate("/login");
         return;
       }
 
       try {
         await dispatch(
-          viewTestQuestions({
+            viewManagerTestQuestions({
             testId: parseInt(testId),
-            user,
+            user,  // Pass full user object
             token,
           })
         ).unwrap();
       } catch (err) {
         console.error("Error fetching test questions:", err);
+        // Handle unauthorized access
+        alert("You are not authorized to view this test.");
+        navigate('/instructor/test');
       }
     };
 
@@ -97,7 +97,7 @@ const TestPreview = () => {
 
   // Navigate back to dashboard
   const handleBackToDashboard = () => {
-    navigate('/instructor/test');
+    navigate('/manager-dashboard');
   };
 
   // Get current question details
@@ -110,9 +110,9 @@ const TestPreview = () => {
     return optionKeys
       .filter(key => currentQuestionData[key] !== null && currentQuestionData[key] !== undefined)
       .map((key) => ({
-        optionId: key, // Use the key as the optionId
+        optionId: key,
         optionText: currentQuestionData[key],
-        isCorrect: currentQuestionData.correctOption && currentQuestionData.correctOption.includes(key) // Check if this option is correct for multiple choice
+        isCorrect: currentQuestionData.correctOption && currentQuestionData.correctOption.includes(key)
       }));
   };
 
@@ -155,7 +155,7 @@ const TestPreview = () => {
                 <label 
                   key={option.optionId} 
                   className={`${styles.optionLabel} ${
-                    isInstructor && option.isCorrect ? styles.correctOption : ''
+                    isAuthorized && option.isCorrect ? styles.correctOption : ''
                   }`}
                 >
                   <input
@@ -167,7 +167,7 @@ const TestPreview = () => {
                     readOnly 
                   />
                   {option.optionText}
-                  {isInstructor && option.isCorrect && (
+                  {isAuthorized && option.isCorrect && (
                     <span className={styles.correctOptionMarker}></span>
                   )}
                 </label>

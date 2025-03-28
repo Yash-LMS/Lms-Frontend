@@ -18,6 +18,7 @@ export const DELETE_TOPIC_URL = `${API_BASE_URL}/course/topic/delete`;
 export const DELETE_SECTION_URL = `${API_BASE_URL}/course/section/delete`;
 export const FILE_PREVIEW_URL = `${API_BASE_URL}/file/view`;
 export const COURSE_IMAGE_VIEW_URL = `${API_BASE_URL}/course/image`;
+export const TEST_INSTRUCTOR_URL = `${API_BASE_URL}/test/findTests`;
 
 //Technical Manager
 export const FIND_COURSE_BY_STATUS_URL = `${API_BASE_URL}/manager/findCourseByStatus`;
@@ -39,6 +40,8 @@ export const FIND_EMPLOYEE_LIST_URL = `${API_BASE_URL}/manager/findEmployeeList`
 export const FIND_EMPLOYEE_INFO_URL = `${API_BASE_URL}/manager/findEmployeeInformation`;
 export const VIEW_TRAINEE_RESULT = `${API_BASE_URL}/manager/viewTraineeResults`;
 export const VIEW_TRAINEE_ALLOTED_COURSE_URL = `${API_BASE_URL}/manager/viewTraineeAllotedCourse`
+export const VIEW_TRAINEE_ALLOTED_TEST_URL = `${API_BASE_URL}/manager/viewTraineeAllotedTest`
+
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
@@ -58,3 +61,4 @@ export const CREATE_TEST_URL = `${API_BASE_URL}/test/createTest`;
 export const VIEW_TEST_URL = `${API_BASE_URL}/test/viewTest`;
 export const ADD_QUESTION_URL = `${API_BASE_URL}/test/addQuestions`;
 export const PREVIEW_TEST_URL = `${API_BASE_URL}/test/view/question`;
+export const PREVIEW_TEST_MANAGER_URL = `${API_BASE_URL}/manager/view/question`;

@@ -6,6 +6,9 @@ import SuccessModal from "../../assets/SuccessModal";
 
 const QuestionModal = ({ isOpen, onClose, testId }) => {
   const dispatch = useDispatch();
+
+  const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
+
   const { loading, error, questionAddSuccess } = useSelector(
     (state) => state.tests
   );
@@ -121,7 +124,7 @@ const QuestionModal = ({ isOpen, onClose, testId }) => {
   const addOption = (questionId) => {
     const question = questions.find((q) => q.id === questionId);
 
-    if (question.options.length >= 5) {
+    if (question.options.length >= 8) {
       setErrorMessage("Maximum 5 options allowed per question");
       setTimeout(() => setErrorMessage(""), 3000);
       return;

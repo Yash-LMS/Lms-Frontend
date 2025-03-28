@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createTest, viewTest, addQuestions, viewTestQuestions } from "./testActions";
+import { createTest, viewTest, addQuestions, viewTestQuestions, viewManagerTestQuestions } from "./testActions";
 
 const testSlice = createSlice({
   name: "tests",
@@ -91,6 +91,23 @@ const testSlice = createSlice({
         }
       })
       .addCase(viewTestQuestions.rejected , (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(viewManagerTestQuestions.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(viewManagerTestQuestions.fulfilled, (state, action) => {
+        state.loading = false;
+        if (action.payload.response === 'success') {
+          state.questions = action.payload.payload || []; 
+          console.log('Questions:', state.questions)
+        } else {
+          state.error = action.payload.message || 'Failed to fetch questions';
+        }
+      })
+      .addCase(viewManagerTestQuestions.rejected , (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { CREATE_TEST_URL, VIEW_TEST_URL, ADD_QUESTION_URL, PREVIEW_TEST_URL } from '../../constants/apiConstants';
+import { CREATE_TEST_URL, VIEW_TEST_URL, ADD_QUESTION_URL, PREVIEW_TEST_URL, PREVIEW_TEST_MANAGER_URL  } from '../../constants/apiConstants';
 
 export const createTest = createAsyncThunk(
     'test/createTest',
@@ -75,6 +75,24 @@ export const viewTestQuestions = createAsyncThunk(
         try {
             console.log(testId,user,token)
             const response = await axios.post(PREVIEW_TEST_URL, {
+                testId,  
+                user,
+                token
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
+
+export const viewManagerTestQuestions = createAsyncThunk(
+    'test/viewManagerTestQuestions',
+    async ({ testId, user, token }, { rejectWithValue }) => {
+        try {
+            console.log(testId,user,token)
+            const response = await axios.post(PREVIEW_TEST_MANAGER_URL , {
                 testId,  
                 user,
                 token

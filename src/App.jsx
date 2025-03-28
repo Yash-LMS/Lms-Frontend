@@ -11,6 +11,7 @@ import MyTests from "./components/user/MyTests";
 import InstructorDashboard from "./components/instructor/InstructorDashboard";
 import CoursePreview from "./components/instructor/CoursePreview";
 import TestPreview from "./components/test/TestPreview"
+import TestView from "./components/technical-manager/TestView";
 import src from "../src/assets/yashLogo.png";
 import ManagerDashboard from "./components/technical-manager/ManagerDashboard";
 import CourseRequests from "./components/technical-manager/CourseRequests";
@@ -161,6 +162,11 @@ const AppContent = () => {
               <TestPreview />
             </ProtectedRoute>
           } />
+          <Route path="/test/view/:testId" element={
+            <ProtectedRoute>
+              <TestView/>
+            </ProtectedRoute>
+          } />
 
           <Route path="/manager-dashboard" element={
             <ProtectedRoute>
@@ -215,7 +221,7 @@ const AppContent = () => {
               <MyTests />
             </ProtectedRoute>
           } />
-          <Route path="/user/courseContent/:courseId" element={
+          <Route path="/user/courseContent/:courseId/:allotmentId" element={
             <ProtectedRoute>
               <CourseContent/>
             </ProtectedRoute>

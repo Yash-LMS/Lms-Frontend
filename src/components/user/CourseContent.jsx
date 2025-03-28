@@ -22,6 +22,7 @@ const CourseContent = () => {
   const navigate = useNavigate();
 
   const { courseId } = useParams();
+  const{ allotmentId }= useParams();
 
   const getUserData = () => {
     try {
@@ -49,6 +50,7 @@ const CourseContent = () => {
 
         const response = await axios.post(`${VIEW_USER_COURSE_DETAIL_URL}`, {
           courseId: parseInt(courseId),
+          allotmentId: parseInt(allotmentId),
           user: user,
           token: token,
         });
@@ -166,6 +168,8 @@ const CourseContent = () => {
         return (
           <UserFilePreview
             topicId={activeTopic.topicId}
+            allotmentId={allotmentId}
+        
             user={getUserData().user}
             token={getUserData().token}
             courseId={courseId}

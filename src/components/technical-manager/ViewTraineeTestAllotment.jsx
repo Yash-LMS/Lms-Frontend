@@ -5,7 +5,7 @@ import ExportToExcel from "../../assets/ExportToExcel";
 import {
   FIND_TEST_URL,
   FIND_TRAINEE_URL,
-  VIEW_TRAINEE_ALLOTED_COURSE_URL,
+  VIEW_TRAINEE_ALLOTED_TEST_URL,
 } from "../../constants/apiConstants";
 import Sidebar from "./Sidebar";
 
@@ -182,7 +182,7 @@ const ViewTraineeTestAllotment = () => {
       };
 
       const response = await axios.post(
-        `${VIEW_TRAINEE_ALLOTED_COURSE_URL}`,
+        `${VIEW_TRAINEE_ALLOTED_TEST_URL}`,
         requestData
       );
 
@@ -248,7 +248,7 @@ const ViewTraineeTestAllotment = () => {
       </div>
 
       <div className={styles.container}>
-        <h1 className={styles.title}>Trainee Course Allotment</h1>
+        <h1 className={styles.title}>Trainee Test Allotment</h1>
 
         <div className={styles.filterSection}>
           <h2 className={styles.filterTitle}>Filter Options</h2>

@@ -40,62 +40,63 @@ const MyCourses = () => {
   const [feedbackText, setFeedbackText] = useState("");
   const [selectedCourse, setSelectedCourse] = useState(null);
 
+  // State for certificate download
+  const [downloadingCertificate, setDownloadingCertificate] = useState(false);
+  const [certificateDownloadError, setCertificateDownloadError] = useState(null);
+
   const [courseImages, setCourseImages] = useState({});
   const defaultImageUrl = Image; 
 
-   useEffect(() => {
-      // Function to fetch image for a single course
-      const fetchCourseImage = async (courseId) => {
-        try {
-          const response = await fetch(`${COURSE_IMAGE_VIEW_URL}?courseId=${courseId}`, {
-            method: 'GET',
-          });
+  useEffect(() => {
+    // Function to fetch image for a single course
+    const fetchCourseImage = async (courseId) => {
+      try {
+        const response = await fetch(`${COURSE_IMAGE_VIEW_URL}?courseId=${courseId}`, {
+          method: 'GET',
+        });
+        
+        if (response.ok) {
+          // Create a blob URL for the image
+          const blob = await response.blob();
+          const imageUrl = URL.createObjectURL(blob);
           
-          if (response.ok) {
-            // Create a blob URL for the image
-            const blob = await response.blob();
-            const imageUrl = URL.createObjectURL(blob);
-            
-            setCourseImages(prevImages => ({
-              ...prevImages,
-              [courseId]: imageUrl
-            }));
-          } else {
-            // If image not found, use default
-            setCourseImages(prevImages => ({
-              ...prevImages,
-              [courseId]: defaultImageUrl
-            }));
-          }
-        } catch (error) {
-          console.error(`Error fetching image for course ${courseId}:`, error);
+          setCourseImages(prevImages => ({
+            ...prevImages,
+            [courseId]: imageUrl
+          }));
+        } else {
+          // If image not found, use default
           setCourseImages(prevImages => ({
             ...prevImages,
             [courseId]: defaultImageUrl
           }));
         }
-      };
-
-
-      
-  
-      // Fetch images for all courses
-      if (allottedCourses && allottedCourses.length > 0) {
-        allottedCourses.forEach(course => {
-          const courseId = course.course.courseId;
-          fetchCourseImage(courseId);
-        });
+      } catch (error) {
+        console.error(`Error fetching image for course ${courseId}:`, error);
+        setCourseImages(prevImages => ({
+          ...prevImages,
+          [courseId]: defaultImageUrl
+        }));
       }
-  
-      // Cleanup function to revoke object URLs when component unmounts
-      return () => {
-        Object.values(courseImages).forEach(url => {
-          if (url && !url.includes(defaultImageUrl)) {
-            URL.revokeObjectURL(url);
-          }
-        });
-      };
-    }, [allottedCourses]);
+    };
+
+    // Fetch images for all courses
+    if (allottedCourses && allottedCourses.length > 0) {
+      allottedCourses.forEach(course => {
+        const courseId = course.course.courseId;
+        fetchCourseImage(courseId);
+      });
+    }
+
+    // Cleanup function to revoke object URLs when component unmounts
+    return () => {
+      Object.values(courseImages).forEach(url => {
+        if (url && !url.includes(defaultImageUrl)) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, [allottedCourses]);
 
   useEffect(() => {
     dispatch(viewAllotedCourses());
@@ -118,19 +119,23 @@ const MyCourses = () => {
 
   const handleDownloadCertificate = async (allotmentId) => {
     try {
-  
       if (!user || !token) {
         alert("User not authenticated.");
         return;
       }
-  
-      console.log(allotmentId);
+
+      // Reset previous error
+      setCertificateDownloadError(null);
+
+      // Set loading state before download starts
+      setDownloadingCertificate(true);
+
       const requestData = { user, token, allotmentId };
-  
+
       const response = await axios.post(`${USER_COURSE_CERTIFICATE_URL}`, requestData, {
         responseType: "blob", // Ensures response is treated as a file
       });
-  
+
       if (response.status === 200) {
         const blob = new Blob([response.data], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
@@ -140,19 +145,22 @@ const MyCourses = () => {
         a.download = `Course_Certificate_${allotmentId}.pdf`;
         document.body.appendChild(a);
         a.click();
-  
+
         // Clean up resources
         URL.revokeObjectURL(url);
         document.body.removeChild(a);
       } else {
-        alert("Failed to generate certificate. Please try again.");
+        throw new Error("Failed to generate certificate");
       }
     } catch (error) {
       console.error("Error downloading certificate:", error);
+      setCertificateDownloadError("An error occurred while downloading the certificate. Please try again.");
       alert("An error occurred while downloading the certificate. Please try again.");
+    } finally {
+      // Remove loading state after download attempt (success or failure)
+      setDownloadingCertificate(false);
     }
   };
-  
 
   const getStatusClass = (status) => {
     const statusClasses = {
@@ -261,7 +269,7 @@ const MyCourses = () => {
                   Description: {course.course.description}
                 </p>
                 <p className={styles.courseDuration}>
-                  Duration: {course.course.totalHours}
+                  Total Hours: {course.course.totalHours}
                 </p>
 
                 <div className={styles.progressContainer}>
@@ -279,7 +287,7 @@ const MyCourses = () => {
 
                 <button
                   className={styles.continueButton}
-                  onClick={() => navigate(`/user/courseContent/${course.course.courseId}`)}
+                  onClick={() => navigate(`/user/courseContent/${course.course.courseId}/${course.allotmentId}`)}
                 >
                   {course.completionStatus === 0
                     ? "Start Learning"
@@ -299,17 +307,22 @@ const MyCourses = () => {
                   </button>
                 )}
 
-{course.completionStatus >= 100 && (
-  <button
-    className={styles.downloadButton}
-    onClick={() => handleDownloadCertificate(course.allotmentId)}
-  >
-    Download Certificate
-  </button>
-)}
-
+                {course.completionStatus >= 100 && (
+                  <button
+                    className={styles.downloadButton}
+                    onClick={() => handleDownloadCertificate(course.allotmentId)}
+                    disabled={downloadingCertificate}
+                  >
+                    {downloadingCertificate ? (
+                      <span className={styles.loadingSpinner}>
+                        Downloading Certificate...
+                      </span>
+                    ) : (
+                      "Download Certificate"
+                    )}
+                  </button>
+                )}
               </div>
-
             </div>
           ))}
         </div>
