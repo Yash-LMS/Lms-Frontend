@@ -97,7 +97,7 @@ const TestPreview = () => {
 
   // Navigate back to dashboard
   const handleBackToDashboard = () => {
-    navigate('/instructor/test');
+    navigate('/instructor-dashboard');
   };
 
   // Get current question details

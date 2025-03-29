@@ -174,7 +174,7 @@ const CourseDetailsForm = ({ course, onCancel }) => {
     if (savingSectionIndex !== null && savingSectionIndex === sectionIndex) {
       return; // Don't allow editing while saving this section
     }
-  
+
     setSections(
       sections.map((section, index) => {
         if (index === sectionIndex) {
@@ -195,7 +195,7 @@ const CourseDetailsForm = ({ course, onCancel }) => {
                     topicNameCustom: false, // Reset custom name flag
                   };
                 }
-  
+
                 // Allow manual editing of topicName if it's not a test
                 if (field === "topicName" && topic.topicType === "test") {
                   return {
@@ -204,7 +204,7 @@ const CourseDetailsForm = ({ course, onCancel }) => {
                     topicNameCustom: true, // Mark as manually edited
                   };
                 }
-  
+
                 return { ...topic, [field]: value };
               }
               return topic;
@@ -606,13 +606,22 @@ const CourseDetailsForm = ({ course, onCancel }) => {
                           className={styles.testSelect}
                         >
                           <option value="">Select Test</option>
-                          {console.log(testList)}
-                          {testList.map((test) => (
-                            <option key={test.testId} value={test.testId}>
-                              {test.testName}
-                            </option>
-                          ))}
+                          {!testList || testList.length === 0 ? (
+                            <option disabled>No tests available</option>
+                          ) : (
+                            testList.map((test) => (
+                              <option key={test.testId} value={test.testId}>
+                                {test.testName}
+                              </option>
+                            ))
+                          )}
                         </select>
+                        {(!testList || testList.length === 0) && (
+                          <p className={styles.errorMessage}>
+                            No tests are currently available. Please contact
+                            support or create a test first.
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
