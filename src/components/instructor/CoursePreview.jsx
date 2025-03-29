@@ -8,7 +8,7 @@ import {
 } from "../../features/course/courseActions";
 import EditSectionModal from "./EditSectionModal";
 import VideoPlayer from "./VideoPlayer";
-import FilePreview from "./FilePreview"; // Import the FilePreview component
+import FilePreview from "./FilePreview";
 import styles from "./CoursePreview.module.css";
 
 const CoursePreview = () => {
@@ -23,8 +23,8 @@ const CoursePreview = () => {
   const [selectedSection, setSelectedSection] = useState(null);
   const [showVideoPlayer, setShowVideoPlayer] = useState(false);
   const [selectedTopicId, setSelectedTopicId] = useState(null);
-  const [showFilePreview, setShowFilePreview] = useState(false); // State for FilePreview modal
-  const [currentTopicId, setCurrentTopicId] = useState(null); // State to hold the current topic ID for FilePreview
+  const [showFilePreview, setShowFilePreview] = useState(false);
+  const [currentTopicId, setCurrentTopicId] = useState(null);
 
   const getUserData = () => {
     try {
@@ -44,7 +44,7 @@ const CoursePreview = () => {
       const { user, token } = getUserData();
 
       if (!user || !token) {
-        alert("User  session data is missing. Please log in again.");
+        alert("User session data is missing. Please log in again.");
         navigate("/login");
         return;
       }
@@ -81,7 +81,7 @@ const CoursePreview = () => {
     const { user, token } = getUserData();
 
     if (!user || !token) {
-      alert("User  session data is missing. Please log in again.");
+      alert("User session data is missing. Please log in again.");
       return;
     }
 
@@ -118,8 +118,8 @@ const CoursePreview = () => {
       const { user, token } = getUserData();
 
       if (!user) {
-        console.error("User  is undefined");
-        alert("User  session data is missing. Please log in again.");
+        console.error("User is undefined");
+        alert("User session data is missing. Please log in again.");
         return;
       }
 
@@ -176,13 +176,18 @@ const CoursePreview = () => {
   };
 
   const handleOpenFilePreview = (topicId) => {
-    setCurrentTopicId(topicId); // Set the current topic ID
-    setShowFilePreview(true); // Open the FilePreview modal
+    setCurrentTopicId(topicId);
+    setShowFilePreview(true);
   };
 
   const handleCloseFilePreview = () => {
-    setShowFilePreview(false); // Close the FilePreview modal
-    setCurrentTopicId(null); // Reset the current topic ID
+    setShowFilePreview(false);
+    setCurrentTopicId(null);
+  };
+
+  // New method to handle test preview navigation
+  const handlePreviewClick = (testId) => {
+    navigate(`/test/preview/${testId}`);
   };
 
   if (loading) {
@@ -312,7 +317,6 @@ const CoursePreview = () => {
                           </span>
                         </div>
                         <div className={styles.topicLinks}>
-                          {console.log(topic)}
                           {topic.videoURL && topic.videoURL !== "" && (
                             <button
                               onClick={() => handleOpenVideoPlayer(topic)}
@@ -325,10 +329,19 @@ const CoursePreview = () => {
                             <button
                               onClick={() =>
                                 handleOpenFilePreview(topic.topicId)
-                              } // Open FilePreview modal
+                              }
                               className={styles.resourceLink}
                             >
                               View Docs
+                            </button>
+                          )}
+                          {/* New button for test preview */}
+                          {topic.topicType === "test" && topic.testId && (
+                            <button
+                              onClick={() => handlePreviewClick(topic.testId)}
+                              className={styles.resourceLink}
+                            >
+                              View Test
                             </button>
                           )}
                           {topic.file && topic.file !== "" && (
@@ -343,16 +356,17 @@ const CoursePreview = () => {
                           )}
                           {topic.videoURL && topic.videoURL !== "" ? (
                             <button
-                              className={styles.removeFileButton}
                               onClick={() => handleDeleteFile(topic.topicId)}
                               title="Remove file"
                             >
                               Remove File
                             </button>
                           ) : (
-                            <p className={styles.noVideoMessage}>
-                              No video available
-                            </p>
+                            topic.topicType !== "test" && (
+                              <p className={styles.noVideoMessage}>
+                                No video available
+                              </p>
+                            )
                           )}
                         </div>
                       </div>
@@ -403,8 +417,8 @@ const CoursePreview = () => {
 
       {showFilePreview && currentTopicId && (
         <FilePreview
-          topicId={currentTopicId} // Pass the current topic ID to FilePreview
-          onClose={handleCloseFilePreview} // Close function for the modal
+          topicId={currentTopicId}
+          onClose={handleCloseFilePreview}
         />
       )}
     </div>
