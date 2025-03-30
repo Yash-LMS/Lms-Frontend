@@ -50,6 +50,8 @@ export const VIEW_USER_COURSE_DETAIL_URL = `${API_BASE_URL}/user/viewCourse/deta
 export const USER_VIDEO_WATCH_URL = `${API_BASE_URL}/user/file/video/watch`;
 export const USER_FILE_PREVIEW_URL = `${API_BASE_URL}/file/view`;
 export const USER_FEEDBACK_URL = `${API_BASE_URL}/user/course/feedback`;
+export const VIEW_USER_TEST_URL = `${API_BASE_URL}/user/test/view`;
+
 export const START_TEST_URL = `${API_BASE_URL}/user/test/start/view`;
 export const SUBMIT_TEST_URL = `${API_BASE_URL}/user/test/submit`;
 export const RESULT_TEST_URL = `${API_BASE_URL}/user/test/result`;

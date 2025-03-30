@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import styles from './TestModule.module.css';
 import { useNavigate, useLocation  } from "react-router-dom";
-import { START_TEST_URL, SUBMIT_TEST_URL } from '../../constants/apiConstants';
+import { VIEW_USER_TEST_URL,START_TEST_URL, SUBMIT_TEST_URL } from '../../constants/apiConstants';
 
 const TestModule = () => {
   
   const [testDetails, setTestDetails] = useState(null);
+  const [testInformation, setTestInformation] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timeRemaining, setTimeRemaining] = useState(0);
@@ -27,6 +28,7 @@ const TestModule = () => {
   const navigate = useNavigate();
   
   const [testAllotmentId, setTestAllotmentId] = useState(null);
+  const [isTestStarted, setIsTestStarted] = useState(false);
 
 
   useEffect(() => {
@@ -52,6 +54,7 @@ const TestModule = () => {
       
       if (passedAllotmentId) {
         setTestAllotmentId(passedAllotmentId);
+        return passedAllotmentId;
       } else {
         // Redirect with a message if no test was selected
         navigate("/redirect", {
@@ -82,20 +85,53 @@ const TestModule = () => {
 
         if(response.data.response==='success')
         {
-
-        const test = response.data.payload;
-        setTestDetails(test);
-        // Convert duration from hours to seconds
-        const totalSeconds = Math.floor(test.duration * 60);
-        setTimeRemaining(totalSeconds);
-        setTotalTime(totalSeconds);
-        setLoading(false);
-      }else{
-        const message=response.data.message;
-        handleRedirect(message,"/user-dashboard");
-      }
+          const test = response.data.payload;
+          setTestDetails(test);
+          // Convert duration from hours to seconds
+          const totalSeconds = Math.floor(test.duration * 60);
+          setTimeRemaining(totalSeconds);
+          setTotalTime(totalSeconds);
+          setLoading(false);
+        } else {
+          const message=response.data.message;
+          handleRedirect(message,"/user-dashboard");
+        }
       } catch (err) {
-        setError('Failed to loatest details.');
+        setError('Failed to load test details.');
+        console.log("Error",err);
+        setLoading(false);
+      }
+    };
+
+
+    const fetchTest = async () => {
+      try {
+        const { user, token } = getUserData();
+        console.log(testAllotmentId);
+      
+        if(!testAllotmentId)
+          {
+            return;
+          }
+        
+        const response = await axios.post(`${VIEW_USER_TEST_URL}`, {
+           user,
+           token,
+          testAllotmentId
+        });
+
+        if(response.data.response==='success')
+        {
+          const test = response.data.payload;
+          // Store test information for the start screen
+          setTestInformation(test);
+          setLoading(false);
+        } else {
+          const message=response.data.message;
+          handleRedirect(message,"/user-dashboard");
+        }
+      } catch (err) {
+        setError('Failed to load test details.');
         console.log("Error",err);
         setLoading(false);
       }
@@ -103,12 +139,17 @@ const TestModule = () => {
 
 
     useEffect(() => {
-      console.log(testAllotmentId);
-      fetchTestDetails();
+      if (testAllotmentId) {
+        fetchTest();
+      }
     }, [testAllotmentId]);
+  
   // Fetch test data from API
   useEffect(() => {
-    getTestAllotmentId();
+    const id = getTestAllotmentId();
+    if (id) {
+      setTestAllotmentId(id);
+    }
   }, []);
 
   // Timer logic
@@ -208,6 +249,9 @@ const TestModule = () => {
   };
 
   const startTest = () => {
+    setIsTestStarted(true);
+    setTestStarted(true);
+    fetchTestDetails();
     requestFullScreen();
   };
 
@@ -375,20 +419,20 @@ const TestModule = () => {
     }
   };
 
-  if (loading) return <div className={styles.loading}>Loading test...</div>;
+  if (loading && !testInformation) return <div className={styles.loading}>Loading test...</div>;
   if (error) return <div className={styles.error}>{error}</div>;
 
   // If test details loaded but test not started yet, show start screen
-  if (!testStarted) {
+  if (!isTestStarted && testInformation) {
     return (
       <div className={styles.startScreen} ref={mainContainerRef}>
         <div className={styles.startCard}>
-          <h2>{testDetails.testName}</h2>
+          <h2>{testInformation.testName}</h2>
           <div className={styles.testInfoStart}>
             <div className={styles.infoItem}>Type: MCQ</div>
-            <div className={styles.infoItem}>Total Questions: {testDetails.questionList.length}</div>
-            <div className={styles.infoItem}>Maximum Marks: {testDetails.marks}</div>
-            <div className={styles.infoItem}>Duration: {testDetails.duration} min</div>
+            <div className={styles.infoItem}>Total Questions: {testInformation.totalQuestion}</div>
+            <div className={styles.infoItem}>Maximum Marks: {testInformation.marks}</div>
+            <div className={styles.infoItem}>Duration: {testInformation.duration} min</div>
           </div>
           <div className={styles.testRules}>
             <h3>Important Instructions:</h3>
@@ -410,6 +454,8 @@ const TestModule = () => {
       </div>
     );
   }
+
+  if (!testDetails) return <div className={styles.loading}>Starting test...</div>;
 
   const currentQuestion = testDetails.questionList[currentQuestionIndex];
   const isMultipleChoice = currentQuestion.questionType === "multiple_choice";

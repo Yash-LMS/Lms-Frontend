@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginUser  } from '../../features/auth/authActions';
+import axios from 'axios';
 import styles from './Form.module.css'; 
+import { LOGIN_URL } from '../../constants/apiConstants';
 
-const LoginForm = () => {
-    const dispatch = useDispatch();
+const LoginForm = ({ setLoginStatus }) => {
     const navigate = useNavigate();
-    const { loading, error, user } = useSelector((state) => state.user);
-    const [loadRender, setLoadRender] = useState(false)
+    const [loadRender, setLoadRender] = useState(false);
     const [formData, setFormData] = useState({
         emailId: '',
         password: ''
     });
 
+    const [login, setLogin] = useState(false);
     const [loginError, setLoginError] = useState('');
+    const [user, setUser] = useState(null);
 
     const handleChange = (e) => {
         setFormData({
@@ -27,46 +27,81 @@ const LoginForm = () => {
         return email.endsWith('@yash.com');
     };
 
+
+    const getUserData = () => {
+        try {
+          return {
+            user: JSON.parse(sessionStorage.getItem("user")),
+            token: sessionStorage.getItem("token"),
+            role: sessionStorage.getItem("role"),
+          };
+        } catch (error) {
+          console.error("Error parsing user data:", error);
+          return { user: null, token: null, role: null };
+        }
+      };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoginError(''); // Reset login error
+        setLoadRender(true);
 
         // Validate email
         if (!validateEmail(formData.emailId)) {
             setLoginError('Email must end with @yash.com');
+            setLoadRender(false);
             return;
         }
 
         try {
-            await dispatch(loginUser(formData)).unwrap(); 
+            const response = await axios.get(LOGIN_URL, {
+                params: { 
+                    emailId: formData.emailId, 
+                    password: formData.password 
+                } 
+            });
+            
+            if(response.data.response === "success") {
+                const userData = response.data.payload.user;
+                setUser(userData);
+                sessionStorage.setItem('user', JSON.stringify(userData));
+                sessionStorage.setItem('token', response.data.payload.token);
+                setLoginStatus(true);
+                setLogin(true);
+            } else {
+                setLoginError(response.data.message || "Unable to login try again");
+                setFormData({ emailId: '', password: '' });
+            }
         } catch (err) {
             // Set a generic error message for invalid credentials
             setLoginError(err.message); 
-            setFormData ({ emailId: '', password: '' });
+            setFormData({ emailId: '', password: '' });
+        } finally {
+            setLoadRender(false);
         }
     };
 
     useEffect(() => {
-        if(!loading){
-            setLoadRender(false)
+       
+        const { user, token } = getUserData();
+ 
+        
+        if(!login || !user || !token) {
+            return;
         }
-    },[loading])
-    useEffect(() => {   
-        if (sessionStorage.getItem('user')) {
-            if (user.role === 'instructor') {
-                navigate("/instructor-dashboard");
-            } else if (user.role === 'user') {
-                navigate("/user-dashboard");
-            } else {
-                navigate("/manager-dashboard"); 
-            }
+        
+        if (user.role === 'instructor') {
+            navigate("/instructor-dashboard");
+        } else if (user.role === 'user') {
+            navigate("/user-dashboard");
+        } else {
+            navigate("/manager-dashboard"); 
         }
-
-    }, [user, navigate]); 
+    }, [login, navigate, user]);
 
     return (
         <div className={styles.container}>
-            <div className={styles.formWrapper}  style={{ marginTop: '110px' }}>
+            <div className={styles.formWrapper} style={{ marginTop: '110px' }}>
                 <h2 className={styles.title}>Login</h2>
                 {loginError && <div className={styles.errorMessage}>{loginError}</div>}
                 
