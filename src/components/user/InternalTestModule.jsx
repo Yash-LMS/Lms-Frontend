@@ -29,6 +29,7 @@ const InternalTestModule = () => {
   
   const [testAllotmentId, setTestAllotmentId] = useState(null);
   const [courseId, setCourseId] = useState(null);
+  const [courseTrackingId, setCourseTrackingId] = useState(null);
   const [isTestStarted, setIsTestStarted] = useState(false);
 
 
@@ -75,6 +76,25 @@ const InternalTestModule = () => {
         if (passedCourseId) {
           setCourseId(passedCourseId);
           return passedCourseId;
+        } else {
+          // Redirect with a message if no test was selected
+          navigate("/redirect", {
+            state: { 
+              message: "No test selected. Please choose a test from your My Tests.", 
+              redirectPath: "/my-test" 
+            }
+          });
+          return null;
+        }
+      };
+
+      const getCourseTrackingId = () => {
+        // Check if we have an allotment ID in the navigation state
+        const passedCourseTrackingId = location.state?.courseTrackingId;
+        
+        if (passedCourseTrackingId) {
+          setCourseId(passedCourseTrackingId);
+          return passedCourseTrackingId;
         } else {
           // Redirect with a message if no test was selected
           navigate("/redirect", {
