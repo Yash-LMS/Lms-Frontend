@@ -424,7 +424,12 @@ const InternalTestModule = () => {
       
       if (response.data.response === 'success') {
         const resultData=response.data.payload;
-        navigate("/result", { state: { result: resultData } });
+        navigate("/result", { state: { result: resultData,
+                                   navigationPath: "/user-dashboard", // The path to navigate to when button is clicked
+                                    buttonText: "Back to Course" // Custom button text
+
+                            } 
+                          });
       } else {
         const message = response.data.message;
         handleRedirect(message, "/user-dashboard");
