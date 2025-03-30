@@ -200,7 +200,7 @@ const InternalTestModule = () => {
           setLoading(false);
         } else {
           const message=response.data.message;
-          handleRedirect(message,"/user-dashboard");
+          handleRedirect(message, `/user/courseContent/${courseId}/${courseAllotmentId}`);
         }
       } catch (err) {
         setError('Failed to load test details.');
