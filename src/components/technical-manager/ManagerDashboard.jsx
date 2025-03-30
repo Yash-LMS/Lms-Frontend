@@ -132,7 +132,8 @@ const ManagerDashboard = () => {
       <main className={styles.mainContent}>
         <header className={styles.contentHeader}>
           <div className={styles.headerLeft}>
-            <h1>Dashboard Management</h1>
+            <h1>Manager Dashboard</h1>
+            
             <div className={styles.typeFilter}>
               {typeOptions.map((type) => (
                 <label key={type} className={styles.radioLabel}>
