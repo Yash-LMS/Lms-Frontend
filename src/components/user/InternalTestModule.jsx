@@ -101,7 +101,10 @@ const InternalTestModule = () => {
         const response = await axios.post(`${START_TEST_URL}`, {
            user,
            token,
-           testAllotmentId
+           testAllotmentId,
+           courseTrackingId: trackingId,
+           testType: "internal"
+       
         });
 
         if(response.data.response==='success')
@@ -189,7 +192,9 @@ const InternalTestModule = () => {
         const response = await axios.post(`${VIEW_USER_TEST_URL}`, {
            user,
            token,
-          testAllotmentId
+          testAllotmentId,
+          courseTrackingId: trackingId,
+          testType: "internal"
         });
 
         if(response.data.response==='success')
@@ -414,6 +419,7 @@ const InternalTestModule = () => {
         token: token,
         testAllotmentId: testAllotmentId,
         description: description,
+        courseTrackingId: trackingId,
         testEvaluationList: testEvaluationList
       };
   

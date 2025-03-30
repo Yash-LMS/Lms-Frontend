@@ -80,7 +80,8 @@ const TestModule = () => {
         const response = await axios.post(`${START_TEST_URL}`, {
            user,
            token,
-          testAllotmentId
+          testAllotmentId,
+          testType: "external"
         });
 
         if(response.data.response==='success')
@@ -117,7 +118,8 @@ const TestModule = () => {
         const response = await axios.post(`${VIEW_USER_TEST_URL}`, {
            user,
            token,
-          testAllotmentId
+          testAllotmentId,
+           testType: "external"
         });
 
         if(response.data.response==='success')

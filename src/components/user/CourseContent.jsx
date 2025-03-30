@@ -201,18 +201,25 @@ const CourseContent = () => {
         } else {
           return (
             <div className={styles.testContainer}>
-              <div className={styles.testStartCard}>
-                <h2>Test: {activeTopic.topicName}</h2>
-                <p>This topic contains a test to assess your knowledge.</p>
-                <p>Once you start the test, you will need to complete it in the allotted time.</p>
+            <div className={styles.testStartCard}>
+              <h2>Test: {activeTopic.topicName}</h2>
+              <p>This topic contains a test to assess your knowledge.</p>
+              <p>Once you start the test, you will need to complete it in the allotted time.</p>
+              
+              {activeTopic.courseTrackingDto.topicCompletionStatus === "completed" ? (
+                <p className={styles.completedMessage}>You already completed this test</p>
+              ) : (
                 <button 
                   className={styles.startTestButton}
                   onClick={handleStartTest}
                 >
-                  Start Test
+                  {activeTopic.courseTrackingDto.topicCompletionStatus === "started" 
+                    ? "Continue Test" 
+                    : "Start Test"}
                 </button>
-              </div>
+              )}
             </div>
+          </div>
           );
         }
       default:
