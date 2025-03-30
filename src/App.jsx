@@ -30,6 +30,7 @@ import TestRequests from "./components/technical-manager/TestRequests";
 import ResultPage from "./components/user/ResultPage";
 import TraineeResults from "./components/technical-manager/TraineeResults";
 import ViewTraineeTestAllotment from "./components/technical-manager/ViewTraineeTestAllotment";
+import axios from 'axios';
 
 
 // Protected Route component
@@ -57,10 +58,23 @@ const App = () => {
 
 // App content component with Routes
 const AppContent = () => {
-  const [loginStatus, setLoginStatus] = useState(!!sessionStorage.getItem("token"));
+  const [loginStatus, setLoginStatus] = useState(false);
   const navigate = useNavigate();
   const currentPath = window.location.pathname;
   const user = JSON.parse(sessionStorage.getItem('user'));
+
+  const getUserData = () => {
+    try {
+      return {
+        user: JSON.parse(sessionStorage.getItem("user")),
+        token: sessionStorage.getItem("token"),
+        role: sessionStorage.getItem("role"),
+      };
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      return { user: null, token: null, role: null };
+    }
+  };
 
   // Check token on initial load, but allow access to login and register pages
   useEffect(() => {
@@ -78,19 +92,33 @@ const AppContent = () => {
     const validateToken = async () => {
       const token = sessionStorage.getItem("token");
       const userStr = sessionStorage.getItem("user");
+
+      if(!loginStatus)
+      {
+        return;
+      }
       
       if (token && userStr) {
         try {
-          const user = JSON.parse(userStr);
+          const { user, token } = getUserData();
           console.log("Validating token...");
-          const response = await fetch(`${API_BASE_URL}/user/validate_token?emailId=${user.emailId}&token=${token}`);
           
-          if (response.status === 401) {
+          const response = await axios.get(`${API_BASE_URL}/user/validate_token`, {
+            params: {
+              emailId: user.emailId,
+              token: token
+            }
+          });
+         
+          
+          
+          if (response.data.response === 'unauthorized') {
             console.log("Token validation failed: 401 Unauthorized");
             sessionStorage.clear();
             setLoginStatus(false); 
             navigate('/login');
           }
+
         } catch (error) {
           console.error("Error validating token:", error);
           sessionStorage.clear();
@@ -100,32 +128,29 @@ const AppContent = () => {
       }
     };
     
-    // Only validate token if user is logged in AND not on a public page
-    const isPublicPage = PUBLIC_PAGES.includes(currentPath) || 
-                         PUBLIC_PAGES.some(page => currentPath.startsWith(page));
-    
-    if (loginStatus && !isPublicPage) {
+    if (loginStatus) {
       const interval = setInterval(validateToken, 6000); 
       return () => clearInterval(interval);
     }
-  }, [loginStatus, navigate, currentPath]);
+  }, [loginStatus]);
 
   // Update login status whenever session storage changes
   useEffect(() => {
+ 
+    if(!loginStatus)
+    {
+      return;
+    }
+ 
     const handleStorageChange = () => {
       const hasToken = !!sessionStorage.getItem("token");
       setLoginStatus(hasToken);
       
-      // Only redirect to login if not on a public page AND no token
-      const isPublicPage = PUBLIC_PAGES.includes(currentPath) || 
-                          PUBLIC_PAGES.some(page => currentPath.startsWith(page));
-      
-      if (!hasToken && !isPublicPage) {
+      if (!hasToken) {
         navigate("/login");
       }
     };
 
-    // Listen for storage events
     window.addEventListener('storage', handleStorageChange);
     
     return () => {
