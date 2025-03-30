@@ -28,10 +28,17 @@ const InternalTestModule = () => {
   const navigate = useNavigate();
   
   const [testAllotmentId, setTestAllotmentId] = useState(null);
+  
   const [courseId, setCourseId] = useState(null);
-  const [courseTrackingId, setCourseTrackingId] = useState(null);
-  const [isTestStarted, setIsTestStarted] = useState(false);
+  const [trackingId, setTrackingId] = useState(null);
+  
 
+  const [isTestStarted, setIsTestStarted] = useState(false);
+  
+  const[courseAllotmentId,setCourseAllotmentId]=useState(null);
+
+  const[isAllValues,setIsAllValue]=useState(false);
+  
 
   useEffect(() => {
    
@@ -50,63 +57,37 @@ const InternalTestModule = () => {
       }
     };
 
-    const getTestAllotmentId = () => {
-      // Check if we have an allotment ID in the navigation state
-      const passedAllotmentId = location.state?.testAllotmentId;
-      
-      if (passedAllotmentId) {
-        setTestAllotmentId(passedAllotmentId);
-        return passedAllotmentId;
-      } else {
-        // Redirect with a message if no test was selected
-        navigate("/redirect", {
-          state: { 
-            message: "No test selected. Please choose a test from your My Tests.", 
-            redirectPath: "/my-test" 
-          }
-        });
-        return null;
+   
+    useEffect(() => {
+      // Check if location.state exists before trying to access values
+      if (!location.state) {
+        console.error("No location state available");
+        return;
       }
-    };
-
-    const getCourseId = () => {
-        // Check if we have an allotment ID in the navigation state
-        const passedCourseId = location.state?.courseId;
-        
-        if (passedCourseId) {
-          setCourseId(passedCourseId);
-          return passedCourseId;
-        } else {
-          // Redirect with a message if no test was selected
-          navigate("/redirect", {
-            state: { 
-              message: "No test selected. Please choose a test from your My Tests.", 
-              redirectPath: "/my-test" 
-            }
-          });
-          return null;
-        }
-      };
-
-      const getCourseTrackingId = () => {
-        // Check if we have an allotment ID in the navigation state
-        const passedCourseTrackingId = location.state?.courseTrackingId;
-        
-        if (passedCourseTrackingId) {
-          setCourseId(passedCourseTrackingId);
-          return passedCourseTrackingId;
-        } else {
-          // Redirect with a message if no test was selected
-          navigate("/redirect", {
-            state: { 
-              message: "No test selected. Please choose a test from your My Tests.", 
-              redirectPath: "/my-test" 
-            }
-          });
-          return null;
-        }
-      };
     
+      const testId = location.state.testAllotmentId || null;
+      const course = location.state.courseId || null; 
+      const tracking = location.state.trackingId || null;
+      const courseAllotment = location.state.courseAllotmentId || null;
+      
+      // Set the state variables
+      setTestAllotmentId(testId);
+      setCourseId(course);
+      setTrackingId(tracking);
+      setCourseAllotmentId(courseAllotment);
+      
+      // Log after setting
+      console.log("Values from location state:", {
+        courseAllotmentId: courseAllotment,
+        courseId: course,
+        trackingId: tracking,
+        testAllotmentId: testId
+      });
+
+      setIsAllValue(true);
+
+    }, []); // Add location.state as a dependency
+
     const fetchTestDetails = async () => {
       try {
         const { user, token } = getUserData();
@@ -120,7 +101,7 @@ const InternalTestModule = () => {
         const response = await axios.post(`${START_TEST_URL}`, {
            user,
            token,
-          testAllotmentId
+           testAllotmentId
         });
 
         if(response.data.response==='success')
@@ -142,6 +123,57 @@ const InternalTestModule = () => {
         setLoading(false);
       }
     };
+
+
+    useEffect(() => {
+      
+
+      if(!isAllValues)
+      {
+        return;
+      }
+
+      if (!testAllotmentId) {
+        navigate("/redirect", {
+          state: { 
+            message: "No test selected. Please choose a test from your My Tests.", 
+            redirectPath: "/my-test" 
+          },
+        });
+        return;
+      }
+      
+      if (!courseId) {
+        navigate("/redirect", {
+          state: { 
+            message: "Unable to start test, course not found.",
+            redirectPath: "/user-dashboard" 
+          },
+        });
+        return;
+      }
+      
+      if (!trackingId) {
+        navigate("/redirect", {
+          state: { 
+            message: "Unable to start test, tracking Id not found.",
+            redirectPath: `/user/courseContent/${courseId || "unknown"}/${courseAllotmentId || "unknown"}` 
+          },
+        });
+        return;
+      }
+      
+      if (!courseAllotmentId) {
+        navigate("/redirect", {
+          state: { 
+            message: "Unable to start test, Course not found.",
+            redirectPath: "/user-dashboard" 
+          },
+        });
+        return;
+      }
+      
+    }, [isAllValues]);
 
 
     const fetchTest = async () => {
@@ -184,13 +216,7 @@ const InternalTestModule = () => {
       }
     }, [testAllotmentId]);
   
-  // Fetch test data from API
-  useEffect(() => {
-    const id = getTestAllotmentId();
-    if (id) {
-      setTestAllotmentId(id);
-    }
-  }, []);
+ 
 
   // Timer logic
   useEffect(() => {

@@ -21,6 +21,7 @@ const CourseContent = () => {
   const [activeTopic, setActiveTopic] = useState(null);
   const [activeTopicType, setActiveTopicType] = useState("video");
   const [showTest, setShowTest] = useState(false); // New state for controlling test visibility
+  const[activeCoursrId,setActiveCourseId]=useState(null);
   const navigate = useNavigate();
 
   const { courseId } = useParams();
@@ -59,6 +60,7 @@ const CourseContent = () => {
 
         if (response.data.response === "success") {
           setCourseData(response.data.payload);
+          setActiveCourseId(response.data.payload.courseId);
 
           // Set initial section expanded states
           const initialExpandedState = {};
@@ -168,7 +170,7 @@ const CourseContent = () => {
       case "video":
         return (
           <UserVideoPlayer
-            courseId={courseId}
+            courseId={activeCoursrId}
             topicId={activeTopic?.topicId}
             user={getUserData().user}
             token={getUserData().token}
@@ -181,18 +183,21 @@ const CourseContent = () => {
             allotmentId={allotmentId}
             user={getUserData().user}
             token={getUserData().token}
-            courseId={courseId}
+            courseId={activeCoursrId}
           />
         );
       case "test":
         if (showTest) {
-          return (
-            <InternalTestModule
-              key={activeTopic.topicId} // Add key to ensure proper re-rendering
-              testAllotmentId={activeTopic.testAllotmentId}
-              courseId={courseId}
-            />
-          );
+          navigate('/user/internal/test', {
+            state: {
+              topicId: activeTopic.topicId,
+              courseAllotmentId: allotmentId,
+              testAllotmentId: activeTopic.testAllotmentId,
+              trackingId: activeTopic.courseTrackingDto.trackingId,
+              courseId: activeCoursrId
+            }
+          });
+
         } else {
           return (
             <div className={styles.testContainer}>
