@@ -58,9 +58,10 @@ export const SUBMIT_TEST_URL = `${API_BASE_URL}/user/test/submit`;
 export const RESULT_TEST_URL = `${API_BASE_URL}/user/test/result`;
 export const USER_COURSE_FEEDBACK_URL = `${API_BASE_URL}/user/course/submitFeedback`;
 export const USER_COURSE_CERTIFICATE_URL = `${API_BASE_URL}/user/course/request/certificate`;
-export const VIEW_VIDEO_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/video/updateStatus`;
+export const VIEW_VIDEO_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/video/view/updateStatus`;
 export const COMPLETE_VIDEO_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/video/complete/updateStatus`;
 export const DOC_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/doc/updateStatus`;
+export const VIDEO_SIZE_URL = `${API_BASE_URL}/user/file/video/size`; // in minutes
 
 
 //Test
