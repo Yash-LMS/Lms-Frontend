@@ -6,11 +6,23 @@ const ResultPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [result, setResult] = useState(null);
+  const [navigationPath, setNavigationPath] = useState("/user-dashboard");
+  const [buttonText, setButtonText] = useState("Go to Dashboard");
 
   useEffect(() => {
-    // Get result from location state if available
-    if (location.state && location.state.result) {
-      setResult(location.state.result);
+    // Get result and navigation details from location state if available
+    if (location.state) {
+      if (location.state.result) {
+        setResult(location.state.result);
+      }
+      
+      if (location.state.navigationPath) {
+        setNavigationPath(location.state.navigationPath);
+      }
+      
+      if (location.state.buttonText) {
+        setButtonText(location.state.buttonText);
+      }
     }
   }, [location]);
 
@@ -58,7 +70,7 @@ const ResultPage = () => {
             
             <div className={styles.testInfo}>
               <h3>Test Summary</h3>
-              <p className={styles.testDescription}>Test Name: {result.testName|| "Assessment Results"}</p>
+              <p className={styles.testDescription}>Test Name: {result.testName || "Assessment Results"}</p>
               <p className={styles.testId}>Allotment ID: {result.allotmentId}</p>
             </div>
           </div>
@@ -101,8 +113,8 @@ const ResultPage = () => {
         </div>
 
         <div className={styles.cardFooter}>
-          <button className={styles.dashboardButton} onClick={() => navigate("/user-dashboard")}>
-            Go to Dashboard
+          <button className={styles.dashboardButton} onClick={() => navigate(navigationPath)}>
+            {buttonText}
           </button>
         </div>
       </div>

@@ -30,6 +30,7 @@ import TestRequests from "./components/technical-manager/TestRequests";
 import ResultPage from "./components/user/ResultPage";
 import TraineeResults from "./components/technical-manager/TraineeResults";
 import ViewTraineeTestAllotment from "./components/technical-manager/ViewTraineeTestAllotment";
+import InternalTestModule from "./components/user/InternalTestModule";
 import axios from 'axios';
 
 
@@ -259,6 +260,11 @@ const AppContent = () => {
           <Route path="/user/test" element={
             <ProtectedRoute>
               <TestModule/>
+            </ProtectedRoute>
+          } />
+           <Route path="/user/internal/test" element={
+            <ProtectedRoute>
+              <InternalTestModule/>
             </ProtectedRoute>
           } />
 

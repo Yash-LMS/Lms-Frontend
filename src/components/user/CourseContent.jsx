@@ -6,6 +6,7 @@ import axios from "axios";
 import { VIEW_USER_COURSE_DETAIL_URL } from "../../constants/apiConstants";
 import UserVideoPlayer from "./UserVideoPlayer";
 import UserFilePreview from "./UserFilePreview";
+import InternalTestModule from "./InternalTestModule"; // Import the InternalTestModule component
 
 const CourseContent = () => {
   const [contentOpen, setContentOpen] = useState(true);
@@ -19,10 +20,12 @@ const CourseContent = () => {
   const [error, setError] = useState(null);
   const [activeTopic, setActiveTopic] = useState(null);
   const [activeTopicType, setActiveTopicType] = useState("video");
+  const [showTest, setShowTest] = useState(false); // New state for controlling test visibility
+  const[activeCoursrId,setActiveCourseId]=useState(null);
   const navigate = useNavigate();
 
   const { courseId } = useParams();
-  const{ allotmentId }= useParams();
+  const { allotmentId } = useParams();
 
   const getUserData = () => {
     try {
@@ -57,6 +60,7 @@ const CourseContent = () => {
 
         if (response.data.response === "success") {
           setCourseData(response.data.payload);
+          setActiveCourseId(response.data.payload.courseId);
 
           // Set initial section expanded states
           const initialExpandedState = {};
@@ -129,6 +133,14 @@ const CourseContent = () => {
     setActiveTopic(topic);
     setActiveTopicType(topic.topicType);
     setActiveLesson(topic.topicId.toString());
+    
+    // Reset test visibility when changing topics
+    setShowTest(false);
+  };
+
+  // Handle test selection
+  const handleStartTest = () => {
+    setShowTest(true);
   };
 
   // Navigate to previous or next lesson
@@ -158,7 +170,7 @@ const CourseContent = () => {
       case "video":
         return (
           <UserVideoPlayer
-            courseId={courseId}
+            courseId={activeCoursrId}
             topicId={activeTopic?.topicId}
             user={getUserData().user}
             token={getUserData().token}
@@ -169,19 +181,47 @@ const CourseContent = () => {
           <UserFilePreview
             topicId={activeTopic.topicId}
             allotmentId={allotmentId}
-        
             user={getUserData().user}
             token={getUserData().token}
-            courseId={courseId}
+            courseId={activeCoursrId}
           />
         );
       case "test":
-        return (
-          <div className={styles.testContainer}>
-            {/* Test component would be implemented here */}
-            <p>Test component for topic: {activeTopic.topicName}</p>
+        if (showTest) {
+          navigate('/user/internal/test', {
+            state: {
+              topicId: activeTopic.topicId,
+              courseAllotmentId: allotmentId,
+              testAllotmentId: activeTopic.testAllotmentId,
+              trackingId: activeTopic.courseTrackingDto.trackingId,
+              courseId: activeCoursrId
+            }
+          });
+
+        } else {
+          return (
+            <div className={styles.testContainer}>
+            <div className={styles.testStartCard}>
+              <h2>Test: {activeTopic.topicName}</h2>
+              <p>This topic contains a test to assess your knowledge.</p>
+              <p>Once you start the test, you will need to complete it in the allotted time.</p>
+              
+              {activeTopic.courseTrackingDto.topicCompletionStatus === "completed" ? (
+                <p className={styles.completedMessage}>You already completed this test</p>
+              ) : (
+                <button 
+                  className={styles.startTestButton}
+                  onClick={handleStartTest}
+                >
+                  {activeTopic.courseTrackingDto.topicCompletionStatus === "started" 
+                    ? "Continue Test" 
+                    : "Start Test"}
+                </button>
+              )}
+            </div>
           </div>
-        );
+          );
+        }
       default:
         return (
           <div className={styles.unsupportedContent}>
@@ -213,44 +253,50 @@ const CourseContent = () => {
             {/* Content player (video, docs, or test) */}
             <div className={styles.videoPlayer}>{renderContentByType()}</div>
 
-            {/* Navigation arrows */}
-            <button
-              className={styles.navButtonLeft}
-              onClick={() => navigateLesson("prev")}
-            >
-              &lt;
-            </button>
-            <button
-              className={styles.navButtonRight}
-              onClick={() => navigateLesson("next")}
-            >
-              &gt;
-            </button>
-          </div>
-
-          {/* Course description */}
-          <div className={styles.courseDescription}>
-            {/* Hamburger menu button - visible only when sidebar is closed */}
-            {!contentOpen && (
-              <button
-                onClick={toggleContent}
-                className={styles.hamburgerMenu}
-                aria-label="Open course content"
-                title="Open course content"
-              >
-                ≡
-              </button>
+            {/* Navigation arrows - hide when test is showing */}
+            {(!showTest || activeTopicType !== "test") && (
+              <>
+                <button
+                  className={styles.navButtonLeft}
+                  onClick={() => navigateLesson("prev")}
+                >
+                  &lt;
+                </button>
+                <button
+                  className={styles.navButtonRight}
+                  onClick={() => navigateLesson("next")}
+                >
+                  &gt;
+                </button>
+              </>
             )}
-
-            <h2 className={styles.courseTitle}>About this course</h2>
-            <p className={styles.courseText}>
-              {courseData.description || "No course description available"}
-            </p>
           </div>
+
+          {/* Course description - hide when test is showing */}
+          {(!showTest || activeTopicType !== "test") && (
+            <div className={styles.courseDescription}>
+              {/* Hamburger menu button - visible only when sidebar is closed */}
+              {!contentOpen && (
+                <button
+                  onClick={toggleContent}
+                  className={styles.hamburgerMenu}
+                  aria-label="Open course content"
+                  title="Open course content"
+                >
+                  ≡
+                </button>
+              )}
+
+              <h2 className={styles.courseTitle}>About this course</h2>
+              <p className={styles.courseText}>
+                {courseData.description || "No course description available"}
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Course content sidebar */}
-        {contentOpen && (
+        {/* Course content sidebar - hide when test is in fullscreen mode */}
+        {(contentOpen && (!showTest || activeTopicType !== "test")) && (
           <div className={styles.sidebar}>
             <div className={styles.sidebarHeader}>
               <div className={styles.headerControls}>
