@@ -88,7 +88,7 @@ const ResultPage = () => {
             
             <div className={styles.metricCard}>
               <div className={styles.metricValue}>{result.questionSkipped}</div>
-              <div className={styles.metricLabel}>Skipped</div>
+              <div className={styles.metricLabel}>Unattempted</div>
             </div>
             
             <div className={styles.metricCard}>

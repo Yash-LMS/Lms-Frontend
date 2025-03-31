@@ -20,6 +20,7 @@ export const FILE_PREVIEW_URL = `${API_BASE_URL}/file/view`;
 export const COURSE_IMAGE_VIEW_URL = `${API_BASE_URL}/course/image`;
 export const TEST_INSTRUCTOR_URL = `${API_BASE_URL}/test/findTests`;
 
+
 //Technical Manager
 export const FIND_COURSE_BY_STATUS_URL = `${API_BASE_URL}/manager/findCourseByStatus`;
 export const FIND_DASHBOARD_INFORMATION_URL = `${API_BASE_URL}/manager/findDashboardInformation`
@@ -48,7 +49,7 @@ export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
 export const VIEW_ALLOTED_TEST_URL = `${API_BASE_URL}/user/viewAllotedTest`;
 export const VIEW_USER_COURSE_DETAIL_URL = `${API_BASE_URL}/user/viewCourse/details`;
 export const USER_VIDEO_WATCH_URL = `${API_BASE_URL}/user/file/video/watch`;
-export const USER_FILE_PREVIEW_URL = `${API_BASE_URL}/file/view`;
+export const USER_FILE_PREVIEW_URL = `${API_BASE_URL}/user/file/view`;
 export const USER_FEEDBACK_URL = `${API_BASE_URL}/user/course/feedback`;
 export const VIEW_USER_TEST_URL = `${API_BASE_URL}/user/test/view`;
 
@@ -57,6 +58,10 @@ export const SUBMIT_TEST_URL = `${API_BASE_URL}/user/test/submit`;
 export const RESULT_TEST_URL = `${API_BASE_URL}/user/test/result`;
 export const USER_COURSE_FEEDBACK_URL = `${API_BASE_URL}/user/course/submitFeedback`;
 export const USER_COURSE_CERTIFICATE_URL = `${API_BASE_URL}/user/course/request/certificate`;
+export const VIEW_VIDEO_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/video/updateStatus`;
+export const COMPLETE_VIDEO_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/video/complete/updateStatus`;
+export const DOC_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/doc/updateStatus`;
+
 
 //Test
 export const CREATE_TEST_URL = `${API_BASE_URL}/test/createTest`;

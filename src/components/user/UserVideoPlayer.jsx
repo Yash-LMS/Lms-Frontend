@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./UserVideoPlayer.module.css";
-import { VIDEO_WATCH_URL } from "../../constants/apiConstants";
+import { USER_VIDEO_WATCH_URL } from "../../constants/apiConstants";
 
-const UserVideoPlayer = ({ courseId, topicId, user, token }) => {
+const UserVideoPlayer = ({ courseId, trackingId, completionStatus, topicId, user, token }) => {
   const videoRef = useRef(null);
   const [videoUrl, setVideoUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +24,7 @@ const UserVideoPlayer = ({ courseId, topicId, user, token }) => {
 
       // Fetch video URL with correct file extension
       try {
-        const response = await fetch(`${VIDEO_WATCH_URL}?courseId=${courseId}&topicId=${topicId}`, {
+        const response = await fetch(`${USER_VIDEO_WATCH_URL}?courseId=${courseId}&topicId=${topicId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -38,7 +38,7 @@ const UserVideoPlayer = ({ courseId, topicId, user, token }) => {
         }
 
         // Add timestamp to prevent caching when topicId changes
-        const newVideoUrl = `${VIDEO_WATCH_URL}?courseId=${courseId}&topicId=${topicId}&t=${new Date().getTime()}`;
+        const newVideoUrl = `${USER_VIDEO_WATCH_URL}?courseId=${courseId}&topicId=${topicId}&t=${new Date().getTime()}`;
         setVideoUrl(newVideoUrl);
         setKey(prevKey => prevKey + 1); // Increment key to force video element to re-render
         setIsLoading(false);
@@ -54,7 +54,7 @@ const UserVideoPlayer = ({ courseId, topicId, user, token }) => {
       setError("Missing required parameters");
       setIsLoading(false);
     }
-  }, [courseId, topicId, user, token]); // This will re-run whenever topicId changes
+  }, [courseId, topicId, user, token, trackingId, completionStatus]); // This will re-run whenever topicId changes
 
   const validateUserAccess = (user, courseId) => {
     return !!user;

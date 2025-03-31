@@ -362,7 +362,7 @@ const CoursePreview = () => {
                               Remove File
                             </button>
                           ) : (
-                            topic.topicType !== "test" && (
+                            topic.topicType == "video" && (
                               <p className={styles.noVideoMessage}>
                                 No video available
                               </p>

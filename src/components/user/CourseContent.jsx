@@ -6,12 +6,10 @@ import axios from "axios";
 import { VIEW_USER_COURSE_DETAIL_URL } from "../../constants/apiConstants";
 import UserVideoPlayer from "./UserVideoPlayer";
 import UserFilePreview from "./UserFilePreview";
-import InternalTestModule from "./InternalTestModule"; // Import the InternalTestModule component
 
 const CourseContent = () => {
   const [contentOpen, setContentOpen] = useState(true);
   const [activeLesson, setActiveLesson] = useState(null);
-  const [completedLessons, setCompletedLessons] = useState([]);
   const [sectionExpanded, setSectionExpanded] = useState({});
 
   // State for course data
@@ -21,7 +19,7 @@ const CourseContent = () => {
   const [activeTopic, setActiveTopic] = useState(null);
   const [activeTopicType, setActiveTopicType] = useState("video");
   const [showTest, setShowTest] = useState(false); // New state for controlling test visibility
-  const[activeCoursrId,setActiveCourseId]=useState(null);
+  const [activeCourseId, setActiveCourseId] = useState(null);
   const navigate = useNavigate();
 
   const { courseId } = useParams();
@@ -96,6 +94,34 @@ const CourseContent = () => {
     }
   }, [courseId]);
 
+  // Effect to update course data when returning from a test
+  useEffect(() => {
+    const testCompletionStatus = sessionStorage.getItem("lastCompletedTestId");
+    if (testCompletionStatus && courseData) {
+      // Update the course data to reflect the completed test
+      const updatedCourseData = {...courseData};
+      updatedCourseData.sectionList = updatedCourseData.sectionList.map(section => {
+        section.topics = section.topics.map(topic => {
+          if (topic.topicId.toString() === testCompletionStatus) {
+            return {
+              ...topic,
+              courseTrackingDto: {
+                ...topic.courseTrackingDto,
+                topicCompletionStatus: "completed"
+              }
+            };
+          }
+          return topic;
+        });
+        return section;
+      });
+      setCourseData(updatedCourseData);
+      
+      // Clear the session storage item
+      sessionStorage.removeItem("lastCompletedTestId");
+    }
+  }, [courseData]);
+
   // Toggle content sidebar
   const toggleContent = () => {
     setContentOpen((prev) => !prev); // Toggle the state
@@ -109,23 +135,35 @@ const CourseContent = () => {
     }));
   };
 
-  // Toggle lesson completion
-  const toggleLessonCompletion = (topicId) => {
-    if (completedLessons.includes(topicId.toString())) {
-      setCompletedLessons(
-        completedLessons.filter((id) => id !== topicId.toString())
-      );
-    } else {
-      setCompletedLessons([...completedLessons, topicId.toString()]);
+  // Mark topic as completed via API call
+  const markTopicAsCompleted = async (topicId) => {
+    // Here you would typically make an API call to update the completion status
+    // For now, we'll just update the local state
+    if (courseData) {
+      const updatedCourseData = {...courseData};
+      updatedCourseData.sectionList = updatedCourseData.sectionList.map(section => {
+        section.topics = section.topics.map(topic => {
+          if (topic.topicId.toString() === topicId.toString()) {
+            return {
+              ...topic,
+              courseTrackingDto: {
+                ...topic.courseTrackingDto,
+                topicCompletionStatus: "completed"
+              }
+            };
+          }
+          return topic;
+        });
+        return section;
+      });
+      setCourseData(updatedCourseData);
     }
   };
 
   // Mark topic as read
   const markTopicAsRead = (topicId, e) => {
     e.stopPropagation();
-    if (!completedLessons.includes(topicId.toString())) {
-      setCompletedLessons([...completedLessons, topicId.toString()]);
-    }
+    markTopicAsCompleted(topicId);
   };
 
   // Set active topic
@@ -170,20 +208,23 @@ const CourseContent = () => {
       case "video":
         return (
           <UserVideoPlayer
-            courseId={activeCoursrId}
+            courseId={activeCourseId}
             topicId={activeTopic?.topicId}
             user={getUserData().user}
             token={getUserData().token}
+            trackingId={activeTopic.courseTrackingDto.trackingId}
+            completionStatus={activeTopic.courseTrackingDto.topicCompletionStatus}
           />
         );
       case "docs":
         return (
           <UserFilePreview
             topicId={activeTopic.topicId}
-            allotmentId={allotmentId}
             user={getUserData().user}
             token={getUserData().token}
-            courseId={activeCoursrId}
+            courseId={activeCourseId}
+            trackingId={activeTopic.courseTrackingDto.trackingId}
+            completionStatus={activeTopic.courseTrackingDto.topicCompletionStatus}
           />
         );
       case "test":
@@ -194,32 +235,34 @@ const CourseContent = () => {
               courseAllotmentId: allotmentId,
               testAllotmentId: activeTopic.testAllotmentId,
               trackingId: activeTopic.courseTrackingDto.trackingId,
-              courseId: activeCoursrId
+              courseId: activeCourseId
             }
           });
-
+          // Store the current test ID to handle completion status on return
+          sessionStorage.setItem("currentTestId", activeTopic.topicId.toString());
+          return null;
         } else {
           return (
             <div className={styles.testContainer}>
-            <div className={styles.testStartCard}>
-              <h2>Test: {activeTopic.topicName}</h2>
-              <p>This topic contains a test to assess your knowledge.</p>
-              <p>Once you start the test, you will need to complete it in the allotted time.</p>
-              
-              {activeTopic.courseTrackingDto.topicCompletionStatus === "completed" ? (
-                <p className={styles.completedMessage}>You already completed this test</p>
-              ) : (
-                <button 
-                  className={styles.startTestButton}
-                  onClick={handleStartTest}
-                >
-                  {activeTopic.courseTrackingDto.topicCompletionStatus === "started" 
-                    ? "Continue Test" 
-                    : "Start Test"}
-                </button>
-              )}
+              <div className={styles.testStartCard}>
+                <h2>Test: {activeTopic.topicName}</h2>
+                <p>This topic contains a test to assess your knowledge.</p>
+                <p>Once you start the test, you will need to complete it in the allotted time.</p>
+                
+                {activeTopic.courseTrackingDto.topicCompletionStatus === "completed" ? (
+                  <p className={styles.completedMessage}>You already completed this test</p>
+                ) : (
+                  <button 
+                    className={styles.startTestButton}
+                    onClick={handleStartTest}
+                  >
+                    {activeTopic.courseTrackingDto.topicCompletionStatus === "started" 
+                      ? "Continue Test" 
+                      : "Start Test"}
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
           );
         }
       default:
@@ -325,10 +368,8 @@ const CourseContent = () => {
                     </h4>
                     <div className={styles.sectionInfo}>
                       {
-                        completedLessons.filter((id) =>
-                          section.topics.some(
-                            (topic) => topic.topicId.toString() === id
-                          )
+                        section.topics.filter(topic => 
+                          topic.courseTrackingDto.topicCompletionStatus === "completed"
                         ).length
                       }
                       /{section.topics.length} topics
@@ -342,47 +383,50 @@ const CourseContent = () => {
                 {/* Topics */}
                 {sectionExpanded[section.sectionId] && (
                   <div className={styles.lecturesList}>
-                    {section.topics.map((topic) => (
-                      <div
-                        key={topic.topicId}
-                        className={`${styles.lectureItem} ${
-                          activeTopic && activeTopic.topicId === topic.topicId
-                            ? styles.activeLesson
-                            : ""
-                        }`}
-                        onClick={() => setTopicActive(topic)}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={completedLessons.includes(
-                            topic.topicId.toString()
-                          )}
-                          className={styles.lectureCheckbox}
-                          onChange={() => toggleLessonCompletion(topic.topicId)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <div className={styles.lectureContent}>
-                          <div className={styles.lectureInfo}>
-                            <div className={styles.lectureTitle}>
-                              {topic.topicsSequenceId}. {topic.topicName}
-                            </div>
-                            <div className={styles.lectureType}>
-                              {topic.topicType}
-                              <button
-                                className={styles.markReadBtn}
-                                onClick={(e) =>
-                                  markTopicAsRead(topic.topicId, e)
-                                }
-                                aria-label="Mark as read"
-                                title="Mark as read"
-                              >
-                                ✓
-                              </button>
+                    {section.topics.map((topic) => {
+                      // Use only the API's topicCompletionStatus to determine if completed
+                      const isCompleted = topic.courseTrackingDto.topicCompletionStatus === "completed";
+                        
+                      return (
+                        <div
+                          key={topic.topicId}
+                          className={`${styles.lectureItem} ${
+                            activeTopic && activeTopic.topicId === topic.topicId
+                              ? styles.activeLesson
+                              : ""
+                          }`}
+                          onClick={() => setTopicActive(topic)}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isCompleted}
+                            className={styles.lectureCheckbox}
+                            onChange={() => markTopicAsCompleted(topic.topicId)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          <div className={styles.lectureContent}>
+                            <div className={styles.lectureInfo}>
+                              <div className={styles.lectureTitle}>
+                                {topic.topicsSequenceId}. {topic.topicName}
+                              </div>
+                              <div className={styles.lectureType}>
+                                {topic.topicType}
+                                <button
+                                  className={styles.markReadBtn}
+                                  onClick={(e) =>
+                                    markTopicAsRead(topic.topicId, e)
+                                  }
+                                  aria-label="Mark as read"
+                                  title="Mark as read"
+                                >
+                                  ✓
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

@@ -562,7 +562,8 @@ const CourseDetailsForm = ({ course, onCancel }) => {
                           </label>
                         </div>
 
-                        {topic.videoURL && (
+                        {/* Display file information for both video and document uploads */}
+                        {topic.topicType === "video" && topic.videoURL && (
                           <div className={styles.fileInfo}>
                             <span>Selected file: {topic.videoURL}</span>
                             <button
@@ -572,6 +573,27 @@ const CourseDetailsForm = ({ course, onCancel }) => {
                                   sectionIndex,
                                   topicIndex,
                                   "videoURL",
+                                  ""
+                                )
+                              }
+                              className={styles.clearFileButton}
+                              disabled={isSaving || isUploading}
+                            >
+                              Clear
+                            </button>
+                          </div>
+                        )}
+
+                        {topic.topicType === "docs" && topic.docsURL && (
+                          <div className={styles.fileInfo}>
+                            <span>Selected file: {topic.docsURL}</span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateTopic(
+                                  sectionIndex,
+                                  topicIndex,
+                                  "docsURL",
                                   ""
                                 )
                               }
