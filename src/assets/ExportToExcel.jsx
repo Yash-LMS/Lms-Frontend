@@ -143,10 +143,14 @@ const ExportToExcel = ({
       className="export-button"
       style={{ ...defaultButtonStyle, ...buttonStyle }}
     >
+      {/* New Excel sheet icon */}
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M14 8V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M11.3332 4.66667L7.99984 1.33334L4.6665 4.66667" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M8 1.33334V9.33334" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M14 2V14H2V2H14ZM14 1H2C1.45 1 1 1.45 1 2V14C1 14.55 1.45 15 2 15H14C14.55 15 15 14.55 15 14V2C15 1.45 14.55 1 14 1Z" fill="white"/>
+        <path d="M4 6H7V8H4V6Z" fill="white"/>
+        <path d="M9 6H12V8H9V6Z" fill="white"/>
+        <path d="M4 10H7V12H4V10Z" fill="white"/>
+        <path d="M9 10H12V12H9V10Z" fill="white"/>
+        <path d="M4 3.5H12V4.5H4V3.5Z" fill="white"/>
       </svg>
       Export to Excel
     </button>
