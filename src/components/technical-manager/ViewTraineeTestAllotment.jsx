@@ -23,6 +23,7 @@ const ViewTraineeTestAllotment = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
 
   const [exportData, setExportData] = useState([]);
   const [exportHeaders, setExportHeaders] = useState({});
@@ -86,6 +87,7 @@ const ViewTraineeTestAllotment = () => {
     if (shouldFetchData) {
       setError(null);
       fetchFilteredResults();
+      setHasSearched(true);
     }
   }, [filterType, selectedUser, selectedTest]);
 
@@ -208,6 +210,7 @@ const ViewTraineeTestAllotment = () => {
     setDisplayedResults([]);
     setSearchTerm("");
     setError("");
+    setHasSearched(false);
   };
 
   const formatDate = (dateString) => {
@@ -231,6 +234,33 @@ const ViewTraineeTestAllotment = () => {
     setSearchTerm(e.target.value);
   };
 
+  // Helper function to render status with appropriate class
+  const renderStatus = (status) => {
+    let statusClass;
+    switch (status) {
+      case "COMPLETED":
+        statusClass = styles.statusCompleted;
+        break;
+      case "STARTED":
+        statusClass = styles.statusStarted;
+        break;
+      case "PENDING":
+        statusClass = styles.statusPending;
+        break;
+      case "EXPIRED":
+        statusClass = styles.statusExpired;
+        break;
+      default:
+        statusClass = styles.statusPending;
+    }
+    
+    return (
+      <span className={statusClass}>
+        {status}
+      </span>
+    );
+  };
+
   return (
     <>
       {isMobile && (
@@ -248,7 +278,7 @@ const ViewTraineeTestAllotment = () => {
       </div>
 
       <div className={styles.container}>
-        <h1 className={styles.title}>Trainee Test Allotment</h1>
+        <div className={styles.pageHeader}><h1>Trainee Test Allotment</h1></div>
 
         <div className={styles.filterSection}>
           <h2 className={styles.filterTitle}>Filter Options</h2>
@@ -409,65 +439,88 @@ const ViewTraineeTestAllotment = () => {
         </div>
 
         <div className={styles.resultsSection}>
-          {displayedResults.length > 0 ? (
-            <div className={styles.tableContainer}>
-              <div className={styles.resultsCount}>
-                Showing {displayedResults.length}{" "}
-                {displayedResults.length === 1 ? "result" : "results"}
-                {searchTerm &&
-                  filteredResults.length !== displayedResults.length &&
-                  ` (filtered from ${filteredResults.length})`}
-              </div>
-              <table className={styles.resultsTable}>
-                <thead>
-                  <tr>
-                    <th>Allotment ID</th>
-                    <th>Trainee Name</th>
-                    <th>Email</th>
-                    <th>Test Name</th>
-                    <th>Instructor</th>
-                    <th>Duration (hrs)</th>
-                    <th>Marks</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {displayedResults.map((result) => (
-                    <tr key={result.allotmentId}>
-                      <td>{result.allotmentId}</td>
-                      <td>{result.name}</td>
-                      <td>{result.emailId}</td>
-                      <td>{result.testName}</td>
-                      <td>{result.instructorName}</td>
-                      <td>{result.duration}</td>
-                      <td>{result.marks}</td>
-                      <td>{formatDate(result.startDate)}</td>
-                      <td>{formatDate(result.endDate)}</td>
-                      <td>
-                        <span
-                          className={
-                            result.completionStatus === "COMPLETED"
-                              ? styles.statusCompleted
-                              : result.completionStatus === "IN_PROGRESS"
-                              ? styles.statusInProgress
-                              : styles.statusPending
-                          }
-                        >
-                          {result.completionStatus}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : filteredResults.length > 0 ? (
-            <div className={styles.noResults}>
-              No results match your search criteria
-            </div>
-          ) : null}
+          {loading ? (
+            <div className={styles.loadingIndicator}>Loading...</div>
+          ) : (
+            <>
+              {/* Display table if we have results or have searched */}
+              {(displayedResults.length > 0 || hasSearched) && (
+                <div className={styles.tableContainer}>
+                  {displayedResults.length > 0 ? (
+                    <>
+                      <div className={styles.resultsCount}>
+                        Showing {displayedResults.length}{" "}
+                        {displayedResults.length === 1 ? "result" : "results"}
+                        {searchTerm &&
+                          filteredResults.length !== displayedResults.length &&
+                          ` (filtered from ${filteredResults.length})`}
+                      </div>
+                      <table className={styles.resultsTable}>
+                        <thead>
+                          <tr>
+                            <th>Allotment ID</th>
+                            <th>Trainee Name</th>
+                            <th>Email</th>
+                            <th>Test Name</th>
+                            <th>Instructor</th>
+                            <th>Duration (hrs)</th>
+                            <th>Marks</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {displayedResults.map((result) => (
+                            <tr key={result.allotmentId}>
+                              <td>{result.allotmentId}</td>
+                              <td>{result.name}</td>
+                              <td>{result.emailId}</td>
+                              <td>{result.testName}</td>
+                              <td>{result.instructorName}</td>
+                              <td>{result.duration}</td>
+                              <td>{result.marks}</td>
+                              <td>{formatDate(result.startDate)}</td>
+                              <td>{formatDate(result.endDate)}</td>
+                              <td>
+                                {renderStatus(result.completionStatus)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </>
+                  ) : (
+                    <>
+                      <table className={styles.resultsTable}>
+                        <thead>
+                          <tr>
+                            <th>Allotment ID</th>
+                            <th>Trainee Name</th>
+                            <th>Email</th>
+                            <th>Test Name</th>
+                            <th>Instructor</th>
+                            <th>Duration (hrs)</th>
+                            <th>Marks</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td colSpan="10" className={styles.noRecordsCell}>
+                              No records available
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </>
+                  )}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     </>

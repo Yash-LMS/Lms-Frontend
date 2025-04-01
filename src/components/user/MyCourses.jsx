@@ -195,6 +195,13 @@ const MyCourses = () => {
     }));
   };
 
+  // Function to format completion status to 2 decimal places ONLY if it has decimals
+  const formatCompletionStatus = (status) => {
+    const value = parseFloat(status);
+    // Check if the number has decimal places
+    return Number.isInteger(value) ? value : value.toFixed(2);
+  };
+
   return (
     <div className={styles.myCoursesContainer}>
       <DashboardSidebar activeLink="dashboard" />
@@ -275,7 +282,7 @@ const MyCourses = () => {
                 <div className={styles.progressContainer}>
                   <div className={styles.progressInfo}>
                     <span>Progress</span>
-                    <span>{course.completionStatus}%</span>
+                    <span>{formatCompletionStatus(course.completionStatus)}%</span>
                   </div>
                   <div className={styles.progressBar}>
                     <div

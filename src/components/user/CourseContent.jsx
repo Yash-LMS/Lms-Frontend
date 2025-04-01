@@ -200,6 +200,15 @@ const CourseContent = () => {
     }
   };
 
+  // Handle video completion - navigate to next topic automatically
+  const handleVideoCompleted = (topicId) => {
+    // Mark the current topic as completed
+    markTopicAsCompleted(topicId);
+    
+    // Navigate to next topic automatically
+    navigateLesson("next");
+  };
+
   // Render content based on topic type
   const renderContentByType = () => {
     if (!activeTopic) return null;
@@ -214,6 +223,7 @@ const CourseContent = () => {
             token={getUserData().token}
             trackingId={activeTopic.courseTrackingDto.trackingId}
             completionStatus={activeTopic.courseTrackingDto.topicCompletionStatus}
+            onVideoCompleted={() => handleVideoCompleted(activeTopic.topicId)}
           />
         );
       case "docs":

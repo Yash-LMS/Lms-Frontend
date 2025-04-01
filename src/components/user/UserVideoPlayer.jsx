@@ -9,7 +9,7 @@ import {
   COMPLETE_VIDEO_UPDATE_STATUS_URL 
 } from "../../constants/apiConstants";
 
-const UserVideoPlayer = ({ courseId, trackingId, completionStatus, topicId, user, token }) => {
+const UserVideoPlayer = ({ courseId, trackingId, completionStatus, topicId, user, token, onVideoCompleted }) => {
   const videoRef = useRef(null);
   const [videoUrl, setVideoUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -19,6 +19,7 @@ const UserVideoPlayer = ({ courseId, trackingId, completionStatus, topicId, user
   const [videoSize, setVideoSize] = useState(0);
   const [videoViewed, setVideoViewed] = useState(false);
   const [videoCompleted, setVideoCompleted] = useState(false);
+  const completionCallbackRef = useRef(false);
 
   useEffect(() => {
     // Reset loading state when topicId changes
@@ -26,6 +27,7 @@ const UserVideoPlayer = ({ courseId, trackingId, completionStatus, topicId, user
     setError(null);
     setVideoViewed(false);
     setVideoCompleted(false);
+    completionCallbackRef.current = false;
     
     const fetchVideoDetails = async () => {
       if (!validateUserAccess(user, courseId)) {
@@ -80,8 +82,6 @@ const UserVideoPlayer = ({ courseId, trackingId, completionStatus, topicId, user
       const sizeResponse = await axios.get(`${VIDEO_SIZE_URL}?topicId=${topicId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
-      console.log("Size response:", sizeResponse.data);
       
       // Fix the typo in "success" and handle different response formats
       if (sizeResponse.data && (sizeResponse.data.response === "success" || sizeResponse.data.response === "suceess")) {
@@ -124,61 +124,83 @@ const UserVideoPlayer = ({ courseId, trackingId, completionStatus, topicId, user
         }
       };
       
+      // Function to handle video ending
+      const handleVideoEnded = () => {
+        if (!completionCallbackRef.current && typeof onVideoCompleted === 'function') {
+          completionCallbackRef.current = true;
+          onVideoCompleted();
+        }
+      };
+      
       video.addEventListener('timeupdate', handleTimeUpdate);
+      video.addEventListener('ended', handleVideoEnded);
       
       return () => {
         video.removeEventListener('timeupdate', handleTimeUpdate);
+        video.removeEventListener('ended', handleVideoEnded);
       };
     }
-  }, [videoUrl, videoViewed, videoCompleted]);
+  }, [videoUrl, videoViewed, videoCompleted, onVideoCompleted]);
 
   const viewVideo = async () => {
-  try {
-    const requestBody = {
-      user,
-      token,
-      courseTrackingId: trackingId,
-      completionStatus: 'viewed',
-      timestamp: new Date().toISOString()
-    };
-    
-    const response = await axios.post(VIEW_VIDEO_UPDATE_STATUS_URL, requestBody, {
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    console.log("View video response:", response.data);
-    return response.data;
-  } catch (err) {
-    console.error('Error updating video status:', err);
-    return false;
-  }
-};
+    try {
+      const requestBody = {
+        user,
+        token,
+        courseTrackingId: trackingId,
+        completionStatus: 'viewed',
+        timestamp: new Date().toISOString()
+      };
+      
+      const response = await axios.post(VIEW_VIDEO_UPDATE_STATUS_URL, requestBody, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log("View video response:", response.data);
+      return response.data;
+    } catch (err) {
+      console.error('Error updating video status:', err);
+      return false;
+    }
+  };
 
-const completeVideo = async () => {
-  try {
-    const requestBody = {
-      user,
-      token,
-      courseTrackingId: trackingId,
-    };
-    
-    const response = await axios.post(COMPLETE_VIDEO_UPDATE_STATUS_URL, requestBody, {
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+  const completeVideo = async () => {
+    try {
+      const requestBody = {
+        user,
+        token,
+        courseTrackingId: trackingId,
+      };
+      
+      const response = await axios.post(COMPLETE_VIDEO_UPDATE_STATUS_URL, requestBody, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log("Complete video response:", response.data);
+      
+      // If video reaches 90% but hasn't ended yet, we still want to trigger the navigation
+      // after a short delay if the user doesn't watch till the end
+      if (!completionCallbackRef.current && typeof onVideoCompleted === 'function') {
+        setTimeout(() => {
+          if (!completionCallbackRef.current) {
+            completionCallbackRef.current = true;
+            onVideoCompleted();
+          }
+        }, 3000); // Wait 3 seconds after completion before auto-navigating
       }
-    });
-    
-    console.log("Complete video response:", response.data);
-    return response.data;
-  } catch (err) {
-    console.error('Error completing video status:', err);
-    return false;
-  }
-};
+      
+      return response.data;
+    } catch (err) {
+      console.error('Error completing video status:', err);
+      return false;
+    }
+  };
 
   const validateUserAccess = (user, courseId) => {
     return !!user;
