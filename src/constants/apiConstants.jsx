@@ -66,7 +66,7 @@ export const VIDEO_SIZE_URL = `${API_BASE_URL}/user/file/video/size`; // in minu
 
 //Test
 export const CREATE_TEST_URL = `${API_BASE_URL}/test/createTest`;
-export const VIEW_TEST_URL = `${API_BASE_URL}/test/viewTest`;
+export const VIEW_TEST_URL = `${API_BASE_URL}/test/instructor/view/test`;
 export const ADD_QUESTION_URL = `${API_BASE_URL}/test/addQuestions`;
 export const PREVIEW_TEST_URL = `${API_BASE_URL}/test/view/question`;
 export const PREVIEW_TEST_MANAGER_URL = `${API_BASE_URL}/manager/view/question`;
