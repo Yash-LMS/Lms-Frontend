@@ -28,10 +28,12 @@ import TestAllotment from "./components/technical-manager/TestAllotment";
 import NotificationPage from "./components/Notification/NotificationPage";
 import TestRequests from "./components/technical-manager/TestRequests";
 import ResultPage from "./components/user/ResultPage";
-import TraineeResults from "./components/technical-manager/TraineeResults";
+import TraineeResults from "./components/technical-manager/AllResults";
 import ViewTraineeTestAllotment from "./components/technical-manager/ViewTraineeTestAllotment";
 import InternalTestModule from "./components/user/InternalTestModule";
 import axios from 'axios';
+import CourseProgressTracker from "./components/instructor/CourseProgress";
+import ResultComponent from "./components/technical-manager/ResultComponent";
 
 
 // Protected Route component
@@ -173,11 +175,17 @@ const AppContent = () => {
               <InstructorDashboard />
             </ProtectedRoute>
           } />
-          <Route path="/instructor/test" element={
+          <Route path="/instructor/view/test" element={
             <ProtectedRoute>
               <TestManagement />
             </ProtectedRoute>
           } />
+          <Route path="/course/progress" element={
+            <ProtectedRoute>
+              <CourseProgressTracker />
+            </ProtectedRoute>
+          } />
+
           <Route path="/course/preview/:courseId" element={
             <ProtectedRoute>
               <CoursePreview />
@@ -282,7 +290,7 @@ const AppContent = () => {
 
         <Route path="/manager/result" element={
             <ProtectedRoute>
-              <TraineeResults />
+              <ResultComponent />
             </ProtectedRoute>
           } />
 

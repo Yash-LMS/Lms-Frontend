@@ -462,4 +462,98 @@
       width: 100%;
     }
   }
+
+  .confirmationOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  /* Popup container */
+  .confirmationPopup {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    padding: 24px;
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+  }
+  
+  .confirmationPopup h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+  }
+  
+  .confirmationPopup p {
+    margin-bottom: 20px;
+    font-size: 1rem;
+    color: #555;
+  }
+  
+  /* Test summary section */
+  .testSummary {
+    background-color: #f7f9fc;
+    border-radius: 6px;
+    padding: 16px;
+    margin: 20px 0;
+    text-align: left;
+  }
+  
+  .testSummary p {
+    margin: 8px 0;
+    font-size: 0.95rem;
+    color: #444;
+  }
+  
+  /* Confirmation buttons */
+  .confirmationButtons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  
+  .confirmSubmitBtn, .cancelSubmitBtn {
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    border: none;
+  }
+  
+  .confirmSubmitBtn {
+    background-color: #ff5722;
+    color: white;
+  }
+  
+  .confirmSubmitBtn:hover {
+    background-color: #e64a19;
+  }
+  
+  .cancelSubmitBtn {
+    background-color: #e0e0e0;
+    color: #333;
+  }
+  
+  .cancelSubmitBtn:hover {
+    background-color: #d5d5d5;
+  }
+  
+  /* Additional style for blurring the background */
+  .blurred {
+    filter: blur(3px);
+    pointer-events: none;
+  }
   

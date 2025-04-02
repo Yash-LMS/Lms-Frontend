@@ -463,7 +463,7 @@ const ViewTraineeTestAllotment = () => {
                             <th>Email</th>
                             <th>Test Name</th>
                             <th>Instructor</th>
-                            <th>Duration (hrs)</th>
+                            <th>Duration (mins)</th>
                             <th>Marks</th>
                             <th>Start Date</th>
                             <th>End Date</th>

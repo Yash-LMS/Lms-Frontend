@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import styles from './TestModule.module.css';
 import { useNavigate, useLocation  } from "react-router-dom";
-import { VIEW_USER_TEST_URL,START_TEST_URL, SUBMIT_TEST_URL } from '../../constants/apiConstants';
+import { VIEW_USER_TEST_URL, START_TEST_URL, SUBMIT_TEST_URL } from '../../constants/apiConstants';
 
 const TestModule = () => {
   
@@ -29,6 +29,9 @@ const TestModule = () => {
   
   const [testAllotmentId, setTestAllotmentId] = useState(null);
   const [isTestStarted, setIsTestStarted] = useState(false);
+  
+  // Added for submit confirmation popup
+  const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
 
 
   useEffect(() => {
@@ -330,6 +333,12 @@ const TestModule = () => {
     setCurrentQuestionIndex(index);
   };
 
+  // Show submit confirmation popup
+  const showSubmitConfirmationPopup = () => {
+    if (isPaused) return;
+    setShowSubmitConfirmation(true);
+  };
+
   // Modified to match the expected API format
   const handleSubmit = async (description) => {
     try {
@@ -480,6 +489,10 @@ const TestModule = () => {
     return "";
   });
 
+  // Calculate the number of answered and unanswered questions
+  const answeredCount = questionStatus.filter(status => status === "answered").length;
+  const unansweredCount = totalQuestions - answeredCount;
+
   return (
     <div className={styles.fullScreenContainer} ref={mainContainerRef}>
       {showNotification && (
@@ -502,7 +515,38 @@ const TestModule = () => {
         </div>
       )}
       
-      <div className={`${styles.testContent} ${isPaused ? styles.blurred : ''}`}>
+      {/* Submit confirmation popup */}
+      {showSubmitConfirmation && (
+        <div className={styles.confirmationOverlay}>
+          <div className={styles.confirmationPopup}>
+            <h3>Confirm Submission</h3>
+            <p>Are you sure you want to submit your test?</p>
+            
+            <div className={styles.testSummary}>
+              <p>Total Questions: <strong>{totalQuestions}</strong></p>
+              <p>Answered: <strong>{answeredCount}</strong></p>
+              <p>Unanswered: <strong>{unansweredCount}</strong></p>
+            </div>
+            
+            <div className={styles.confirmationButtons}>
+              <button 
+                className={styles.confirmSubmitBtn}
+                onClick={() => handleSubmit("Test submitted by user")}
+              >
+                Yes, Submit
+              </button>
+              <button 
+                className={styles.cancelSubmitBtn}
+                onClick={() => setShowSubmitConfirmation(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className={`${styles.testContent} ${isPaused || showSubmitConfirmation ? styles.blurred : ''}`}>
         <div className={styles.testPanel}>
           <div className={styles.testHeader}>
             <h2>{testDetails.testName}</h2>
@@ -545,7 +589,7 @@ const TestModule = () => {
                               handleSingleChoiceAnswer(currentQuestion.questionId, optionIndex);
                             }
                           }}
-                          disabled={isPaused}
+                          disabled={isPaused || showSubmitConfirmation}
                         />
                         {option}
                       </label>
@@ -559,15 +603,15 @@ const TestModule = () => {
             <button 
               className={`${styles.navButton} ${styles.prev} ${currentQuestionIndex === 0 ? styles.disabled : ''}`}
               onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0 || isPaused}
+              disabled={currentQuestionIndex === 0 || isPaused || showSubmitConfirmation}
             >
               Prev
             </button>
             {currentQuestionIndex === testDetails.questionList.length - 1 ? (
               <button 
                 className={`${styles.navButton} ${styles.submit}`} 
-                onClick={() => handleSubmit("Test submitted by user")}
-                disabled={isPaused}
+                onClick={showSubmitConfirmationPopup}
+                disabled={isPaused || showSubmitConfirmation}
               >
                 Submit
               </button>
@@ -575,7 +619,7 @@ const TestModule = () => {
               <button 
                 className={`${styles.navButton} ${styles.next}`} 
                 onClick={handleNext}
-                disabled={isPaused}
+                disabled={isPaused || showSubmitConfirmation}
               >
                 Next
               </button>
@@ -584,46 +628,46 @@ const TestModule = () => {
         </div>
 
         <div className={styles.sidebar}>
-        <div className={styles.timerPanel}>
-  <h3>Timer</h3>
-  
-  <div className={styles.roundTimerContainer}>
-    <svg className={styles.roundTimer} width="120" height="120" viewBox="0 0 120 120">
-      {/* Background circle */}
-      <circle
-        cx="60"
-        cy="60"
-        r={timerProps.radius}
-        fill="none"
-        stroke="#eaeaea"
-        strokeWidth="8"
-      />
-      {/* Progress circle */}
-      <circle
-        cx="60"
-        cy="60"
-        r={timerProps.radius}
-        fill="none"
-        stroke="#ff9800"
-        strokeWidth="8"
-        strokeLinecap="round"
-        strokeDasharray={timerProps.circumference}
-        strokeDashoffset={timerProps.dashOffset}
-        transform="rotate(-90 60 60)"
-      />
-      
-      {/* Time display - now showing hours, minutes, seconds */}
-      <text x="60" y="45" textAnchor="middle" className={styles.timerText}>
-        {Math.floor(timeRemaining / 3600)}:{String(Math.floor((timeRemaining % 3600) / 60)).padStart(2, '0')}:{String(timeRemaining % 60).padStart(2, '0')}
-      </text>
-      
-      {/* Units label */}
-      <text x="60" y="65" textAnchor="middle" className={styles.timerSubText}>
-        Hr : Min : Sec
-      </text>
-    </svg>
-  </div>
-</div>
+          <div className={styles.timerPanel}>
+            <h3>Timer</h3>
+            
+            <div className={styles.roundTimerContainer}>
+              <svg className={styles.roundTimer} width="120" height="120" viewBox="0 0 120 120">
+                {/* Background circle */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r={timerProps.radius}
+                  fill="none"
+                  stroke="#eaeaea"
+                  strokeWidth="8"
+                />
+                {/* Progress circle */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r={timerProps.radius}
+                  fill="none"
+                  stroke="#ff9800"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  strokeDasharray={timerProps.circumference}
+                  strokeDashoffset={timerProps.dashOffset}
+                  transform="rotate(-90 60 60)"
+                />
+                
+                {/* Time display - now showing hours, minutes, seconds */}
+                <text x="60" y="45" textAnchor="middle" className={styles.timerText}>
+                  {Math.floor(timeRemaining / 3600)}:{String(Math.floor((timeRemaining % 3600) / 60)).padStart(2, '0')}:{String(timeRemaining % 60).padStart(2, '0')}
+                </text>
+                
+                {/* Units label */}
+                <text x="60" y="65" textAnchor="middle" className={styles.timerSubText}>
+                  Hr : Min : Sec
+                </text>
+              </svg>
+            </div>
+          </div>
 
           <div className={styles.questionsPanel}>
             <h3>Questions</h3>

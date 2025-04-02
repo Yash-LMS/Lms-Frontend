@@ -7,6 +7,7 @@ import {
 } from "../../features/manager/managerActions";
 import styles from "./EmployeeManagement.module.css";
 import Sidebar from "./Sidebar";
+import ExportToExcel from "../../assets/ExportToExcel";
 
 const EmployeeManagementPage = () => {
   const dispatch = useDispatch();
@@ -78,25 +79,22 @@ const EmployeeManagementPage = () => {
   // Handle role change - using emailId as the primary identifier
   const handleRoleChange = (emailId, newRole) => {
     const { user, token } = getUserData();
-    // Find user by emailId instead of id
     const userToUpdate = users.find((emp) => emp.emailId === emailId);
 
     if (!userToUpdate) {
-      console.error(`User with email ${emailId} not found`);
+      console.error(`User  with email ${emailId} not found`);
       return;
     }
 
-    // Only proceed if the role has actually changed
     if (userToUpdate.role === newRole) {
       console.log("No change in role detected. Skipping update.");
       return;
     }
 
-    // Create payload with only the necessary information
     const userApproval = {
-      emailId: emailId, // Use emailId directly
+      emailId: emailId,
       role: newRole,
-      status: userToUpdate.userStatus || userToUpdate.status, // Preserve current status
+      status: userToUpdate.userStatus || userToUpdate.status,
     };
 
     console.log("Updating user role with payload:", {
@@ -115,7 +113,6 @@ const EmployeeManagementPage = () => {
       .unwrap()
       .then((response) => {
         console.log("Role update response:", response);
-        // Refresh the list after update
         dispatch(
           findEmployeeList({
             user,
@@ -134,26 +131,23 @@ const EmployeeManagementPage = () => {
   // Handle status change - using emailId as the primary identifier
   const handleStatusChange = (emailId, newStatus) => {
     const { user, token } = getUserData();
-    // Find user by emailId instead of id
     const userToUpdate = users.find((emp) => emp.emailId === emailId);
 
     if (!userToUpdate) {
-      console.error(`User with email ${emailId} not found`);
+      console.error(`User  with email ${emailId} not found`);
       return;
     }
 
-    // Only proceed if the status has actually changed
     const currentStatus = userToUpdate.userStatus || userToUpdate.status;
     if (currentStatus === newStatus) {
       console.log("No change in status detected. Skipping update.");
       return;
     }
 
-    // Create payload with correct information
     const userApproval = {
-      emailId: emailId, // Use emailId directly
+      emailId: emailId,
       status: newStatus,
-      role: userToUpdate.role, // Preserve current role
+      role: userToUpdate.role,
     };
 
     console.log("Updating user status with payload:", {
@@ -172,7 +166,6 @@ const EmployeeManagementPage = () => {
       .unwrap()
       .then((response) => {
         console.log("Status update response:", response);
-        // Refresh the list after update
         dispatch(
           findEmployeeList({
             user,
@@ -188,7 +181,6 @@ const EmployeeManagementPage = () => {
       });
   };
 
-  // Use the loading state from Redux or local state
   const isLoading = reduxLoading || loading;
 
   const [activeTab, setActiveTab] = useState("employee");
@@ -214,9 +206,19 @@ const EmployeeManagementPage = () => {
     }
   };
 
+  // Define Excel headers for employee management
+  const excelHeaders = {
+    firstName: "First Name",
+    lastName: "Last Name",
+    emailId: "Email ID",
+    officeId: "Office ID",
+    role: "Role",
+    status: "User Status",
+  };
+
   return (
     <div className={styles.container}>
-        <Sidebar activeTab={activeTab}  />
+      <Sidebar activeTab={activeTab} />
 
       <div className={styles.card}>
         <div className={styles.pageHeader}>
@@ -254,6 +256,18 @@ const EmployeeManagementPage = () => {
               </select>
             </div>
           </div>
+        </div>
+
+        <div className={styles.headerActions}>
+          <ExportToExcel
+            data={users} 
+            headers={excelHeaders}
+            fileName="Employee-Management-Results"
+            sheetName="Employees"
+            buttonStyle={{
+              marginBottom: "20px",
+            }}
+          />
         </div>
 
         <div className={styles.cardContent}>
@@ -302,7 +316,6 @@ const EmployeeManagementPage = () => {
                         <td>
                           <span
                             className={`${styles.statusBadge} ${
-                              // Check both userStatus and status fields
                               (user.userStatus || user.status) === "active"
                                 ? styles.statusActive
                                 : (user.userStatus || user.status) === "blocked"

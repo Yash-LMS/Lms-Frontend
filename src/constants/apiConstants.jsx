@@ -39,7 +39,12 @@ export const FIND_TEST_URL = `${API_BASE_URL}/manager/findTests`;
 export const UPDATE_USER_ROLE_AND_STATUS_URL = `${API_BASE_URL}/manager/updateUserRoleAndStatus`;
 export const FIND_EMPLOYEE_LIST_URL = `${API_BASE_URL}/manager/findEmployeeList`;
 export const FIND_EMPLOYEE_INFO_URL = `${API_BASE_URL}/manager/findEmployeeInformation`;
-export const VIEW_TRAINEE_RESULT = `${API_BASE_URL}/manager/viewTraineeResults`;
+export const ALL_TRAINEE_RESULT = `${API_BASE_URL}/manager/viewTraineeResults`;
+
+export const VIEW_TRAINEE_RESULT = `${API_BASE_URL}/manager/viewTraineeResultsByTrainee`;
+
+export const VIEW_TRAINEE_LIST = `${API_BASE_URL}/manager/view/allTrainees`;
+
 export const VIEW_TRAINEE_ALLOTED_COURSE_URL = `${API_BASE_URL}/manager/viewTraineeAllotedCourse`
 export const VIEW_TRAINEE_ALLOTED_TEST_URL = `${API_BASE_URL}/manager/viewTraineeAllotedTest`
 

@@ -67,7 +67,7 @@ const Sidebar = ({ activeTab }) => {
               onClick={(e) => handleNavigation('/manager/result', 'results', e)}
             >
               <i className="fas fa-clipboard-list"></i>
-              Test Results
+              Results
             </a>
           </li>
 
@@ -77,7 +77,7 @@ const Sidebar = ({ activeTab }) => {
               onClick={(e) => handleNavigation('/manager/allottedtest/user', 'alloted', e)}
             >
               <i className="fas fa-clipboard-list"></i>
-              Allotted Test
+             View Allotted Test
             </a>
           </li>
           

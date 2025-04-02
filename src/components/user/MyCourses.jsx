@@ -134,7 +134,20 @@ const MyCourses = () => {
 
       const response = await axios.post(`${USER_COURSE_CERTIFICATE_URL}`, requestData, {
         responseType: "blob", // Ensures response is treated as a file
+        validateStatus: function (status) {
+          // Allow all status codes to be processed, not just 2xx
+          return true;
+        }
       });
+
+      console.log("Not acceptable")
+      if (response.status === 406) {
+        console.log("dfd")
+        const courseStatus = response.headers['x-course-status'];
+        setCertificateDownloadError(`Cannot download certificate: Course ${courseStatus}`);
+        alert(`Cannot download certificate: Course ${courseStatus}`);
+        return;
+      }
 
       if (response.status === 200) {
         const blob = new Blob([response.data], { type: "application/pdf" });
