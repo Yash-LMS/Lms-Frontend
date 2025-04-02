@@ -192,12 +192,21 @@ const TraineeResults = () => {
     courseName: "Course Name",
     score: "Score",
     totalMarks: "Total Marks",
+    passPercentage: "Pass Percentage",
     correctAnswers: "Correct Answers",
     incorrectAnswers: "Incorrect Answers",
     questionSkipped: "Skipped Questions",
     totalQuestion: "Total Questions",
   };
 
+  const exportData = filteredResults.map((result) => {
+    const passPercentage = calculatePassPercentage(result.score, result.totalMarks);
+    return {
+      ...result,
+      passPercentage: `${passPercentage}%`, // Add pass percentage to each result
+    };
+  });
+  
   // Custom styles for React Select
   const customSelectStyles = {
     control: (provided) => ({
@@ -277,7 +286,7 @@ const TraineeResults = () => {
 
               <div className={styles.headerActions}>
                 <ExportToExcel
-                  data={filteredResults}
+                  data={exportData}
                   headers={excelHeaders}
                   fileName="Trainee-Test-Results"
                   sheetName="Results"
