@@ -200,82 +200,86 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
     setCurrentPage(Math.min(currentPage, Math.ceil(updatedQuestions.length / questionsPerPage)));
   };
 
-  const handleSubmit = async () => {
-    setErrorMessage('');
+  // In the handleSubmit function, update the questionList processing:
 
-    // Validate questions before submission
-    const validationErrors = questions.map((question, index) => {
-      // Check if question description exists
-      if (!question.description.trim()) {
-        return `Question ${index + 1}: Description is required`;
-      }
+const handleSubmit = async () => {
+  setErrorMessage('');
 
-      // Check correct options for each question type
-      const correctOptions = question.options.filter(opt => opt.isCorrect);
-      if (question.questionType === 'single_choice' && correctOptions.length !== 1) {
-        return `Question ${index + 1}: Must have exactly one correct option`;
-      }
-      if (question.questionType === 'multiple_choice' && correctOptions.length < 1) {
-        return `Question ${index + 1}: Must have at least one correct option`;
-      }
-
-      return null;
-    }).filter(error => error !== null);
-
-    if (validationErrors.length > 0) {
-      setErrorMessage(validationErrors.join('. '));
-      return;
+  // Validate questions before submission
+  const validationErrors = questions.map((question, index) => {
+    // Check if question description exists
+    if (!question.description.trim()) {
+      return `Question ${index + 1}: Description is required`;
     }
 
-    const { user, token, role } = getUserData();
-    if (!user || !token) {
-      setErrorMessage('User session data is missing. Please log in again.');
-      return;
+    // Check correct options for each question type
+    const correctOptions = question.options.filter(opt => opt.isCorrect);
+    if (question.questionType === 'single_choice' && correctOptions.length !== 1) {
+      return `Question ${index + 1}: Must have exactly one correct option`;
+    }
+    if (question.questionType === 'multiple_choice' && correctOptions.length < 1) {
+      return `Question ${index + 1}: Must have at least one correct option`;
     }
 
-    const questionList = questions.map(question => {
-      const optionFields = {};
-      question.options.forEach((option, index) => {
-        optionFields[`option${index + 1}`] = option.text;
-      });
+    return null;
+  }).filter(error => error !== null);
 
-      const correctOptions = question.options
-        .filter(option => option.isCorrect)
-        .map((option, index) => `option${index + 1}`)
-        .join('/');
+  if (validationErrors.length > 0) {
+    setErrorMessage(validationErrors.join('. '));
+    return;
+  }
 
-      return {
-        description: question.description,
-        questionType: question.questionType,
-        marks: question.marks,
-        ...optionFields,
-        correctOption: correctOptions
-      };
+  const { user, token, role } = getUserData();
+  if (!user || !token) {
+    setErrorMessage('User session data is missing. Please log in again.');
+    return;
+  }
+
+  const questionList = questions.map(question => {
+    const optionFields = {};
+    question.options.forEach((option, index) => {
+      optionFields[`option${index + 1}`] = option.text;
     });
 
-    try {
-      const resultAction = await dispatch(
-        addQuestions({
-          user,
-          token,
-          role,
-          testId,
-          questionList
-        })
-      );
+    // FIX: Find the actual option numbers that are marked as correct
+    const correctOptions = question.options
+      .map((option, index) => ({ index: index + 1, isCorrect: option.isCorrect }))
+      .filter(option => option.isCorrect)
+      .map(option => `option${option.index}`)
+      .join('/');
 
-      if (addQuestions.fulfilled.match(resultAction)) {
-        setSuccessMessage('All questions uploaded successfully!');
-        setTimeout(() => {
-          onClose();
-        }, 2000);
-      } else {
-        setErrorMessage('Failed to upload questions: ' + resultAction.payload);
-      }
-    } catch (error) {
-      setErrorMessage('Failed to upload questions: ' + error.message);
+    return {
+      description: question.description,
+      questionType: question.questionType,
+      marks: question.marks,
+      ...optionFields,
+      correctOption: correctOptions
+    };
+  });
+
+  try {
+    const resultAction = await dispatch(
+      addQuestions({
+        user,
+        token,
+        role,
+        testId,
+        questionList
+      })
+    );
+
+    if (addQuestions.fulfilled.match(resultAction)) {
+      setSuccessMessage('All questions uploaded successfully!');
+      setTimeout(() => {
+        onClose();
+      }, 2000);
+    } else {
+      setErrorMessage('Failed to upload questions: ' + resultAction.payload);
     }
-  };
+  } catch (error) {
+    setErrorMessage('Failed to upload questions: ' + error.message);
+  }
+};
 
   const renderQuestionPreview = () => {
     // Calculate pagination
