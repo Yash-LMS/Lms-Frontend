@@ -560,7 +560,9 @@ const TestModule = () => {
 
           <div className={styles.questionContainer}>
             <div className={styles.questionNum}>Q {questionNumber}</div>
-            <div className={styles.questionText}>{currentQuestion.description.toUpperCase()}</div>
+            <div className={styles.questionText}>
+            <div dangerouslySetInnerHTML={{ __html: currentQuestion.description || 'No question text available' }} />
+              </div>
 
             <div className={styles.optionsList}>
               {[currentQuestion.option1, currentQuestion.option2, currentQuestion.option3, 
