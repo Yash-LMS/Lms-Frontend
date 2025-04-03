@@ -223,7 +223,7 @@ const TraineeResults = () => {
                 <th>Pass %</th>
                 <th>Correct</th>
                 <th>Incorrect</th> 
-                <th>Skipped</th>
+                <th>Unattempted</th>
                 <th>Total</th>
               </tr>
             </thead>

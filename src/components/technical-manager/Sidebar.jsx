@@ -48,16 +48,7 @@ const Sidebar = ({ activeTab }) => {
               onClick={(e) => handleNavigation('/manager/allotment', 'allot', e)}
             >
               <i className="fas fa-clipboard-list"></i>
-              Course Allotment
-            </a>
-          </li>
-          <li className={`${styles.navItem} ${activeTab === "testAllot" ? styles.active : ""}`}>
-            <a
-              href="#testAllotment"
-              onClick={(e) => handleNavigation('/manager/test/allotment', 'testAllot', e)}
-            >
-              <i className="fas fa-clipboard-list"></i>
-              Test Allotment
+              Allotments
             </a>
           </li>
 

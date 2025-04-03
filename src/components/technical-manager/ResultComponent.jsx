@@ -16,6 +16,9 @@ const ResultComponent = () => {
     <div className={styles.mainContainer}>
       {/* Action buttons at the top */}
       <div className={styles.actionsContainer}>
+        <div className={styles.pageHeader}>
+            <h1>Results</h1>
+        </div>
         <button 
           className={`${styles.actionButton} ${activeView === 'all' ? styles.activeButton : ''}`}
           onClick={() => handleViewChange('all')}
