@@ -34,6 +34,7 @@ import axios from 'axios';
 import CourseProgressTracker from "./components/instructor/CourseProgress";
 import ResultComponent from "./components/technical-manager/ResultComponent";
 import Allotments from "./components/technical-manager/Allotments";
+import AllCourseProgressTracker from "./components/technical-manager/AllCourseProgress";
 
 
 // Protected Route component
@@ -228,7 +229,6 @@ const AppContent = () => {
             </ProtectedRoute>
           } />
 
-          
           <Route path="/manager/employee" element={
             <ProtectedRoute>
               <EmployeeManagement/>
@@ -237,6 +237,11 @@ const AppContent = () => {
           <Route path="/manager/bulkAllotment" element={
             <ProtectedRoute>
               <CourseBulkAllotment/>
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/courseProgress" element={
+            <ProtectedRoute>
+              <AllCourseProgressTracker/>
             </ProtectedRoute>
           } />
 
