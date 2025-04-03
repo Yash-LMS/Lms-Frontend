@@ -238,16 +238,16 @@ const ViewTraineeTestAllotment = () => {
   const renderStatus = (status) => {
     let statusClass;
     switch (status) {
-      case "COMPLETED":
+      case "completed":
         statusClass = styles.statusCompleted;
         break;
-      case "STARTED":
+      case "started":
         statusClass = styles.statusStarted;
         break;
-      case "PENDING":
+      case "pending":
         statusClass = styles.statusPending;
         break;
-      case "EXPIRED":
+      case "expired":
         statusClass = styles.statusExpired;
         break;
       default:

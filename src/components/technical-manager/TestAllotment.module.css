@@ -110,9 +110,18 @@
   max-width: 900px; /* Reduce from 1100px */
 }
 
+.tableScrollContainer {
+  max-height: 400px; /* Adjust this value based on your needs */
+  overflow-y: auto;
+  margin-bottom: 15px;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
+}
+
 .dataTable {
+  table-layout: fixed;
   width: 100%;
-  border-collapse: collapse;
+  min-width: 650px; /* Minimum width to prevent columns from getting too narrow */
 }
 
 .dataTable th,
@@ -122,11 +131,20 @@
   border-bottom: 1px solid #eaeaea;
 }
 
+
+
 .dataTable th {
   background-color: #f9f9f9;
   color: #606060;
   font-weight: 500;
   font-size: 14px;
+}
+
+.dataTable thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f9f9f9;
 }
 
 .selectField {
@@ -261,6 +279,18 @@
 
 .closeButton:hover {
   background-color: #6952b2;
+}
+
+.contentWrapper {
+  width: 100%;
+  overflow-x: auto;
+  padding: 0;
+}
+
+/* Make sure card layout has proper overflow handling */
+.cardLayout {
+  overflow: hidden;
+  margin: 0 auto;
 }
 
 /* Card Style Layout */

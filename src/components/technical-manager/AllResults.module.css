@@ -139,12 +139,13 @@
   }
   
   /* Table styles */
-  .tableContainer {
+  tableContainer {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    overflow-x: auto;
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: auto; /* Keep horizontal scrolling */
+    max-height: 350px;
   }
   
   .table {
@@ -153,7 +154,8 @@
     border-spacing: 0;
   }
   
-  .table th, .table td {
+  .table th,
+  .table td {
     padding: 14px 16px;
     text-align: left;
     border-bottom: 1px solid #edf2f7;
@@ -167,6 +169,7 @@
     white-space: nowrap;
     position: sticky;
     top: 0;
+    z-index: 1;
   }
   
   .table tbody tr {

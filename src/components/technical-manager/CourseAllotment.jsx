@@ -137,7 +137,7 @@ const CourseAllotment = () => {
   return (
     <div className={styles.dashboardContainer}>
       {/* Sidebar Navigation */}
-      <Sidebar activeTab={activeTab}  />
+      <Sidebar activeTab={activeTab} />
 
       <div className={styles.mainContent}>
         <header className={styles.pageHeader}>
@@ -147,70 +147,73 @@ const CourseAllotment = () => {
         <div className={styles.tableContainer}>
           {courseList && courseList.length > 0 ? (
             <>
-              <table className={styles.dataTable}>
-                <thead>
-                  <tr>
-                    <th>Employee</th>
-                    <th>Course</th>
-                    <th className={styles.actionColumn}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row, index) => (
-                    <tr
-                      key={index}
-                      className={
-                        errorRows.includes(index) ? styles.errorRow : ""
-                      }
-                    >
-                      <td className={styles.formField}>
-                        <select
-                          value={row.emailId}
-                          onChange={(e) =>
-                            handleRowChange(index, "emailId", e.target.value)
-                          }
-                          className={styles.selectField}
-                        >
-                          <option value="">Select Employee</option>
-                          {userList.map((user) => (
-                            <option key={user.emailId} value={user.emailId}>
-                              {user.name}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className={styles.formField}>
-                        <select
-                          value={row.courseId}
-                          onChange={(e) =>
-                            handleRowChange(index, "courseId", e.target.value)
-                          }
-                          className={styles.selectField}
-                        >
-                          <option value="">Select Course</option>
-                          {courseList.map((course) => (
-                            <option
-                              key={course.courseId}
-                              value={course.courseId}
-                            >
-                              {course.courseName}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className={styles.actionColumn}>
-                        <button
-                          onClick={() => deleteRow(index)}
-                          className={styles.deleteButton}
-                          disabled={rows.length === 1}
-                        >
-                          Delete
-                        </button>
-                      </td>
+              <div className={styles.tableWrapper}>
+                <table className={styles.dataTable}>
+                  <thead>
+                    <tr>
+                      <th>Employee</th>
+                      <th>Course</th>
+                      <th className={styles.actionColumn}>Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {rows.map((row, index) => (
+                      <tr
+                        key={index}
+                        className={
+                          errorRows.includes(index) ? styles.errorRow : ""
+                        }
+                      >
+                        {" "}
+                        <td className={styles.formField}>
+                          <select
+                            value={row.emailId}
+                            onChange={(e) =>
+                              handleRowChange(index, "emailId", e.target.value)
+                            }
+                            className={styles.selectField}
+                          >
+                            <option value="">Select Employee</option>
+                            {userList.map((user) => (
+                              <option key={user.emailId} value={user.emailId}>
+                                {user.name}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className={styles.formField}>
+                          <select
+                            value={row.courseId}
+                            onChange={(e) =>
+                              handleRowChange(index, "courseId", e.target.value)
+                            }
+                            className={styles.selectField}
+                          >
+                            <option value="">Select Course</option>
+                            {courseList.map((course) => (
+                              <option
+                                key={course.courseId}
+                                value={course.courseId}
+                              >
+                                {course.courseName}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className={styles.actionColumn}>
+                          <button
+                            onClick={() => deleteRow(index)}
+                            className={styles.deleteButton}
+                            disabled={rows.length === 1}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
               <div className={styles.buttonGroup}>
                 <button onClick={addRow} className={styles.addButton}>
