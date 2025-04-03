@@ -133,7 +133,7 @@ const ManagerDashboard = () => {
         <header className={styles.contentHeader}>
           <div className={styles.headerLeft}>
             <h1>Manager Dashboard</h1>
-            
+
             <div className={styles.typeFilter}>
               {typeOptions.map((type) => (
                 <label key={type} className={styles.radioLabel}>
@@ -210,6 +210,18 @@ const ManagerDashboard = () => {
                         <strong>Course Status:</strong>{" "}
                         {item.courseStatus.toUpperCase()}
                       </p>
+
+                      {item.lastModifiedDate && item.lastModifiedTime && (
+                        <p>
+                          <strong>Last Modified:</strong>{" "}
+                          {`${item.lastModifiedDate}, ${item.lastModifiedTime}`}
+                        </p>
+                      )}
+                       {item.modifiedValue && (
+                        <p>
+                          <strong>Modified Value:</strong> {item.modifiedValue}
+                        </p>
+                      )}
 
                       <button
                         className={`${styles.btn} ${styles.btnPreview}`}

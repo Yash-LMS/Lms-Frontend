@@ -154,7 +154,7 @@
   border-radius: 4px;
   background-color: #fff;
   font-size: 14px;
-  min-width: 160px;
+  max-width: 140px;
 }
 
 .dateField {

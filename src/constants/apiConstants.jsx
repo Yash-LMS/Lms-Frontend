@@ -31,8 +31,6 @@ export const ALLOT_COURSE_URL = `${API_BASE_URL}/manager/allotCourseToTrainee`;
 export const ALLOT_TEST_URL = `${API_BASE_URL}/manager/allotTestToTrainee`;
 export const APPROVE_TEST_URL = `${API_BASE_URL}/manager/updateTestStatus/approve`;
 export const REJECT_TEST_URL = `${API_BASE_URL}/manager/updateTestStatus/reject`;
-
-
 export const FIND_TRAINEE_URL = `${API_BASE_URL}/manager/viewTraineeList`;
 export const FIND_COURSE_URL = `${API_BASE_URL}/manager/findCourseAllotment`;
 export const FIND_TEST_URL = `${API_BASE_URL}/manager/findTests`;
@@ -40,13 +38,11 @@ export const UPDATE_USER_ROLE_AND_STATUS_URL = `${API_BASE_URL}/manager/updateUs
 export const FIND_EMPLOYEE_LIST_URL = `${API_BASE_URL}/manager/findEmployeeList`;
 export const FIND_EMPLOYEE_INFO_URL = `${API_BASE_URL}/manager/findEmployeeInformation`;
 export const ALL_TRAINEE_RESULT = `${API_BASE_URL}/manager/viewTraineeResults`;
-
 export const VIEW_TRAINEE_RESULT = `${API_BASE_URL}/manager/viewTraineeResultsByTrainee`;
-
 export const VIEW_TRAINEE_LIST = `${API_BASE_URL}/manager/view/allTrainees`;
-
 export const VIEW_TRAINEE_ALLOTED_COURSE_URL = `${API_BASE_URL}/manager/viewTraineeAllotedCourse`
 export const VIEW_TRAINEE_ALLOTED_TEST_URL = `${API_BASE_URL}/manager/viewTraineeAllotedTest`
+export const REQUEST_BADGE_URL = `${API_BASE_URL}/manager/findSideBarBadgeInformation`;
 
 
 //User
