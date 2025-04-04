@@ -84,7 +84,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .headerLeft {
@@ -116,6 +116,29 @@
 
 .searchInput {
   min-width: 250px;
+}
+
+/* View Toggle Styles */
+.viewToggle {
+  display: flex;
+  align-items: center;
+  width: 25%;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--background-card);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.viewToggleLabel {
+  font-weight: 500;
+  margin-right: 1rem;
+  color: var(--text-primary);
+}
+
+.viewModeOptions {
+  display: flex;
+  gap: 1.5rem;
 }
 
 /* Course Request Styles */
@@ -256,6 +279,59 @@
   border-color: var(--primary-color);
 }
 
+/* Table View Styles */
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+  background-color: var(--background-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.itemsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.itemsTable th,
+.itemsTable td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.itemsTable th {
+  background-color: #f9fafb;
+  font-weight: 500;
+  color: var(--text-primary);
+  position: sticky;
+  top: 0;
+}
+
+.itemsTable tr:last-child td {
+  border-bottom: none;
+}
+
+.itemsTable tr:hover {
+  background-color: #f9fafb;
+}
+
+.tableStatus {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.noItems {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .courseRequests {
@@ -279,6 +355,17 @@
   
   .searchInput {
     min-width: 200px;
+  }
+  
+  .viewToggle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .viewModeOptions {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 
@@ -359,6 +446,11 @@
   
   .clearFiltersBtn {
     align-self: flex-end;
+  }
+  
+  .viewModeOptions {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }
 
