@@ -371,7 +371,7 @@ const CoursePreview = () => {
                               Download File
                             </a>
                           )}
-                          {topic.videoURL && topic.videoURL !== "" ? (
+                          {topic.videoURL && topic.videoURL || topic.docsURL !== "" ? (
                             <button
                               onClick={() => handleDeleteFile(topic.topicId)}
                               title="Remove file"

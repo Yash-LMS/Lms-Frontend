@@ -6,13 +6,13 @@ import { ALL_TRAINEE_RESULT } from "../../constants/apiConstants";
 import Sidebar from "./Sidebar";
 import ExportToExcel from "../../assets/ExportToExcel";
 
-const TraineeResults = () => {
+const AllResults = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("results");
   const [results, setResults] = useState([]);
   const [filteredResults, setFilteredResults] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterBy, setFilterBy] = useState("totalMarks");
+  const [filterBy, setFilterBy] = useState("all");
   const [filterValue, setFilterValue] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,10 +30,10 @@ const TraineeResults = () => {
   };
 
   useEffect(() => {
-    fetchTraineeResults();
+    fetchAllResults();
   }, []);
 
-  const fetchTraineeResults = async () => {
+  const fetchAllResults = async () => {
     setIsLoading(true);
     try {
       const { user, token } = getUserData();
@@ -66,7 +66,7 @@ const TraineeResults = () => {
 
   useEffect(() => {
     filterResults();
-  }, [searchTerm, filterBy, filterValue, results]);
+  }, [searchTerm, filterBy, results]);
 
   const filterResults = () => {
     let filtered = [...results];
@@ -82,27 +82,27 @@ const TraineeResults = () => {
       );
     }
 
-    // Filter by selected criteria
-    if (filterBy !== "all" && filterValue.trim() !== "") {
-      filtered = filtered.filter((result) => {
-        if (filterBy === "score" || filterBy === "totalMarks") {
-          return result[filterBy] === parseInt(filterValue);
-        }
-        return (
-          result[filterBy] &&
-          result[filterBy]
-            .toString()
-            .toLowerCase()
-            .includes(filterValue.toLowerCase())
+    // Apply filters based on selection
+    switch (filterBy) {
+      case "score_high_to_low":
+        filtered.sort((a, b) => b.score - a.score);
+        break;
+      case "score_low_to_high":
+        filtered.sort((a, b) => a.score - b.score);
+        break;
+      case "internal_tests":
+        filtered = filtered.filter(
+          (result) => result.testType.toLowerCase() === "internal"
         );
-      });
-    }
-
-    // Filter by testType
-    if (filterBy === "testType" && filterValue.trim() !== "") {
-      filtered = filtered.filter((result) =>
-        result.testType.toLowerCase().includes(filterValue.toLowerCase())
-      );
+        break;
+      case "external_tests":
+        filtered = filtered.filter(
+          (result) => result.testType.toLowerCase() === "external"
+        );
+        break;
+      default:
+        // No additional filtering for "all"
+        break;
     }
 
     setFilteredResults(filtered);
@@ -117,8 +117,12 @@ const TraineeResults = () => {
     setFilterValue(""); // Reset filter value when filter type changes
   };
 
-  const handleFilterValueChange = (e) => {
-    setFilterValue(e.target.value);
+  const handleTraineeChange = (selectedOption) => {
+    setSelectedTrainee(selectedOption);
+    setSelectedEmailId(selectedOption?.value);
+    // Reset filters when a new trainee is selected
+    setSearchTerm("");
+    setFilterBy("all");
   };
 
   const calculatePassPercentage = (score, totalMarks) => {
@@ -149,7 +153,10 @@ const TraineeResults = () => {
   };
 
   const exportData = filteredResults.map((result) => {
-    const passPercentage = calculatePassPercentage(result.score, result.totalMarks);
+    const passPercentage = calculatePassPercentage(
+      result.score,
+      result.totalMarks
+    );
     return {
       ...result,
       passPercentage: `${passPercentage}%`, // Add pass percentage to each result
@@ -185,13 +192,11 @@ const TraineeResults = () => {
               onChange={handleFilterByChange}
               className={styles.filterSelect}
             >
-              <option value="name">Name</option>
-              <option value="emailId">Email</option>
-              <option value="score">Score</option>
-              <option value="totalMarks">Total Marks</option>
-              <option value="correctAnswers">Correct Answers</option>
-              <option value="incorrectAnswers">Incorrect Answers</option>
-              <option value="testType">Test Type</option>
+              <option value="all">All Results</option>
+              <option value="score_high_to_low">Score (High to Low)</option>
+              <option value="score_low_to_high">Score (Low to High)</option>
+              <option value="internal_tests">Internal Tests</option>
+              <option value="external_tests">External Tests</option>
             </select>
           </div>
 
@@ -222,7 +227,7 @@ const TraineeResults = () => {
                 <th>Total Marks</th>
                 <th>Pass %</th>
                 <th>Correct</th>
-                <th>Incorrect</th> 
+                <th>Incorrect</th>
                 <th>Unattempted</th>
                 <th>Total</th>
               </tr>
@@ -285,4 +290,4 @@ const TraineeResults = () => {
   );
 };
 
-export default TraineeResults;
+export default AllResults;

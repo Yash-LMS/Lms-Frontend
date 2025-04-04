@@ -124,7 +124,7 @@ const Sidebar = ({ activeTab }) => {
           <li className={`${styles.navItem} ${activeTab === "employee" ? styles.active : ""}`}>
             <a
               href="#employee"
-              onClick={(e) => handleNavigation('/manager/ employee', 'employee', e)}
+              onClick={(e) => handleNavigation('/manager/employee', 'employee', e)}
             >
               <i className="fas fa-clipboard-list"></i>
               Employee Management

@@ -13,8 +13,7 @@ const TraineeResults = () => {
   const [results, setResults] = useState([]);
   const [filteredResults, setFilteredResults] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterBy, setFilterBy] = useState("totalMarks");
-  const [filterValue, setFilterValue] = useState("");
+  const [filterBy, setFilterBy] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const [selectedEmailId, setSelectedEmailId] = useState(null);
   const [traineeList, setTraineeList] = useState([]);
@@ -108,7 +107,7 @@ const TraineeResults = () => {
 
   useEffect(() => {
     filterResults();
-  }, [searchTerm, filterBy, filterValue, results]);
+  }, [searchTerm, filterBy, results]);
 
   const filterResults = () => {
     let filtered = [...results];
@@ -124,20 +123,23 @@ const TraineeResults = () => {
       );
     }
 
-    // Filter by selected criteria
-    if (filterBy !== "all" && filterValue.trim() !== "") {
-      filtered = filtered.filter((result) => {
-        if (filterBy === "score" || filterBy === "totalMarks") {
-          return result[filterBy] === parseInt(filterValue);
-        }
-        return (
-          result[filterBy] &&
-          result[filterBy]
-            .toString()
-            .toLowerCase()
-            .includes(filterValue.toLowerCase())
-        );
-      });
+    // Apply filters based on selection
+    switch (filterBy) {
+      case "score_high_to_low":
+        filtered.sort((a, b) => b.score - a.score);
+        break;
+      case "score_low_to_high":
+        filtered.sort((a, b) => a.score - b.score);
+        break;
+      case "internal_tests":
+        filtered = filtered.filter(result => result.testType.toLowerCase() === "internal");
+        break;
+      case "external_tests":
+        filtered = filtered.filter(result => result.testType.toLowerCase() === "external");
+        break;
+      default:
+        // No additional filtering for "all"
+        break;
     }
 
     setFilteredResults(filtered);
@@ -149,16 +151,14 @@ const TraineeResults = () => {
 
   const handleFilterByChange = (e) => {
     setFilterBy(e.target.value);
-    setFilterValue(""); // Reset filter value when filter type changes
   };
-
 
   const handleTraineeChange = (selectedOption) => {
     setSelectedTrainee(selectedOption);
     setSelectedEmailId(selectedOption?.value);
     // Reset filters when a new trainee is selected
     setSearchTerm("");
-    setFilterValue("");
+    setFilterBy("all");
   };
 
   const calculatePassPercentage = (score, totalMarks) => {
@@ -206,7 +206,7 @@ const TraineeResults = () => {
       passPercentage: `${passPercentage}%`, // Add pass percentage to each result
     };
   });
-  
+
   // Custom styles for React Select
   const customSelectStyles = {
     control: (provided) => ({
@@ -274,13 +274,11 @@ const TraineeResults = () => {
                   onChange={handleFilterByChange}
                   className={styles.filterSelect}
                 >
-                  <option value="name">Name</option>
-                  <option value="emailId">Email</option>
-                  <option value="score">Score</option>
-                  <option value="totalMarks">Total Marks</option>
-                  <option value="correctAnswers">Correct Answers</option>
-                  <option value="incorrectAnswers">Incorrect Answers</option>
-                  <option value="testType">Test Type</option>
+                  <option value="all">All Results</option>
+                  <option value="score_high_to_low">Score (High to Low)</option>
+                  <option value="score_low_to_high">Score (Low to High)</option>
+                  <option value="internal_tests">Internal Tests</option>
+                  <option value="external_tests">External Tests</option>
                 </select>
               </div>
 
