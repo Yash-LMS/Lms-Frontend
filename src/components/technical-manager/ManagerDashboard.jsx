@@ -16,10 +16,12 @@ const ManagerDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("course");
+  const [viewMode, setViewMode] = useState("card"); // 'card' or 'table'
 
   // Status and type filter options
   const statusOptions = ["all", "approved", "pending", "rejected"];
   const typeOptions = ["course", "test"];
+  const viewOptions = ["card", "table"];
 
   const getUserData = () => {
     try {
@@ -117,12 +119,186 @@ const ManagerDashboard = () => {
     setTypeFilter(e.target.value);
   };
 
+  // Handle view mode change
+  const handleViewModeChange = (e) => {
+    setViewMode(e.target.value);
+  };
+
   const handleCoursePreviewClick = (courseId) => {
     navigate(`/course/view/${courseId}`);
   };
 
   const handleTestPreviewClick = (testId) => {
     navigate(`/test/view/${testId}`);
+  };
+
+  // Render card view content
+  const renderCardView = () => {
+    return (
+      <div className={styles.courseRequests}>
+        {Array.isArray(filteredItems) && filteredItems.length > 0 ? (
+          filteredItems.map((item) => (
+            <div
+              key={item.courseId || item.testId}
+              className={styles.courseCard}
+            >
+              {/* Course Item */}
+              {item.courseName && (
+                <>
+                  <div className={styles.courseHeader}>
+                    <h2 className={styles.courseName}>{item.courseName}</h2>
+                    <span
+                      className={`${styles.courseStatus} ${getStatusClass(
+                        item
+                      )}`}
+                    >
+                      {item.courseStatus.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className={styles.courseDetails}>
+                    <p>
+                      <strong>Instructor:</strong> {item.instructor}
+                    </p>
+                    <p>
+                      <strong>Total Hours:</strong> {item.totalHours}
+                    </p>
+                    <p>
+                      <strong>Course Status:</strong>{" "}
+                      {item.courseStatus.toUpperCase()}
+                    </p>
+
+                    {item.lastModifiedDate && item.lastModifiedTime && (
+                      <p>
+                        <strong>Last Modified:</strong>{" "}
+                        {`${item.lastModifiedDate}, ${item.lastModifiedTime}`}
+                      </p>
+                    )}
+                    {item.modifiedValue && (
+                      <p>
+                        <strong>Modified Value:</strong> {item.modifiedValue}
+                      </p>
+                    )}
+
+                    <button
+                      className={`${styles.btn} ${styles.btnPreview}`}
+                      onClick={() =>
+                        handleCoursePreviewClick(item.courseId || item.id)
+                      }
+                    >
+                      Preview
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* Test Item */}
+              {item.testName && (
+                <>
+                  <div className={styles.courseHeader}>
+                    <h2 className={styles.courseName}>{item.testName}</h2>
+                    <span
+                      className={`${styles.courseStatus} ${getStatusClass(
+                        item
+                      )}`}
+                    >
+                      {item.testStatus.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className={styles.courseDetails}>
+                    <p>
+                      <strong>Instructor:</strong> {item.instructorName}
+                    </p>
+                    <p>
+                      <strong>Duration (in min):</strong> {item.duration}
+                    </p>
+                    <p>
+                      <strong>Test Status:</strong>{" "}
+                      {item.testStatus?.toUpperCase()}
+                    </p>
+
+                    <button
+                      className={styles.btnPreview}
+                      onClick={() => handleTestPreviewClick(item.testId)}
+                    >
+                      Preview
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))
+        ) : (
+          <p className={styles.noCourses}>No items found</p>
+        )}
+      </div>
+    );
+  };
+
+  // Render table view content
+  const renderTableView = () => {
+    return (
+      <div className={styles.tableContainer}>
+        <table className={styles.itemsTable}>
+          <thead>
+            <tr>
+              <th>{typeFilter === "course" ? "Course Name" : "Test Name"}</th>
+              <th>Instructor</th>
+              <th>{typeFilter === "course" ? "Total Hours" : "Duration (min)"}</th>
+              <th>Status</th>
+              {typeFilter === "course" && <th>Last Modified</th>}
+              {typeFilter === "course" && <th>Modified Value</th>}
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.isArray(filteredItems) && filteredItems.length > 0 ? (
+              filteredItems.map((item) => (
+                <tr key={item.courseId || item.testId}>
+                  <td>{item.courseName || item.testName}</td>
+                  <td>{item.instructor || item.instructorName}</td>
+                  <td>{item.totalHours || item.duration}</td>
+                  <td>
+                    <span
+                      className={`${styles.tableStatus} ${getStatusClass(item)}`}
+                    >
+                      {(item.courseStatus || item.testStatus)?.toUpperCase()}
+                    </span>
+                  </td>
+                  {typeFilter === "course" && (
+                    <td>
+                      {item.lastModifiedDate && item.lastModifiedTime
+                        ? `${item.lastModifiedDate}, ${item.lastModifiedTime}`
+                        : "-"}
+                    </td>
+                  )}
+                  {typeFilter === "course" && (
+                    <td>{item.modifiedValue || "-"}</td>
+                  )}
+                  <td>
+                    <button
+                      className={`${styles.btn} ${styles.btnPreview}`}
+                      onClick={() =>
+                        item.courseName
+                          ? handleCoursePreviewClick(item.courseId)
+                          : handleTestPreviewClick(item.testId)
+                      }
+                    >
+                      Preview
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={typeFilter === "course" ? 7 : 5} className={styles.noItems}>
+                  No items found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
   };
 
   return (
@@ -133,7 +309,7 @@ const ManagerDashboard = () => {
         <header className={styles.contentHeader}>
           <div className={styles.headerLeft}>
             <h1>Manager Dashboard</h1>
-            
+
             <div className={styles.typeFilter}>
               {typeOptions.map((type) => (
                 <label key={type} className={styles.radioLabel}>
@@ -176,93 +352,31 @@ const ManagerDashboard = () => {
           </div>
         </header>
 
+        <div className={styles.viewToggle}>
+          <div className={styles.viewToggleLabel}>View Mode:</div>
+          <div className={styles.viewModeOptions}>
+            {viewOptions.map((option) => (
+              <label key={option} className={styles.radioLabel}>
+                <input
+                  type="radio"
+                  name="viewMode"
+                  value={option}
+                  checked={viewMode === option}
+                  onChange={handleViewModeChange}
+                  className={styles.radioInput}
+                />
+                <span className={styles.radioText}>
+                  {option.charAt(0).toUpperCase() + option.slice(1)} View
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
         {loading && <p>Loading...</p>}
         {error && <p className={styles.error}>{error}</p>}
 
-        <div className={styles.courseRequests}>
-          {Array.isArray(filteredItems) && filteredItems.length > 0 ? (
-            filteredItems.map((item) => (
-              <div
-                key={item.courseId || item.testId}
-                className={styles.courseCard}
-              >
-                {/* Course Item */}
-                {item.courseName && (
-                  <>
-                    <div className={styles.courseHeader}>
-                      <h2 className={styles.courseName}>{item.courseName}</h2>
-                      <span
-                        className={`${styles.courseStatus} ${getStatusClass(
-                          item
-                        )}`}
-                      >
-                        {item.courseStatus.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className={styles.courseDetails}>
-                      <p>
-                        <strong>Instructor:</strong> {item.instructor}
-                      </p>
-                      <p>
-                        <strong>Total Hours:</strong> {item.totalHours}
-                      </p>
-                      <p>
-                        <strong>Course Status:</strong>{" "}
-                        {item.courseStatus.toUpperCase()}
-                      </p>
-
-                      <button
-                        className={`${styles.btn} ${styles.btnPreview}`}
-                        onClick={() =>
-                          handleCoursePreviewClick(item.courseId || course.id)
-                        }
-                      >
-                        Preview
-                      </button>
-                    </div>
-                  </>
-                )}
-
-                {/* Test Item */}
-                {item.testName && (
-                  <>
-                    <div className={styles.courseHeader}>
-                      <h2 className={styles.courseName}>{item.testName}</h2>
-                      <span
-                        className={`${styles.courseStatus} ${getStatusClass(
-                          item
-                        )}`}
-                      >
-                        {item.testStatus.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className={styles.courseDetails}>
-                      <p>
-                        <strong>Instructor:</strong> {item.instructorName}
-                      </p>
-                      <p>
-                        <strong>Duration (in min):</strong> {item.duration}
-                      </p>
-                      <p>
-                        <strong>Test Status:</strong>{" "}
-                        {item.testStatus?.toUpperCase()}
-                      </p>
-
-                      <button
-                        className={styles.btnPreview}
-                        onClick={() => handleTestPreviewClick(item.testId)}
-                      >
-                        Preview
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))
-          ) : (
-            <p className={styles.noCourses}>No items found</p>
-          )}
-        </div>
+        {viewMode === "card" ? renderCardView() : renderTableView()}
       </main>
     </div>
   );

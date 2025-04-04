@@ -1,0 +1,344 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modalContent {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .modalHeader h2 {
+    margin: 0;
+    color: #6c5ce7;
+    font-size: 1.5rem;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+  }
+  
+  .closeButton:hover {
+    color: #333;
+  }
+  
+  .modalBody {
+    padding: 24px;
+  }
+  
+  .studentInfo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .studentPhoto {
+    margin-right: 16px;
+  }
+  
+  .photoPlaceholder {
+    width: 60px;
+    height: 60px;
+    background-color: #6c5ce7;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .studentDetails h3 {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+  }
+  
+  .studentDetails p {
+    margin: 0 0 8px 0;
+    color: #666;
+  }
+  
+  .badgeContainer {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  .userBadge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid;
+  }
+  
+  .statusChip {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 16px;
+    background-color: #e3f7e3;
+    color: #2e7d32;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  .courseDetails {
+    margin-bottom: 24px;
+  }
+  
+  .detailRow {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .detailCard {
+    flex: 1;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  
+  .detailLabel {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+  }
+  
+  .detailValue {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .progressDisplay {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .progressBarModal {
+    flex: 1;
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .progressFill {
+    height: 100%;
+    background-color: #6c5ce7;
+    border-radius: 4px;
+  }
+  
+  .moduleSection {
+    margin-top: 24px;
+  }
+  
+  .moduleSection h3 {
+    margin-top: 0;
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+  
+  .moduleList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .moduleItem {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  
+  .moduleHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .moduleName {
+    font-weight: 500;
+  }
+  
+  .moduleStatus {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+  
+  .moduleProgress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .moduleProgressBar {
+    flex: 1;
+    height: 6px;
+    background-color: #e0e0e0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  
+  .moduleProgressFill {
+    height: 100%;
+    background-color: #6c5ce7;
+    border-radius: 3px;
+  }
+  
+  /* New styles for topics */
+  .topicsList {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .topicItem {
+    display: flex;
+    padding: 12px;
+    background-color: white;
+    border-radius: 6px;
+    border-left: 3px solid #6c5ce7;
+  }
+  
+  .topicIcon {
+    margin-right: 12px;
+    font-size: 20px;
+  }
+  
+  .topicContent {
+    flex: 1;
+  }
+  
+  .topicHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  
+  .topicTitle {
+    font-weight: 500;
+  }
+  
+  .topicStatus {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+  
+  .topicDescription {
+    margin: 4px 0;
+    color: #666;
+    font-size: 13px;
+  }
+  
+  .topicType {
+    display: inline-block;
+    font-size: 12px;
+    color: #666;
+    background-color: #eee;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+  }
+  
+  .loadingMessage {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+  }
+  
+  .noModulesMessage {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .modalFooter {
+    padding: 16px 24px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .closeModalButton {
+    background-color: #6c5ce7;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+  
+  .closeModalButton:hover {
+    background-color: #5a4acf;
+  }
+  
+  @media (max-width: 768px) {
+    .detailRow {
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .studentInfo {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .studentPhoto {
+      margin-right: 0;
+      margin-bottom: 12px;
+    }
+    
+    .badgeContainer {
+      justify-content: center;
+    }
+  }

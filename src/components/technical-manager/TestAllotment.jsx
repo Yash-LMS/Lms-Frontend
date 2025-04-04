@@ -179,122 +179,107 @@ const TestAllotment = () => {
           </header>
 
           <div className={styles.cardLayout}>
-            {isLoading ? (
-              <div className={styles.loadingState}>Loading test data...</div>
-            ) : testList && testList.length > 0 ? (
-              <>
-                <table className={styles.dataTable}>
-                  <thead>
-                    <tr>
-                      <th>Employee</th>
-                      <th>Test</th>
-                      <th>Start Date</th>
-                      <th>End Date</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((row, index) => (
-                      <tr
-                        key={index}
-                        className={
-                          errorRows.includes(index) ? styles.errorRow : ""
-                        }
-                      >
-                        <td>
-                          <select
-                            className={styles.selectField}
-                            value={row.emailId}
-                            onChange={(e) =>
-                              handleRowChange(index, "emailId", e.target.value)
-                            }
-                          >
-                            <option value="">Select Employee</option>
-                            {userList && userList.map((user) => (
-                              <option key={user.emailId} value={user.emailId}>
-                                {user.name}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          <select
-                            className={styles.selectField}
-                            value={row.testId}
-                            onChange={(e) =>
-                              handleRowChange(index, "testId", e.target.value)
-                            }
-                          >
-                            <option value="">Select Test</option>
-                            {testList && testList.map((test) => (
-                              <option key={test.testId} value={test.testId}>
-                                {test.testName}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          <input
-                            type="date"
-                            className={styles.dateField}
-                            value={row.startDate}
-                            onChange={(e) =>
-                              handleRowChange(
-                                index,
-                                "startDate",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="date"
-                            className={styles.dateField}
-                            value={row.endDate}
-                            onChange={(e) =>
-                              handleRowChange(index, "endDate", e.target.value)
-                            }
-                          />
-                        </td>
-                        <td>
-                          <button
-                            className={styles.deleteButton}
-                            onClick={() => deleteRow(index)}
-                            disabled={rows.length === 1}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
+  {isLoading ? (
+    <div className={styles.loadingState}>Loading test data...</div>
+  ) : testList && testList.length > 0 ? (
+    <div className={styles.contentWrapper}>
+      <table className={styles.dataTable}>
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Test</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+      </table>
+      
+      <div className={styles.tableScrollContainer}>
+        <table className={styles.dataTable}>
+          <tbody>
+            {rows.map((row, index) => (
+              <tr
+                key={index}
+                className={errorRows.includes(index) ? styles.errorRow : ""}
+              >
+                <td>
+                  <select
+                    className={styles.selectField}
+                    value={row.emailId}
+                    onChange={(e) => handleRowChange(index, "emailId", e.target.value)}
+                  >
+                    <option value="">Select Employee</option>
+                    {userList && userList.map((user) => (
+                      <option key={user.emailId} value={user.emailId}>
+                        {user.name}
+                      </option>
                     ))}
-                  </tbody>
-                </table>
+                  </select>
+                </td>
+                <td>
+                  <select
+                    className={styles.selectField}
+                    value={row.testId}
+                    onChange={(e) => handleRowChange(index, "testId", e.target.value)}
+                  >
+                    <option value="">Select Test</option>
+                    {testList && testList.map((test) => (
+                      <option key={test.testId} value={test.testId}>
+                        {test.testName}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td>
+                  <input
+                    type="date"
+                    className={styles.dateField}
+                    value={row.startDate}
+                    onChange={(e) => handleRowChange(index, "startDate", e.target.value)}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="date"
+                    className={styles.dateField}
+                    value={row.endDate}
+                    onChange={(e) => handleRowChange(index, "endDate", e.target.value)}
+                  />
+                </td>
+                <td>
+                  <button
+                    className={styles.deleteButton}
+                    onClick={() => deleteRow(index)}
+                    disabled={rows.length === 1}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-                <div className={styles.buttonGroup}>
-                  <button className={styles.addButton} onClick={addRow}>
-                    Add
-                  </button>
-                  <button
-                    className={styles.updateButton}
-                    onClick={handleUpdate}
-                  >
-                    Save Changes
-                  </button>
-                  <button
-                    className={styles.bulkButton}
-                    onClick={toggleBulkUploadModal}
-                  >
-                    Bulk Upload
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className={styles.noData}>
-                <p>No approved tests available for allotment.</p>
-              </div>
-            )}
-          </div>
+      <div className={styles.buttonGroup}>
+        <button className={styles.addButton} onClick={addRow}>
+          Add
+        </button>
+        <button className={styles.updateButton} onClick={handleUpdate}>
+          Save Changes
+        </button>
+        <button className={styles.bulkButton} onClick={toggleBulkUploadModal}>
+          Bulk Upload
+        </button>
+      </div>
+    </div>
+  ) : (
+    <div className={styles.noData}>
+      <p>No approved tests available for allotment.</p>
+    </div>
+  )}
+</div>
         </div>
       </div>
 

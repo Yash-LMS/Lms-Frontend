@@ -1,0 +1,275 @@
+/* Sidebar Styles */
+.dashboardSidebar {
+  width: 250px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  height: calc(100vh - 60px);
+  position: fixed;
+  top: 60px;
+  left: 0;
+  z-index: 100;
+  border-radius: 0;
+  padding: 1.5rem 0;
+}
+
+.sidebarNav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  margin-top: 30px;
+  margin-bottom: 0.5rem;
+}
+
+.navItem a {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #4a5568;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 16px;
+}
+
+.navItem.active a {
+  background: #f0f0ff;
+  color: #6c5ce7;
+  font-weight: 500;
+  border-left: 4px solid #6c5ce7;
+}
+
+.navItem a:hover {
+  background: #f5f5f5;
+}
+
+.navItem i {
+  margin-right: 12px;
+  font-size: 1.1rem;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  margin-left: 260px;
+  margin-top: 30px;
+}
+
+/* Header styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.header h1 {
+  font-size: 1.75rem;
+  margin: 0;
+  color: #8e6cef;
+  font-weight: 1.75rem;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+}
+
+.filterDropdown {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+}
+
+/* New search input style */
+.searchInput {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  min-width: 250px;
+}
+
+.summaryCards {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.summaryCard {
+  flex: 1;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.summaryCard h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.count {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.tableContainer {
+  overflow-x: auto;
+  overflow-y: auto; /* Enable vertical scrolling */
+  max-height: 400px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.progressTable {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.progressTable th, 
+.progressTable td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.progressTable th {
+  background-color: #f5f7fa;
+  font-weight: 600;
+  color: #333;
+  z-index: 1;
+}
+
+.progressTable tr:hover {
+  background-color: #f9f9f9;
+}
+
+.progressBarContainer {
+  width: 90%;
+  background-color: #eee;
+  border-radius: 4px;
+  height: 10px;
+  position: relative;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.redProgress {
+  background-color: #ff6b6b;
+}
+
+.yellowProgress {
+  background-color: #ffd166;
+}
+
+.greenProgress {
+  background-color: #4caf50;
+}
+
+.progressText {
+  position: absolute;
+  right: -50px;
+  top: -5px;
+  font-size: 14px;
+  color: #555;
+}
+
+.statusBadge {
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 20px;
+}
+
+.completed {
+  background-color: #e3f7e3;
+  color: #2e7d32;
+}
+
+.started {
+  background-color: #fff8e1;
+  color: #ff8f00;
+}
+
+.notstarted {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* New view button style */
+.viewButton {
+  background-color: #6c5ce7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.viewButton:hover {
+  background-color: #5a4acf;
+}
+
+/* Loading and error states */
+.loadingState, .errorState {
+  padding: 20px;
+  text-align: center;
+  background-color: white;
+  border-radius: 8px;
+}
+
+.errorState {
+  color: #c62828;
+}
+
+.noResults {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .filters {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .searchInput, .filterDropdown {
+    width: 100%;
+  }
+  
+  .summaryCards {
+    flex-wrap: wrap;
+  }
+  
+  .summaryCard {
+    flex-basis: calc(50% - 10px);
+  }
+  
+  .container {
+    margin-left: 0;
+    padding-top: 60px;
+  }
+}

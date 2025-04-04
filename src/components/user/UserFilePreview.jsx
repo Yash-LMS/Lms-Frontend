@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { USER_FILE_PREVIEW_URL } from "../../constants/apiConstants";
+import { USER_FILE_PREVIEW_URL, DOC_UPDATE_STATUS_URL } from "../../constants/apiConstants";
 import styles from "./CourseContent.module.css"; 
 
-const FilePreview = ({ topicId,allotmentId, user, token, courseId }) => {
+const FilePreview = ({ topicId, trackingId, completionStatus, user, token, courseId }) => {
     const [pdfUrl, setPdfUrl] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -13,22 +13,21 @@ const FilePreview = ({ topicId,allotmentId, user, token, courseId }) => {
             setLoading(true);
             setError(null);
             
-            // Convert user object to JSON string
-            const userJson = JSON.stringify(user);
-            
+           
             const response = await axios.get(`${USER_FILE_PREVIEW_URL}`, {
                 params: { 
                     topicId,
-                    user: userJson,
-                    token,
-                    courseId,
-                    allotmentId
                 },
                 responseType: "blob",
             });
 
             const blob = new Blob([response.data], { type: "application/pdf" });
             setPdfUrl(URL.createObjectURL(blob));
+            
+            // Call updateStatus only if completionStatus is not "completed"
+            if (completionStatus !== "completed") {
+                await updateStatus();
+            }
         } catch (error) {
             console.error("Error fetching file:", error);
             
@@ -52,6 +51,45 @@ const FilePreview = ({ topicId,allotmentId, user, token, courseId }) => {
         }
     };
 
+    const updateStatus = async () => {
+        setLoading(true);
+        setError(null);
+    
+        try {
+    
+            const requestBody = {
+                user,
+                token,
+                courseTrackingId: trackingId,
+            };
+    
+            const response = await axios.post(`${DOC_UPDATE_STATUS_URL}`, requestBody);
+    
+            // Handle the response if needed
+            console.log("Status updated successfully:", response.data);
+        } catch (error) {
+            console.error("Error updating status:", error);
+    
+            // Handle different error status codes
+            if (error.response) {
+                switch (error.response.status) {
+                    case 401:
+                        setError("Unauthorized: Your session has expired or you are not logged in. Please login again.");
+                        break;
+                    case 403:
+                        setError("Forbidden: You don't have access to update the status. Please contact support.");
+                        break;
+                    default:
+                        setError("Failed to update status. Please try again later.");
+                }
+            } else {
+                setError("Network error. Please check your connection and try again.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchFile();
         // Clean up created object URL when component unmounts
@@ -60,13 +98,8 @@ const FilePreview = ({ topicId,allotmentId, user, token, courseId }) => {
                 URL.revokeObjectURL(pdfUrl);
             }
         };
-    }, [topicId, user, token, courseId, allotmentId]);
+    }, [topicId, user, token, courseId]);
 
-    const openPdfInNewTab = () => {
-        if (pdfUrl) {
-            window.open(pdfUrl, "_blank");
-        }
-    };
 
     return (
         <div className={styles.cleanPdfContainer}>
@@ -83,9 +116,6 @@ const FilePreview = ({ topicId,allotmentId, user, token, courseId }) => {
                                 className={styles.cleanPdfFrame}
                                 title="PDF Preview"
                             ></iframe>
-                            <button onClick={openPdfInNewTab} className={styles.openTabButton}>
-                                Open in New Tab
-                            </button>
                         </>
                     )}
                 </>

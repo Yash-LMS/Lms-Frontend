@@ -13,12 +13,18 @@
 }
 
 /* Header styles */
-.title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #6c5ce7;
-  margin-bottom: 2rem;
-  padding-bottom: 0.5rem;
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.pageHeader h1 {
+  font-size: 1.75rem;
+  margin: 0;
+  color: #8e6cef;
+  font-weight: 1.75rem;
 }
 
 /* Filter section styles */
@@ -146,6 +152,13 @@
   font-size: 0.95rem;
 }
 
+.loadingIndicator {
+  text-align: center;
+  padding: 1rem;
+  color: #6c5ce7;
+  font-weight: 500;
+}
+
 /* Results section styles */
 .resultsSection {
   width: 97%; /* Change to 100% from 90% to use full available width */
@@ -201,10 +214,11 @@
   background-color: #f1f4f7;
 }
 
-/* Status indicators */
+/* Status indicators - Updated for the four states */
 .statusCompleted,
-.statusInProgress,
-.statusPending {
+.statusStarted,
+.statusPending,
+.statusExpired {
   display: inline-block;
   padding: 0.3rem 0.7rem;
   border-radius: 1rem;
@@ -218,7 +232,7 @@
   color: #155724;
 }
 
-.statusInProgress {
+.statusStarted {
   background-color: #fff3cd;
   color: #856404;
 }
@@ -226,6 +240,19 @@
 .statusPending {
   background-color: #e2e3e5;
   color: #383d41;
+}
+
+.statusExpired {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* No records available message */
+.noRecordsCell {
+  text-align: center !important;
+  padding: 2rem !important;
+  color: #6c757d;
+  font-style: italic;
 }
 
 /* Delete button in the screenshot */
@@ -255,8 +282,6 @@ button[class*="delete"]:hover {
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto; /* Allow scrolling for sidebar content */
 }
-
-
 
 /* Responsive adjustments */
 @media (max-width: 768px) {

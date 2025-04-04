@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  viewCourseDetails,
-} from "../../features/course/courseActions";
+import { viewCourseDetails } from "../../features/course/courseActions";
 import VideoPlayer from "../instructor/VideoPlayer";
-import FilePreview from "../instructor/FilePreview"; 
+import FilePreview from "../instructor/FilePreview";
 import styles from "../instructor/CoursePreview.module.css";
 
 const CourseView = () => {
@@ -20,8 +18,8 @@ const CourseView = () => {
   const [selectedSection, setSelectedSection] = useState(null);
   const [showVideoPlayer, setShowVideoPlayer] = useState(false);
   const [selectedTopicId, setSelectedTopicId] = useState(null);
-  const [showFilePreview, setShowFilePreview] = useState(false); // State for FilePreview modal
-  const [currentTopicId, setCurrentTopicId] = useState(null); // State to hold the current topic ID for FilePreview
+  const [showFilePreview, setShowFilePreview] = useState(false);
+  const [currentTopicId, setCurrentTopicId] = useState(null);
 
   const getUserData = () => {
     try {
@@ -69,7 +67,6 @@ const CourseView = () => {
     }));
   };
 
-
   const handleOpenVideoPlayer = (topic) => {
     setSelectedTopicId(topic.topicId);
     setShowVideoPlayer(true);
@@ -81,13 +78,13 @@ const CourseView = () => {
   };
 
   const handleOpenFilePreview = (topicId) => {
-    setCurrentTopicId(topicId); // Set the current topic ID
-    setShowFilePreview(true); // Open the FilePreview modal
+    setCurrentTopicId(topicId);
+    setShowFilePreview(true);
   };
 
   const handleCloseFilePreview = () => {
-    setShowFilePreview(false); // Close the FilePreview modal
-    setCurrentTopicId(null); // Reset the current topic ID
+    setShowFilePreview(false);
+    setCurrentTopicId(null);
   };
 
   if (loading) {
@@ -157,6 +154,23 @@ const CourseView = () => {
               </span>
             </div>
           )}
+          {selectedCourse.modifiedValue && (
+            <div className={styles.metadataItem}>
+              <span className={styles.metadataLabel}>Modified Value:</span>
+              <span className={styles.metadataValue}>
+                {selectedCourse.modifiedValue}
+              </span>
+            </div>
+          )}
+          {selectedCourse.lastModifiedDate &&
+            selectedCourse.lastModifiedTime && (
+              <div className={styles.metadataItem}>
+                <span className={styles.metadataLabel}>Last Modified:</span>
+                <span className={styles.metadataValue}>
+                  {`${selectedCourse.lastModifiedDate}, ${selectedCourse.lastModifiedTime}`}
+                </span>
+              </div>
+            )}
         </div>
       </div>
 
@@ -221,7 +235,9 @@ const CourseView = () => {
                           )}
                           {topic.docsURL && topic.docsURL !== "" && (
                             <button
-                              onClick={() => handleOpenFilePreview(topic.topicId)} // Open FilePreview modal
+                              onClick={() =>
+                                handleOpenFilePreview(topic.topicId)
+                              }
                               className={styles.resourceLink}
                             >
                               View Docs
@@ -238,6 +254,29 @@ const CourseView = () => {
                             </a>
                           )}
                         </div>
+                        {(topic.modifiedValue ||
+                          (topic.lastModifiedDate &&
+                            topic.lastModifiedTime)) && (
+                          <div className={styles.topicMetadataContainer}>
+                            {topic.modifiedValue && (
+                              <p className={styles.topicMetadata}>
+                                <strong>Modified Value:</strong>
+                                <span className={styles.modifiedBadge}>
+                                  {topic.modifiedValue}
+                                </span>
+                              </p>
+                            )}
+                            {topic.lastModifiedDate &&
+                              topic.lastModifiedTime && (
+                                <p className={styles.topicMetadata}>
+                                  <strong>Last Modified:</strong>
+                                  <span
+                                    className={styles.timeStamp}
+                                  >{`${topic.lastModifiedDate} ${topic.lastModifiedTime}`}</span>
+                                </p>
+                              )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -286,8 +325,8 @@ const CourseView = () => {
 
       {showFilePreview && currentTopicId && (
         <FilePreview
-          topicId={currentTopicId} // Pass the current topic ID to FilePreview
-          onClose={handleCloseFilePreview} // Close function for the modal
+          topicId={currentTopicId}
+          onClose={handleCloseFilePreview}
         />
       )}
     </div>

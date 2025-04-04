@@ -1,14 +1,57 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { REQUEST_BADGE_URL } from '../../constants/apiConstants'; // Import your API constant
 import styles from './Sidebar.module.css';
 
 const Sidebar = ({ activeTab }) => {
   const navigate = useNavigate();
+  const [courseBadgeCount, setCourseBadgeCount] = useState(0); // State for course requests badge count
+  const [testBadgeCount, setTestBadgeCount] = useState(0); // State for test requests badge count
 
   const handleNavigation = (path, tab, e) => {
     if (e) e.preventDefault();
     navigate(path);
   };
+  
+  const getUserData = () => {
+    try {
+      return {
+        user: JSON.parse(sessionStorage.getItem("user")),
+        token: sessionStorage.getItem("token"),
+      };
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      return { user: null, token: null };
+    }
+  };
+
+  useEffect(() => {
+    const fetchBadgeInformation = async () => {
+      const { user, token } = getUserData(); 
+
+      if (!user || !token) {
+        console.error("User  session data is missing.");
+        return;
+      }
+
+      try {
+        const response = await axios.post(REQUEST_BADGE_URL, {
+          user, // Send user as token
+          token,
+        });
+
+        if (response.data && response.data.payload) {
+          setCourseBadgeCount(response.data.payload.courseRequestPending || 0); // Set course badge count
+          setTestBadgeCount(response.data.payload.testRequestPending || 0); // Set test badge count
+        }
+      } catch (error) {
+        console.error("Error fetching badge information:", error);
+      }
+    };
+
+    fetchBadgeInformation();
+  }, []); // Empty dependency array to run only on mount
 
   return (
     <aside className={styles.dashboardSidebar}>
@@ -30,6 +73,9 @@ const Sidebar = ({ activeTab }) => {
             >
               <i className="fas fa-clipboard-list"></i>
               Course Requests
+              {courseBadgeCount > 0 && (
+                <span className={styles.badge}>{courseBadgeCount}</span> // Display course badge count
+              )}
             </a>
           </li>
           <li className={`${styles.navItem} ${activeTab === "testRequests" ? styles.active : ""}`}>
@@ -40,6 +86,9 @@ const Sidebar = ({ activeTab }) => {
             >
               <i className="fas fa-clipboard-list"></i>
               Test Requests
+              {testBadgeCount > 0 && (
+                <span className={styles.badge}>{testBadgeCount}</span> // Display test badge count
+              )}
             </a>
           </li>
           <li className={`${styles.navItem} ${activeTab === "allot" ? styles.active : ""}`}>
@@ -48,16 +97,17 @@ const Sidebar = ({ activeTab }) => {
               onClick={(e) => handleNavigation('/manager/allotment', 'allot', e)}
             >
               <i className="fas fa-clipboard-list"></i>
-              Course Allotment
+              Allotments
             </a>
           </li>
-          <li className={`${styles.navItem} ${activeTab === "testAllot" ? styles.active : ""}`}>
-            <a
-              href="#testAllotment"
-              onClick={(e) => handleNavigation('/manager/test/allotment', 'testAllot', e)}
+
+          <li className={`${styles.navItem} ${activeTab === 'progress' ? styles.active : ''}`}>
+          <a
+              href="#progress"
+              onClick={(e) => handleNavigation('/manager/courseProgress', 'progress', e)}
             >
-              <i className="fas fa-clipboard-list"></i>
-              Test Allotment
+              <i className="fas fa-users"></i>
+              User Course Progress
             </a>
           </li>
 
@@ -67,7 +117,7 @@ const Sidebar = ({ activeTab }) => {
               onClick={(e) => handleNavigation('/manager/result', 'results', e)}
             >
               <i className="fas fa-clipboard-list"></i>
-              Test Results
+              Results
             </a>
           </li>
 
@@ -77,7 +127,7 @@ const Sidebar = ({ activeTab }) => {
               onClick={(e) => handleNavigation('/manager/allottedtest/user', 'alloted', e)}
             >
               <i className="fas fa-clipboard-list"></i>
-              Allotted Test
+              View Allotted Test
             </a>
           </li>
           

@@ -142,12 +142,13 @@ const TestPreview = () => {
               Q {currentQuestion}
             </div>
             <div className={styles.questionText}>
-              <div className={styles.questionDescription}>
-                {currentQuestionData.description || 'No question text available'}
-                <span className={styles.questionMarks}>
-                  Marks: {currentQuestionData.marks || 1}
-                </span>
-              </div>
+            <div className={styles.questionDescription}>
+  {/* Change this line to render HTML properly */}
+  <div dangerouslySetInnerHTML={{ __html: currentQuestionData.description || 'No question text available' }} />
+  <span className={styles.questionMarks}>
+    Marks: {currentQuestionData.marks || 1}
+  </span>
+</div>
             </div>
 
             <div className={styles.optionsContainer}>

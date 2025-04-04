@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addQuestions } from "../../features/test/testActions";
 import styles from "./QuestionModal.module.css";
 import SuccessModal from "../../assets/SuccessModal";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css"; // Import Quill styles
 
 const QuestionModal = ({ isOpen, onClose, testId }) => {
   const dispatch = useDispatch();
-
-  const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
+  const quillRef = useRef(null);
 
   const { loading, error, questionAddSuccess } = useSelector(
     (state) => state.tests
@@ -30,6 +31,29 @@ const QuestionModal = ({ isOpen, onClose, testId }) => {
   const [successMessage, setSuccessMessage] = useState("");
   const [savingQuestionId, setSavingQuestionId] = useState(null);
 
+  // Enhanced Quill editor modules and formats
+  const modules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'script': 'sub' }, { 'script': 'super' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'color': [] }, { 'background': [] }],
+      ['link'],
+      ['clean']
+    ],
+  };
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet', 'indent',
+    'script',
+    'color', 'background',
+    'link'
+  ];
+
   // If modal is not open, don't render anything
   if (!isOpen) return null;
 
@@ -46,10 +70,10 @@ const QuestionModal = ({ isOpen, onClose, testId }) => {
     }
   };
 
-  const handleQuestionTextChange = (questionId, text) => {
+  const handleQuestionTextChange = (questionId, content) => {
     setQuestions(
       questions.map((q) =>
-        q.id === questionId ? { ...q, description: text } : q
+        q.id === questionId ? { ...q, description: content } : q
       )
     );
   };
@@ -125,7 +149,7 @@ const QuestionModal = ({ isOpen, onClose, testId }) => {
     const question = questions.find((q) => q.id === questionId);
 
     if (question.options.length >= 8) {
-      setErrorMessage("Maximum 5 options allowed per question");
+      setErrorMessage("Maximum 8 options allowed per question");
       setTimeout(() => setErrorMessage(""), 3000);
       return;
     }
@@ -210,7 +234,12 @@ const QuestionModal = ({ isOpen, onClose, testId }) => {
   };
 
   const validateQuestion = (question) => {
-    if (!question.description.trim()) {
+    // Check if there's any content (including HTML tags)
+    const hasContent = question.description.trim() !== "" && 
+                       question.description !== "<p><br></p>" &&
+                       question.description !== "<p></p>";
+                       
+    if (!hasContent) {
       setErrorMessage(`Question text is required`);
       return false;
     }
@@ -231,7 +260,12 @@ const QuestionModal = ({ isOpen, onClose, testId }) => {
 
   const validateQuestions = () => {
     for (const question of questions) {
-      if (!question.description.trim()) {
+      // Check if there's any content (including HTML tags)
+      const hasContent = question.description.trim() !== "" && 
+                         question.description !== "<p><br></p>" &&
+                         question.description !== "<p></p>";
+      
+      if (!hasContent) {
         setErrorMessage(
           `Question ${
             questions.indexOf(question) + 1
@@ -277,10 +311,10 @@ const QuestionModal = ({ isOpen, onClose, testId }) => {
       .join("/");
 
     return {
-      description: question.description,
+      description: question.description, // HTML content from React Quill
       questionType: question.questionType,
-      marks: question.marks, // Add marks to data being sent to backend
-      ...optionFields, // Add option1, option2, etc. fields
+      marks: question.marks,
+      ...optionFields,
       correctOption: correctOptions,
     };
   };
@@ -459,17 +493,17 @@ const QuestionModal = ({ isOpen, onClose, testId }) => {
               <label htmlFor={`description-${question.id}`}>
                 Question Text
               </label>
-              <textarea
-                id={`description-${question.id}`}
-                value={question.description}
-                onChange={(e) =>
-                  handleQuestionTextChange(question.id, e.target.value)
-                }
-                className={styles.questionInput}
-                placeholder="Enter your question here"
-                rows={3}
-                required
-              />
+              <div className={styles.quillContainer}>
+                <ReactQuill
+                  ref={index === 0 ? quillRef : null}
+                  theme="snow"
+                  value={question.description}
+                  onChange={(content) => handleQuestionTextChange(question.id, content)}
+                  modules={modules}
+                  formats={formats}
+                  placeholder="Enter your question here"
+                />
+              </div>
             </div>
 
             <div className={styles.formGroup}>
@@ -477,6 +511,7 @@ const QuestionModal = ({ isOpen, onClose, testId }) => {
               <input
                 id={`marks-${question.id}`}
                 type="number"
+                min="1"
                 value={question.marks}
                 onChange={(e) =>
                   handleQuestionMarksChange(question.id, Number(e.target.value))
@@ -526,7 +561,7 @@ const QuestionModal = ({ isOpen, onClose, testId }) => {
                   type="button"
                   onClick={() => addOption(question.id)}
                   className={styles.addOptionButton}
-                  disabled={question.options.length >= 5}
+                  disabled={question.options.length >= 6}
                 >
                   + Add Option
                 </button>

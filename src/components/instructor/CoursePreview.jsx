@@ -257,6 +257,23 @@ const CoursePreview = () => {
               </span>
             </div>
           )}
+          {selectedCourse.modifiedValue && (
+            <div className={styles.metadataItem}>
+              <span className={styles.metadataLabel}>Modified Value:</span>
+              <span className={styles.metadataValue}>
+                {selectedCourse.modifiedValue}
+              </span>
+            </div>
+          )}
+          {selectedCourse.lastModifiedDate &&
+            selectedCourse.lastModifiedTime && (
+              <div className={styles.metadataItem}>
+                <span className={styles.metadataLabel}>Last Modified:</span>
+                <span className={styles.metadataValue}>
+                  {`${selectedCourse.lastModifiedDate} ${selectedCourse.lastModifiedTime}`}
+                </span>
+              </div>
+            )}
         </div>
       </div>
 
@@ -354,7 +371,7 @@ const CoursePreview = () => {
                               Download File
                             </a>
                           )}
-                          {topic.videoURL && topic.videoURL !== "" ? (
+                          {topic.videoURL && topic.videoURL || topic.docsURL !== "" ? (
                             <button
                               onClick={() => handleDeleteFile(topic.topicId)}
                               title="Remove file"
@@ -362,13 +379,36 @@ const CoursePreview = () => {
                               Remove File
                             </button>
                           ) : (
-                            topic.topicType !== "test" && (
+                            topic.topicType == "video" && (
                               <p className={styles.noVideoMessage}>
                                 No video available
                               </p>
                             )
                           )}
                         </div>
+                        {(topic.modifiedValue ||
+                          (topic.lastModifiedDate &&
+                            topic.lastModifiedTime)) && (
+                          <div className={styles.topicMetadataContainer}>
+                            {topic.modifiedValue && (
+                              <p className={styles.topicMetadata}>
+                                <strong>Modified Value:</strong>
+                                <span className={styles.modifiedBadge}>
+                                  {topic.modifiedValue}
+                                </span>
+                              </p>
+                            )}
+                            {topic.lastModifiedDate &&
+                              topic.lastModifiedTime && (
+                                <p className={styles.topicMetadata}>
+                                  <strong>Last Modified:</strong>
+                                  <span
+                                    className={styles.timeStamp}
+                                  >{`${topic.lastModifiedDate} ${topic.lastModifiedTime}`}</span>
+                                </p>
+                              )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

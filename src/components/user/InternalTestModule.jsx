@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import styles from './TestModule.module.css';
 import { useNavigate, useLocation  } from "react-router-dom";
-import { VIEW_USER_TEST_URL,START_TEST_URL, SUBMIT_TEST_URL } from '../../constants/apiConstants';
+import { VIEW_USER_TEST_URL, START_TEST_URL, SUBMIT_TEST_URL } from '../../constants/apiConstants';
 
 const InternalTestModule = () => {
   
@@ -32,12 +32,14 @@ const InternalTestModule = () => {
   const [courseId, setCourseId] = useState(null);
   const [trackingId, setTrackingId] = useState(null);
   
-
   const [isTestStarted, setIsTestStarted] = useState(false);
   
   const[courseAllotmentId,setCourseAllotmentId]=useState(null);
 
   const[isAllValues,setIsAllValue]=useState(false);
+  
+  // Added for submit confirmation popup
+  const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
   
 
   useEffect(() => {
@@ -398,6 +400,12 @@ const InternalTestModule = () => {
     
     setCurrentQuestionIndex(index);
   };
+  
+  // Show submit confirmation popup
+  const showSubmitConfirmationPopup = () => {
+    if (isPaused) return;
+    setShowSubmitConfirmation(true);
+  };
 
   // Modified to match the expected API format
   const handleSubmit = async (description) => {
@@ -547,6 +555,10 @@ const InternalTestModule = () => {
     }
     return "";
   });
+  
+  // Calculate the number of answered and unanswered questions
+  const answeredCount = questionStatus.filter(status => status === "answered").length;
+  const unansweredCount = totalQuestions - answeredCount;
 
   return (
     <div className={styles.fullScreenContainer} ref={mainContainerRef}>
@@ -570,7 +582,38 @@ const InternalTestModule = () => {
         </div>
       )}
       
-      <div className={`${styles.testContent} ${isPaused ? styles.blurred : ''}`}>
+      {/* Submit confirmation popup */}
+      {showSubmitConfirmation && (
+        <div className={styles.confirmationOverlay}>
+          <div className={styles.confirmationPopup}>
+            <h3>Confirm Submission</h3>
+            <p>Are you sure you want to submit your test?</p>
+            
+            <div className={styles.testSummary}>
+              <p>Total Questions: <strong>{totalQuestions}</strong></p>
+              <p>Answered: <strong>{answeredCount}</strong></p>
+              <p>Unanswered: <strong>{unansweredCount}</strong></p>
+            </div>
+            
+            <div className={styles.confirmationButtons}>
+              <button 
+                className={styles.confirmSubmitBtn}
+                onClick={() => handleSubmit("Test submitted by user")}
+              >
+                Yes, Submit
+              </button>
+              <button 
+                className={styles.cancelSubmitBtn}
+                onClick={() => setShowSubmitConfirmation(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className={`${styles.testContent} ${isPaused || showSubmitConfirmation ? styles.blurred : ''}`}>
         <div className={styles.testPanel}>
           <div className={styles.testHeader}>
             <h2>{testDetails.testName}</h2>
@@ -584,7 +627,14 @@ const InternalTestModule = () => {
 
           <div className={styles.questionContainer}>
             <div className={styles.questionNum}>Q {questionNumber}</div>
-            <div className={styles.questionText}>{currentQuestion.description.toUpperCase()}</div>
+            <div className={styles.questionText}>
+             
+
+               <div dangerouslySetInnerHTML={{ __html: currentQuestion.description || 'No question text available' }} />
+                
+            
+              
+              </div>
 
             <div className={styles.optionsList}>
               {[currentQuestion.option1, currentQuestion.option2, currentQuestion.option3, 
@@ -613,7 +663,7 @@ const InternalTestModule = () => {
                               handleSingleChoiceAnswer(currentQuestion.questionId, optionIndex);
                             }
                           }}
-                          disabled={isPaused}
+                          disabled={isPaused || showSubmitConfirmation}
                         />
                         {option}
                       </label>
@@ -627,15 +677,15 @@ const InternalTestModule = () => {
             <button 
               className={`${styles.navButton} ${styles.prev} ${currentQuestionIndex === 0 ? styles.disabled : ''}`}
               onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0 || isPaused}
+              disabled={currentQuestionIndex === 0 || isPaused || showSubmitConfirmation}
             >
               Prev
             </button>
             {currentQuestionIndex === testDetails.questionList.length - 1 ? (
               <button 
                 className={`${styles.navButton} ${styles.submit}`} 
-                onClick={() => handleSubmit("Test submitted by user")}
-                disabled={isPaused}
+                onClick={showSubmitConfirmationPopup}
+                disabled={isPaused || showSubmitConfirmation}
               >
                 Submit
               </button>
@@ -643,7 +693,7 @@ const InternalTestModule = () => {
               <button 
                 className={`${styles.navButton} ${styles.next}`} 
                 onClick={handleNext}
-                disabled={isPaused}
+                disabled={isPaused || showSubmitConfirmation}
               >
                 Next
               </button>

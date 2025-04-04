@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as XLSX from 'xlsx';
 import { addQuestions } from '../../features/test/testActions';
 import styles from './BulkUploadQuestionModal.module.css';
+import ReactQuill from 'react-quill'; // Import ReactQuill
+import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 
 const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
   const dispatch = useDispatch();
@@ -14,6 +16,29 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const { loading } = useSelector((state) => state.tests);
   const questionsPerPage = 5;
+
+  // Enhanced Quill editor modules and formats
+  const modules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'script': 'sub' }, { 'script': 'super' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'color': [] }, { 'background': [] }],
+      ['link'],
+      ['clean']
+    ],
+  };
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet', 'indent',
+    'script',
+    'color', 'background',
+    'link'
+  ];
 
   const getUserData = () => {
     try {
@@ -81,9 +106,16 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
             opt.isCorrect = correctOptions.includes(String.fromCharCode(97 + idx));
           });
 
+          // Convert simple text description to HTML format for ReactQuill
+          // If the description already contains HTML tags, keep it as is
+          const description = row[1] || '';
+          const formattedDescription = description.includes('<') && description.includes('>')
+            ? description
+            : `<p>${description}</p>`;
+
           return {
             id: row[0] || index + 1,
-            description: row[1] || '',
+            description: formattedDescription,
             questionType: row[3] === 'multiple_choice' ? 'multiple_choice' : 'single_choice',
             marks: row[2], 
             options
@@ -98,6 +130,13 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
       }
     };
     reader.readAsBinaryString(file);
+  };
+
+  // Handle description change with ReactQuill
+  const handleDescriptionChange = (questionIndex, content) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].description = content;
+    setQuestions(updatedQuestions);
   };
 
   // Update option text
@@ -200,13 +239,18 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
     setCurrentPage(Math.min(currentPage, Math.ceil(updatedQuestions.length / questionsPerPage)));
   };
 
+  // In the handleSubmit function, update the questionList processing:
   const handleSubmit = async () => {
     setErrorMessage('');
 
     // Validate questions before submission
     const validationErrors = questions.map((question, index) => {
-      // Check if question description exists
-      if (!question.description.trim()) {
+      // Check if question description exists and is not empty HTML
+      const hasContent = question.description.trim() !== "" && 
+                       question.description !== "<p><br></p>" &&
+                       question.description !== "<p></p>";
+                       
+      if (!hasContent) {
         return `Question ${index + 1}: Description is required`;
       }
 
@@ -239,13 +283,15 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
         optionFields[`option${index + 1}`] = option.text;
       });
 
+      // Find the actual option numbers that are marked as correct
       const correctOptions = question.options
+        .map((option, index) => ({ index: index + 1, isCorrect: option.isCorrect }))
         .filter(option => option.isCorrect)
-        .map((option, index) => `option${index + 1}`)
+        .map(option => `option${option.index}`)
         .join('/');
 
       return {
-        description: question.description,
+        description: question.description, // HTML content from ReactQuill
         questionType: question.questionType,
         marks: question.marks,
         ...optionFields,
@@ -295,6 +341,13 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
           </button>
         </div>
 
+        {errorMessage && (
+          <div className={styles.errorMessage}>{errorMessage}</div>
+        )}
+        {successMessage && (
+          <div className={styles.successMessage}>{successMessage}</div>
+        )}
+
         {currentQuestions.map((question, questionDisplayIndex) => {
           // Calculate the actual question index in the original array
           const questionIndex = indexOfFirstQuestion + questionDisplayIndex;
@@ -302,16 +355,16 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
           return (
             <div key={question.id} className={styles.questionContainer}>
               <div className={styles.questionTextArea}>
-                <input 
-                  type="text" 
-                  value={question.description}
-                  onChange={(e) => {
-                    const updatedQuestions = [...questions];
-                    updatedQuestions[questionIndex].description = e.target.value;
-                    setQuestions(updatedQuestions);
-                  }}
-                  placeholder="Enter your question here"
-                />
+                {/* Replace input with ReactQuill */}
+                <div className={styles.quillContainer}>
+                  <ReactQuill
+                    value={question.description}
+                    onChange={(content) => handleDescriptionChange(questionIndex, content)}
+                    modules={modules}
+                    formats={formats}
+                    placeholder="Enter your question here"
+                  />
+                </div>
               </div>
 
               <div className={styles.marksSection}>
@@ -424,6 +477,16 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
                     </button>
                   </div>
                 ))}
+              </div>
+              
+              <div className={styles.questionActions}>
+                <button 
+                  className={styles.deleteQuestionButton}
+                  onClick={() => handleDeleteQuestion(questionIndex)}
+                  disabled={questions.length <= 1}
+                >
+                  Delete Question
+                </button>
               </div>
             </div>
           );

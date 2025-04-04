@@ -494,3 +494,43 @@
   border-radius: 8px;
   border-left: 4px solid var(--error-color);
 }
+
+/* Improved topic metadata styling */
+.topicMetadata {
+  margin: 4px 0;
+  font-size: 0.85rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.topicMetadata strong {
+  font-weight: 600;
+  color: #444;
+  min-width: 110px;
+}
+
+/* Container for better organization */
+.topicMetadataContainer {
+  margin-top: 8px;
+  padding-left: 24px;
+  border-left: 2px solid #e0e0e0;
+  margin-left: 12px;
+}
+
+/* Badge styling for modified values */
+.modifiedBadge {
+  background-color: #f0f7ff;
+  border: 1px solid #d0e3ff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  color: #0066cc;
+}
+
+/* Timestamp styling */
+.timeStamp {
+  font-family: monospace;
+  color: #666;
+}
