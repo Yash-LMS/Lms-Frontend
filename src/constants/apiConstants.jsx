@@ -1,7 +1,7 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-export const USER_ACCOUNT_OTP_GENERATE = `${API_BASE_URL}/account/generateOtp`;
-export const USER_ACCOUNT_OTP_VALIDATE = `${API_BASE_URL}/account/validateOtp`;
+export const USER_ACCOUNT_OTP_GENERATE = `${API_BASE_URL}/user/account/generateOtp`;
+export const USER_ACCOUNT_OTP_VALIDATE = `${API_BASE_URL}/user/account/validateOtp`;
 
 //Instructor
 export const OFFICE_LIST_URL = `${API_BASE_URL}/office/findOfficeList`;
