@@ -5,6 +5,7 @@ import store from "./store/index";
 import styles from "./App.module.css";
 import LoginForm from "./components/auth/LoginForm";
 import RegisterForm from "./components/auth/RegisterForm";
+import ForgotPasswordForm from "./components/auth/ForgotPasswordForm";
 import UserDashboard from "./components/user/UserDashboard";
 import MyCourses from "./components/user/MyCourses";
 import MyTests from "./components/user/MyTests";
@@ -173,6 +174,8 @@ const AppContent = () => {
             element={<LoginForm setLoginStatus={setLoginStatus} />}
           />
           <Route path="/register" element={<RegisterForm />} />
+
+          <Route path="/forgot-password" element={<ForgotPasswordForm />} />
 
           <Route
             path="/instructor-dashboard"

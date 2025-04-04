@@ -27,6 +27,9 @@ const LoginForm = ({ setLoginStatus }) => {
         return email.endsWith('@yash.com');
     };
 
+    const handleForgotPassword = () => {
+        navigate('/forgot-password');
+    };
 
     const getUserData = () => {
         try {
@@ -130,6 +133,15 @@ const LoginForm = ({ setLoginStatus }) => {
                             placeholder='Password'
                             required
                         />
+                        <div className={styles.forgotPassword}>
+                            <button 
+                                type="button" 
+                                onClick={handleForgotPassword}
+                                className={styles.forgotPasswordBtn}
+                            >
+                                Forgot Password?
+                            </button>
+                        </div>
                     </div>
                     
                     <button
