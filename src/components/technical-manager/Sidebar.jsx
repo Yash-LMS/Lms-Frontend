@@ -101,6 +101,16 @@ const Sidebar = ({ activeTab }) => {
             </a>
           </li>
 
+          <li className={`${styles.navItem} ${activeTab === 'progress' ? styles.active : ''}`}>
+          <a
+              href="#progress"
+              onClick={(e) => handleNavigation('/manager/courseProgress', 'progress', e)}
+            >
+              <i className="fas fa-users"></i>
+              User Course Progress
+            </a>
+          </li>
+
           <li className={`${styles.navItem} ${activeTab === "results" ? styles.active : ""}`}>
             <a
               href="#testResults"

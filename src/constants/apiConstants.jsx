@@ -1,5 +1,8 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+export const USER_ACCOUNT_OTP_GENERATE = `${API_BASE_URL}/account/generateOtp`;
+export const USER_ACCOUNT_OTP_VALIDATE = `${API_BASE_URL}/account/validateOtp`;
+
 //Instructor
 export const OFFICE_LIST_URL = `${API_BASE_URL}/office/findOfficeList`;
 export const REGISTER_USER_URL = `${API_BASE_URL}/user/register`;
@@ -20,10 +23,9 @@ export const FILE_PREVIEW_URL = `${API_BASE_URL}/file/view`;
 export const COURSE_IMAGE_VIEW_URL = `${API_BASE_URL}/course/image`;
 export const TEST_INSTRUCTOR_URL = `${API_BASE_URL}/test/findTests`;
 
-
 //Technical Manager
 export const FIND_COURSE_BY_STATUS_URL = `${API_BASE_URL}/manager/findCourseByStatus`;
-export const FIND_DASHBOARD_INFORMATION_URL = `${API_BASE_URL}/manager/findDashboardInformation`
+export const FIND_DASHBOARD_INFORMATION_URL = `${API_BASE_URL}/manager/findDashboardInformation`;
 export const FIND_TEST_BY_STATUS_URL = `${API_BASE_URL}/manager/findTestByStatus`;
 export const APPROVE_COURSE_URL = `${API_BASE_URL}/manager/updateCourseStatus/approve`;
 export const REJECT_COURSE_URL = `${API_BASE_URL}/manager/updateCourseStatus/reject`;
@@ -40,10 +42,11 @@ export const FIND_EMPLOYEE_INFO_URL = `${API_BASE_URL}/manager/findEmployeeInfor
 export const ALL_TRAINEE_RESULT = `${API_BASE_URL}/manager/viewTraineeResults`;
 export const VIEW_TRAINEE_RESULT = `${API_BASE_URL}/manager/viewTraineeResultsByTrainee`;
 export const VIEW_TRAINEE_LIST = `${API_BASE_URL}/manager/view/allTrainees`;
-export const VIEW_TRAINEE_ALLOTED_COURSE_URL = `${API_BASE_URL}/manager/viewTraineeAllotedCourse`
-export const VIEW_TRAINEE_ALLOTED_TEST_URL = `${API_BASE_URL}/manager/viewTraineeAllotedTest`
+export const VIEW_TRAINEE_ALLOTED_COURSE_URL = `${API_BASE_URL}/manager/viewTraineeAllotedCourse`;
+export const VIEW_TRAINEE_ALLOTED_TEST_URL = `${API_BASE_URL}/manager/viewTraineeAllotedTest`;
 export const REQUEST_BADGE_URL = `${API_BASE_URL}/manager/findSideBarBadgeInformation`;
-
+export const ALL_USER_TRACKING_DETAIL_URL = `${API_BASE_URL}/manager/tracking/findTraineeCourse`;
+export const USER_TRACKING_DETAIL_URL = `${API_BASE_URL}/manager/traineeCourseTracking`;
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
@@ -63,7 +66,6 @@ export const VIEW_VIDEO_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/video/vie
 export const COMPLETE_VIDEO_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/video/complete/updateStatus`;
 export const DOC_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/doc/updateStatus`;
 export const VIDEO_SIZE_URL = `${API_BASE_URL}/user/file/video/size`; // in minutes
-
 
 //Test
 export const CREATE_TEST_URL = `${API_BASE_URL}/test/createTest`;

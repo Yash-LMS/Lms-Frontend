@@ -100,11 +100,6 @@ const FilePreview = ({ topicId, trackingId, completionStatus, user, token, cours
         };
     }, [topicId, user, token, courseId]);
 
-    const openPdfInNewTab = () => {
-        if (pdfUrl) {
-            window.open(pdfUrl, "_blank");
-        }
-    };
 
     return (
         <div className={styles.cleanPdfContainer}>
@@ -121,9 +116,6 @@ const FilePreview = ({ topicId, trackingId, completionStatus, user, token, cours
                                 className={styles.cleanPdfFrame}
                                 title="PDF Preview"
                             ></iframe>
-                            <button onClick={openPdfInNewTab} className={styles.openTabButton}>
-                                Open in New Tab
-                            </button>
                         </>
                     )}
                 </>

@@ -1,61 +1,75 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Sidebar from './Sidebar';
 import styles from './AllCourseProgress.module.css';
+import { ALL_USER_TRACKING_DETAIL_URL } from '../../constants/apiConstants'; 
+import DetailedTrackingModal from './DetailedTrackingModal';
+import ExportToExcel from "../../assets/ExportToExcel";
 
 const AllCourseProgressTracker = () => {
-  // Static data - will be replaced with Redux state later
-  const [activeTab, setActiveTab] = useState('progress');
-  const studentsData = [
-    {
-      id: 1,
-      name: "John Smith",
-      email: "john.smith@example.com",
-      assignedDate: "2025-03-15",
-      courseName: "Advanced JavaScript",
-      progress: 75,
-      status: "In Progress",
-      lastActivity: "2025-04-01"
-    },
-    {
-      id: 2,
-      name: "Emma Johnson",
-      email: "emma.j@example.com",
-      assignedDate: "2025-03-10",
-      courseName: "React Fundamentals",
-      progress: 100,
-      status: "Completed",
-      lastActivity: "2025-03-28"
-    },
-    {
-      id: 3,
-      name: "Michael Chen",
-      email: "m.chen@example.com",
-      assignedDate: "2025-03-20",
-      courseName: "UI/UX Design Principles",
-      progress: 30,
-      status: "In Progress",
-      lastActivity: "2025-03-31"
-    },
-    {
-      id: 4,
-      name: "Sarah Williams",
-      email: "s.williams@example.com",
-      assignedDate: "2025-03-05",
-      courseName: "Data Structures",
-      progress: 0,
-      status: "Not Started",
-      lastActivity: "N/A"
-    }
-  ];
-
-  // State for filters
-  const [courseFilter, setCourseFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState("progress");
+  const [studentsData, setStudentsData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Get unique course names for the dropdown
-  const courseNames = [...new Set(studentsData.map(student => student.courseName))];
-  
-  // Get unique statuses for the dropdown
-  const statuses = [...new Set(studentsData.map(student => student.status))];
+  // Function to get user data from sessionStorage
+  const getUserData = () => {
+    try {
+      return {
+        user: JSON.parse(sessionStorage.getItem("user")),
+        token: sessionStorage.getItem("token"),
+      };
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      return { user: null, token: null };
+    }
+  };
+
+  useEffect(() => {
+    fetchCourseTrackingData();
+  }, []);
+
+  const fetchCourseTrackingData = async () => {
+    setIsLoading(true);
+    try {
+      // Get user and token from sessionStorage
+      const { user, token } = getUserData();
+      
+      if (!user || !token) {
+        setError('Authentication information not found');
+        setIsLoading(false);
+        return;
+      }
+      
+      const response = await axios.post(ALL_USER_TRACKING_DETAIL_URL, {
+        user,
+        token
+      });
+      
+      if (response.data.response === 'success') {
+        setStudentsData(response.data.payload || []);
+      } else {
+        setError(response.data.message || 'Failed to fetch data');
+      }
+    } catch (error) {
+      setError('Error fetching course tracking data');
+      console.error('Error fetching course tracking data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Define statuses for the dropdown with display names
+  const statuses = [
+    { value: 'all', label: 'All Statuses' },
+    { value: 'started', label: 'Started' },
+    { value: 'not_started', label: 'Not Started' },
+    { value: 'completed', label: 'Completed' }
+  ];
 
   // Function to determine progress bar color based on completion percentage
   const getProgressColor = (progress) => {
@@ -64,122 +78,153 @@ const AllCourseProgressTracker = () => {
     return styles.greenProgress;
   };
 
-  // Filter students based on selected filters
+  // Handle view button click
+  const handleViewDetails = (student) => {
+    setSelectedStudent(student);
+    setIsModalOpen(true);
+  };
+
+  // Close modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedStudent(null);
+  };
+
+  const excelHeaders = {
+    traineeName: "Trainee Name",
+    emailId: "Email ID",
+    courseName: "Course Name",
+    instructorName: "Instructor Name",
+    completionPercentage: "Completion %",
+    courseCompletionStatus: "Completion Status",
+    certificateStatus: "Certificate Status",
+  };
+
+  // Filter students based on search term and status filter
   const filteredStudents = studentsData.filter(student => {
-    const matchesCourse = courseFilter === 'all' || student.courseName === courseFilter;
-    const matchesStatus = statusFilter === 'all' || student.status === statusFilter;
-    return matchesCourse && matchesStatus;
+    const matchesSearch = searchTerm === '' || 
+      student.traineeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.emailId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.courseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.instructorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.allotmentId && student.allotmentId.toString().includes(searchTerm));
+    
+    const matchesStatus = statusFilter === 'all' || student.courseCompletionStatus === statusFilter;
+    
+    return matchesSearch && matchesStatus;
   });
 
   return (
     <div className={styles.container}>
-        {/* Sidebar Navigation */}
-              <aside className={styles.dashboardSidebar}>
-                <nav className={styles.sidebarNav}>
-                  <ul>
-                    <li className={`${styles.navItem} ${activeTab === 'dashboard' ? styles.active : ''}`}>
-                      <a href="#dashboard" onClick={(e) => {
-                        e.preventDefault();
-                        setActiveTab('dashboard');
-                        navigate("/instructor-dashboard")
-                      }}>
-                        <i className="fas fa-tachometer-alt"></i>
-                        Courses
-                      </a>
-                    </li>
-                    <li className={`${styles.navItem} ${activeTab === 'tests' ? styles.active : ''}`}>
-                      <a href="#tests" onClick={(e) => {
-                        e.preventDefault();
-                        setActiveTab('tests');
-                        navigate("/instructor/view/test")
-                      }}>
-                        <i className="fas fa-users"></i>
-                        Tests
-                      </a>
-                    </li>
-                    <li className={`${styles.navItem} ${activeTab === 'progress' ? styles.active : ''}`}>
-                      <a href="#progress" onClick={(e) => {
-                        e.preventDefault();
-                        setActiveTab('tests');
-                        navigate("/course/progress")
-                      }}>
-                        <i className="fas fa-users"></i>
-                        Course Progress
-                      </a>
-                    </li>
-                  </ul>
-                </nav>
-              </aside>
+      <Sidebar activeTab={activeTab} />
       <div className={styles.header}>
         <h1>Course Progress Tracker</h1>
         <div className={styles.filters}>
-          <select 
-            className={styles.filterDropdown}
-            value={courseFilter}
-            onChange={(e) => setCourseFilter(e.target.value)}
-          >
-            <option value="all">All Courses</option>
-            {courseNames.map(course => (
-              <option key={course} value={course}>{course}</option>
-            ))}
-          </select>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="Search by any parameter..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <select 
             className={styles.filterDropdown}
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option value="all">All Statuses</option>
             {statuses.map(status => (
-              <option key={status} value={status}>{status}</option>
+              <option key={status.value} value={status.value}>{status.label}</option>
             ))}
           </select>
         </div>
       </div>
+
+      <div className={styles.headerActions}>
+          <ExportToExcel
+            data={filteredStudents} 
+            headers={excelHeaders}
+            fileName="Course-Progress-Results"
+            sheetName="Course Progress"
+            buttonStyle={{
+              marginBottom: "20px",
+            }}
+          />
+        </div>
       
       <div className={styles.tableContainer}>
-        <table className={styles.progressTable}>
-          <thead>
-            <tr>
-              <th>Employee Name</th>
-              <th>Email</th>
-              <th>Course Name</th>
-              <th>Instructor Name</th>
-              <th>Progress</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredStudents.length > 0 ? (
-              filteredStudents.map(student => (
-                <tr key={student.id}>
-                  <td>{student.name}</td>
-                  <td>{student.email}</td>
-                  <td>{student.courseName}</td>
-                  <td>{student.instructorName}</td>
-                  <td>
-                    <div className={styles.progressBarContainer}>
-                      <div 
-                        className={`${styles.progressBar} ${getProgressColor(student.progress)}`} 
-                        style={{ width: `${student.progress}%` }}
-                      ></div>
-                      <span className={styles.progressText}>{student.progress}%</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`${styles.statusBadge} ${styles[student.status.toLowerCase().replace(/\s+/g, '')]}`}>
-                      {student.status}
-                    </span>
-                  </td>
-                </tr>
-              ))
-            ) : (
+        {isLoading ? (
+          <div className={styles.loadingState}>Loading course data...</div>
+        ) : error ? (
+          <div className={styles.errorState}>{error}</div>
+        ) : (
+          <table className={styles.progressTable}>
+            <thead>
               <tr>
-                <td colSpan="5" className={styles.noResults}>No results match your filters</td>
+                <th>Trainee Name</th>
+                <th>Email</th>
+                <th>Course Name</th>
+                <th>Instructor Name</th>
+                <th>Completion %</th>
+                <th>Completion Status</th>
+                <th>Certificate Status</th>
+                <th>Action</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {studentsData.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className={styles.noResults}>No records available</td>
+                </tr>
+              ) : filteredStudents.length > 0 ? (
+                filteredStudents.map(student => (
+                  <tr key={student.allotmentId}>
+                    <td>{student.traineeName}</td>
+                    <td>{student.emailId}</td>
+                    <td>{student.courseName}</td>
+                    <td>{student.instructorName}</td>
+                    <td>
+                      <div className={styles.progressBarContainer}>
+                        <div 
+                          className={`${styles.progressBar} ${getProgressColor(student.completionPercentage)}`} 
+                          style={{ width: `${student.completionPercentage}%` }}
+                        ></div>
+                        <span className={styles.progressText}>{student.completionPercentage.toFixed(1)}%</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`${styles.statusBadge} ${styles[student.courseCompletionStatus] || styles.notstarted}`}>
+                        {student.courseCompletionStatus.toUpperCase()}
+                      </span>
+                    </td>
+                    <td>{student.certificateStatus.replace(/_/g, ' ').toUpperCase()}</td>
+                    <td>
+                      <button 
+                        className={styles.viewButton}
+                        onClick={() => handleViewDetails(student)}
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="8" className={styles.noResults}>No results match your search</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
+
+      {/* Modal for detailed view */}
+      {isModalOpen && selectedStudent && (
+        <DetailedTrackingModal
+          student={selectedStudent} 
+          allotmentId={selectedStudent.allotmentId} 
+          onClose={handleCloseModal} 
+        />
+      )}
     </div>
   );
 };

@@ -53,21 +53,23 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-left: 260px;
   }
   
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .header h1 {
-    font-size: 24px;
-    color: #333;
-    margin: 0;
-  }
+  /* Header styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.header h1 {
+  font-size: 1.75rem;
+  margin: 0;
+  color: #8e6cef;
+  font-weight: 1.75rem;
+}
   
   .filters {
     display: flex;
@@ -124,7 +126,6 @@
   .progressTable th, 
   .progressTable td {
     padding: 12px 16px;
-    text-align: left;
     border-bottom: 1px solid #eee;
     text-align:center;
   }
@@ -177,6 +178,7 @@
     border-radius: 4px;
     font-size: 12px;
     font-weight: 500;
+    margin-left: 12px;
   }
   
   .completed {

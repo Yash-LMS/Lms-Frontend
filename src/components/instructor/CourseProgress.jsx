@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import styles from './CourseProgress.module.css';
+import { useNavigate } from 'react-router-dom';
 
 const CourseProgressTracker = () => {
+  const navigate = useNavigate();
   // Static data - will be replaced with Redux state later
   const [activeTab, setActiveTab] = useState('progress');
   const studentsData = [
