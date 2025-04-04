@@ -410,6 +410,19 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
     }
   };
 
+  const handleDashboardNavigate =() =>{
+    if(userData.role='instructor')
+    {
+      navigate("/instructor-dashboard");
+    }else if(userData.role=='technical_manager')
+    {
+      navigate("/manager-dashboard");
+    }else if(userData.role=='user')
+    {
+      navigate("/user-dashboard");
+    }
+  }
+
   // Function to handle register navigation directly
   const handleRegisterClick = (e) => {
     e.preventDefault();
@@ -425,10 +438,20 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
   return (
     <nav className={styles.navbar}>
       <div className={styles.navbarContent}>
-        <span className={styles.navbarBrand}>
-          <img src={src} alt="Yash Logo" height="55" />
-          LMS
+        <span 
+          className={styles.navbarBrand} 
+          onClick={handleDashboardNavigate}
+          style={{ cursor: 'pointer' }}
+        >
+          <img 
+            src={src} 
+            alt="Yash Logo" 
+            height="55" 
+            onClick={handleDashboardNavigate} 
+          />
+          <h3>LMS</h3>
         </span>
+        
         <div className={styles.navbarLinks}>
           {sessionStorage.getItem("user") ? (
             <>
