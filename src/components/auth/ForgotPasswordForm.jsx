@@ -185,7 +185,7 @@ const ForgotPasswordForm = () => {
                         <button
                             type="submit"
                             disabled={loadRender}
-                            className={styles.submitButton}
+                            className={styles.forgotPasswordButton}
                         >
                             {loadRender ? 'Loading...' : 'Reset Password'}
                         </button>
