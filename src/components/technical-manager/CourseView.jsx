@@ -112,7 +112,7 @@ const CourseView = () => {
           &larr; Back to Dashboard
         </button>
       </div>
-
+  
       <div className={styles.courseHeader}>
         <h1 className={styles.courseName}>{selectedCourse.courseName}</h1>
         <div className={styles.courseMetadata}>
@@ -173,116 +173,132 @@ const CourseView = () => {
             )}
         </div>
       </div>
-
+  
       {selectedCourse.description && (
         <div className={styles.courseDescription}>
           <h2 className={styles.sectionTitle}>Description</h2>
           <p>{selectedCourse.description}</p>
         </div>
       )}
-
+  
       <div className={styles.courseSections}>
         <h2 className={styles.sectionTitle}>Course Content</h2>
-
+  
         {selectedCourse.sectionList && selectedCourse.sectionList.length > 0 ? (
           <div className={styles.sectionsList}>
-            {selectedCourse.sectionList.map((section) => (
-              <div key={section.sectionId} className={styles.sectionCard}>
-                <div className={styles.sectionHeader}>
-                  <h3 className={styles.sectionName}>
-                    <span className={styles.sectionSequence}>
-                      {section.sequenceId}.
-                    </span>{" "}
-                    {section.title}
-                  </h3>
-                  <div className={styles.sectionActions}>
-                    <span
-                      className={styles.expandIcon}
-                      onClick={() => toggleSection(section.sectionId)}
-                    >
-                      {expandedSections[section.sectionId] ? "▲" : "▼"}
-                    </span>
+            {[...selectedCourse.sectionList]
+              // Sort sections by sequenceId in ascending order
+              .sort((a, b) => {
+                // Convert to numbers to ensure correct numeric sorting
+                const seqA = parseInt(a.sequenceId);
+                const seqB = parseInt(b.sequenceId);
+                return seqA - seqB;
+              })
+              .map((section) => (
+                <div key={section.sectionId} className={styles.sectionCard}>
+                  <div className={styles.sectionHeader}>
+                    <h3 className={styles.sectionName}>
+                      <span className={styles.sectionSequence}>
+                        {section.sequenceId}.
+                      </span>{" "}
+                      {section.title}
+                    </h3>
+                    <div className={styles.sectionActions}>
+                      <span
+                        className={styles.expandIcon}
+                        onClick={() => toggleSection(section.sectionId)}
+                      >
+                        {expandedSections[section.sectionId] ? "▲" : "▼"}
+                      </span>
+                    </div>
                   </div>
-                </div>
-
-                {expandedSections[section.sectionId] && section.topics && (
-                  <div className={styles.topicsList}>
-                    {section.topics.map((topic) => (
-                      <div key={topic.topicId} className={styles.topicItem}>
-                        <div className={styles.topicDetails}>
-                          <span className={styles.topicSequence}>
-                            {topic.topicsSequenceId}.
-                          </span>
-                          <span className={styles.topicName}>
-                            {topic.topicName}
-                          </span>
-                          <span
-                            className={`${styles.topicType} ${
-                              styles[topic.topicType]
-                            }`}
-                          >
-                            {topic.topicType}
-                          </span>
-                        </div>
-                        <div className={styles.topicLinks}>
-                          {topic.videoURL && topic.videoURL !== "" && (
-                            <button
-                              onClick={() => handleOpenVideoPlayer(topic)}
-                              className={styles.resourceLink}
-                            >
-                              Watch Video
-                            </button>
-                          )}
-                          {topic.docsURL && topic.docsURL !== "" && (
-                            <button
-                              onClick={() =>
-                                handleOpenFilePreview(topic.topicId)
-                              }
-                              className={styles.resourceLink}
-                            >
-                              View Docs
-                            </button>
-                          )}
-                          {topic.file && topic.file !== "" && (
-                            <a
-                              href={URL.createObjectURL(new Blob([topic.file]))}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.resourceLink}
-                            >
-                              Download File
-                            </a>
-                          )}
-                        </div>
-                        {(topic.modifiedValue ||
-                          (topic.lastModifiedDate &&
-                            topic.lastModifiedTime)) && (
-                          <div className={styles.topicMetadataContainer}>
-                            {topic.modifiedValue && (
-                              <p className={styles.topicMetadata}>
-                                <strong>Modified Value:</strong>
-                                <span className={styles.modifiedBadge}>
-                                  {topic.modifiedValue}
-                                </span>
-                              </p>
-                            )}
-                            {topic.lastModifiedDate &&
-                              topic.lastModifiedTime && (
-                                <p className={styles.topicMetadata}>
-                                  <strong>Last Modified:</strong>
-                                  <span
-                                    className={styles.timeStamp}
-                                  >{`${topic.lastModifiedDate} ${topic.lastModifiedTime}`}</span>
-                                </p>
+  
+                  {expandedSections[section.sectionId] && section.topics && (
+                    <div className={styles.topicsList}>
+                      {[...section.topics]
+                        // Sort topics by topicsSequenceId in ascending order
+                        .sort((a, b) => {
+                          // Convert to numbers to ensure correct numeric sorting
+                          const seqA = parseInt(a.topicsSequenceId);
+                          const seqB = parseInt(b.topicsSequenceId);
+                          return seqA - seqB;
+                        })
+                        .map((topic) => (
+                          <div key={topic.topicId} className={styles.topicItem}>
+                            <div className={styles.topicDetails}>
+                              <span className={styles.topicSequence}>
+                                {topic.topicsSequenceId}.
+                              </span>
+                              <span className={styles.topicName}>
+                                {topic.topicName}
+                              </span>
+                              <span
+                                className={`${styles.topicType} ${
+                                  styles[topic.topicType]
+                                }`}
+                              >
+                                {topic.topicType}
+                              </span>
+                            </div>
+                            <div className={styles.topicLinks}>
+                              {topic.videoURL && topic.videoURL !== "" && (
+                                <button
+                                  onClick={() => handleOpenVideoPlayer(topic)}
+                                  className={styles.resourceLink}
+                                >
+                                  Watch Video
+                                </button>
                               )}
+                              {topic.docsURL && topic.docsURL !== "" && (
+                                <button
+                                  onClick={() =>
+                                    handleOpenFilePreview(topic.topicId)
+                                  }
+                                  className={styles.resourceLink}
+                                >
+                                  View Docs
+                                </button>
+                              )}
+                              {topic.file && topic.file !== "" && (
+                                <a
+                                  href={URL.createObjectURL(new Blob([topic.file]))}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={styles.resourceLink}
+                                >
+                                  Download File
+                                </a>
+                              )}
+                            </div>
+                            {(topic.modifiedValue ||
+                              (topic.lastModifiedDate &&
+                                topic.lastModifiedTime)) && (
+                              <div className={styles.topicMetadataContainer}>
+                                {topic.modifiedValue && (
+                                  <p className={styles.topicMetadata}>
+                                    <strong>Modified Value:</strong>
+                                    <span className={styles.modifiedBadge}>
+                                      {topic.modifiedValue}
+                                    </span>
+                                  </p>
+                                )}
+                                {topic.lastModifiedDate &&
+                                  topic.lastModifiedTime && (
+                                    <p className={styles.topicMetadata}>
+                                      <strong>Last Modified:</strong>
+                                      <span
+                                        className={styles.timeStamp}
+                                      >{`${topic.lastModifiedDate} ${topic.lastModifiedTime}`}</span>
+                                    </p>
+                                  )}
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+                        ))}
+                    </div>
+                  )}
+                </div>
+              ))}
           </div>
         ) : (
           <p className={styles.noSections}>
@@ -290,7 +306,7 @@ const CourseView = () => {
           </p>
         )}
       </div>
-
+  
       {showEditSection && selectedSection && (
         <EditSectionModal
           isOpen={showEditSection}
@@ -299,7 +315,7 @@ const CourseView = () => {
           onSubmit={handleEditSubmit}
         />
       )}
-
+  
       {showVideoPlayer && selectedTopicId && (
         <div className={styles.videoPlayerModal}>
           <div className={styles.videoPlayerContent}>
@@ -322,7 +338,7 @@ const CourseView = () => {
           </div>
         </div>
       )}
-
+  
       {showFilePreview && currentTopicId && (
         <FilePreview
           topicId={currentTopicId}

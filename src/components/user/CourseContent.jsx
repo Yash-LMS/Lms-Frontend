@@ -305,7 +305,7 @@ const CourseContent = () => {
           <div className={styles.videoPlayerArea}>
             {/* Content player (video, docs, or test) */}
             <div className={styles.videoPlayer}>{renderContentByType()}</div>
-
+  
             {/* Navigation arrows - hide when test is showing */}
             {(!showTest || activeTopicType !== "test") && (
               <>
@@ -324,7 +324,7 @@ const CourseContent = () => {
               </>
             )}
           </div>
-
+  
           {/* Course description - hide when test is showing */}
           {(!showTest || activeTopicType !== "test") && (
             <div className={styles.courseDescription}>
@@ -339,7 +339,7 @@ const CourseContent = () => {
                   ≡
                 </button>
               )}
-
+  
               <h2 className={styles.courseTitle}>About this course</h2>
               <p className={styles.courseText}>
                 {courseData.description || "No course description available"}
@@ -347,7 +347,7 @@ const CourseContent = () => {
             </div>
           )}
         </div>
-
+  
         {/* Course content sidebar - hide when test is in fullscreen mode */}
         {(contentOpen && (!showTest || activeTopicType !== "test")) && (
           <div className={styles.sidebar}>
@@ -364,88 +364,92 @@ const CourseContent = () => {
                 ×
               </button>
             </div>
-
-            {/* Sections from API */}
-            {courseData.sectionList.map((section) => (
-              <div key={section.sectionId} className={styles.section}>
-                <div
-                  className={styles.sectionHeader}
-                  onClick={() => toggleSection(section.sectionId)}
-                >
-                  <div>
-                    <h4 className={styles.sectionTitle}>
-                      Section {section.sequenceId}: {section.title}
-                    </h4>
-                    <div className={styles.sectionInfo}>
-                      {
-                        section.topics.filter(topic => 
-                          topic.courseTrackingDto.topicCompletionStatus === "completed"
-                        ).length
-                      }
-                      /{section.topics.length} topics
+  
+            {/* Sections from API - sorted by sequenceId */}
+            {[...courseData.sectionList]
+              .sort((a, b) => a.sequenceId - b.sequenceId)
+              .map((section) => (
+                <div key={section.sectionId} className={styles.section}>
+                  <div
+                    className={styles.sectionHeader}
+                    onClick={() => toggleSection(section.sectionId)}
+                  >
+                    <div>
+                      <h4 className={styles.sectionTitle}>
+                        Section {section.sequenceId}: {section.title}
+                      </h4>
+                      <div className={styles.sectionInfo}>
+                        {
+                          section.topics.filter(topic => 
+                            topic.courseTrackingDto.topicCompletionStatus === "completed"
+                          ).length
+                        }
+                        /{section.topics.length} topics
+                      </div>
                     </div>
+                    <button className={styles.collapseButton}>
+                      {sectionExpanded[section.sectionId] ? "▲" : "▼"}
+                    </button>
                   </div>
-                  <button className={styles.collapseButton}>
-                    {sectionExpanded[section.sectionId] ? "▲" : "▼"}
-                  </button>
-                </div>
-
-                {/* Topics */}
-                {sectionExpanded[section.sectionId] && (
-                  <div className={styles.lecturesList}>
-                    {section.topics.map((topic) => {
-                      // Use only the API's topicCompletionStatus to determine if completed
-                      const isCompleted = topic.courseTrackingDto.topicCompletionStatus === "completed";
-                        
-                      return (
-                        <div
-                          key={topic.topicId}
-                          className={`${styles.lectureItem} ${
-                            activeTopic && activeTopic.topicId === topic.topicId
-                              ? styles.activeLesson
-                              : ""
-                          }`}
-                          onClick={() => setTopicActive(topic)}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isCompleted}
-                            className={styles.lectureCheckbox}
-                            onChange={() => markTopicAsCompleted(topic.topicId)}
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                          <div className={styles.lectureContent}>
-                            <div className={styles.lectureInfo}>
-                              <div className={styles.lectureTitle}>
-                                {topic.topicsSequenceId}. {topic.topicName}
-                              </div>
-                              <div className={styles.lectureType}>
-                                {topic.topicType}
-                                <button
-                                  className={styles.markReadBtn}
-                                  onClick={(e) =>
-                                    markTopicAsRead(topic.topicId, e)
-                                  }
-                                  aria-label="Mark as read"
-                                  title="Mark as read"
-                                >
-                                  ✓
-                                </button>
+  
+                  {/* Topics - sorted by topicsSequenceId */}
+                  {sectionExpanded[section.sectionId] && (
+                    <div className={styles.lecturesList}>
+                      {[...section.topics]
+                        .sort((a, b) => a.topicsSequenceId - b.topicsSequenceId)
+                        .map((topic) => {
+                          // Use only the API's topicCompletionStatus to determine if completed
+                          const isCompleted = topic.courseTrackingDto.topicCompletionStatus === "completed";
+                            
+                          return (
+                            <div
+                              key={topic.topicId}
+                              className={`${styles.lectureItem} ${
+                                activeTopic && activeTopic.topicId === topic.topicId
+                                  ? styles.activeLesson
+                                  : ""
+                              }`}
+                              onClick={() => setTopicActive(topic)}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isCompleted}
+                                className={styles.lectureCheckbox}
+                                onChange={() => markTopicAsCompleted(topic.topicId)}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <div className={styles.lectureContent}>
+                                <div className={styles.lectureInfo}>
+                                  <div className={styles.lectureTitle}>
+                                    {topic.topicsSequenceId}. {topic.topicName}
+                                  </div>
+                                  <div className={styles.lectureType}>
+                                    {topic.topicType}
+                                    <button
+                                      className={styles.markReadBtn}
+                                      onClick={(e) =>
+                                        markTopicAsRead(topic.topicId, e)
+                                      }
+                                      aria-label="Mark as read"
+                                      title="Mark as read"
+                                    >
+                                      ✓
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            ))}
+                          );
+                        })}
+                    </div>
+                  )}
+                </div>
+              ))}
           </div>
         )}
       </div>
     </div>
   );
 };
-
-export default CourseContent;
+  
+  export default CourseContent;
