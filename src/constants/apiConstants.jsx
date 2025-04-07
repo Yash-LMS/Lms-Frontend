@@ -22,6 +22,7 @@ export const DELETE_SECTION_URL = `${API_BASE_URL}/course/section/delete`;
 export const FILE_PREVIEW_URL = `${API_BASE_URL}/file/view`;
 export const COURSE_IMAGE_VIEW_URL = `${API_BASE_URL}/course/image`;
 export const TEST_INSTRUCTOR_URL = `${API_BASE_URL}/test/findTests`;
+export const UPDATE_SECTION_SEQUENCE = `${API_BASE_URL}/course/update/section/sequence`;
 
 //Technical Manager
 export const FIND_COURSE_BY_STATUS_URL = `${API_BASE_URL}/manager/findCourseByStatus`;

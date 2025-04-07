@@ -363,7 +363,7 @@ const ManagerDashboard = () => {
                   value={option}
                   checked={viewMode === option}
                   onChange={handleViewModeChange}
-                  className={styles.radioInput}
+                  className={styles.radioFilter}
                 />
                 <span className={styles.radioText}>
                   {option.charAt(0).toUpperCase() + option.slice(1)} View
