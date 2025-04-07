@@ -370,7 +370,7 @@ const CoursePreview = () => {
               className={styles.editModeToggle} 
               onClick={toggleEditMode}
             >
-              Enable Edit Mode
+              Re-Order Mode
             </button>
           )}
         </div>
