@@ -465,7 +465,7 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
                     {userData.firstName + " " + (userData.lastName || "")}
                   </span>
                   <span className={styles.divider}>|</span>
-                  <span className={styles.userRole}>
+                  <span className={styles.userRole} style={{ fontWeight: 700, fontSize: '14px' }}>
                     {userData.role.replace(/_/g, " ").toUpperCase()}
                   </span>
                 </div>

@@ -534,3 +534,28 @@
   font-family: monospace;
   color: #666;
 }
+
+.sectionTitleContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.editModeToggle {
+  color: #7c4dff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+  background-color: #f5f2ff;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.editModeToggle:hover {
+  background-color: #7c4dff;
+  color: white;
+}
