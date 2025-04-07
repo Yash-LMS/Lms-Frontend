@@ -44,13 +44,11 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
-  border-radius: 10px;
   align-items: center;
 }
 
 button:hover {
   border-color: #646cff;
-  border-radius: 10px;
 }
 /* button:focus,
 button:focus-visible {
