@@ -4,6 +4,7 @@ import styles from "./CourseContent.module.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { VIEW_USER_COURSE_DETAIL_URL } from "../../constants/apiConstants";
+import ResultPopup from "./ResultPopup";
 import UserVideoPlayer from "./UserVideoPlayer";
 import UserFilePreview from "./UserFilePreview";
 
@@ -24,6 +25,19 @@ const CourseContent = () => {
 
   const { courseId } = useParams();
   const { allotmentId } = useParams();
+
+  // Add this to your state declarations at the top of the component
+  const [showResults, setShowResults] = useState(false);
+
+  // Add this function to handle showing results
+  const handleViewResults = () => {
+    setShowResults(true);
+  };
+
+  // Add this function to handle closing results
+  const handleCloseResults = () => {
+    setShowResults(false);
+  };
 
   const getUserData = () => {
     try {
@@ -99,24 +113,26 @@ const CourseContent = () => {
     const testCompletionStatus = sessionStorage.getItem("lastCompletedTestId");
     if (testCompletionStatus && courseData) {
       // Update the course data to reflect the completed test
-      const updatedCourseData = {...courseData};
-      updatedCourseData.sectionList = updatedCourseData.sectionList.map(section => {
-        section.topics = section.topics.map(topic => {
-          if (topic.topicId.toString() === testCompletionStatus) {
-            return {
-              ...topic,
-              courseTrackingDto: {
-                ...topic.courseTrackingDto,
-                topicCompletionStatus: "completed"
-              }
-            };
-          }
-          return topic;
-        });
-        return section;
-      });
+      const updatedCourseData = { ...courseData };
+      updatedCourseData.sectionList = updatedCourseData.sectionList.map(
+        (section) => {
+          section.topics = section.topics.map((topic) => {
+            if (topic.topicId.toString() === testCompletionStatus) {
+              return {
+                ...topic,
+                courseTrackingDto: {
+                  ...topic.courseTrackingDto,
+                  topicCompletionStatus: "completed",
+                },
+              };
+            }
+            return topic;
+          });
+          return section;
+        }
+      );
       setCourseData(updatedCourseData);
-      
+
       // Clear the session storage item
       sessionStorage.removeItem("lastCompletedTestId");
     }
@@ -140,22 +156,24 @@ const CourseContent = () => {
     // Here you would typically make an API call to update the completion status
     // For now, we'll just update the local state
     if (courseData) {
-      const updatedCourseData = {...courseData};
-      updatedCourseData.sectionList = updatedCourseData.sectionList.map(section => {
-        section.topics = section.topics.map(topic => {
-          if (topic.topicId.toString() === topicId.toString()) {
-            return {
-              ...topic,
-              courseTrackingDto: {
-                ...topic.courseTrackingDto,
-                topicCompletionStatus: "completed"
-              }
-            };
-          }
-          return topic;
-        });
-        return section;
-      });
+      const updatedCourseData = { ...courseData };
+      updatedCourseData.sectionList = updatedCourseData.sectionList.map(
+        (section) => {
+          section.topics = section.topics.map((topic) => {
+            if (topic.topicId.toString() === topicId.toString()) {
+              return {
+                ...topic,
+                courseTrackingDto: {
+                  ...topic.courseTrackingDto,
+                  topicCompletionStatus: "completed",
+                },
+              };
+            }
+            return topic;
+          });
+          return section;
+        }
+      );
       setCourseData(updatedCourseData);
     }
   };
@@ -171,7 +189,7 @@ const CourseContent = () => {
     setActiveTopic(topic);
     setActiveTopicType(topic.topicType);
     setActiveLesson(topic.topicId.toString());
-    
+
     // Reset test visibility when changing topics
     setShowTest(false);
   };
@@ -204,7 +222,7 @@ const CourseContent = () => {
   const handleVideoCompleted = (topicId) => {
     // Mark the current topic as completed
     markTopicAsCompleted(topicId);
-    
+
     // Navigate to next topic automatically
     navigateLesson("next");
   };
@@ -222,7 +240,9 @@ const CourseContent = () => {
             user={getUserData().user}
             token={getUserData().token}
             trackingId={activeTopic.courseTrackingDto.trackingId}
-            completionStatus={activeTopic.courseTrackingDto.topicCompletionStatus}
+            completionStatus={
+              activeTopic.courseTrackingDto.topicCompletionStatus
+            }
             onVideoCompleted={() => handleVideoCompleted(activeTopic.topicId)}
           />
         );
@@ -234,22 +254,27 @@ const CourseContent = () => {
             token={getUserData().token}
             courseId={activeCourseId}
             trackingId={activeTopic.courseTrackingDto.trackingId}
-            completionStatus={activeTopic.courseTrackingDto.topicCompletionStatus}
+            completionStatus={
+              activeTopic.courseTrackingDto.topicCompletionStatus
+            }
           />
         );
       case "test":
         if (showTest) {
-          navigate('/user/internal/test', {
+          navigate("/user/internal/test", {
             state: {
               topicId: activeTopic.topicId,
               courseAllotmentId: allotmentId,
               testAllotmentId: activeTopic.testAllotmentId,
               trackingId: activeTopic.courseTrackingDto.trackingId,
-              courseId: activeCourseId
-            }
+              courseId: activeCourseId,
+            },
           });
           // Store the current test ID to handle completion status on return
-          sessionStorage.setItem("currentTestId", activeTopic.topicId.toString());
+          sessionStorage.setItem(
+            "currentTestId",
+            activeTopic.topicId.toString()
+          );
           return null;
         } else {
           return (
@@ -257,17 +282,38 @@ const CourseContent = () => {
               <div className={styles.testStartCard}>
                 <h2>Test: {activeTopic.topicName}</h2>
                 <p>This topic contains a test to assess your knowledge.</p>
-                <p>Once you start the test, you will need to complete it in the allotted time.</p>
-                
-                {activeTopic.courseTrackingDto.topicCompletionStatus === "completed" ? (
-                  <p className={styles.completedMessage}>You already completed this test</p>
+                <p>
+                  Once you start the test, you will need to complete it in the
+                  allotted time.
+                </p>
+
+                {activeTopic.courseTrackingDto.topicCompletionStatus ===
+                "completed" ? (
+                  <>
+                    <p className={styles.completedMessage}>
+                      You already completed this test
+                    </p>
+                    <button
+                      className={styles.viewResultsButton}
+                      onClick={handleViewResults}
+                    >
+                      View Results
+                    </button>
+                    {showResults && (
+                      <ResultPopup
+                        testAllotmentId={activeTopic.testAllotmentId}
+                        onClose={handleCloseResults}
+                      />
+                    )}
+                  </>
                 ) : (
-                  <button 
+                  <button
                     className={styles.startTestButton}
                     onClick={handleStartTest}
                   >
-                    {activeTopic.courseTrackingDto.topicCompletionStatus === "started" 
-                      ? "Continue Test" 
+                    {activeTopic.courseTrackingDto.topicCompletionStatus ===
+                    "started"
+                      ? "Continue Test"
                       : "Start Test"}
                   </button>
                 )}
@@ -305,7 +351,7 @@ const CourseContent = () => {
           <div className={styles.videoPlayerArea}>
             {/* Content player (video, docs, or test) */}
             <div className={styles.videoPlayer}>{renderContentByType()}</div>
-  
+
             {/* Navigation arrows - hide when test is showing */}
             {(!showTest || activeTopicType !== "test") && (
               <>
@@ -324,7 +370,7 @@ const CourseContent = () => {
               </>
             )}
           </div>
-  
+
           {/* Course description - hide when test is showing */}
           {(!showTest || activeTopicType !== "test") && (
             <div className={styles.courseDescription}>
@@ -339,7 +385,7 @@ const CourseContent = () => {
                   ≡
                 </button>
               )}
-  
+
               <h2 className={styles.courseTitle}>About this course</h2>
               <p className={styles.courseText}>
                 {courseData.description || "No course description available"}
@@ -347,9 +393,9 @@ const CourseContent = () => {
             </div>
           )}
         </div>
-  
+
         {/* Course content sidebar - hide when test is in fullscreen mode */}
-        {(contentOpen && (!showTest || activeTopicType !== "test")) && (
+        {contentOpen && (!showTest || activeTopicType !== "test") && (
           <div className={styles.sidebar}>
             <div className={styles.sidebarHeader}>
               <div className={styles.headerControls}>
@@ -364,7 +410,7 @@ const CourseContent = () => {
                 ×
               </button>
             </div>
-  
+
             {/* Sections from API - sorted by sequenceId */}
             {[...courseData.sectionList]
               .sort((a, b) => a.sequenceId - b.sequenceId)
@@ -380,8 +426,10 @@ const CourseContent = () => {
                       </h4>
                       <div className={styles.sectionInfo}>
                         {
-                          section.topics.filter(topic => 
-                            topic.courseTrackingDto.topicCompletionStatus === "completed"
+                          section.topics.filter(
+                            (topic) =>
+                              topic.courseTrackingDto.topicCompletionStatus ===
+                              "completed"
                           ).length
                         }
                         /{section.topics.length} topics
@@ -391,7 +439,7 @@ const CourseContent = () => {
                       {sectionExpanded[section.sectionId] ? "▲" : "▼"}
                     </button>
                   </div>
-  
+
                   {/* Topics - sorted by topicsSequenceId */}
                   {sectionExpanded[section.sectionId] && (
                     <div className={styles.lecturesList}>
@@ -399,13 +447,16 @@ const CourseContent = () => {
                         .sort((a, b) => a.topicsSequenceId - b.topicsSequenceId)
                         .map((topic) => {
                           // Use only the API's topicCompletionStatus to determine if completed
-                          const isCompleted = topic.courseTrackingDto.topicCompletionStatus === "completed";
-                            
+                          const isCompleted =
+                            topic.courseTrackingDto.topicCompletionStatus ===
+                            "completed";
+
                           return (
                             <div
                               key={topic.topicId}
                               className={`${styles.lectureItem} ${
-                                activeTopic && activeTopic.topicId === topic.topicId
+                                activeTopic &&
+                                activeTopic.topicId === topic.topicId
                                   ? styles.activeLesson
                                   : ""
                               }`}
@@ -415,7 +466,9 @@ const CourseContent = () => {
                                 type="checkbox"
                                 checked={isCompleted}
                                 className={styles.lectureCheckbox}
-                                onChange={() => markTopicAsCompleted(topic.topicId)}
+                                onChange={() =>
+                                  markTopicAsCompleted(topic.topicId)
+                                }
                                 onClick={(e) => e.stopPropagation()}
                               />
                               <div className={styles.lectureContent}>
@@ -451,5 +504,5 @@ const CourseContent = () => {
     </div>
   );
 };
-  
-  export default CourseContent;
+
+export default CourseContent;
