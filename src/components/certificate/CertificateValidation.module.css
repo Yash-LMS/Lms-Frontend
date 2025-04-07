@@ -1,0 +1,328 @@
+/* CertificateValidation.module.css */
+.container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f0f4f8;
+  }
+  
+  .header {
+    background-color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .logoContainer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .logo {
+    height: 40px;
+  }
+  
+  .title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+  }
+  
+  .nav {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .navLink {
+    color: #8e44ad;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: color 0.2s;
+  }
+  
+  .navLink:hover {
+    color: #6c3483;
+  }
+  
+  .content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+  }
+  
+  .validationCard {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 800px;
+  }
+  
+  .cardTitle {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .label {
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 500;
+  }
+  
+  .input {
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  
+  .input:focus {
+    outline: none;
+    border-color: #8e44ad;
+  }
+  
+  .button {
+    background-color: #8e44ad;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.8rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .button:hover {
+    background-color: #6c3483;
+  }
+  
+  .button:disabled {
+    background-color: #b39ddb;
+    cursor: not-allowed;
+  }
+  
+  .errorMessage {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .certificateDetails {
+    margin-top: 2rem;
+    border-top: 1px solid #eee;
+    padding-top: 1.5rem;
+  }
+  
+  .validBadge {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .detailsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .detailRow {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .detailSection {
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.2rem;
+  }
+  
+  .detailItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  
+  .detailLabel {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 500;
+  }
+  
+  .detailValue {
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  .topicsSection {
+    margin-top: 2rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .topicsTable {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .tableHeader {
+    display: grid;
+    grid-template-columns: 1fr 0.8fr 0.8fr 2fr;
+    background-color: #f5f7fa;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  
+  .headerCell {
+    padding: 1rem 0.8rem;
+    border-bottom: 1px solid #eee;
+    color: #555;
+  }
+  
+  .tableRow {
+    display: grid;
+    grid-template-columns: 1fr 0.8fr 0.8fr 2fr;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .tableRow:last-child {
+    border-bottom: none;
+  }
+  
+  .tableCell {
+    padding: 1rem 0.8rem;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .topicType {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #f0f4f8;
+    padding: 0.4rem 0.7rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  
+  .statusBadge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .statusCompleted {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  .statusCompleted::before {
+    content: "✓";
+    margin-right: 4px;
+  }
+  
+  .statusViewed {
+    background-color: #e3f2fd;
+    color: #1565c0;
+  }
+  
+  .statusStarted {
+    background-color: #fff8e1;
+    color: #f57f17;
+  }
+  
+  .statusNotViewed {
+    background-color: #f5f5f5;
+    color: #757575;
+  }
+  
+  .feedback {
+    display: inline-block;
+    font-weight: 600;
+    color: #fff;
+    background-color: #e64a19;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    margin-left: 0.8rem;
+  }
+  
+  @media (max-width: 768px) {
+    .tableHeader, .tableRow {
+      grid-template-columns: 1fr;
+    }
+    
+    .headerCell {
+      padding: 0.5rem;
+    }
+    
+    .tableCell {
+      padding: 0.8rem 0.5rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .tableRow .tableCell:last-child {
+      border-bottom: none;
+    }
+    
+    .tableRow {
+      padding: 0.5rem 0;
+      border-bottom: 2px solid #eee;
+    }
+    
+    .detailSection {
+      grid-template-columns: 1fr;
+    }
+  }

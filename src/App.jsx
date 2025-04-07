@@ -36,6 +36,7 @@ import CourseProgressTracker from "./components/instructor/CourseProgress";
 import ResultComponent from "./components/technical-manager/ResultComponent";
 import Allotments from "./components/technical-manager/Allotments";
 import AllCourseProgressTracker from "./components/technical-manager/AllCourseProgress";
+import CertificateValidation from "./components/certificate/CertificateValidation";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -174,6 +175,7 @@ const AppContent = () => {
             element={<LoginForm setLoginStatus={setLoginStatus} />}
           />
           <Route path="/register" element={<RegisterForm />} />
+          <Route path="/certificate" element={<CertificateValidation />} />
 
           <Route path="/forgot-password" element={<ForgotPasswordForm />} />
 
