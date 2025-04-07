@@ -697,11 +697,11 @@ const TestModule = () => {
 
           <div className={styles.legendPanel}>
             <div className={styles.legendItem}>
-              <span className={`${styles.legendDot} ${styles.orange}`}></span>
+              <span className={`${styles.legendDotOrange} ${styles.orange}`}></span>
               <span>Orange color Question indicate that you verified Question but not answered</span>
             </div>
             <div className={styles.legendItem}>
-              <span className={`${styles.legendDot} ${styles.green}`}></span>
+              <span className={`${styles.legendDotGreen} ${styles.green}`}></span>
               <span>Green color Question indicate that you answered</span>
             </div>
           </div>
