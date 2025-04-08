@@ -198,16 +198,17 @@ const InstructorDashboard = () => {
                 Tests
               </a>
             </li>
-            {/* <li className={`${styles.navItem} ${activeTab === 'progress' ? styles.active : ''}`}>
-              <a href="#progress" onClick={(e) => {
+            <li className={`${styles.navItem} ${activeTab === 'library' ? styles.active : ''}`}>
+              <a href="#library" onClick={(e) => {
                 e.preventDefault();
-                setActiveTab('tests');
-                navigate("/course/progress")
+                setActiveTab('library');
+                navigate("/instructor/course/library")
               }}>
                 <i className="fas fa-users"></i>
-                Course Progress
+                Question Library
               </a>
-            </li> */}
+            </li>
+            
           </ul>
         </nav>
       </aside>

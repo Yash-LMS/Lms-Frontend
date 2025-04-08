@@ -114,9 +114,10 @@
 }
 
 .tableWrapper {
-  max-height: 350px; 
+  max-height: 450px; 
   overflow-y: auto;
   overflow-x: auto;
+  overflow: visible !important;
   margin-bottom: 20px; /* Space between table and buttons */
 }
 
@@ -130,6 +131,7 @@
   padding: 15px 20px;
   text-align: left;
   border-bottom: 1px solid #eaeaea;
+  vertical-align: middle;
 }
 
 .dataTable th {
@@ -302,6 +304,7 @@
 
 .formField {
   flex: 1;
+  padding: 8px;
 }
 
 .actionColumn {
@@ -424,4 +427,8 @@
   cursor: pointer;
   transition: border-color 0.25s;
   align-items: center;
+}
+
+.reactSelect {
+  width: 100%;
 }

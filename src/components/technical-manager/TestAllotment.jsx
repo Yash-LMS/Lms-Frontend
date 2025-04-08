@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Select from "react-select";
 import styles from "./TestAllotment.module.css";
 import TestBulkAllotment from "./TestBulkAllotment";
 import {
@@ -25,6 +26,29 @@ const TestAllotment = () => {
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Custom styles for React Select to match the design of original select fields
+  const selectStyles = {
+    control: (provided) => ({
+      ...provided,
+      minHeight: '38px',
+      border: '1px solid #ccc',
+      boxShadow: 'none',
+      '&:hover': {
+        border: '1px solid #888',
+      },
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 10,
+    }),
+  };
+
+  const customSelectClassName = {
+    container: (state) => `${styles.reactSelectContainer}`,
+  };
+
   const getUserData = () => {
     try {
       return {
@@ -45,12 +69,12 @@ const TestAllotment = () => {
         console.error("Missing user data or token");
         return;
       }
-      
+
       const response = await axios.post(`${FIND_TRAINEE_URL}`, {
         user: userData.user,
         token: userData.token,
       });
-      
+
       if (response.data && response.data.payload) {
         setUserList(response.data.payload);
       } else {
@@ -70,12 +94,12 @@ const TestAllotment = () => {
         setIsLoading(false);
         return;
       }
-      
+
       const response = await axios.post(`${FIND_TEST_URL}`, {
         user: userData.user,
         token: userData.token,
       });
-      
+
       if (response.data && response.data.payload) {
         setTestList(response.data.payload);
       } else {
@@ -102,7 +126,7 @@ const TestAllotment = () => {
         setShowPopup(true);
         return;
       }
-      
+
       const validRows = rows.filter(
         (row) => row.emailId && row.testId && row.startDate && row.endDate
       );
@@ -167,6 +191,17 @@ const TestAllotment = () => {
     setShowPopup(true);
   };
 
+  // Transform user list and test list into options format for React Select
+  const userOptions = userList.map(user => ({
+    value: user.emailId,
+    label: user.name
+  }));
+  
+  const testOptions = testList.map(test => ({
+    value: test.testId.toString(),
+    label: test.testName
+  }));
+
   return (
     <div className={styles.dashboardContainer}>
       {/* Sidebar Navigation */}
@@ -179,107 +214,133 @@ const TestAllotment = () => {
           </header>
 
           <div className={styles.cardLayout}>
-  {isLoading ? (
-    <div className={styles.loadingState}>Loading test data...</div>
-  ) : testList && testList.length > 0 ? (
-    <div className={styles.contentWrapper}>
-      <table className={styles.dataTable}>
-        <thead>
-          <tr>
-            <th>Employee</th>
-            <th>Test</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-      </table>
-      
-      <div className={styles.tableScrollContainer}>
-        <table className={styles.dataTable}>
-          <tbody>
-            {rows.map((row, index) => (
-              <tr
-                key={index}
-                className={errorRows.includes(index) ? styles.errorRow : ""}
-              >
-                <td>
-                  <select
-                    className={styles.selectField}
-                    value={row.emailId}
-                    onChange={(e) => handleRowChange(index, "emailId", e.target.value)}
-                  >
-                    <option value="">Select Employee</option>
-                    {userList && userList.map((user) => (
-                      <option key={user.emailId} value={user.emailId}>
-                        {user.name}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  <select
-                    className={styles.selectField}
-                    value={row.testId}
-                    onChange={(e) => handleRowChange(index, "testId", e.target.value)}
-                  >
-                    <option value="">Select Test</option>
-                    {testList && testList.map((test) => (
-                      <option key={test.testId} value={test.testId}>
-                        {test.testName}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td>
-                  <input
-                    type="date"
-                    className={styles.dateField}
-                    value={row.startDate}
-                    onChange={(e) => handleRowChange(index, "startDate", e.target.value)}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="date"
-                    className={styles.dateField}
-                    value={row.endDate}
-                    onChange={(e) => handleRowChange(index, "endDate", e.target.value)}
-                  />
-                </td>
-                <td>
-                  <button
-                    className={styles.deleteButton}
-                    onClick={() => deleteRow(index)}
-                    disabled={rows.length === 1}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            {isLoading ? (
+              <div className={styles.loadingState}>Loading test data...</div>
+            ) : testList && testList.length > 0 ? (
+              <div className={styles.contentWrapper}>
+                <table className={styles.dataTable}>
+                  <thead>
+                    <tr>
+                      <th>Employee</th>
+                      <th>Test</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                </table>
 
-      <div className={styles.buttonGroup}>
-        <button className={styles.addButton} onClick={addRow}>
-          Add
-        </button>
-        <button className={styles.updateButton} onClick={handleUpdate}>
-          Save Changes
-        </button>
-        <button className={styles.bulkButton} onClick={toggleBulkUploadModal}>
-          Bulk Upload
-        </button>
-      </div>
-    </div>
-  ) : (
-    <div className={styles.noData}>
-      <p>No approved tests available for allotment.</p>
-    </div>
-  )}
-</div>
+                <div className={styles.tableScrollContainer}>
+                  <table className={styles.dataTable}>
+                    <tbody>
+                      {rows.map((row, index) => (
+                        <tr
+                          key={index}
+                          className={
+                            errorRows.includes(index) ? styles.errorRow : ""
+                          }
+                        >
+                          <td>
+                            <div className={styles.selectFieldContainer}>
+                              <Select
+                                options={userOptions}
+                                value={userOptions.find(option => option.value === row.emailId) || null}
+                                onChange={(selectedOption) => 
+                                  handleRowChange(index, "emailId", selectedOption ? selectedOption.value : "")
+                                }
+                                placeholder="Select Employee"
+                                isClearable
+                                isSearchable
+                                styles={selectStyles}
+                                classNamePrefix="react-select"
+                                className={styles.reactSelect}
+                              />
+                            </div>
+                          </td>
+                          <td>
+                            <div className={styles.selectFieldContainer}>
+                              <Select
+                                options={testOptions}
+                                value={testOptions.find(option => option.value === row.testId) || null}
+                                onChange={(selectedOption) => 
+                                  handleRowChange(index, "testId", selectedOption ? selectedOption.value : "")
+                                }
+                                placeholder="Select Test"
+                                isClearable
+                                isSearchable
+                                styles={selectStyles}
+                                classNamePrefix="react-select"
+                                className={styles.reactSelect}
+                              />
+                            </div>
+                          </td>
+                          <td>
+                            <input
+                              type="date"
+                              className={styles.dateField}
+                              value={row.startDate}
+                              onChange={(e) =>
+                                handleRowChange(
+                                  index,
+                                  "startDate",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="date"
+                              className={styles.dateField}
+                              value={row.endDate}
+                              onChange={(e) =>
+                                handleRowChange(
+                                  index,
+                                  "endDate",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </td>
+                          <td>
+                            <button
+                              className={styles.deleteButton}
+                              onClick={() => deleteRow(index)}
+                              disabled={rows.length === 1}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className={styles.buttonGroup}>
+                  <button className={styles.addButton} onClick={addRow}>
+                    Add
+                  </button>
+                  <button
+                    className={styles.updateButton}
+                    onClick={handleUpdate}
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    className={styles.bulkButton}
+                    onClick={toggleBulkUploadModal}
+                  >
+                    Bulk Upload
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.noData}>
+                <p>No approved tests available for allotment.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

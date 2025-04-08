@@ -81,4 +81,5 @@ export const PREVIEW_TEST_MANAGER_URL = `${API_BASE_URL}/manager/view/question`;
 
 
 // Question Library
-export const ADD_QUESTION_Library_URL = `${API_BASE_URL}/test/addQuestions`;
+export const VIEW_QUESTION_CATEGORY_URL = `${API_BASE_URL}/library/find/all/question/category`;
+export const ADD_QUESTION_Library_URL = `${API_BASE_URL}/library/addQuestion`;

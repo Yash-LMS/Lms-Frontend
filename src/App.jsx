@@ -206,7 +206,7 @@ const AppContent = () => {
           />
 
           <Route
-            path="/course/library"
+            path="/instructor/course/library"
             element={
               <ProtectedRoute>
                 <AddQuestionLibrary />
@@ -422,18 +422,20 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
     }
   };
 
-  const handleDashboardNavigate =() =>{
-    if(userData.role='instructor')
-    {
+  const handleDashboardNavigate = () => {
+    if ((userData.role = "instructor")) {
       navigate("/instructor-dashboard");
-    }else if(userData.role=='technical_manager')
-    {
+    } else if (userData.role == "technical_manager") {
       navigate("/manager-dashboard");
-    }else if(userData.role=='user')
-    {
+    } else if (userData.role == "user") {
       navigate("/user-dashboard");
     }
-  }
+  };
+
+  const handleCertificateVerification = (e) => {
+    e.preventDefault();
+    navigate("/certificate");
+  };
 
   // Function to handle register navigation directly
   const handleRegisterClick = (e) => {
@@ -450,21 +452,28 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
   return (
     <nav className={styles.navbar}>
       <div className={styles.navbarContent}>
-        <span 
-          className={styles.navbarBrand} 
+        <span
+          className={styles.navbarBrand}
           onClick={handleDashboardNavigate}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
         >
-          <img 
-            src={src} 
-            alt="Yash Logo" 
-            height="55" 
-            onClick={handleDashboardNavigate} 
+          <img
+            src={src}
+            alt="Yash Logo"
+            height="55"
+            onClick={handleDashboardNavigate}
           />
           <h3>LMS</h3>
         </span>
-        
+
+
         <div className={styles.navbarLinks}>
+        <button
+          onClick={handleCertificateVerification}
+          className={styles.logoutBtn}
+        >
+          Verify Certificate
+        </button>
           {sessionStorage.getItem("user") ? (
             <>
               <div className={styles.userProfile}>
@@ -477,7 +486,10 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
                     {userData.firstName + " " + (userData.lastName || "")}
                   </span>
                   <span className={styles.divider}>|</span>
-                  <span className={styles.userRole} style={{ fontWeight: 700, fontSize: '14px' }}>
+                  <span
+                    className={styles.userRole}
+                    style={{ fontWeight: 700, fontSize: "14px" }}
+                  >
                     {userData.role.replace(/_/g, " ").toUpperCase()}
                   </span>
                 </div>

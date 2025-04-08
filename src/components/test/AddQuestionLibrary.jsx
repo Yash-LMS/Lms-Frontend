@@ -4,6 +4,7 @@ import styles from "./AddQuestionLibrary.module.css";
 import SuccessModal from "../../assets/SuccessModal";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { VIEW_QUESTION_CATEGORY_URL, ADD_QUESTION_Library_URL } from "../../constants/apiConstants";
 
 const AddQuestionLibrary = () => {
   const quillRef = useRef(null);
@@ -30,7 +31,7 @@ const AddQuestionLibrary = () => {
   
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [savingQuestionId, setSavingQuestionId] = useState(null);
+
 
   // Enhanced Quill editor modules and formats
   const modules = {
@@ -63,12 +64,12 @@ const AddQuestionLibrary = () => {
   const fetchCategories = async () => {
     try {
       const { token } = getUserData();
-      const response = await axios.get('/api/find/all/question/category', {
+      const response = await axios.get(`${VIEW_QUESTION_CATEGORY_URL}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      if (response.data && response.data.status === "success") {
-        setCategories(response.data.data || []);
+      if (response.data && response.data.response === "success") {
+        setCategories(response.data.payload || []);
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -372,62 +373,7 @@ const AddQuestionLibrary = () => {
     };
   };
 
-  const saveQuestion = async (questionId) => {
-    setErrorMessage("");
-    setSavingQuestionId(questionId);
-
-    const questionToSave = questions.find((q) => q.id === questionId);
-
-    if (!validateQuestion(questionToSave)) {
-      setTimeout(() => setErrorMessage(""), 3000);
-      setSavingQuestionId(null);
-      return;
-    }
-
-    // Get user data from session storage
-    const { user, token, role } = getUserData();
-
-    if (!user || !token) {
-      setErrorMessage("User session data is missing. Please log in again.");
-      setSavingQuestionId(null);
-      return;
-    }
-
-    // Prepare question data for submission
-    const questionData = prepareQuestionData(questionToSave);
-
-    try {
-      setLoading(true);
-      const response = await axios.post('/api/addQuestion', {
-        user,
-        token,
-        category: questionToSave.category,
-        questionsLibraryList: [questionData]
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (response.data && response.data.status === "success") {
-        setSuccessMessage(`Question saved successfully!`);
-
-        // Remove the saved question from the list
-        setQuestions(questions.filter((q) => q.id !== questionId));
-
-        setTimeout(() => setSuccessMessage(""), 2000);
-      } else {
-        setErrorMessage(
-          "Failed to save question: " + (response.data?.message || "Unknown error")
-        );
-      }
-    } catch (error) {
-      setErrorMessage("Failed to save question: " + (error.response?.data?.message || error.message));
-    } finally {
-      setLoading(false);
-      setSavingQuestionId(null);
-      setTimeout(() => setErrorMessage(""), 3000);
-    }
-  };
-
+  
   const handleSubmit = async () => {
     setErrorMessage("");
 
@@ -449,18 +395,22 @@ const AddQuestionLibrary = () => {
       prepareQuestionData(question)
     );
 
+
+    const requestBody={
+      user,
+      token,
+      category: selectedCategory || questions[0].category,
+      questionsLibraryList: questionList
+    }
+
+
+    console.log(requestBody);
+
     try {
       setLoading(true);
-      const response = await axios.post('/api/addQuestion', {
-        user,
-        token,
-        category: selectedCategory || questions[0].category,
-        questionsLibraryList: questionList
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.post(`${ADD_QUESTION_Library_URL}`, requestBody);
 
-      if (response.data && response.data.status === "success") {
+      if (response.data && response.data.response === "success") {
         setSuccessMessage("All questions saved successfully!");
         setShowSuccessModal(true);
 
@@ -537,16 +487,7 @@ const AddQuestionLibrary = () => {
           <div className={styles.questionHeader}>
             <h3>Question {index + 1}</h3>
             <div className={styles.questionActions}>
-              <button
-                type="button"
-                onClick={() => saveQuestion(question.id)}
-                className={styles.saveButton}
-                disabled={savingQuestionId === question.id}
-              >
-                {savingQuestionId === question.id
-                  ? "Saving..."
-                  : "Save Question"}
-              </button>
+         
               {questions.length > 1 && (
                 <button
                   type="button"
