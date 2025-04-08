@@ -120,7 +120,7 @@
 }
 
 .questionInput {
-  width: 100%;
+  width: 90%;
   padding: 10px 12px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
@@ -283,12 +283,12 @@
   transition: all 0.2s;
   font-size: 14px;
   border: none;
-  background-color: #4f46e5;
+  background-color: #8e6cef;
   color: white;
 }
 
 .saveButton:hover:not(:disabled) {
-  background-color: #4338ca;
+  background-color: #7559ce;
 }
 
 .saveButton:disabled {
