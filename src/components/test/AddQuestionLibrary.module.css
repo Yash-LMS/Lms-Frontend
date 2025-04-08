@@ -1,0 +1,378 @@
+/* Main container styles */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+    background-color: #ffffff;
+  }
+  
+  .pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .pageHeader h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+  }
+  
+  /* Messages */
+  .errorMessage {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    border-left: 4px solid #ef4444;
+  }
+  
+  .successMessage {
+    background-color: #dcfce7;
+    color: #166534;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    border-left: 4px solid #22c55e;
+  }
+  
+  /* Global Category Selector */
+  .globalCategorySelector {
+    background-color: #f9fafb;
+    padding: 16px;
+    border-radius: 6px;
+    margin-bottom: 24px;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .globalCategorySelector label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+  }
+  
+  .selectInput {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 14px;
+    transition: border-color 0.2s;
+  }
+  
+  .selectInput:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+  }
+  
+  /* Question Container */
+  .questionContainer {
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .questionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .questionHeader h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #111827;
+  }
+  
+  .questionActions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  /* Form styles */
+  .formGroup {
+    margin-bottom: 16px;
+  }
+  
+  .formGroup label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+  }
+  
+  .formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .questionInput {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  
+  .questionInput:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+  }
+  
+  /* Question Type */
+  .questionTypeContainer {
+    display: flex;
+    gap: 24px;
+  }
+  
+  .radioLabel {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .radioInput {
+    margin-right: 8px;
+    cursor: pointer;
+  }
+  
+  /* Quill Editor */
+  .quillContainer {
+    margin-bottom: 16px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .quillContainer :global(.ql-container) {
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    min-height: 150px;
+  }
+  
+  .quillContainer :global(.ql-toolbar) {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    background-color: #f9fafb;
+  }
+  
+  /* Options container */
+  .optionsContainer {
+    margin-top: 24px;
+    background-color: #f9fafb;
+    padding: 16px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .optionsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .optionsHeader h4 {
+    margin: 0;
+    font-size: 16px;
+    color: #374151;
+  }
+  
+  .optionItem {
+    margin-bottom: 12px;
+  }
+  
+  .optionContent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: white;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s;
+  }
+  
+  .optionContent:hover {
+    border-color: #d1d5db;
+  }
+  
+  /* Green highlight for correct options */
+  .correctOption {
+    background-color: rgba(220, 252, 231, 0.7);
+    border-color: #86efac;
+  }
+  
+  .correctOption:hover {
+    border-color: #4ade80;
+  }
+  
+  .correctAnswerInput {
+    flex-shrink: 0;
+  }
+  
+  .correctRadio, .correctCheckbox {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: #16a34a;
+  }
+  
+  .optionLabelContainer {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    gap: 8px;
+  }
+  
+  .optionLabel {
+    font-weight: 500;
+    color: #6b7280;
+    width: 70px;
+  }
+  
+  .optionInput {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  
+  .optionInput:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+  }
+  
+  /* Buttons */
+  .actionButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    border: none;
+  }
+  
+  .saveButton {
+    composes: actionButton;
+    background-color: #4f46e5;
+    color: white;
+  }
+  
+  .saveButton:hover:not(:disabled) {
+    background-color: #4338ca;
+  }
+  
+  .saveButton:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+  }
+  
+  .cancelButton {
+    composes: actionButton;
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+  }
+  
+  .cancelButton:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .removeQuestionButton {
+    composes: actionButton;
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+  
+  .removeQuestionButton:hover {
+    background-color: #fecaca;
+  }
+  
+  .addOptionButton {
+    composes: actionButton;
+    background-color: #dbeafe;
+    color: #1e40af;
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .addOptionButton:hover:not(:disabled) {
+    background-color: #bfdbfe;
+  }
+  
+  .addOptionButton:disabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+  
+  .removeOptionButton {
+    composes: actionButton;
+    background-color: #fff1f2;
+    color: #be123c;
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+  
+  .removeOptionButton:hover:not(:disabled) {
+    background-color: #ffe4e6;
+  }
+  
+  .removeOptionButton:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+  
+  .addQuestionButton {
+    composes: actionButton;
+    background-color: #ecfdf5;
+    color: #047857;
+    margin-top: 16px;
+    width: 100%;
+    border: 1px dashed #a7f3d0;
+  }
+  
+  .addQuestionButton:hover {
+    background-color: #d1fae5;
+  }
+  
+  .addQuestionButtonContainer {
+    margin-top: 20px;
+  }
+  
+  .questionDivider {
+    margin: 32px 0;
+    border: none;
+    height: 1px;
+    background-color: #e5e7eb;
+  }
+  
+  .pageActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+  }
