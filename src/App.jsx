@@ -423,11 +423,11 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
   };
 
   const handleDashboardNavigate = () => {
-    if ((userData.role = "instructor")) {
+    if ((userData.role === "instructor")) {
       navigate("/instructor-dashboard");
-    } else if (userData.role == "technical_manager") {
+    } else if (userData.role === "technical_manager") {
       navigate("/manager-dashboard");
-    } else if (userData.role == "user") {
+    } else if (userData.role === "user") {
       navigate("/user-dashboard");
     }
   };
