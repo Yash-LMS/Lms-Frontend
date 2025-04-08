@@ -263,6 +263,11 @@
   gap: 10px;
 }
 
+.questionImportButtons {
+  display: flex;
+  gap: 10px;
+}
+
 .importButton {
   background-color: #f0e6ff;
   color: #8e6cef;
@@ -281,4 +286,3 @@
   background-color: #e0d6ff;
 }
 
-/* This ensures the other styles from your original CSS are maintained */

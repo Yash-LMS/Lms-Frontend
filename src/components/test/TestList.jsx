@@ -147,6 +147,7 @@ const TestList = ({
                   Bulk Upload
                 </button>
               </div>
+              <div className={styles.questionActionButtons}>
               <button
                 className={styles.importButton}
                 onClick={() => handleOpenImportRandomModal(test)}
@@ -159,6 +160,7 @@ const TestList = ({
               >
                 Import All Questions
               </button>
+              </div>
             </div>
           </div>
         </div>

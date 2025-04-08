@@ -205,7 +205,7 @@ const QuestionCategoryImport = ({
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Import Questions</h2>
+          <h2 className={styles.modalTitle}>Import All Questions</h2>
           {testId && <div className={styles.testId}>Test ID: {testId}</div>}
           <button className={styles.closeButton} onClick={onClose}>×</button>
         </div>
