@@ -88,16 +88,14 @@ const CertificateValidation = () => {
 
   return (
     <div className={styles.pageContainer}>
-      <div className={styles.header}>
-        <div className={styles.logo}>LMS Certificate System</div>
-      </div>
+
 
       <div className={styles.mainContent}>
         {!validationStatus && !error && (
           <div className={styles.validationCard}>
             <div className={styles.cardHeader}>
               <h2>Certificate Validation</h2>
-              <p>Enter your certificate ID to verify its authenticity</p>
+              <p>Enter  certificate ID to verify</p>
             </div>
             
             <form onSubmit={handleVerify} className={styles.form}>
@@ -108,7 +106,7 @@ const CertificateValidation = () => {
                   id="certificateId"
                   value={certificateId}
                   onChange={(e) => setCertificateId(e.target.value)}
-                  placeholder="Enter your certificate ID"
+                  placeholder="Enter  certificate ID"
                   required
                 />
               </div>
@@ -204,9 +202,7 @@ const CertificateValidation = () => {
         )}
       </div>
       
-      <div className={styles.footer}>
-        <p>© {new Date().getFullYear()} LMS Certificate Verification System</p>
-      </div>
+    
     </div>
   );
 };

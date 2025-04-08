@@ -1,7 +1,7 @@
 .pageContainer {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+ 
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
   font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
   color: #333;
