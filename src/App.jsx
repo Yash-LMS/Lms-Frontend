@@ -37,6 +37,7 @@ import ResultComponent from "./components/technical-manager/ResultComponent";
 import Allotments from "./components/technical-manager/Allotments";
 import AllCourseProgressTracker from "./components/technical-manager/AllCourseProgress";
 import CertificateValidation from "./components/certificate/CertificateValidation";
+import AddQuestionLibrary from "./components/test/AddQuestionLibrary";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -200,6 +201,15 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <CourseProgressTracker />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/course/library"
+            element={
+              <ProtectedRoute>
+                <AddQuestionLibrary />
               </ProtectedRoute>
             }
           />
