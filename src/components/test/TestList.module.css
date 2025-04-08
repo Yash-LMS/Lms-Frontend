@@ -265,9 +265,9 @@
 
 .importButton {
   background-color: #f0e6ff;
-  color: var(--primary-color);
+  color: #8e6cef;
+  border: 1px solid #8e6cef;
   border-radius: 8px;
-  border: 1px solid var(--primary-color);
   padding: 0.6em 1.2em;
   font-size: 0.9rem;
   font-weight: 500;
@@ -278,7 +278,7 @@
 }
 
 .importButton:hover {
-  background-color: var(--sidebar-active);
+  background-color: #e0d6ff;
 }
 
 /* This ensures the other styles from your original CSS are maintained */
