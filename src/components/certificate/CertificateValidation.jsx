@@ -19,14 +19,23 @@ const CertificateValidation = () => {
 
     try {
       const response = await axios.get(`${VERIFY_USER_CERTIFICATE}?certificateId=${certificateId}`);
+     
+      if(response.status!=200)
+      {
+        setError("Try again later");
+        return;
+      }
+
       if (response.data.response === 'success') {
         setCertificateData(response.data.payload);
         setValidationStatus('valid');
-      } else {
+      }
+       else {
         setValidationStatus('invalid');
         setError(response.data.message || 'Failed to validate certificate');
       }
     } catch (err) {
+      console.log("Error");
       setValidationStatus('invalid');
       setError(err.response?.data?.message || 'An error occurred while validating certificate');
     } finally {
@@ -80,7 +89,25 @@ const CertificateValidation = () => {
 
   return (
     <div className={styles.container}>
-    
+     {error && (
+              <div className={styles.errorMessage}>
+                {error}
+
+                <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+                  <button 
+                    onClick={() => {
+                      setValidationStatus(null);
+                      setCertificateData(null);
+                      setCertificateId('');
+                      setError(null);
+                    }} 
+                    className={styles.button}
+                  >
+                    Validate Another Certificate
+                  </button>
+                </div>
+              </div>
+            )}
 
       <div className={styles.content}>
         {!validationStatus ? (
@@ -105,11 +132,7 @@ const CertificateValidation = () => {
               </button>
             </form>
 
-            {error && (
-              <div className={styles.errorMessage}>
-                {error}
-              </div>
-            )}
+           
           </div>
         ) : (
           validationStatus === 'valid' && certificateData && (
