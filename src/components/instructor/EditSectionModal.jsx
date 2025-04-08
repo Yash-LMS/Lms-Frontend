@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateTopicFile, addNewTopic, deleteTopic, deleteSection, viewCourseDetails } from "../../features/course/courseActions";
 import styles from "./EditSectionModal.module.css";
+import axios from "axios";
 
 const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
   const dispatch = useDispatch();
@@ -13,9 +14,12 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
   const [newTopic, setNewTopic] = useState({
     topicName: "",
     topicType: "video",
+    testId: null,
     topicDescription: "",
     file: null
   });
+  const [tests, setTests] = useState([]);
+  const [selectedTest, setSelectedTest] = useState(null);
 
   useEffect(() => {
     if (section) {
@@ -23,6 +27,47 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
       setTopics(section.topics || []);
     }
   }, [section]);
+
+  // Fetch tests when a test type is selected for new topic
+  useEffect(() => {
+    if (newTopic.topicType === "test") {
+      fetchTests();
+    }
+  }, [newTopic.topicType]);
+
+  const fetchTests = async () => {
+    try {
+      const { user, token } = getUserData();
+      if (!user || !token) {
+        console.error("User session data is missing");
+        return;
+      }
+  
+      const response = await axios.post(
+        "http://localhost:8080/lms/api/test/findTests",
+        {
+          user: user,
+          token: token
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        }
+      );
+      
+      const data = response.data;
+      
+      if (data.response === "success") {
+        setTests(data.payload);
+      } else {
+        console.error("Failed to fetch tests:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching tests:", error);
+    }
+  };
 
   const getUserData = () => {
     try {
@@ -63,9 +108,11 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
     setNewTopic({
       topicName: "",
       topicType: "video",
+      testId: null,
       topicDescription: "",
       file: null
     });
+    setSelectedTest(null);
   };
 
   const handleNewTopicFileSelect = (event) => {
@@ -76,26 +123,104 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
     }));
   };
 
+  const handleTestSelection = (event) => {
+    const testId = parseInt(event.target.value);
+    const selectedTest = tests.find(test => test.testId === testId);
+    
+    if (selectedTest) {
+      setSelectedTest(selectedTest);
+      // Update the new topic with the test name and ID
+      setNewTopic(prev => ({
+        ...prev,
+        topicName: selectedTest.testName,
+        testId: selectedTest.testId
+      }));
+    } else {
+      setSelectedTest(null);
+      setNewTopic(prev => ({
+        ...prev,
+        testId: null,
+        topicName: ""
+      }));
+    }
+  };
+
+  const handleTopicTypeChange = (e) => {
+    const newType = e.target.value;
+    setNewTopic(prev => ({
+      ...prev,
+      topicType: newType,
+      // Reset testId when changing away from test type
+      testId: newType === "test" ? prev.testId : null
+    }));
+    
+    // If switching to test type, fetch tests
+    if (newType === "test") {
+      fetchTests();
+    }
+  };
+
+  const handleExistingTopicTypeChange = (topicIndex, newType) => {
+    // If changing away from test type, reset testId
+    if (topics[topicIndex].topicType === "test" && newType !== "test") {
+      updateTopic(topicIndex, "testId", null);
+    }
+    
+    updateTopic(topicIndex, "topicType", newType);
+    
+    // If switching to test type, fetch tests for this topic
+    if (newType === "test" && tests.length === 0) {
+      fetchTests();
+    }
+  };
+
+  const handleExistingTopicTestSelection = (topicIndex, testId) => {
+    const testId_int = parseInt(testId);
+    const selectedTest = tests.find(test => test.testId === testId_int);
+    
+    if (selectedTest) {
+      // Update both the test ID and the topic name
+      updateTopic(topicIndex, "testId", testId_int);
+      updateTopic(topicIndex, "topicName", selectedTest.testName);
+    } else {
+      updateTopic(topicIndex, "testId", null);
+      updateTopic(topicIndex, "topicName", "");
+    }
+  };
+
   const handleSaveNewTopic = async () => {
     const { user, token } = getUserData();
     if (!user || !token) {
-      alert("User  session data is missing. Please log in again.");
+      alert("User session data is missing. Please log in again.");
+      return;
+    }
+
+    // Validate for test type selection
+    if (newTopic.topicType === "test" && !newTopic.testId) {
+      alert("Please select a test from the dropdown.");
       return;
     }
 
     try {
+      const topicData = {
+        topicName: newTopic.topicName,
+        topicType: newTopic.topicType,
+        topicDescription: newTopic.topicDescription || ''
+      };
+
+      // Add testId if this is a test type topic
+      if (newTopic.topicType === "test" && newTopic.testId) {
+        topicData.testId = newTopic.testId;
+      }
+
       const resultAction = await dispatch(
         addNewTopic({
           courseId: selectedCourse.courseId,
           sectionId: section.sectionId,
-          topics: [{
-            topicName: newTopic.topicName,
-            topicType: newTopic.topicType,
-            topicDescription: newTopic.topicDescription || ''
-          }],
+          topics: [topicData],
           user,
           token,
-          file: newTopic.file // Only send the file when saving the new topic
+          file: newTopic.file
         })
       );
 
@@ -107,10 +232,12 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
         setNewTopic({
           topicName: "",
           topicType: "video",
+          testId: null,
           topicDescription: "",
           file: null
         });
         setIsAddingTopic(false);
+        setSelectedTest(null);
 
         // Refresh course details to reflect changes
         await dispatch(viewCourseDetails({
@@ -131,6 +258,16 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
   };
 
   const handleSave = async () => {
+    // Validate for test type selections
+    const invalidTestTopic = topics.find(topic => 
+      topic.topicType === "test" && !topic.testId
+    );
+
+    if (invalidTestTopic) {
+      alert("Please select a test for all test-type topics before saving.");
+      return;
+    }
+
     const updatedSection = {
       ...section,
       title,
@@ -143,7 +280,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
       const { user, token } = getUserData();
 
       if (!user || !token) {
-        alert("User  session data is missing. Please log in again.");
+        alert("User session data is missing. Please log in again.");
         return;
       }
 
@@ -182,7 +319,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
     const { user, token } = getUserData();
 
     if (!user || !token) {
-      alert("User  session data is missing. Please log in again.");
+      alert("User session data is missing. Please log in again.");
       return;
     }
 
@@ -219,19 +356,18 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
     }
   };
 
-  // New function to handle section deletion
   const handleRemoveSection = async () => {
     const { user, token } = getUserData();
 
     if (!user || !token) {
-      alert("User  session data is missing. Please log in again.");
+      alert("User session data is missing. Please log in again.");
       return;
     }
 
     try {
       const resultAction = await dispatch(
         deleteSection({
-          sectionId: section.sectionId, // Send sectionId as parameter
+          sectionId: section.sectionId,
           user,
           token
         })
@@ -276,12 +412,6 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
               placeholder="Section Title"
               className={styles.sectionTitleInput}
             />
-            {/* <button 
-              onClick={handleRemoveSection} // Add delete section button
-              className={styles.removeSectionButton}
-            >
-              Delete Section
-            </button> */}
             {!isAddingTopic && (
               <button 
                 onClick={handleAddTopicClick} 
@@ -296,28 +426,43 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
           {isAddingTopic && (
             <div className={styles.newTopicForm}>
               <div className={styles.topicRow}>
-                <input
-                  type="text"
-                  value={newTopic.topicName}
-                  onChange={(e) => setNewTopic(prev => ({
-                    ...prev,
-                    topicName: e.target.value
-                  }))}
-                  placeholder="Topic Name"
-                  className={styles.topicInput}
-                />
                 <select
                   value={newTopic.topicType}
-                  onChange={(e) => setNewTopic(prev => ({
-                    ...prev,
-                    topicType: e.target.value
-                  }))}
+                  onChange={handleTopicTypeChange}
                   className={`${styles.topicInput} ${styles.topicTypeSelect}`}
                 >
                   <option value="video">Video</option>
                   <option value="docs">Documentation</option>
                   <option value="test">Test/Quiz</option>
                 </select>
+
+                {newTopic.topicType !== "test" && (
+                  <input
+                    type="text"
+                    value={newTopic.topicName}
+                    onChange={(e) => setNewTopic(prev => ({
+                      ...prev,
+                      topicName: e.target.value
+                    }))}
+                    placeholder="Topic Name"
+                    className={styles.topicInput}
+                  />
+                )}
+
+                {newTopic.topicType === "test" && (
+                  <select
+                    value={newTopic.testId || ""}
+                    onChange={handleTestSelection}
+                    className={`${styles.topicInput} ${styles.testSelect}`}
+                  >
+                    <option value="">Select a Test</option>
+                    {tests.map(test => (
+                      <option key={test.testId} value={test.testId}>
+                        {test.testName} ({test.duration} min)
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               {(newTopic.topicType === "video" || newTopic.topicType === "docs") && (
@@ -350,9 +495,9 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
 
               <div className={styles.newTopicActions}>
                 <button 
-                  onClick={handleSaveNewTopic} // Save new topic and changes
+                  onClick={handleSaveNewTopic}
                   className={styles.saveButton}
-                  disabled={!newTopic.topicName}
+                  disabled={!newTopic.topicName || (newTopic.topicType === "test" && !newTopic.testId)}
                 >
                   Save Topic
                 </button>
@@ -362,9 +507,11 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                     setNewTopic({
                       topicName: "",
                       topicType: "video",
+                      testId: null,
                       topicDescription: "",
                       file: null
                     });
+                    setSelectedTest(null);
                   }}
                   className={styles.cancelButton}
                 >
@@ -377,32 +524,44 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
           <h3>Existing Topics</h3>
           {topics.map((topic, index) => (
             <div key={index} className={styles.topicRow}>
-              <input
-                type="text"
-                value={topic.topicName}
-                onChange={(e) =>
-                  updateTopic(index, "topicName", e.target.value)
-                }
-                placeholder="Topic Name"
-                className={styles.topicInput}
-              />
-              <div className={styles.topicTypeContainer}>
+              <select
+                value={topic.topicType}
+                onChange={(e) => handleExistingTopicTypeChange(index, e.target.value)}
+                className={`${styles.topicInput} ${styles.topicTypeSelect}`}
+              >
+                <option value="video">Video</option>
+                <option value="docs">Documentation</option>
+                <option value="test">Test/Quiz</option>
+              </select>
+
+              {topic.topicType !== "test" && (
+                <input
+                  type="text"
+                  value={topic.topicName}
+                  onChange={(e) => updateTopic(index, "topicName", e.target.value)}
+                  placeholder="Topic Name"
+                  className={styles.topicInput}
+                />
+              )}
+
+              {topic.topicType === "test" && (
                 <select
-                  value={topic.topicType}
-                  onChange={(e) =>
-                    updateTopic(index, "topicType", e.target.value)
-                  }
-                  className={`${styles.topicInput} ${styles.topicTypeSelect}`}
+                  value={topic.testId || ""}
+                  onChange={(e) => handleExistingTopicTestSelection(index, e.target.value)}
+                  className={`${styles.topicInput} ${styles.testSelect}`}
                 >
-                  <option value="video">Video</option>
-                  <option value="docs">Documentation</option>
-                  <option value="test">Test/Quiz</option>
+                  <option value="">Select a Test</option>
+                  {tests.map(test => (
+                    <option key={test.testId} value={test.testId}>
+                      {test.testName} ({test.duration} min)
+                    </option>
+                  ))}
                 </select>
-              </div>
+              )}
 
               <div className={styles.topicActionButtons}>
                 <button 
-                  onClick={() => handleRemoveTopic(index)} // Directly remove topic
+                  onClick={() => handleRemoveTopic(index)}
                   className={styles.removeTopicButton}
                 >
                   Remove
@@ -410,12 +569,11 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
               </div>
 
               <div className={styles.topicResourceInputs}>
-                {(topic.topicType === "video" ||
-                  topic.topicType === "docs") && (
+                {(topic.topicType === "video" || topic.topicType === "docs") && (
                   <div className={styles.uploadContainer}>
                     <input
                       type="file"
-                      onChange={handleFileSelect.bind(null, index)} // Bind index to the function
+                      onChange={handleFileSelect.bind(null, index)}
                       className={styles.fileInput}
                       id={`fileUpload-${index}`}
                       accept={
@@ -428,8 +586,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                       htmlFor={`fileUpload-${index}`}
                       className={styles.uploadButton}
                     >
-                      Upload{" "}
-                      {topic.topicType === "video" ? "Video" : "Document"}
+                      Upload {topic.topicType === "video" ? "Video" : "Document"}
                     </label>
                     
                     {(topic.topicType === "video" && topic.videoURL) && (
@@ -451,9 +608,9 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                   </div>
                 )}
 
-                {topic.topicType === "test" && (
+                {topic.topicType === "test" && topic.testId && (
                   <div className={styles.testInfo}>
-                    <p>Test configuration will be added separately.</p>
+                    <p>Test ID: {topic.testId}</p>
                   </div>
                 )}
               </div>
