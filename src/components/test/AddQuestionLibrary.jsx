@@ -4,7 +4,7 @@ import styles from "./AddQuestionLibrary.module.css";
 import SuccessModal from "../../assets/SuccessModal";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { VIEW_QUESTION_CATEGORY_URL, ADD_QUESTION_Library_URL } from "../../constants/apiConstants";
+import { VIEW_QUESTION_ALL_CATEGORY_URL, ADD_QUESTION_Library_URL } from "../../constants/apiConstants";
 
 const AddQuestionLibrary = () => {
   const quillRef = useRef(null);
@@ -64,7 +64,7 @@ const AddQuestionLibrary = () => {
   const fetchCategories = async () => {
     try {
       const { token } = getUserData();
-      const response = await axios.get(`${VIEW_QUESTION_CATEGORY_URL}`, {
+      const response = await axios.get(`${VIEW_QUESTION_ALL_CATEGORY_URL}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

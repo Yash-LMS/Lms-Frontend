@@ -1,12 +1,15 @@
+// TestList.jsx - Updated with Import Questions Modal
 import React, { useState } from 'react';
 import styles from './TestList.module.css';
 import { useNavigate } from 'react-router-dom';
 import QuestionModal from './QuestionModal';
 import BulkUploadQuestionModal from './BulkUploadQuestionModal';
+import QuestionViewerModal from './QuestionViewerModal';
 
-const TestList = ({ tests, loading, error, onAddQuestions, onEditTest }) => {
+const TestList = ({ tests, loading, error, onAddQuestions, onEditTest, user, token }) => {
   const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
   const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedTest, setSelectedTest] = useState(null);
 
   const navigate = useNavigate();
@@ -47,6 +50,11 @@ const TestList = ({ tests, loading, error, onAddQuestions, onEditTest }) => {
     setIsBulkUploadModalOpen(true);
   };
 
+  const handleOpenImportModal = (test) => {
+    setSelectedTest(test);
+    setIsImportModalOpen(true);
+  };
+
   const handleCloseQuestionModal = () => {
     setIsQuestionModalOpen(false);
     setSelectedTest(null);
@@ -54,6 +62,11 @@ const TestList = ({ tests, loading, error, onAddQuestions, onEditTest }) => {
 
   const handleCloseBulkUploadModal = () => {
     setIsBulkUploadModalOpen(false);
+    setSelectedTest(null);
+  };
+
+  const handleCloseImportModal = () => {
+    setIsImportModalOpen(false);
     setSelectedTest(null);
   };
 
@@ -91,18 +104,26 @@ const TestList = ({ tests, loading, error, onAddQuestions, onEditTest }) => {
             >
               Preview
             </button>
-            <div className={styles.questionActionButtons}>
+            <div className={styles.questionButtonsContainer}>
+              <div className={styles.questionActionButtons}>
+                <button 
+                  className={styles.addQuestionsButton}
+                  onClick={() => handleOpenQuestionModal(test)}
+                >
+                  Add Single Question
+                </button>
+                <button 
+                  className={styles.uploadButton}
+                  onClick={() => handleOpenBulkUploadModal(test)}
+                >
+                  Bulk Upload
+                </button>
+              </div>
               <button 
-                className={styles.addQuestionsButton}
-                onClick={() => handleOpenQuestionModal(test)}
+                className={styles.importButton}
+                onClick={() => handleOpenImportModal(test)}
               >
-                Add Single Question
-              </button>
-              <button 
-                className={styles.uploadButton}
-                onClick={() => handleOpenBulkUploadModal(test)}
-              >
-                Bulk Upload
+                Import Questions
               </button>
             </div>
           </div>
@@ -121,6 +142,13 @@ const TestList = ({ tests, loading, error, onAddQuestions, onEditTest }) => {
       <BulkUploadQuestionModal 
         isOpen={isBulkUploadModalOpen}
         onClose={handleCloseBulkUploadModal}
+        testId={selectedTest?.testId}
+      />
+
+      {/* Import Questions Modal */}
+      <QuestionViewerModal 
+        isOpen={isImportModalOpen}
+        onClose={handleCloseImportModal}
         testId={selectedTest?.testId}
       />
     </div>

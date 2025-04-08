@@ -81,5 +81,9 @@ export const PREVIEW_TEST_MANAGER_URL = `${API_BASE_URL}/manager/view/question`;
 
 
 // Question Library
-export const VIEW_QUESTION_CATEGORY_URL = `${API_BASE_URL}/library/find/all/question/category`;
+export const VIEW_QUESTION_ALL_CATEGORY_URL = `${API_BASE_URL}/library/find/all/question/category`;
+export const VIEW_QUESTION_DISTINCT_CATEGORY_URL = `${API_BASE_URL}/library/find/distinct/question/category`;
 export const ADD_QUESTION_Library_URL = `${API_BASE_URL}/library/addQuestion`;
+
+export const VIEW_RANDOM_QUESTION_Library_URL = `${API_BASE_URL}/library/random/findQuestion`;
+
