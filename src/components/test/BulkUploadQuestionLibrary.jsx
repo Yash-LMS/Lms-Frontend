@@ -57,15 +57,7 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
         "option3(C)", "option4(D)", "option5(E)", "option6(F)", "option7(G)", 
         "option8(H)", "Correct Answer (a,b,c if multiple, b if single)"
       ],
-      [
-        "1", "JavaScript", "medium", "What is JavaScript?", "1", 
-        "single_choice", "A programming language", "A markup language", 
-        "A database", "None of these", "", "", "", "", "a"
-      ],
-      [
-        "2", "React", "easy", "React is developed by?", "1", 
-        "multiple_choice", "Google", "Facebook", "Microsoft", "Amazon", "", "", "", "", "b,c"
-      ]
+    
     ];
     
     const worksheet = XLSX.utils.aoa_to_sheet(template);
