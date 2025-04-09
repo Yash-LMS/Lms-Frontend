@@ -15,6 +15,9 @@ const InternalTestModule = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
+  // Added for randomization
+  const [questionSequence, setQuestionSequence] = useState([]);
+  const [optionSequences, setOptionSequences] = useState({});
 
   // Added for fullscreen functionality
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -28,19 +31,16 @@ const InternalTestModule = () => {
   const navigate = useNavigate();
   
   const [testAllotmentId, setTestAllotmentId] = useState(null);
-  
+  const [isTestStarted, setIsTestStarted] = useState(false);
+  const [courseAllotmentId, setCourseAllotmentId] = useState(null);
+
+  const[isAllValues,setIsAllValue]=useState(false);
   const [courseId, setCourseId] = useState(null);
   const [trackingId, setTrackingId] = useState(null);
   
-  const [isTestStarted, setIsTestStarted] = useState(false);
-  
-  const[courseAllotmentId,setCourseAllotmentId]=useState(null);
-
-  const[isAllValues,setIsAllValue]=useState(false);
-  
   // Added for submit confirmation popup
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
-  
+
 
   useEffect(() => {
    
@@ -59,7 +59,6 @@ const InternalTestModule = () => {
       }
     };
 
-   
     useEffect(() => {
       // Check if location.state exists before trying to access values
       if (!location.state) {
@@ -89,46 +88,6 @@ const InternalTestModule = () => {
       setIsAllValue(true);
 
     }, []); // Add location.state as a dependency
-
-    const fetchTestDetails = async () => {
-      try {
-        const { user, token } = getUserData();
-        console.log(testAllotmentId);
-      
-        if(!testAllotmentId)
-          {
-            return;
-          }
-        
-        const response = await axios.post(`${START_TEST_URL}`, {
-           user,
-           token,
-           testAllotmentId,
-           courseTrackingId: trackingId,
-           testType: "internal"
-       
-        });
-
-        if(response.data.response==='success')
-        {
-          const test = response.data.payload;
-          setTestDetails(test);
-          // Convert duration from hours to seconds
-          const totalSeconds = Math.floor(test.duration * 60);
-          setTimeRemaining(totalSeconds);
-          setTotalTime(totalSeconds);
-          setLoading(false);
-        } else {
-          const message=response.data.message;
-          handleRedirect(message,"/user-dashboard");
-        }
-      } catch (err) {
-        setError('Failed to load test details.');
-        console.log("Error",err);
-        setLoading(false);
-      }
-    };
-
 
     useEffect(() => {
       
@@ -180,6 +139,109 @@ const InternalTestModule = () => {
       
     }, [isAllValues]);
 
+    const getTestAllotmentId = () => {
+      // Check if we have an allotment ID in the navigation state
+      const passedAllotmentId = location.state?.testAllotmentId;
+      
+      if (passedAllotmentId) {
+        setTestAllotmentId(passedAllotmentId);
+        return passedAllotmentId;
+      } else {
+        // Redirect with a message if no test was selected
+        navigate("/redirect", {
+          state: { 
+            message: "No test selected. Please choose a test from your My Tests.", 
+            redirectPath: "/my-test" 
+          }
+        });
+        return null;
+      }
+    };
+    
+    // Helper function to shuffle an array
+    const shuffleArray = (array) => {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    };
+    
+    // Generate randomized question and option sequences
+    const randomizeTest = (test) => {
+      if (!test || !test.questionList || test.questionList.length === 0) return;
+      
+      // Create a randomized question sequence
+      const questionIds = test.questionList.map((q, index) => index);
+      const randomizedQuestionSequence = shuffleArray(questionIds);
+      setQuestionSequence(randomizedQuestionSequence);
+      
+      // Create randomized option sequences for each question
+      const optionSequencesMap = {};
+      
+      test.questionList.forEach(question => {
+        const questionId = question.questionId;
+        
+        // Count how many options this question has
+        const optionCount = [
+          question.option1, question.option2, question.option3,
+          question.option4, question.option5, question.option6
+        ].filter(option => option !== null).length;
+        
+        // Create an array of option indices (1-based)
+        const optionIndices = Array.from({length: optionCount}, (_, i) => i + 1);
+        
+        // Shuffle the option indices
+        const shuffledOptionIndices = shuffleArray(optionIndices);
+        
+        // Store the shuffled sequence
+        optionSequencesMap[questionId] = shuffledOptionIndices;
+      });
+      
+      setOptionSequences(optionSequencesMap);
+    };
+
+    const fetchTestDetails = async () => {
+      try {
+        const { user, token } = getUserData();
+        console.log(testAllotmentId);
+      
+        if(!testAllotmentId) {
+          return;
+        }
+        
+        const response = await axios.post(`${START_TEST_URL}`, {
+           user,
+           token,
+          testAllotmentId,
+          courseTrackingId: trackingId,
+          testType: "internal"
+        });
+
+        if(response.data.response==='success') {
+          const test = response.data.payload;
+          setTestDetails(test);
+          // Convert duration from hours to seconds
+          const totalSeconds = Math.floor(test.duration * 60);
+          setTimeRemaining(totalSeconds);
+          setTotalTime(totalSeconds);
+          
+          // Randomize the test questions and options
+          randomizeTest(test);
+          
+          setLoading(false);
+        } else {
+          const message=response.data.message;
+          handleRedirect(message,"/user-dashboard");
+        }
+      } catch (err) {
+        setError('Failed to load test details.');
+        console.log("Error",err);
+        setLoading(false);
+      }
+    };
+
 
     const fetchTest = async () => {
       try {
@@ -223,7 +285,13 @@ const InternalTestModule = () => {
       }
     }, [testAllotmentId]);
   
- 
+  // Fetch test data from API
+  useEffect(() => {
+    const id = getTestAllotmentId();
+    if (id) {
+      setTestAllotmentId(id);
+    }
+  }, []);
 
   // Timer logic
   useEffect(() => {
@@ -341,10 +409,13 @@ const InternalTestModule = () => {
   };
 
   // Modified to use option1, option2, etc. as answerId for single choice
-  const handleSingleChoiceAnswer = (questionId, optionIndex) => {
+  // Now map from randomized option index back to original option index
+  const handleSingleChoiceAnswer = (questionId, displayedOptionIndex) => {
     if (isPaused) return;
     
-    const answerId = `option${optionIndex}`;
+    // Map from displayed option index to original option index
+    const originalOptionIndex = optionSequences[questionId][displayedOptionIndex - 1];
+    const answerId = `option${originalOptionIndex}`;
     
     setAnswers(prev => ({
       ...prev,
@@ -353,12 +424,16 @@ const InternalTestModule = () => {
   };
 
   // Modified to use option1/option2/option3 format for multiple choice
-  const handleMultipleChoiceAnswer = (questionId, optionIndex) => {
+  // Now map from randomized option index back to original option index
+  const handleMultipleChoiceAnswer = (questionId, displayedOptionIndex) => {
     if (isPaused) return;
+    
+    // Map from displayed option index to original option index
+    const originalOptionIndex = optionSequences[questionId][displayedOptionIndex - 1];
+    const optionValue = `option${originalOptionIndex}`;
     
     setAnswers(prev => {
       const currentAnswers = prev[questionId] ? prev[questionId].split('/') : [];
-      const optionValue = `option${optionIndex}`;
       
       // If option is already selected, remove it
       if (currentAnswers.includes(optionValue)) {
@@ -400,7 +475,7 @@ const InternalTestModule = () => {
     
     setCurrentQuestionIndex(index);
   };
-  
+
   // Show submit confirmation popup
   const showSubmitConfirmationPopup = () => {
     if (isPaused) return;
@@ -439,11 +514,13 @@ const InternalTestModule = () => {
       if (response.data.response === 'success') {
         const resultData=response.data.payload;
         navigate("/result", { state: { result: resultData,
-                                   navigationPath:  `/user/courseContent/${courseId}/${courseAllotmentId}` , // The path to navigate to when button is clicked
-                                    buttonText: "Back to Course" // Custom button text
+          navigationPath:  `/user/courseContent/${courseId}/${courseAllotmentId}` , // The path to navigate to when button is clicked
+          buttonText: "Back to Course" // Custom button text
+                             } 
+                      });
 
-                            } 
-                          });
+
+
       } else {
         const message = response.data.message;
         handleRedirect(message, "/user-dashboard");
@@ -492,15 +569,18 @@ const InternalTestModule = () => {
     return answers[questionId] && answers[questionId].length > 0;
   };
 
-  // Logic for checking if an option is selected (updated for new format)
-  const isOptionSelected = (questionId, optionIndex, isMultipleChoice) => {
+  // Logic for checking if an option is selected (updated for new format and randomization)
+  const isOptionSelected = (questionId, displayedOptionIndex, isMultipleChoice) => {
     if (!answers[questionId]) return false;
+    
+    // Map from displayed option index to original option index
+    const originalOptionIndex = optionSequences[questionId][displayedOptionIndex - 1];
     
     if (isMultipleChoice) {
       const selectedOptions = answers[questionId].split('/');
-      return selectedOptions.includes(`option${optionIndex}`);
+      return selectedOptions.includes(`option${originalOptionIndex}`);
     } else {
-      return answers[questionId] === `option${optionIndex}`;
+      return answers[questionId] === `option${originalOptionIndex}`;
     }
   };
 
@@ -528,8 +608,8 @@ const InternalTestModule = () => {
               <li>After exiting full-screen 4 times, your test will be automatically submitted.</li>
               <li>The timer will start once you begin the test.</li>
               <li>For multiple-choice questions, there may be more than one correct option. Marks will be awarded only if all correct options are selected.</li>
-              <li>There is no negative marking. </li>
-              
+              <li>There is no negative marking.</li>
+              <li>Questions and options will be randomized for each test attempt.</li>
             </ul>
           </div>
           <button className={styles.startButton} onClick={startTest}>
@@ -542,8 +622,11 @@ const InternalTestModule = () => {
 
   if (!testDetails) return <div className={styles.loading}>Starting test...</div>;
 
-  const currentQuestion = testDetails.questionList[currentQuestionIndex];
-  const isMultipleChoice = currentQuestion.questionType === "multiple_choice";
+  // Get the randomized current question
+  const randomizedQuestionIndex = questionSequence[currentQuestionIndex] !== undefined ? 
+                                 questionSequence[currentQuestionIndex] : currentQuestionIndex;
+  const currentQuestion = testDetails.questionList[randomizedQuestionIndex];
+  const isMultipleChoice = currentQuestion?.questionType === "multiple_choice";
   const questionNumber = currentQuestionIndex + 1;
   const totalQuestions = testDetails.questionList.length;
   const timerProps = calculateTimerCircle();
@@ -555,7 +638,7 @@ const InternalTestModule = () => {
     }
     return "";
   });
-  
+
   // Calculate the number of answered and unanswered questions
   const answeredCount = questionStatus.filter(status => status === "answered").length;
   const unansweredCount = totalQuestions - answeredCount;
@@ -628,48 +711,50 @@ const InternalTestModule = () => {
           <div className={styles.questionContainer}>
             <div className={styles.questionNum}>Q {questionNumber}</div>
             <div className={styles.questionText}>
-             
-
-               <div dangerouslySetInnerHTML={{ __html: currentQuestion.description || 'No question text available' }} />
-                
-            
-              
-              </div>
+              <div dangerouslySetInnerHTML={{ __html: currentQuestion?.description || 'No question text available' }} />
+            </div>
 
             <div className={styles.optionsList}>
-              {[currentQuestion.option1, currentQuestion.option2, currentQuestion.option3, 
-                currentQuestion.option4, currentQuestion.option5, currentQuestion.option6]
-                .filter(option => option !== null)
-                .map((option, index) => {
-                  const optionIndex = index + 1;
-                  const isSelected = isOptionSelected(
-                    currentQuestion.questionId, 
-                    optionIndex, 
-                    isMultipleChoice
-                  );
+              {currentQuestion && optionSequences[currentQuestion.questionId] ? 
+                optionSequences[currentQuestion.questionId].map((originalIndex, displayIndex) => {
+                  // Get the option based on the original index
+                  const optionKey = `option${originalIndex}`;
+                  const option = currentQuestion[optionKey];
                   
-                  return (
-                    <div key={`question-${currentQuestion.questionId}-option-${optionIndex}`} className={styles.optionItem}>
-                      <label className={`${styles.optionLabel} ${isSelected ? styles.selected : ''}`}>
-                        <input 
-                          type={isMultipleChoice ? "checkbox" : "radio"} 
-                          name={`question-${currentQuestion.questionId}`}
-                          value={optionIndex}
-                          checked={isSelected}
-                          onChange={() => {
-                            if (isMultipleChoice) {
-                              handleMultipleChoiceAnswer(currentQuestion.questionId, optionIndex);
-                            } else {
-                              handleSingleChoiceAnswer(currentQuestion.questionId, optionIndex);
-                            }
-                          }}
-                          disabled={isPaused || showSubmitConfirmation}
-                        />
-                        {option}
-                      </label>
-                    </div>
-                  );
-                })}
+                  // Only render if the option exists
+                  if (option !== null && option !== undefined) {
+                    const displayedOptionIndex = displayIndex + 1;
+                    const isSelected = isOptionSelected(
+                      currentQuestion.questionId, 
+                      displayedOptionIndex, 
+                      isMultipleChoice
+                    );
+                    
+                    return (
+                      <div key={`question-${currentQuestion.questionId}-option-${displayedOptionIndex}`} className={styles.optionItem}>
+                        <label className={`${styles.optionLabel} ${isSelected ? styles.selected : ''}`}>
+                          <input 
+                            type={isMultipleChoice ? "checkbox" : "radio"} 
+                            name={`question-${currentQuestion.questionId}`}
+                            value={displayedOptionIndex}
+                            checked={isSelected}
+                            onChange={() => {
+                              if (isMultipleChoice) {
+                                handleMultipleChoiceAnswer(currentQuestion.questionId, displayedOptionIndex);
+                              } else {
+                                handleSingleChoiceAnswer(currentQuestion.questionId, displayedOptionIndex);
+                              }
+                            }}
+                            disabled={isPaused || showSubmitConfirmation}
+                          />
+                          {option}
+                        </label>
+                      </div>
+                    );
+                  }
+                  return null;
+                }) : null
+              }
             </div>
           </div>
 
@@ -702,65 +787,67 @@ const InternalTestModule = () => {
         </div>
 
         <div className={styles.sidebar}>
-        <div className={styles.timerPanel}>
-  <h3>Timer</h3>
-  
-  <div className={styles.roundTimerContainer}>
-    <svg className={styles.roundTimer} width="120" height="120" viewBox="0 0 120 120">
-      {/* Background circle */}
-      <circle
-        cx="60"
-        cy="60"
-        r={timerProps.radius}
-        fill="none"
-        stroke="#eaeaea"
-        strokeWidth="8"
-      />
-      {/* Progress circle */}
-      <circle
-        cx="60"
-        cy="60"
-        r={timerProps.radius}
-        fill="none"
-        stroke="#ff9800"
-        strokeWidth="8"
-        strokeLinecap="round"
-        strokeDasharray={timerProps.circumference}
-        strokeDashoffset={timerProps.dashOffset}
-        transform="rotate(-90 60 60)"
-      />
-      
-      {/* Time display - now showing hours, minutes, seconds */}
-      <text x="60" y="45" textAnchor="middle" className={styles.timerText}>
-        {Math.floor(timeRemaining / 3600)}:{String(Math.floor((timeRemaining % 3600) / 60)).padStart(2, '0')}:{String(timeRemaining % 60).padStart(2, '0')}
-      </text>
-      
-      {/* Units label */}
-      <text x="60" y="65" textAnchor="middle" className={styles.timerSubText}>
-        Hr : Min : Sec
-      </text>
-    </svg>
-  </div>
-</div>
+          <div className={styles.timerPanel}>
+            <h3>Timer</h3>
+            
+            <div className={styles.roundTimerContainer}>
+              <svg className={styles.roundTimer} width="120" height="120" viewBox="0 0 120 120">
+                {/* Background circle */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r={timerProps.radius}
+                  fill="none"
+                  stroke="#eaeaea"
+                  strokeWidth="8"
+                />
+                {/* Progress circle */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r={timerProps.radius}
+                  fill="none"
+                  stroke="#ff9800"
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  strokeDasharray={timerProps.circumference}
+                  strokeDashoffset={timerProps.dashOffset}
+                  transform="rotate(-90 60 60)"
+                />
+                
+                {/* Time display - now showing hours, minutes, seconds */}
+                <text x="60" y="45" textAnchor="middle" className={styles.timerText}>
+                  {Math.floor(timeRemaining / 3600)}:{String(Math.floor((timeRemaining % 3600) / 60)).padStart(2, '0')}:{String(timeRemaining % 60).padStart(2, '0')}
+                </text>
+                
+                {/* Units label */}
+                <text x="60" y="65" textAnchor="middle" className={styles.timerSubText}>
+                  Hr : Min : Sec
+                </text>
+              </svg>
+            </div>
+          </div>
 
           <div className={styles.questionsPanel}>
             <h3>Questions</h3>
             <div className={styles.questionsGrid}>
-              {testDetails.questionList.map((question, index) => {
+              {questionSequence.map((originalIndex, displayIndex) => {
                 let dotClass = "";
-                if (questionStatus[index] === "answered") {
+                const question = testDetails.questionList[originalIndex];
+                
+                if (question && isQuestionAnswered(question.questionId)) {
                   dotClass = styles.green;
-                } else if (index === currentQuestionIndex) {
+                } else if (displayIndex === currentQuestionIndex) {
                   dotClass = styles.orange;
                 }
                 
                 return (
                   <div 
-                    key={`question-dot-${question.questionId}`}
+                    key={`question-dot-${displayIndex}`}
                     className={`${styles.questionDot} ${dotClass}`}
-                    onClick={() => navigateToQuestion(index)}
+                    onClick={() => navigateToQuestion(displayIndex)}
                   >
-                    {index + 1}
+                    {displayIndex + 1}
                   </div>
                 );
               })}
@@ -769,11 +856,11 @@ const InternalTestModule = () => {
 
           <div className={styles.legendPanel}>
             <div className={styles.legendItem}>
-              <span className={`${styles.legendDot} ${styles.orange}`}></span>
+              <span className={`${styles.legendDotOrange} ${styles.orange}`}></span>
               <span>Orange color Question indicate that you verified Question but not answered</span>
             </div>
             <div className={styles.legendItem}>
-              <span className={`${styles.legendDot} ${styles.green}`}></span>
+              <span className={`${styles.legendDotGreen} ${styles.green}`}></span>
               <span>Green color Question indicate that you answered</span>
             </div>
           </div>
