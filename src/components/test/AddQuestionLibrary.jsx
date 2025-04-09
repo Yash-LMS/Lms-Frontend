@@ -1,13 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "./AddQuestionLibrary.module.css";
 import SuccessModal from "../../assets/SuccessModal";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { VIEW_QUESTION_ALL_CATEGORY_URL, ADD_QUESTION_Library_URL } from "../../constants/apiConstants";
+import {
+  VIEW_QUESTION_ALL_CATEGORY_URL,
+  ADD_QUESTION_Library_URL,
+} from "../../constants/apiConstants";
 
 const AddQuestionLibrary = () => {
   const quillRef = useRef(null);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -28,32 +33,37 @@ const AddQuestionLibrary = () => {
       ],
     },
   ]);
-  
+
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
 
   // Enhanced Quill editor modules and formats
   const modules = {
     toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      [{ 'script': 'sub' }, { 'script': 'super' }],
-      [{ 'indent': '-1' }, { 'indent': '+1' }],
-      [{ 'color': [] }, { 'background': [] }],
-      ['link'],
-      ['clean']
+      ["bold", "italic", "underline", "strike"],
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ script: "sub" }, { script: "super" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ color: [] }, { background: [] }],
+      ["link"],
+      ["clean"],
     ],
   };
 
   const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent',
-    'script',
-    'color', 'background',
-    'link'
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+    "indent",
+    "script",
+    "color",
+    "background",
+    "link",
   ];
 
   // Fetch categories on component mount
@@ -65,9 +75,9 @@ const AddQuestionLibrary = () => {
     try {
       const { token } = getUserData();
       const response = await axios.get(`${VIEW_QUESTION_ALL_CATEGORY_URL}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       if (response.data && response.data.response === "success") {
         setCategories(response.data.payload || []);
       }
@@ -127,7 +137,7 @@ const AddQuestionLibrary = () => {
 
   const handleDifficultyChange = (questionId, difficulty) => {
     setQuestions(
-      questions.map((q) => 
+      questions.map((q) =>
         q.id === questionId ? { ...q, difficultyLevel: difficulty } : q
       )
     );
@@ -135,9 +145,7 @@ const AddQuestionLibrary = () => {
 
   const handleCategoryChange = (questionId, category) => {
     setQuestions(
-      questions.map((q) => 
-        q.id === questionId ? { ...q, category } : q
-      )
+      questions.map((q) => (q.id === questionId ? { ...q, category } : q))
     );
   };
 
@@ -273,10 +281,11 @@ const AddQuestionLibrary = () => {
 
   const validateQuestion = (question) => {
     // Check if there's any content (including HTML tags)
-    const hasContent = question.description.trim() !== "" && 
-                       question.description !== "<p><br></p>" &&
-                       question.description !== "<p></p>";
-                       
+    const hasContent =
+      question.description.trim() !== "" &&
+      question.description !== "<p><br></p>" &&
+      question.description !== "<p></p>";
+
     if (!hasContent) {
       setErrorMessage(`Question text is required`);
       return false;
@@ -304,10 +313,11 @@ const AddQuestionLibrary = () => {
   const validateQuestions = () => {
     for (const question of questions) {
       // Check if there's any content (including HTML tags)
-      const hasContent = question.description.trim() !== "" && 
-                         question.description !== "<p><br></p>" &&
-                         question.description !== "<p></p>";
-      
+      const hasContent =
+        question.description.trim() !== "" &&
+        question.description !== "<p><br></p>" &&
+        question.description !== "<p></p>";
+
       if (!hasContent) {
         setErrorMessage(
           `Question ${
@@ -338,9 +348,7 @@ const AddQuestionLibrary = () => {
 
       if (!question.category) {
         setErrorMessage(
-          `Question ${
-            questions.indexOf(question) + 1
-          }: Category is required`
+          `Question ${questions.indexOf(question) + 1}: Category is required`
         );
         return false;
       }
@@ -373,7 +381,6 @@ const AddQuestionLibrary = () => {
     };
   };
 
-  
   const handleSubmit = async () => {
     setErrorMessage("");
 
@@ -395,20 +402,21 @@ const AddQuestionLibrary = () => {
       prepareQuestionData(question)
     );
 
-
-    const requestBody={
+    const requestBody = {
       user,
       token,
       category: selectedCategory || questions[0].category,
-      questionsLibraryList: questionList
-    }
-
+      questionsLibraryList: questionList,
+    };
 
     console.log(requestBody);
 
     try {
       setLoading(true);
-      const response = await axios.post(`${ADD_QUESTION_Library_URL}`, requestBody);
+      const response = await axios.post(
+        `${ADD_QUESTION_Library_URL}`,
+        requestBody
+      );
 
       if (response.data && response.data.response === "success") {
         setSuccessMessage("All questions saved successfully!");
@@ -434,10 +442,16 @@ const AddQuestionLibrary = () => {
           setShowSuccessModal(false);
         }, 2000);
       } else {
-        setErrorMessage("Failed to save questions: " + (response.data?.message || "Unknown error"));
+        setErrorMessage(
+          "Failed to save questions: " +
+            (response.data?.message || "Unknown error")
+        );
       }
     } catch (error) {
-      setErrorMessage("Failed to save questions: " + (error.response?.data?.message || error.message));
+      setErrorMessage(
+        "Failed to save questions: " +
+          (error.response?.data?.message || error.message)
+      );
     } finally {
       setLoading(false);
       setTimeout(() => setErrorMessage(""), 3000);
@@ -452,6 +466,14 @@ const AddQuestionLibrary = () => {
     <div className={styles.container}>
       <div className={styles.pageHeader}>
         <h2>Add Questions to Library</h2>
+        <div className={styles.backNavigation}>
+          <button
+            className={styles.backButton}
+            onClick={() => navigate("/instructor-dashboard")}
+          >
+            &larr; Back to Dashboard
+          </button>
+        </div>
       </div>
 
       {errorMessage && (
@@ -464,12 +486,14 @@ const AddQuestionLibrary = () => {
 
       <div className={styles.globalCategorySelector}>
         <label>Select Global Category</label>
-        <select 
-          value={selectedCategory} 
+        <select
+          value={selectedCategory}
           onChange={(e) => {
             setSelectedCategory(e.target.value);
             // Update all questions to use this category
-            setQuestions(questions.map(q => ({...q, category: e.target.value})));
+            setQuestions(
+              questions.map((q) => ({ ...q, category: e.target.value }))
+            );
           }}
           className={styles.selectInput}
         >
@@ -487,7 +511,6 @@ const AddQuestionLibrary = () => {
           <div className={styles.questionHeader}>
             <h3>Question {index + 1}</h3>
             <div className={styles.questionActions}>
-         
               {questions.length > 1 && (
                 <button
                   type="button"
@@ -501,15 +524,15 @@ const AddQuestionLibrary = () => {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor={`description-${question.id}`}>
-              Question Text
-            </label>
+            <label htmlFor={`description-${question.id}`}>Question Text</label>
             <div className={styles.quillContainer}>
               <ReactQuill
                 ref={index === 0 ? quillRef : null}
                 theme="snow"
                 value={question.description}
-                onChange={(content) => handleQuestionTextChange(question.id, content)}
+                onChange={(content) =>
+                  handleQuestionTextChange(question.id, content)
+                }
                 modules={modules}
                 formats={formats}
                 placeholder="Enter your question here"
@@ -539,7 +562,9 @@ const AddQuestionLibrary = () => {
               <select
                 id={`difficulty-${question.id}`}
                 value={question.difficultyLevel}
-                onChange={(e) => handleDifficultyChange(question.id, e.target.value)}
+                onChange={(e) =>
+                  handleDifficultyChange(question.id, e.target.value)
+                }
                 className={styles.selectInput}
               >
                 <option value="easy">Easy</option>
@@ -553,7 +578,9 @@ const AddQuestionLibrary = () => {
               <select
                 id={`category-${question.id}`}
                 value={question.category}
-                onChange={(e) => handleCategoryChange(question.id, e.target.value)}
+                onChange={(e) =>
+                  handleCategoryChange(question.id, e.target.value)
+                }
                 className={styles.selectInput}
               >
                 <option value="">Select a category</option>
@@ -613,7 +640,11 @@ const AddQuestionLibrary = () => {
 
             {question.options.map((option) => (
               <div key={option.id} className={styles.optionItem}>
-                <div className={`${styles.optionContent} ${option.isCorrect ? styles.correctOption : ''}`}>
+                <div
+                  className={`${styles.optionContent} ${
+                    option.isCorrect ? styles.correctOption : ""
+                  }`}
+                >
                   <div className={styles.correctAnswerInput}>
                     {question.questionType === "single_choice" ? (
                       <input

@@ -40,8 +40,8 @@ const MyCourses = () => {
   const [feedbackText, setFeedbackText] = useState("");
   const [selectedCourse, setSelectedCourse] = useState(null);
 
-  // State for certificate download
-  const [downloadingCertificate, setDownloadingCertificate] = useState(false);
+  // State for certificate download - track by allotmentId
+  const [downloadingCertificateId, setDownloadingCertificateId] = useState(null);
   const [certificateDownloadError, setCertificateDownloadError] = useState(null);
 
   const [courseImages, setCourseImages] = useState({});
@@ -127,8 +127,8 @@ const MyCourses = () => {
       // Reset previous error
       setCertificateDownloadError(null);
 
-      // Set loading state before download starts
-      setDownloadingCertificate(true);
+      // Set loading state for this specific certificate
+      setDownloadingCertificateId(allotmentId);
 
       const requestData = { user, token, allotmentId };
 
@@ -140,9 +140,7 @@ const MyCourses = () => {
         }
       });
 
-      console.log("Not acceptable")
       if (response.status === 406) {
-        console.log("dfd")
         const courseStatus = response.headers['x-course-status'];
         setCertificateDownloadError(`Cannot download certificate: Course ${courseStatus}`);
         alert(`Cannot download certificate: Course ${courseStatus}`);
@@ -170,8 +168,8 @@ const MyCourses = () => {
       setCertificateDownloadError("An error occurred while downloading the certificate. Please try again.");
       alert("An error occurred while downloading the certificate. Please try again.");
     } finally {
-      // Remove loading state after download attempt (success or failure)
-      setDownloadingCertificate(false);
+      // Clear loading state after download attempt (success or failure)
+      setDownloadingCertificateId(null);
     }
   };
 
@@ -331,9 +329,9 @@ const MyCourses = () => {
                   <button
                     className={styles.downloadButton}
                     onClick={() => handleDownloadCertificate(course.allotmentId)}
-                    disabled={downloadingCertificate}
+                    disabled={downloadingCertificateId === course.allotmentId}
                   >
-                    {downloadingCertificate ? (
+                    {downloadingCertificateId === course.allotmentId ? (
                       <span className={styles.loadingSpinner}>
                         Downloading Certificate...
                       </span>
