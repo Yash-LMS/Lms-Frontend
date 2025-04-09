@@ -41,8 +41,20 @@ const TestAllotment = () => {
     }),
     menu: (provided) => ({
       ...provided,
-      zIndex: 10,
+      zIndex: 9999,
+      position: 'absolute',
+      width: '100%',
+      marginTop: '4px',
+      overflow: 'visible'
     }),
+    menuPortal: (provided) => ({
+      ...provided,
+      zIndex: 9999
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      maxHeight: '200px'
+    })
   };
 
   const customSelectClassName = {
@@ -252,6 +264,7 @@ const TestAllotment = () => {
                                 isClearable
                                 isSearchable
                                 styles={selectStyles}
+                                menuPortalTarget={document.body}
                                 classNamePrefix="react-select"
                                 className={styles.reactSelect}
                               />
@@ -269,6 +282,7 @@ const TestAllotment = () => {
                                 isClearable
                                 isSearchable
                                 styles={selectStyles}
+                                menuPortalTarget={document.body}
                                 classNamePrefix="react-select"
                                 className={styles.reactSelect}
                               />
