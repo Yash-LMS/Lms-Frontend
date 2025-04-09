@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateTopicFile, addNewTopic, deleteTopic, deleteSection, viewCourseDetails } from "../../features/course/courseActions";
 import styles from "./EditSectionModal.module.css";
 import axios from "axios";
-import { TEST_INSTRUCTOR_URL } from "../../constants/apiConstants";
 
 const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
   const dispatch = useDispatch();
@@ -36,10 +35,6 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
     }
   }, [newTopic.topicType]);
 
-  useEffect(() => {
-    fetchTests();
-  }, []);
-
   const fetchTests = async () => {
     try {
       const { user, token } = getUserData();
@@ -47,13 +42,21 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
         console.error("User session data is missing");
         return;
       }
-
-      const requestBody = {
-        user,
-        token
-      };
   
-      const response = await axios.post(`${TEST_INSTRUCTOR_URL}`, requestBody);
+      const response = await axios.post(
+        "http://localhost:8080/lms/api/test/findTests",
+        {
+          user: user,
+          token: token
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        }
+      );
+      
       const data = response.data;
       
       if (data.response === "success") {
@@ -158,55 +161,28 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
   };
 
   const handleExistingTopicTypeChange = (topicIndex, newType) => {
-    // Store the original topic
-    const originalTopic = topics[topicIndex];
-    
     // If changing away from test type, reset testId
-    if (originalTopic.topicType === "test" && newType !== "test") {
+    if (topics[topicIndex].topicType === "test" && newType !== "test") {
       updateTopic(topicIndex, "testId", null);
     }
     
     updateTopic(topicIndex, "topicType", newType);
     
-    // If switching to test type, fetch tests for this topic if needed
+    // If switching to test type, fetch tests for this topic
     if (newType === "test" && tests.length === 0) {
       fetchTests();
     }
-    
-    // If changing to test but we already have tests loaded, make sure UI updates properly
-    console.log(`Topic type changed to ${newType}, testId is ${originalTopic.testId}`);
   };
 
-  const handleExistingTopicTestSelection = (topicIndex, testIdValue) => {
-    // Parse the testId to integer
-    const testId_int = parseInt(testIdValue);
-    console.log(`Selecting test ID: ${testId_int} for topic at index ${topicIndex}`);
-    
-    // Find the selected test
+  const handleExistingTopicTestSelection = (topicIndex, testId) => {
+    const testId_int = parseInt(testId);
     const selectedTest = tests.find(test => test.testId === testId_int);
     
     if (selectedTest) {
-      console.log(`Found test: ${selectedTest.testName} with ID: ${selectedTest.testId}`);
-      
-      // Update the topic with both the test ID and name
-      const updatedTopics = topics.map((topic, idx) => {
-        if (idx === topicIndex) {
-          return {
-            ...topic,
-            testId: testId_int,
-            topicName: selectedTest.testName
-          };
-        }
-        return topic;
-      });
-      
-      // Set the updated topics
-      setTopics(updatedTopics);
-      
-      // Log the updated topic for verification
-      console.log("Updated topic:", updatedTopics[topicIndex]);
+      // Update both the test ID and the topic name
+      updateTopic(topicIndex, "testId", testId_int);
+      updateTopic(topicIndex, "topicName", selectedTest.testName);
     } else {
-      console.log("Test not found, resetting testId and topicName");
       updateTopic(topicIndex, "testId", null);
       updateTopic(topicIndex, "topicName", "");
     }
@@ -282,9 +258,6 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
   };
 
   const handleSave = async () => {
-    // Debug log to check topics before saving
-    console.log("Topics before saving:", topics);
-    
     // Validate for test type selections
     const invalidTestTopic = topics.find(topic => 
       topic.topicType === "test" && !topic.testId
@@ -338,23 +311,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
       }
     }
 
-    // Final check to ensure all test topics have testIds
-    const finalTopics = topics.map(topic => {
-      if (topic.topicType === "test" && topic.testId) {
-        // Ensure testId is a number, not a string
-        return { ...topic, testId: Number(topic.testId) };
-      }
-      return topic;
-    });
-    
-    const finalSection = {
-      ...updatedSection,
-      topics: finalTopics
-    };
-    
-    console.log("Final section data:", finalSection);
-    
-    onSubmit(finalSection);
+    onSubmit(updatedSection);
     onClose(); // Close the modal after saving changes
   };
 
@@ -441,17 +398,15 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
     <div className={styles.modal}>
       <div className={styles.modalContent}>
         <header className={styles.modalHeader}>
-          <h2>Edit Section: {section.title}</h2>
+          <h2>{section.title}</h2>
           <button className={styles.closeButton} onClick={onClose}>
-            <span>×</span>
+            ×
           </button>
         </header>
-        
         <div className={styles.modalBody}>
           <div className={styles.formGroup}>
-            <label htmlFor="sectionTitle" className={styles.formLabel}>Section Title</label>
+            <label className={styles.formLabel}>Section Title</label>
             <input
-              id="sectionTitle"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -459,23 +414,19 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
               className={styles.formControl}
             />
           </div>
-  
-          {!isAddingTopic && (
-            <div className={styles.actionBar}>
-              <button 
-                onClick={handleAddTopicClick} 
-                className={styles.addButton}
-              >
+          
+          <div className={styles.actionBar}>
+            {!isAddingTopic && (
+              <button onClick={handleAddTopicClick} className={styles.addButton}>
                 <span className={styles.addIcon}>+</span> Add Topic
               </button>
-            </div>
-          )}
+            )}
+          </div>
           
           {/* New Topic Form */}
           {isAddingTopic && (
             <div className={styles.newTopicPanel}>
               <h3 className={styles.panelTitle}>Add New Topic</h3>
-              
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Topic Type</label>
                 <select
@@ -488,7 +439,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                   <option value="test">Test/Quiz</option>
                 </select>
               </div>
-  
+
               {newTopic.topicType !== "test" && (
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Topic Name</label>
@@ -504,7 +455,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                   />
                 </div>
               )}
-  
+
               {newTopic.topicType === "test" && (
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Select Test</label>
@@ -513,7 +464,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                     onChange={handleTestSelection}
                     className={styles.formSelect}
                   >
-                    <option value="">-- Select a Test --</option>
+                    <option value="">Select a Test</option>
                     {tests.map(test => (
                       <option key={test.testId} value={test.testId}>
                         {test.testName} ({test.duration} min)
@@ -522,7 +473,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                   </select>
                 </div>
               )}
-  
+
               {(newTopic.topicType === "video" || newTopic.topicType === "docs") && (
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>
@@ -540,13 +491,12 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                           : "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                       }
                     />
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('newTopicFileUpload').click()}
+                    <label
+                      htmlFor="newTopicFileUpload"
                       className={styles.uploadButton}
                     >
                       Choose File
-                    </button>
+                    </label>
                     
                     {newTopic.file && (
                       <span className={styles.fileName}>
@@ -556,15 +506,8 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                   </div>
                 </div>
               )}
-  
+
               <div className={styles.formActions}>
-                <button 
-                  onClick={handleSaveNewTopic}
-                  className={styles.primaryButton}
-                  disabled={!newTopic.topicName || (newTopic.topicType === "test" && !newTopic.testId)}
-                >
-                  Save Topic
-                </button>
                 <button 
                   onClick={() => {
                     setIsAddingTopic(false);
@@ -581,31 +524,36 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                 >
                   Cancel
                 </button>
+                <button 
+                  onClick={handleSaveNewTopic}
+                  className={styles.primaryButton}
+                  disabled={!newTopic.topicName || (newTopic.topicType === "test" && !newTopic.testId)}
+                >
+                  Add Topic
+                </button>
               </div>
             </div>
           )}
           
           <div className={styles.existingTopicsSection}>
-            <h3 className={styles.sectionTitle}>Existing Topics</h3>
+            <h3 className={styles.sectionTitle}>Topics</h3>
             
             {topics.length === 0 ? (
               <div className={styles.emptyState}>
-                No topics added yet. Use the "Add Topic" button to create topics.
+                No topics added yet. Click "Add Topic" to create one.
               </div>
             ) : (
               topics.map((topic, index) => (
                 <div key={index} className={styles.topicCard}>
                   <div className={styles.topicCardHeader}>
-                    <div className={styles.topicType}>{topic.topicType}</div>
+                    <span className={styles.topicType}>{topic.topicName} ({topic.topicType})</span>
                     <button 
                       onClick={() => handleRemoveTopic(index)}
                       className={styles.removeButton}
-                      aria-label="Remove topic"
                     >
-                      <span>×</span>
+                      ×
                     </button>
                   </div>
-                  
                   <div className={styles.topicCardBody}>
                     <div className={styles.formGroup}>
                       <label className={styles.formLabel}>Topic Type</label>
@@ -619,7 +567,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                         <option value="test">Test/Quiz</option>
                       </select>
                     </div>
-  
+
                     {topic.topicType !== "test" && (
                       <div className={styles.formGroup}>
                         <label className={styles.formLabel}>Topic Name</label>
@@ -632,7 +580,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                         />
                       </div>
                     )}
-  
+
                     {topic.topicType === "test" && (
                       <div className={styles.formGroup}>
                         <label className={styles.formLabel}>Select Test</label>
@@ -641,20 +589,26 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                           onChange={(e) => handleExistingTopicTestSelection(index, e.target.value)}
                           className={styles.formSelect}
                         >
-                          <option value="">-- Select a Test --</option>
+                          <option value="">Select a Test</option>
                           {tests.map(test => (
                             <option key={test.testId} value={test.testId}>
                               {test.testName} ({test.duration} min)
                             </option>
                           ))}
                         </select>
+                        
+                        {topic.testId && (
+                          <div className={styles.testDetail}>
+                            <span className={styles.testIdBadge}>Test ID: {topic.testId}</span>
+                          </div>
+                        )}
                       </div>
                     )}
-  
+
                     {(topic.topicType === "video" || topic.topicType === "docs") && (
                       <div className={styles.formGroup}>
                         <label className={styles.formLabel}>
-                          {topic.topicType === "video" ? "Video" : "Document"} File
+                          Upload {topic.topicType === "video" ? "Video" : "Document"}
                         </label>
                         <div className={styles.uploadWrapper}>
                           <input
@@ -668,37 +622,30 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                                 : "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                             }
                           />
-                          <button
-                            type="button"
-                            onClick={() => document.getElementById(`fileUpload-${index}`).click()}
+                          <label
+                            htmlFor={`fileUpload-${index}`}
                             className={styles.uploadButton}
                           >
                             Choose File
-                          </button>
+                          </label>
                           
                           {(topic.topicType === "video" && topic.videoURL) && (
                             <span className={styles.fileName}>
-                              Current: {topic.videoURL.split('/').pop()}
+                              {topic.videoURL.split('/').pop()}
                             </span>
                           )}
                           {(topic.topicType === "docs" && topic.docsURL) && (
                             <span className={styles.fileName}>
-                              Current: {topic.docsURL.split('/').pop()}
+                              {topic.docsURL.split('/').pop()}
                             </span>
                           )}
-  
+
                           {selectedFiles[index] && (
                             <span className={styles.fileName}>
-                              New: {selectedFiles[index].name}
+                              {selectedFiles[index].name}
                             </span>
                           )}
                         </div>
-                      </div>
-                    )}
-  
-                    {topic.topicType === "test" && topic.testId && (
-                      <div className={styles.testDetail}>
-                        <div className={styles.testIdBadge}>Test ID: {topic.testId}</div>
                       </div>
                     )}
                   </div>
@@ -707,15 +654,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
             )}
           </div>
         </div>
-        
         <footer className={styles.modalFooter}>
-          <button 
-            className={styles.dangerButton} 
-            onClick={handleRemoveSection}
-            style={{ marginRight: 'auto' }}
-          >
-            Delete Section
-          </button>
           <button className={styles.secondaryButton} onClick={onClose}>
             Cancel
           </button>

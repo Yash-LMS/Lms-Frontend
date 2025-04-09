@@ -490,7 +490,7 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
                     className={styles.userRole}
                     style={{ fontWeight: 700, fontSize: "14px" }}
                   >
-                    {userData.role.replace(/_/g, " ").toUpperCase()}
+                    {(userData.role ? userData.role.replace(/_/g, " ") : 'Not Available').toUpperCase()}
                   </span>
                 </div>
               </div>
