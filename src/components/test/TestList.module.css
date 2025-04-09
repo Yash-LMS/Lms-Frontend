@@ -248,3 +248,41 @@
   align-items: center;
   margin-left: 10px;
 }
+
+
+/* TestList.module.css - Addition for Import Button */
+.questionButtonsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.questionActionButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.questionImportButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.importButton {
+  background-color: #f0e6ff;
+  color: #8e6cef;
+  border: 1px solid #8e6cef;
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: center;
+}
+
+.importButton:hover {
+  background-color: #e0d6ff;
+}
+

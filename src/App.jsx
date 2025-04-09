@@ -36,6 +36,8 @@ import CourseProgressTracker from "./components/instructor/CourseProgress";
 import ResultComponent from "./components/technical-manager/ResultComponent";
 import Allotments from "./components/technical-manager/Allotments";
 import AllCourseProgressTracker from "./components/technical-manager/AllCourseProgress";
+import CertificateValidation from "./components/certificate/CertificateValidation";
+import AddQuestionLibrary from "./components/test/AddQuestionLibrary";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -174,6 +176,7 @@ const AppContent = () => {
             element={<LoginForm setLoginStatus={setLoginStatus} />}
           />
           <Route path="/register" element={<RegisterForm />} />
+          <Route path="/certificate" element={<CertificateValidation />} />
 
           <Route path="/forgot-password" element={<ForgotPasswordForm />} />
 
@@ -198,6 +201,15 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <CourseProgressTracker />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/instructor/course/library"
+            element={
+              <ProtectedRoute>
+                <AddQuestionLibrary />
               </ProtectedRoute>
             }
           />
@@ -410,18 +422,20 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
     }
   };
 
-  const handleDashboardNavigate =() =>{
-    if(userData.role='instructor')
-    {
+  const handleDashboardNavigate = () => {
+    if ((userData.role === "instructor")) {
       navigate("/instructor-dashboard");
-    }else if(userData.role=='technical_manager')
-    {
+    } else if (userData.role === "technical_manager") {
       navigate("/manager-dashboard");
-    }else if(userData.role=='user')
-    {
+    } else if (userData.role === "user") {
       navigate("/user-dashboard");
     }
-  }
+  };
+
+  const handleCertificateVerification = (e) => {
+    e.preventDefault();
+    navigate("/certificate");
+  };
 
   // Function to handle register navigation directly
   const handleRegisterClick = (e) => {
@@ -438,21 +452,28 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
   return (
     <nav className={styles.navbar}>
       <div className={styles.navbarContent}>
-        <span 
-          className={styles.navbarBrand} 
+        <span
+          className={styles.navbarBrand}
           onClick={handleDashboardNavigate}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
         >
-          <img 
-            src={src} 
-            alt="Yash Logo" 
-            height="55" 
-            onClick={handleDashboardNavigate} 
+          <img
+            src={src}
+            alt="Yash Logo"
+            height="55"
+            onClick={handleDashboardNavigate}
           />
           <h3>LMS</h3>
         </span>
-        
+
+
         <div className={styles.navbarLinks}>
+        <button
+          onClick={handleCertificateVerification}
+          className={styles.logoutBtn}
+        >
+          Verify Certificate
+        </button>
           {sessionStorage.getItem("user") ? (
             <>
               <div className={styles.userProfile}>
@@ -465,8 +486,11 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
                     {userData.firstName + " " + (userData.lastName || "")}
                   </span>
                   <span className={styles.divider}>|</span>
-                  <span className={styles.userRole} style={{ fontWeight: 700, fontSize: '14px' }}>
-                    {userData.role.replace(/_/g, " ").toUpperCase()}
+                  <span
+                    className={styles.userRole}
+                    style={{ fontWeight: 700, fontSize: "14px" }}
+                  >
+                    {(userData.role ? userData.role.replace(/_/g, " ") : 'Not Available').toUpperCase()}
                   </span>
                 </div>
               </div>

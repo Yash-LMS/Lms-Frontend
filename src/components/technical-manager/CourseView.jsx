@@ -87,6 +87,11 @@ const CourseView = () => {
     setCurrentTopicId(null);
   };
 
+  const handlePreviewClick = (testId) => {
+    navigate(`/test/view/${testId}`);
+  };
+
+
   if (loading) {
     return <div className={styles.loading}>Loading course details...</div>;
   }
@@ -112,7 +117,7 @@ const CourseView = () => {
           &larr; Back to Dashboard
         </button>
       </div>
-  
+
       <div className={styles.courseHeader}>
         <h1 className={styles.courseName}>{selectedCourse.courseName}</h1>
         <div className={styles.courseMetadata}>
@@ -173,17 +178,17 @@ const CourseView = () => {
             )}
         </div>
       </div>
-  
+
       {selectedCourse.description && (
         <div className={styles.courseDescription}>
           <h2 className={styles.sectionTitle}>Description</h2>
           <p>{selectedCourse.description}</p>
         </div>
       )}
-  
+
       <div className={styles.courseSections}>
         <h2 className={styles.sectionTitle}>Course Content</h2>
-  
+
         {selectedCourse.sectionList && selectedCourse.sectionList.length > 0 ? (
           <div className={styles.sectionsList}>
             {[...selectedCourse.sectionList]
@@ -212,7 +217,7 @@ const CourseView = () => {
                       </span>
                     </div>
                   </div>
-  
+
                   {expandedSections[section.sectionId] && section.topics && (
                     <div className={styles.topicsList}>
                       {[...section.topics]
@@ -259,9 +264,21 @@ const CourseView = () => {
                                   View Docs
                                 </button>
                               )}
+                              {topic.topicType === "test" && topic.testId && (
+                                <button
+                                  onClick={() =>
+                                    handlePreviewClick(topic.testId)
+                                  }
+                                  className={styles.resourceLink}
+                                >
+                                  View Test
+                                </button>
+                              )}
                               {topic.file && topic.file !== "" && (
                                 <a
-                                  href={URL.createObjectURL(new Blob([topic.file]))}
+                                  href={URL.createObjectURL(
+                                    new Blob([topic.file])
+                                  )}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className={styles.resourceLink}
@@ -306,7 +323,7 @@ const CourseView = () => {
           </p>
         )}
       </div>
-  
+
       {showEditSection && selectedSection && (
         <EditSectionModal
           isOpen={showEditSection}
@@ -315,7 +332,7 @@ const CourseView = () => {
           onSubmit={handleEditSubmit}
         />
       )}
-  
+
       {showVideoPlayer && selectedTopicId && (
         <div className={styles.videoPlayerModal}>
           <div className={styles.videoPlayerContent}>
@@ -338,7 +355,7 @@ const CourseView = () => {
           </div>
         </div>
       )}
-  
+
       {showFilePreview && currentTopicId && (
         <FilePreview
           topicId={currentTopicId}

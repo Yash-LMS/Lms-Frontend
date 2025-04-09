@@ -179,23 +179,23 @@ const TestManagement = () => {
                 Tests
               </a>
             </li>
-            {/* <li
+            <li
               className={`${styles.navItem} ${
-                activeTab === "progress" ? styles.active : ""
+                activeTab === "library" ? styles.active : ""
               }`}
             >
               <a
-                href="#progress"
+                href="#library"
                 onClick={(e) => {
                   e.preventDefault();
-                  setActiveTab("tests");
-                  navigate("/course/progress");
+                  setActiveTab("library");
+                  navigate("/instructor/course/library");
                 }}
               >
                 <i className="fas fa-users"></i>
-                Course Progress
+                Question Library
               </a>
-            </li> */}
+            </li>
           </ul>
         </nav>
       </aside>

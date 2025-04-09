@@ -220,6 +220,7 @@ export const addNewTopic = createAsyncThunk(
         topics: {
           topicName: payload.topics[0].topicName,
           topicType: payload.topics[0].topicType,
+          testId: payload.topics[0].testId || null,
           topicDescription: payload.topics[0].topicDescription || ''
         },
         user: payload.user,

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Select from "react-select";
 import styles from "./CourseAllotment.module.css";
 import CourseBulkAllotment from "./CourseBulkAllotment";
 import Sidebar from "./Sidebar";
@@ -21,6 +22,23 @@ const CourseAllotment = () => {
   const [popupStatus, setPopupStatus] = useState("");
   const [activeTab, setActiveTab] = useState("allot");
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
+
+  // Custom styles for React Select
+  const selectStyles = {
+    control: (provided) => ({
+      ...provided,
+      minHeight: '38px',
+      border: '1px solid #ccc',
+      boxShadow: 'none',
+      '&:hover': {
+        border: '1px solid #888',
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 10,
+    }),
+  };
 
   const getUserData = () => {
     try {
@@ -134,6 +152,17 @@ const CourseAllotment = () => {
     setShowBulkUploadModal(!showBulkUploadModal);
   };
 
+  // Transform user list and course list into options format for React Select
+  const userOptions = userList.map(user => ({
+    value: user.emailId,
+    label: user.name
+  }));
+  
+  const courseOptions = courseList.map(course => ({
+    value: course.courseId,
+    label: course.courseName
+  }));
+
   return (
     <div className={styles.dashboardContainer}>
       {/* Sidebar Navigation */}
@@ -164,41 +193,33 @@ const CourseAllotment = () => {
                           errorRows.includes(index) ? styles.errorRow : ""
                         }
                       >
-                        {" "}
                         <td className={styles.formField}>
-                          <select
-                            value={row.emailId}
-                            onChange={(e) =>
-                              handleRowChange(index, "emailId", e.target.value)
+                          <Select
+                            options={userOptions}
+                            value={userOptions.find(option => option.value === row.emailId) || null}
+                            onChange={(selectedOption) => 
+                              handleRowChange(index, "emailId", selectedOption ? selectedOption.value : "")
                             }
-                            className={styles.selectField}
-                          >
-                            <option value="">Select Employee</option>
-                            {userList.map((user) => (
-                              <option key={user.emailId} value={user.emailId}>
-                                {user.name}
-                              </option>
-                            ))}
-                          </select>
+                            placeholder="Select Employee"
+                            isClearable
+                            isSearchable
+                            styles={selectStyles}
+                            className={styles.reactSelect}
+                          />
                         </td>
                         <td className={styles.formField}>
-                          <select
-                            value={row.courseId}
-                            onChange={(e) =>
-                              handleRowChange(index, "courseId", e.target.value)
+                          <Select
+                            options={courseOptions}
+                            value={courseOptions.find(option => option.value === row.courseId) || null}
+                            onChange={(selectedOption) => 
+                              handleRowChange(index, "courseId", selectedOption ? selectedOption.value : "")
                             }
-                            className={styles.selectField}
-                          >
-                            <option value="">Select Course</option>
-                            {courseList.map((course) => (
-                              <option
-                                key={course.courseId}
-                                value={course.courseId}
-                              >
-                                {course.courseName}
-                              </option>
-                            ))}
-                          </select>
+                            placeholder="Select Course"
+                            isClearable
+                            isSearchable
+                            styles={selectStyles}
+                            className={styles.reactSelect}
+                          />
                         </td>
                         <td className={styles.actionColumn}>
                           <button

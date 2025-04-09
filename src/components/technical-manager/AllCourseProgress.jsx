@@ -16,7 +16,6 @@ const AllCourseProgressTracker = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Function to get user data from sessionStorage
   const getUserData = () => {
     try {
       return {
@@ -36,20 +35,13 @@ const AllCourseProgressTracker = () => {
   const fetchCourseTrackingData = async () => {
     setIsLoading(true);
     try {
-      // Get user and token from sessionStorage
       const { user, token } = getUserData();
-      
       if (!user || !token) {
         setError('Authentication information not found');
         setIsLoading(false);
         return;
       }
-      
-      const response = await axios.post(ALL_USER_TRACKING_DETAIL_URL, {
-        user,
-        token
-      });
-      
+      const response = await axios.post(ALL_USER_TRACKING_DETAIL_URL, { user, token });
       if (response.data.response === 'success') {
         setStudentsData(response.data.payload || []);
       } else {
@@ -63,7 +55,6 @@ const AllCourseProgressTracker = () => {
     }
   };
 
-  // Define statuses for the dropdown with display names
   const statuses = [
     { value: 'all', label: 'All Statuses' },
     { value: 'started', label: 'Started' },
@@ -71,20 +62,17 @@ const AllCourseProgressTracker = () => {
     { value: 'completed', label: 'Completed' }
   ];
 
-  // Function to determine progress bar color based on completion percentage
   const getProgressColor = (progress) => {
     if (progress < 25) return styles.redProgress;
     if (progress < 75) return styles.yellowProgress;
     return styles.greenProgress;
   };
 
-  // Handle view button click
   const handleViewDetails = (student) => {
     setSelectedStudent(student);
     setIsModalOpen(true);
   };
 
-  // Close modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedStudent(null);
@@ -100,17 +88,18 @@ const AllCourseProgressTracker = () => {
     certificateStatus: "Certificate Status",
   };
 
-  // Filter students based on search term and status filter
   const filteredStudents = studentsData.filter(student => {
+    if (!student) return false;
+
     const matchesSearch = searchTerm === '' || 
-      student.traineeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.emailId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.courseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.instructorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (student.allotmentId && student.allotmentId.toString().includes(searchTerm));
-    
+      (student.traineeName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (student.emailId?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (student.courseName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (student.instructorName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (student.allotmentId?.toString().includes(searchTerm));
+
     const matchesStatus = statusFilter === 'all' || student.courseCompletionStatus === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -140,17 +129,15 @@ const AllCourseProgressTracker = () => {
       </div>
 
       <div className={styles.headerActions}>
-          <ExportToExcel
-            data={filteredStudents} 
-            headers={excelHeaders}
-            fileName="Course-Progress-Results"
-            sheetName="Course Progress"
-            buttonStyle={{
-              marginBottom: "20px",
-            }}
-          />
-        </div>
-      
+        <ExportToExcel
+          data={filteredStudents} 
+          headers={excelHeaders}
+          fileName="Course-Progress-Results"
+          sheetName="Course Progress"
+          buttonStyle={{ marginBottom: "20px" }}
+        />
+      </div>
+
       <div className={styles.tableContainer}>
         {isLoading ? (
           <div className={styles.loadingState}>Loading course data...</div>
@@ -177,26 +164,30 @@ const AllCourseProgressTracker = () => {
                 </tr>
               ) : filteredStudents.length > 0 ? (
                 filteredStudents.map(student => (
-                  <tr key={student.allotmentId}>
-                    <td>{student.traineeName}</td>
-                    <td>{student.emailId}</td>
-                    <td>{student.courseName}</td>
-                    <td>{student.instructorName}</td>
+                  <tr key={student.allotmentId || Math.random()}>
+                    <td>{student.traineeName || 'N/A'}</td>
+                    <td>{student.emailId || 'N/A'}</td>
+                    <td>{student.courseName || 'N/A'}</td>
+                    <td>{student.instructorName || 'N/A'}</td>
                     <td>
                       <div className={styles.progressBarContainer}>
                         <div 
-                          className={`${styles.progressBar} ${getProgressColor(student.completionPercentage)}`} 
-                          style={{ width: `${student.completionPercentage}%` }}
+                          className={`${styles.progressBar} ${getProgressColor(student.completionPercentage || 0)}`} 
+                          style={{ width: `${student.completionPercentage || 0}%` }}
                         ></div>
-                        <span className={styles.progressText}>{student.completionPercentage.toFixed(1)}%</span>
+                        <span className={styles.progressText}>
+                          {(student.completionPercentage || 0).toFixed(1)}%
+                        </span>
                       </div>
                     </td>
                     <td>
                       <span className={`${styles.statusBadge} ${styles[student.courseCompletionStatus] || styles.notstarted}`}>
-                        {student.courseCompletionStatus.toUpperCase()}
+                        {(student.courseCompletionStatus || 'not_started').toUpperCase()}
                       </span>
                     </td>
-                    <td>{student.certificateStatus.replace(/_/g, ' ').toUpperCase()}</td>
+                    <td>
+                      {(student.certificateStatus ? student.certificateStatus.replace(/_/g, ' ') : 'Not Available').toUpperCase()}
+                    </td>
                     <td>
                       <button 
                         className={styles.viewButton}
@@ -217,7 +208,6 @@ const AllCourseProgressTracker = () => {
         )}
       </div>
 
-      {/* Modal for detailed view */}
       {isModalOpen && selectedStudent && (
         <DetailedTrackingModal
           student={selectedStudent} 

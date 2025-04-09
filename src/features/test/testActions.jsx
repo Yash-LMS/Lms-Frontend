@@ -68,6 +68,36 @@ export const addQuestions = createAsyncThunk(
     }
   );
 
+
+
+  export const addQuestionsLibrary = createAsyncThunk(
+    'test/addQuestions',
+    async (questionsData, { rejectWithValue }) => {
+      try {
+        const { user, token, role, category, questionList } = questionsData;
+        
+        const requestData = {
+          user,
+          token,
+          role,
+          questionList
+        };
+  
+        const response = await axios.post(
+          ADD_QUESTION_URL ,
+          requestData
+        );
+        
+        return response.data;
+      } catch (error) {
+        return rejectWithValue(
+          error.response?.data?.message || "Failed to add questions"
+        );
+      }
+    }
+  );
+
+
 // Action to view complete test questions
 export const viewTestQuestions = createAsyncThunk(
     'test/viewTestQuestions',

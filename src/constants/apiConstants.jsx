@@ -3,6 +3,10 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const USER_ACCOUNT_OTP_GENERATE = `${API_BASE_URL}/user/account/generateOtp`;
 export const USER_ACCOUNT_OTP_VALIDATE = `${API_BASE_URL}/user/account/validateOtp`;
 
+//Certificate
+export const VERIFY_USER_CERTIFICATE = `${API_BASE_URL}/certificate/verify`;
+
+
 //Instructor
 export const OFFICE_LIST_URL = `${API_BASE_URL}/office/findOfficeList`;
 export const REGISTER_USER_URL = `${API_BASE_URL}/user/register`;
@@ -74,3 +78,12 @@ export const VIEW_TEST_URL = `${API_BASE_URL}/test/instructor/view/test`;
 export const ADD_QUESTION_URL = `${API_BASE_URL}/test/addQuestions`;
 export const PREVIEW_TEST_URL = `${API_BASE_URL}/test/view/question`;
 export const PREVIEW_TEST_MANAGER_URL = `${API_BASE_URL}/manager/view/question`;
+
+
+// Question Library
+export const VIEW_QUESTION_ALL_CATEGORY_URL = `${API_BASE_URL}/library/find/all/question/category`;
+export const VIEW_QUESTION_DISTINCT_CATEGORY_URL = `${API_BASE_URL}/library/find/distinct/question/category`;
+export const ADD_QUESTION_Library_URL = `${API_BASE_URL}/library/addQuestion`;
+export const VIEW_RANDOM_QUESTION_Library_URL = `${API_BASE_URL}/library/random/findQuestion`;
+export const VIEW_QUESTION_BY_CATEGORY_Library_URL = `${API_BASE_URL}/library/category/findQuestion`;
+

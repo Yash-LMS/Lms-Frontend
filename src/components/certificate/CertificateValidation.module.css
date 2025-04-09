@@ -1,0 +1,445 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+ 
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+  color: #333;
+  --primary-color: #8e6cef;
+  --primary-hover: #7559ce;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+  --info-color: #3b82f6;
+  --dark-color: #1f2937;
+  --light-color: #f9fafb;
+  --gray-color: #6b7280;
+  --transition: all 0.3s ease;
+}
+
+.header {
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  max-height: calc(100vh - 140px);
+  overflow: hidden;
+  background-color: #edf2f7;
+}
+
+.validationCard, .errorCard, .certificateCard {
+  width: 100%;
+  max-width: 1100px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: var(--transition);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.validationCard {
+  max-width: 520px;
+  padding: 3rem;
+  margin-top: 66px;
+}
+
+.certificateCard {
+  position: relative;
+  padding: 2rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 140px);
+}
+
+.errorCard {
+  max-width: 520px;
+  padding: 3rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.errorIcon {
+  font-size: 3rem;
+  color: var(--danger-color);
+  margin-bottom: 1rem;
+}
+
+.errorCard h3 {
+  font-size: 1.5rem;
+  color: var(--dark-color);
+  margin: 0;
+}
+
+.errorCard p {
+  font-size: 1rem;
+  color: var(--gray-color);
+  margin-bottom: 1.5rem;
+}
+
+.cardHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.cardHeader h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--dark-color);
+  margin: 0 0 0.5rem;
+}
+
+.cardHeader p {
+  font-size: 1rem;
+  color: var(--gray-color);
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inputGroup label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--dark-color);
+}
+
+.inputGroup input {
+  padding: 0.875rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.inputGroup input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.inputGroup input::placeholder {
+  color: #a0aec0;
+}
+
+.primaryButton, .secondaryButton {
+  padding: 0.875rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 48px;
+}
+
+.primaryButton {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+.primaryButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.secondaryButton:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.loadingSpinner {
+  position: relative;
+  width: 20px;
+  height: 20px;
+}
+
+.spinnerDot {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid transparent;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.validBadge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkmark {
+  font-size: 1rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  background-color: var(--success-color);
+  color: white;
+  border-radius: 50%;
+}
+
+.certificateHeader {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.certificateHeader h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--dark-color);
+  margin: 0 0 1rem;
+}
+
+.certMeta {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  font-size: 0.875rem;
+  color: var(--gray-color);
+}
+
+.recipientInfo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.infoGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--gray-color);
+  text-transform: uppercase;
+}
+
+.value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--dark-color);
+}
+
+.topicsSection {
+  margin-top: 2rem;
+}
+
+.topicsSection h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--dark-color);
+  margin: 0 0 1rem;
+}
+
+.topicsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.topicCard {
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  transition: var(--transition);
+}
+
+.topicCard:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.topicHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.topicIcon {
+  font-size: 1.25rem;
+}
+
+.topicName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dark-color);
+  margin: 0 0 0.5rem;
+}
+
+.topicDesc {
+  font-size: 0.875rem;
+  color: var(--gray-color);
+  margin: 0 0 0.75rem;
+  line-height: 1.4;
+}
+
+.topicScore {
+  font-size: 0.875rem;
+  color: var(--dark-color);
+  background-color: #f3f4f6;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.statusBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.statusCompleted {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.statusViewed {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--info-color);
+}
+
+.statusStarted {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
+}
+
+.statusNotViewed {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: var(--gray-color);
+}
+
+.actionSection {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.footer {
+  background-color: #fff;
+  border-top: 1px solid #e2e8f0;
+  padding: 1rem 2rem;
+  text-align: center;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer p {
+  color: var(--gray-color);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 1rem;
+  }
+  
+  .validationCard {
+    padding: 2rem;
+  }
+  
+  .recipientInfo {
+    grid-template-columns: 1fr;
+  }
+  
+  .topicsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Make sure the certificate card doesn't get too tall on small screens */
+@media (max-height: 800px) {
+  .certificateCard {
+    max-height: calc(100vh - 180px);
+  }
+}
