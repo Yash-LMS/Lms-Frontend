@@ -5,6 +5,7 @@ import { VERIFY_USER_CERTIFICATE } from '../../constants/apiConstants';
 
 const CertificateValidation = () => {
   const [certificateId, setCertificateId] = useState('');
+  const [identificationNumber, setIdentificationNumber] = useState('');
   const [certificateData, setCertificateData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,9 +19,14 @@ const CertificateValidation = () => {
     setValidationStatus(null);
 
     try {
-      const response = await axios.get(`${VERIFY_USER_CERTIFICATE}?certificateId=${certificateId}`);
-     
-      if(response.status !== 200) {
+      const response = await axios.get(`${VERIFY_USER_CERTIFICATE}`, {
+        params: {
+          certificateId,
+          identificationNumber,
+        },
+      });
+
+      if (response.status !== 200) {
         setError("Server error. Please try again later.");
         return;
       }
@@ -84,21 +90,20 @@ const CertificateValidation = () => {
     setValidationStatus(null);
     setCertificateData(null);
     setCertificateId('');
+    setIdentificationNumber('');
     setError(null);
   };
 
   return (
     <div className={styles.pageContainer}>
-
-
       <div className={styles.mainContent}>
         {!validationStatus && !error && (
           <div className={styles.validationCard}>
             <div className={styles.cardHeader}>
               <h2>Certificate Validation</h2>
-              <p>Enter  certificate ID to verify</p>
+              <p>Enter certificate ID and identification number to verify</p>
             </div>
-            
+
             <form onSubmit={handleVerify} className={styles.form}>
               <div className={styles.inputGroup}>
                 <label htmlFor="certificateId">Certificate ID</label>
@@ -107,10 +112,23 @@ const CertificateValidation = () => {
                   id="certificateId"
                   value={certificateId}
                   onChange={(e) => setCertificateId(e.target.value)}
-                  placeholder="Enter  certificate ID"
+                  placeholder="Enter certificate ID"
                   required
                 />
               </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="identificationNumber">Identification Number</label>
+                <input 
+                  type="text" 
+                  id="identificationNumber"
+                  value={identificationNumber}
+                  onChange={(e) => setIdentificationNumber(e.target.value)}
+                  placeholder="Enter identification number"
+                  required
+                />
+              </div>
+
               <button type="submit" className={styles.primaryButton} disabled={isLoading}>
                 {isLoading ? (
                   <span className={styles.loadingSpinner}>
@@ -202,8 +220,6 @@ const CertificateValidation = () => {
           </div>
         )}
       </div>
-      
-    
     </div>
   );
 };
