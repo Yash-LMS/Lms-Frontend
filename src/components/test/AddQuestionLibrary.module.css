@@ -450,3 +450,27 @@
   background-color: rgba(124, 77, 255, 0.08);
   transform: translateX(-3px);
 }
+
+
+.uploadButton {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s;
+}
+
+.uploadButton:hover {
+  background-color: #3a7cc7;
+}
+
+.uploadButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
+}

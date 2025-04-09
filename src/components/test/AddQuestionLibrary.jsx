@@ -9,6 +9,7 @@ import {
   VIEW_QUESTION_ALL_CATEGORY_URL,
   ADD_QUESTION_Library_URL,
 } from "../../constants/apiConstants";
+import BulkUploadQuestionLibrary from "./BulkUploadQuestionLibrary";
 
 const AddQuestionLibrary = () => {
   const quillRef = useRef(null);
@@ -18,6 +19,7 @@ const AddQuestionLibrary = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const[isBulkUploadModelOpen,setIsBulkUploadModelOpen]=useState(false);
 
   const [questions, setQuestions] = useState([
     {
@@ -65,6 +67,21 @@ const AddQuestionLibrary = () => {
     "background",
     "link",
   ];
+
+
+  const openModal = () => {
+    setIsBulkUploadModelOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsBulkUploadModelOpen(false);
+  };
+
+  const handleUploadSuccess = () => {
+    // You can add logic here to refresh question list or show success message
+    console.log("Questions uploaded successfully!");
+    // Optionally fetch updated questions or show a notification
+  };
 
   // Fetch categories on component mount
   useEffect(() => {
@@ -476,6 +493,13 @@ const AddQuestionLibrary = () => {
         </div>
       </div>
 
+      <button 
+          className={styles.uploadButton}
+          onClick={openModal}
+        >
+          Bulk Upload Questions
+        </button>
+
       {errorMessage && (
         <div className={styles.errorMessage}>{errorMessage}</div>
       )}
@@ -740,6 +764,18 @@ const AddQuestionLibrary = () => {
           onClose={() => setShowSuccessModal(false)}
         />
       )}
+
+
+
+{isBulkUploadModelOpen && (
+          <BulkUploadQuestionLibrary 
+          isOpen={openModal}
+          onClose={closeModal}
+          onUploadSuccess={handleUploadSuccess}
+        />
+      )}
+
+   
     </div>
   );
 };

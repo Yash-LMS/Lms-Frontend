@@ -1,0 +1,563 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modalContent {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .modalHeader h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+  }
+  
+  .uploadContainer,
+  .reviewContainer,
+  .successContainer {
+    padding: 20px;
+  }
+  
+  .templateDownload,
+  .fileUpload {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .downloadButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .downloadButton:hover {
+    background-color: #45a049;
+  }
+  
+  .fileInput {
+    display: none;
+  }
+  
+  .fileInputLabel {
+    background-color: #2196F3;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .fileInputLabel:hover {
+    background-color: #0b7dda;
+  }
+  
+  .errorsContainer {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #fff8f8;
+    border: 1px solid #ffcdd2;
+    border-radius: 4px;
+  }
+  
+  .errorsContainer h4 {
+    color: #d32f2f;
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  
+  .errorsList {
+    margin: 0;
+    padding-left: 20px;
+    color: #d32f2f;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .errorMessage {
+    background-color: #fff8f8;
+    color: #d32f2f;
+    padding: 10px 15px;
+    margin: 10px 20px;
+    border-radius: 4px;
+    border-left: 4px solid #d32f2f;
+  }
+  
+  .actionButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .cancelButton,
+  .backButton {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    color: #333;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .uploadButton,
+  .saveButton {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .uploadButton:hover,
+  .saveButton:hover {
+    background-color: #0b7dda;
+  }
+  
+  .uploadButton:disabled,
+  .saveButton:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  /* Review section */
+  .questionsReview {
+    margin-top: 15px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  .questionItem {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .errorQuestion {
+    border-left: 4px solid #d32f2f;
+  }
+  
+  .questionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .questionHeader h4 {
+    margin: 0;
+    color: #333;
+  }
+  
+  .errorBadge {
+    background-color: #d32f2f;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+  
+  .formGroup {
+    margin-bottom: 12px;
+  }
+  
+  .formGroup label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+  }
+  
+  .formRow {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  
+  .formRow .formGroup {
+    flex: 1;
+    min-width: 150px;
+  }
+  
+  .textArea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+  }
+  
+  .selectInput,
+  .numberInput {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .categoryNote {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-top: 3px;
+  }
+  
+  .optionsContainer {
+    margin-top: 15px;
+  }
+  
+  .optionsContainer h5 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #555;
+  }
+  
+  .optionRow {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+  }
+  
+  .correctOption {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-color: #4CAF50;
+  }
+  
+  .optionCheckContainer {
+    flex: 0 0 30px;
+  }
+  
+  .optionTextContainer {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .optionLabel {
+    flex: 0 0 25px;
+    font-weight: 500;
+  }
+  
+  .optionInput {
+    flex: 1;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .questionErrors {
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #fff8f8;
+    border-radius: 4px;
+  }
+  
+  .questionError {
+    color: #d32f2f;
+    font-size: 13px;
+    margin-bottom: 3px;
+  }
+  
+  /* Success section */
+  .successContainer {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  
+  .successIcon {
+    font-size: 48px;
+    height: 80px;
+    width: 80px;
+    line-height: 80px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    color: white;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .successContainer h3 {
+    margin: 0 0 10px;
+    color: #333;
+  }
+  
+  .closeSuccessButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 4px;
+    margin-top: 20px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .closeSuccessButton:hover {
+    background-color: #45a049;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .modalContent {
+      width: 95%;
+      max-height: 95vh;
+    }
+    
+    .formRow {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .formRow .formGroup {
+      width: 100%;
+    }
+    
+    .optionTextContainer {
+      flex-wrap: wrap;
+    }
+    
+    .actionButtons {
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .cancelButton,
+    .backButton,
+    .uploadButton,
+    .saveButton,
+    .closeSuccessButton {
+      width: 100%;
+    }
+  }
+  
+  /* Animation for modal */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .modalOverlay {
+    animation: fadeIn 0.2s ease-in-out;
+  }
+  
+  /* Scroll styling */
+  .questionsReview::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .questionsReview::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  .questionsReview::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+  }
+  
+  .questionsReview::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+  
+  /* Additional tooltip styles */
+  .tooltipContainer {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tooltipText {
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .tooltipContainer:hover .tooltipText {
+    visibility: visible;
+    opacity: 1;
+  }
+  
+  /* Loading spinner */
+  .spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top: 4px solid #2196F3;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .buttonWithSpinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Helper text */
+  .helperText {
+    font-size: 12px;
+    color: #666;
+    margin-top: 3px;
+  }
+  
+  /* Status indicators */
+  .statusIndicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+  
+  .statusValid {
+    background-color: #4CAF50;
+  }
+  
+  .statusInvalid {
+    background-color: #d32f2f;
+  }
+  
+  .statusWarning {
+    background-color: #ff9800;
+  }
+  
+  /* Enhanced modal header */
+  .modalHeader {
+    background-color: #f5f5f5;
+  }
+  
+  /* Enhanced option styling */
+  .optionRow {
+    transition: background-color 0.2s ease;
+  }
+  
+  .optionRow:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .correctOption:hover {
+    background-color: rgba(76, 175, 80, 0.2);
+  }
+  
+  /* Progress indicator for steps */
+  .progressSteps {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  
+  .progressStep {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100px;
+  }
+  
+  .stepCircle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    color: #757575;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .stepActive .stepCircle {
+    background-color: #2196F3;
+    color: white;
+  }
+  
+  .stepComplete .stepCircle {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .stepLine {
+    height: 3px;
+    width: 50px;
+    background-color: #e0e0e0;
+    position: relative;
+    top: -15px;
+  }
+  
+  .stepActive .stepLine,
+  .stepComplete .stepLine {
+    background-color: #2196F3;
+  }
+  
+  .stepLabel {
+    font-size: 12px;
+    color: #757575;
+    text-align: center;
+  }
+  
+  .stepActive .stepLabel,
+  .stepComplete .stepLabel {
+    color: #333;
+    font-weight: 500;
+  }
