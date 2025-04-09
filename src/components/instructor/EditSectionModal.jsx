@@ -36,6 +36,10 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
     }
   }, [newTopic.topicType]);
 
+  useEffect(() => {
+    fetchTests();
+  }, []);
+
   const fetchTests = async () => {
     try {
       const { user, token } = getUserData();
@@ -44,13 +48,12 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
         return;
       }
 
-      const requestBody={
-              user,
-              token
-      }
+      const requestBody = {
+        user,
+        token
+      };
   
-      const response = await axios.post( `${TEST_INSTRUCTOR_URL}`,requestBody);
-      
+      const response = await axios.post(`${TEST_INSTRUCTOR_URL}`, requestBody);
       const data = response.data;
       
       if (data.response === "success") {
@@ -155,28 +158,55 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
   };
 
   const handleExistingTopicTypeChange = (topicIndex, newType) => {
+    // Store the original topic
+    const originalTopic = topics[topicIndex];
+    
     // If changing away from test type, reset testId
-    if (topics[topicIndex].topicType === "test" && newType !== "test") {
+    if (originalTopic.topicType === "test" && newType !== "test") {
       updateTopic(topicIndex, "testId", null);
     }
     
     updateTopic(topicIndex, "topicType", newType);
     
-    // If switching to test type, fetch tests for this topic
+    // If switching to test type, fetch tests for this topic if needed
     if (newType === "test" && tests.length === 0) {
       fetchTests();
     }
+    
+    // If changing to test but we already have tests loaded, make sure UI updates properly
+    console.log(`Topic type changed to ${newType}, testId is ${originalTopic.testId}`);
   };
 
-  const handleExistingTopicTestSelection = (topicIndex, testId) => {
-    const testId_int = parseInt(testId);
+  const handleExistingTopicTestSelection = (topicIndex, testIdValue) => {
+    // Parse the testId to integer
+    const testId_int = parseInt(testIdValue);
+    console.log(`Selecting test ID: ${testId_int} for topic at index ${topicIndex}`);
+    
+    // Find the selected test
     const selectedTest = tests.find(test => test.testId === testId_int);
     
     if (selectedTest) {
-      // Update both the test ID and the topic name
-      updateTopic(topicIndex, "testId", testId_int);
-      updateTopic(topicIndex, "topicName", selectedTest.testName);
+      console.log(`Found test: ${selectedTest.testName} with ID: ${selectedTest.testId}`);
+      
+      // Update the topic with both the test ID and name
+      const updatedTopics = topics.map((topic, idx) => {
+        if (idx === topicIndex) {
+          return {
+            ...topic,
+            testId: testId_int,
+            topicName: selectedTest.testName
+          };
+        }
+        return topic;
+      });
+      
+      // Set the updated topics
+      setTopics(updatedTopics);
+      
+      // Log the updated topic for verification
+      console.log("Updated topic:", updatedTopics[topicIndex]);
     } else {
+      console.log("Test not found, resetting testId and topicName");
       updateTopic(topicIndex, "testId", null);
       updateTopic(topicIndex, "topicName", "");
     }
@@ -252,6 +282,9 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
   };
 
   const handleSave = async () => {
+    // Debug log to check topics before saving
+    console.log("Topics before saving:", topics);
+    
     // Validate for test type selections
     const invalidTestTopic = topics.find(topic => 
       topic.topicType === "test" && !topic.testId
@@ -305,7 +338,23 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
       }
     }
 
-    onSubmit(updatedSection);
+    // Final check to ensure all test topics have testIds
+    const finalTopics = topics.map(topic => {
+      if (topic.topicType === "test" && topic.testId) {
+        // Ensure testId is a number, not a string
+        return { ...topic, testId: Number(topic.testId) };
+      }
+      return topic;
+    });
+    
+    const finalSection = {
+      ...updatedSection,
+      topics: finalTopics
+    };
+    
+    console.log("Final section data:", finalSection);
+    
+    onSubmit(finalSection);
     onClose(); // Close the modal after saving changes
   };
 
@@ -394,43 +443,55 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
         <header className={styles.modalHeader}>
           <h2>Edit Section: {section.title}</h2>
           <button className={styles.closeButton} onClick={onClose}>
-            ×
+            <span>×</span>
           </button>
         </header>
+        
         <div className={styles.modalBody}>
-          <div className={styles.sectionTitleContainer}>
+          <div className={styles.formGroup}>
+            <label htmlFor="sectionTitle" className={styles.formLabel}>Section Title</label>
             <input
+              id="sectionTitle"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Section Title"
-              className={styles.sectionTitleInput}
+              placeholder="Enter section title"
+              className={styles.formControl}
             />
-            {!isAddingTopic && (
+          </div>
+  
+          {!isAddingTopic && (
+            <div className={styles.actionBar}>
               <button 
                 onClick={handleAddTopicClick} 
-                className={styles.addTopicButton}
+                className={styles.addButton}
               >
-                + Add Topic
+                <span className={styles.addIcon}>+</span> Add Topic
               </button>
-            )}
-          </div>
+            </div>
+          )}
           
           {/* New Topic Form */}
           {isAddingTopic && (
-            <div className={styles.newTopicForm}>
-              <div className={styles.topicRow}>
+            <div className={styles.newTopicPanel}>
+              <h3 className={styles.panelTitle}>Add New Topic</h3>
+              
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Topic Type</label>
                 <select
                   value={newTopic.topicType}
                   onChange={handleTopicTypeChange}
-                  className={`${styles.topicInput} ${styles.topicTypeSelect}`}
+                  className={styles.formSelect}
                 >
                   <option value="video">Video</option>
                   <option value="docs">Documentation</option>
                   <option value="test">Test/Quiz</option>
                 </select>
-
-                {newTopic.topicType !== "test" && (
+              </div>
+  
+              {newTopic.topicType !== "test" && (
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Topic Name</label>
                   <input
                     type="text"
                     value={newTopic.topicName}
@@ -438,59 +499,68 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                       ...prev,
                       topicName: e.target.value
                     }))}
-                    placeholder="Topic Name"
-                    className={styles.topicInput}
+                    placeholder="Enter topic name"
+                    className={styles.formControl}
                   />
-                )}
-
-                {newTopic.topicType === "test" && (
+                </div>
+              )}
+  
+              {newTopic.topicType === "test" && (
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Select Test</label>
                   <select
                     value={newTopic.testId || ""}
                     onChange={handleTestSelection}
-                    className={`${styles.topicInput} ${styles.testSelect}`}
+                    className={styles.formSelect}
                   >
-                    <option value="">Select a Test</option>
+                    <option value="">-- Select a Test --</option>
                     {tests.map(test => (
                       <option key={test.testId} value={test.testId}>
                         {test.testName} ({test.duration} min)
                       </option>
                     ))}
                   </select>
-                )}
-              </div>
-
-              {(newTopic.topicType === "video" || newTopic.topicType === "docs") && (
-                <div className={styles.uploadContainer}>
-                  <input
-                    type="file"
-                    onChange={handleNewTopicFileSelect}
-                    className={styles.fileInput}
-                    id="newTopicFileUpload"
-                    accept={
-                      newTopic.topicType === "video"
-                        ? "video/*"
-                        : "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    }
-                  />
-                  <label
-                    htmlFor="newTopicFileUpload"
-                    className={styles.uploadButton}
-                  >
-                    Upload {newTopic.topicType === "video" ? "Video" : "Document"}
-                  </label>
-                  
-                  {newTopic.file && (
-                    <span className={styles.fileName}>
-                      {newTopic.file.name}
-                    </span>
-                  )}
                 </div>
               )}
-
-              <div className={styles.newTopicActions}>
+  
+              {(newTopic.topicType === "video" || newTopic.topicType === "docs") && (
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>
+                    Upload {newTopic.topicType === "video" ? "Video" : "Document"}
+                  </label>
+                  <div className={styles.uploadWrapper}>
+                    <input
+                      type="file"
+                      onChange={handleNewTopicFileSelect}
+                      className={styles.fileInput}
+                      id="newTopicFileUpload"
+                      accept={
+                        newTopic.topicType === "video"
+                          ? "video/*"
+                          : "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('newTopicFileUpload').click()}
+                      className={styles.uploadButton}
+                    >
+                      Choose File
+                    </button>
+                    
+                    {newTopic.file && (
+                      <span className={styles.fileName}>
+                        {newTopic.file.name}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+  
+              <div className={styles.formActions}>
                 <button 
                   onClick={handleSaveNewTopic}
-                  className={styles.saveButton}
+                  className={styles.primaryButton}
                   disabled={!newTopic.topicName || (newTopic.topicType === "test" && !newTopic.testId)}
                 >
                   Save Topic
@@ -507,7 +577,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                     });
                     setSelectedTest(null);
                   }}
-                  className={styles.cancelButton}
+                  className={styles.secondaryButton}
                 >
                   Cancel
                 </button>
@@ -515,108 +585,142 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
             </div>
           )}
           
-          <h3>Existing Topics</h3>
-          {topics.map((topic, index) => (
-            <div key={index} className={styles.topicRow}>
-              <select
-                value={topic.topicType}
-                onChange={(e) => handleExistingTopicTypeChange(index, e.target.value)}
-                className={`${styles.topicInput} ${styles.topicTypeSelect}`}
-              >
-                <option value="video">Video</option>
-                <option value="docs">Documentation</option>
-                <option value="test">Test/Quiz</option>
-              </select>
-
-              {topic.topicType !== "test" && (
-                <input
-                  type="text"
-                  value={topic.topicName}
-                  onChange={(e) => updateTopic(index, "topicName", e.target.value)}
-                  placeholder="Topic Name"
-                  className={styles.topicInput}
-                />
-              )}
-
-              {topic.topicType === "test" && (
-                <select
-                  value={topic.testId || ""}
-                  onChange={(e) => handleExistingTopicTestSelection(index, e.target.value)}
-                  className={`${styles.topicInput} ${styles.testSelect}`}
-                >
-                  <option value="">Select a Test</option>
-                  {tests.map(test => (
-                    <option key={test.testId} value={test.testId}>
-                      {test.testName} ({test.duration} min)
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              <div className={styles.topicActionButtons}>
-                <button 
-                  onClick={() => handleRemoveTopic(index)}
-                  className={styles.removeTopicButton}
-                >
-                  Remove
-                </button>
+          <div className={styles.existingTopicsSection}>
+            <h3 className={styles.sectionTitle}>Existing Topics</h3>
+            
+            {topics.length === 0 ? (
+              <div className={styles.emptyState}>
+                No topics added yet. Use the "Add Topic" button to create topics.
               </div>
-
-              <div className={styles.topicResourceInputs}>
-                {(topic.topicType === "video" || topic.topicType === "docs") && (
-                  <div className={styles.uploadContainer}>
-                    <input
-                      type="file"
-                      onChange={handleFileSelect.bind(null, index)}
-                      className={styles.fileInput}
-                      id={`fileUpload-${index}`}
-                      accept={
-                        topic.topicType === "video"
-                          ? "video/*"
-                          : "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                      }
-                    />
-                    <label
-                      htmlFor={`fileUpload-${index}`}
-                      className={styles.uploadButton}
+            ) : (
+              topics.map((topic, index) => (
+                <div key={index} className={styles.topicCard}>
+                  <div className={styles.topicCardHeader}>
+                    <div className={styles.topicType}>{topic.topicType}</div>
+                    <button 
+                      onClick={() => handleRemoveTopic(index)}
+                      className={styles.removeButton}
+                      aria-label="Remove topic"
                     >
-                      Upload {topic.topicType === "video" ? "Video" : "Document"}
-                    </label>
-                    
-                    {(topic.topicType === "video" && topic.videoURL) && (
-                      <span className={styles.fileName}>
-                        {topic.videoURL}
-                      </span>
+                      <span>×</span>
+                    </button>
+                  </div>
+                  
+                  <div className={styles.topicCardBody}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Topic Type</label>
+                      <select
+                        value={topic.topicType}
+                        onChange={(e) => handleExistingTopicTypeChange(index, e.target.value)}
+                        className={styles.formSelect}
+                      >
+                        <option value="video">Video</option>
+                        <option value="docs">Documentation</option>
+                        <option value="test">Test/Quiz</option>
+                      </select>
+                    </div>
+  
+                    {topic.topicType !== "test" && (
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Topic Name</label>
+                        <input
+                          type="text"
+                          value={topic.topicName}
+                          onChange={(e) => updateTopic(index, "topicName", e.target.value)}
+                          placeholder="Enter topic name"
+                          className={styles.formControl}
+                        />
+                      </div>
                     )}
-                    {(topic.topicType === "docs" && topic.docsURL) && (
-                      <span className={styles.fileName}>
-                        {topic.docsURL}
-                      </span>
+  
+                    {topic.topicType === "test" && (
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Select Test</label>
+                        <select
+                          value={topic.testId || ""}
+                          onChange={(e) => handleExistingTopicTestSelection(index, e.target.value)}
+                          className={styles.formSelect}
+                        >
+                          <option value="">-- Select a Test --</option>
+                          {tests.map(test => (
+                            <option key={test.testId} value={test.testId}>
+                              {test.testName} ({test.duration} min)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     )}
-
-                    {selectedFiles[index] && (
-                      <span className={styles.fileName}>
-                        {selectedFiles[index].name}
-                      </span>
+  
+                    {(topic.topicType === "video" || topic.topicType === "docs") && (
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>
+                          {topic.topicType === "video" ? "Video" : "Document"} File
+                        </label>
+                        <div className={styles.uploadWrapper}>
+                          <input
+                            type="file"
+                            onChange={handleFileSelect.bind(null, index)}
+                            className={styles.fileInput}
+                            id={`fileUpload-${index}`}
+                            accept={
+                              topic.topicType === "video"
+                                ? "video/*"
+                                : "application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            }
+                          />
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById(`fileUpload-${index}`).click()}
+                            className={styles.uploadButton}
+                          >
+                            Choose File
+                          </button>
+                          
+                          {(topic.topicType === "video" && topic.videoURL) && (
+                            <span className={styles.fileName}>
+                              Current: {topic.videoURL.split('/').pop()}
+                            </span>
+                          )}
+                          {(topic.topicType === "docs" && topic.docsURL) && (
+                            <span className={styles.fileName}>
+                              Current: {topic.docsURL.split('/').pop()}
+                            </span>
+                          )}
+  
+                          {selectedFiles[index] && (
+                            <span className={styles.fileName}>
+                              New: {selectedFiles[index].name}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+  
+                    {topic.topicType === "test" && topic.testId && (
+                      <div className={styles.testDetail}>
+                        <div className={styles.testIdBadge}>Test ID: {topic.testId}</div>
+                      </div>
                     )}
                   </div>
-                )}
-
-                {topic.topicType === "test" && topic.testId && (
-                  <div className={styles.testInfo}>
-                    <p>Test ID: {topic.testId}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+                </div>
+              ))
+            )}
+          </div>
         </div>
+        
         <footer className={styles.modalFooter}>
-          <button className={styles.saveButton} onClick={handleSave}>
-            Save Changes
+          <button 
+            className={styles.dangerButton} 
+            onClick={handleRemoveSection}
+            style={{ marginRight: 'auto' }}
+          >
+            Delete Section
           </button>
-          <button className={styles.cancelButton} onClick={onClose}>
+          <button className={styles.secondaryButton} onClick={onClose}>
             Cancel
+          </button>
+          <button className={styles.primaryButton} onClick={handleSave}>
+            Save Changes
           </button>
         </footer>
       </div>
