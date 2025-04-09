@@ -484,6 +484,13 @@ const AddQuestionLibrary = () => {
       <div className={styles.pageHeader}>
         <h2>Add Questions to Library</h2>
         <div className={styles.backNavigation}>
+        <button 
+          className={styles.uploadButton}
+          onClick={openModal}
+        >
+          Bulk Upload Questions
+        </button>
+        
           <button
             className={styles.backButton}
             onClick={() => navigate("/instructor-dashboard")}
@@ -492,13 +499,6 @@ const AddQuestionLibrary = () => {
           </button>
         </div>
       </div>
-
-      <button 
-          className={styles.uploadButton}
-          onClick={openModal}
-        >
-          Bulk Upload Questions
-        </button>
 
       {errorMessage && (
         <div className={styles.errorMessage}>{errorMessage}</div>

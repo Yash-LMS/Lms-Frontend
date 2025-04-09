@@ -1,4 +1,3 @@
-// QuestionViewerModal.jsx
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './QuestionViewerModal.module.css';
@@ -7,6 +6,7 @@ import {
   VIEW_RANDOM_QUESTION_Library_URL,
   ADD_QUESTION_URL 
 } from '../../constants/apiConstants';
+import SuccessModal from "../../assets/SuccessModal";
 
 const QuestionViewerModal = ({ 
   testId, 
@@ -24,6 +24,8 @@ const QuestionViewerModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedQuestions, setSelectedQuestions] = useState({});
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const getUserData = () => {
     try {
@@ -191,8 +193,9 @@ const QuestionViewerModal = ({
       const response = await axios.post(ADD_QUESTION_URL, apiPayload);
       
       if (response.data.response === 'success') {
-        alert("Question added");
-        onClose();
+        // Replace alert with success modal
+        setSuccessMessage("Questions added successfully!");
+        setShowSuccessModal(true);
       } else {
         setError(response.data.message || 'Failed to import questions');
       }
@@ -201,6 +204,12 @@ const QuestionViewerModal = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle success modal close
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    onClose(); // Close the main modal after success
   };
 
   return (
@@ -332,6 +341,14 @@ const QuestionViewerModal = ({
           )}
         </div>
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <SuccessModal 
+          message={successMessage} 
+          onClose={handleSuccessModalClose} 
+        />
+      )}
     </div>
   );
 };

@@ -6,6 +6,7 @@ import {
   VIEW_QUESTION_BY_CATEGORY_Library_URL,
   ADD_QUESTION_URL 
 } from '../../constants/apiConstants';
+import SuccessModal from "../../assets/SuccessModal";
 
 const QuestionCategoryImport = ({ 
   testId, 
@@ -23,6 +24,7 @@ const QuestionCategoryImport = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedQuestions, setSelectedQuestions] = useState({});
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // Add state for success modal
 
   const getUserData = () => {
     try {
@@ -189,8 +191,8 @@ const QuestionCategoryImport = ({
       const response = await axios.post(ADD_QUESTION_URL, apiPayload);
       
       if (response.data.response === 'success') {
-        alert("Question added");
-        onClose();
+        // Show success modal instead of alert
+        setShowSuccessModal(true);
       } else {
         setError(response.data.message || 'Failed to import questions');
       }
@@ -201,128 +203,144 @@ const QuestionCategoryImport = ({
     }
   };
 
-  return (
-    <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Import All Questions</h2>
-          {testId && <div className={styles.testId}>Test ID: {testId}</div>}
-          <button className={styles.closeButton} onClick={onClose}>×</button>
-        </div>
+  // Handle success modal close
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    onClose(); // Close the parent modal when success modal is closed
+  };
 
-        <div className={styles.modalBody}>
-          <div className={styles.selectionArea}>
-            <h3>Select Questions</h3>
-            
-            {selectedItems.map((item, index) => (
-              <div key={index} className={styles.selectionRow}>
-                <select
-                  value={item.category}
-                  onChange={(e) => handleItemChange(index, 'category', e.target.value)}
-                  className={styles.select}
-                >
-                  <option value="">Select Category</option>
-                  {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
-                
-                <select
-                  value={item.questionLevel}
-                  onChange={(e) => handleItemChange(index, 'questionLevel', e.target.value)}
-                  className={styles.select}
-                >
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
-                </select>
-                
-                
-                <button 
-                  onClick={() => removeItem(index)}
-                  className={styles.removeButton}
-                  disabled={selectedItems.length <= 1}
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-            
-            <div className={styles.buttonGroup}>
-              <button onClick={addItem} className={styles.addButton}>
-                Add Category
-              </button>
-              
-              <button 
-                onClick={fetchQuestions} 
-                className={styles.fetchButton}
-                disabled={loading}
-              >
-                {loading ? 'Loading...' : 'Fetch Questions'}
-              </button>
-            </div>
-            
-            {error && <div className={styles.error}>{error}</div>}
+  return (
+    <>
+      <div className={styles.modalOverlay} onClick={onClose}>
+        <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+          <div className={styles.modalHeader}>
+            <h2 className={styles.modalTitle}>Import All Questions</h2>
+            {testId && <div className={styles.testId}>Test ID: {testId}</div>}
+            <button className={styles.closeButton} onClick={onClose}>×</button>
           </div>
 
-          {questions.length > 0 && (
-            <>
-              <div className={styles.questionsHeader}>
-                <h3>Questions ({questions.length})</h3>
-                <div className={styles.selectionInfo}>
-                  <span>{selectedCount} questions selected</span>
-                  <button 
-                    onClick={handleImportQuestions}
-                    className={styles.importButton}
-                    disabled={selectedCount === 0 || loading}
+          <div className={styles.modalBody}>
+            <div className={styles.selectionArea}>
+              <h3>Select Questions</h3>
+              
+              {selectedItems.map((item, index) => (
+                <div key={index} className={styles.selectionRow}>
+                  <select
+                    value={item.category}
+                    onChange={(e) => handleItemChange(index, 'category', e.target.value)}
+                    className={styles.select}
                   >
-                    {loading ? 'Importing...' : 'Import Selected'}
+                    <option value="">Select Category</option>
+                    {categories.map(category => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
+                  
+                  <select
+                    value={item.questionLevel}
+                    onChange={(e) => handleItemChange(index, 'questionLevel', e.target.value)}
+                    className={styles.select}
+                  >
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                  </select>
+                  
+                  
+                  <button 
+                    onClick={() => removeItem(index)}
+                    className={styles.removeButton}
+                    disabled={selectedItems.length <= 1}
+                  >
+                    Remove
                   </button>
                 </div>
+              ))}
+              
+              <div className={styles.buttonGroup}>
+                <button onClick={addItem} className={styles.addButton}>
+                  Add Category
+                </button>
+                
+                <button 
+                  onClick={fetchQuestions} 
+                  className={styles.fetchButton}
+                  disabled={loading}
+                >
+                  {loading ? 'Loading...' : 'Fetch Questions'}
+                </button>
               </div>
               
-              <div className={styles.questionsContainer}>
+              {error && <div className={styles.error}>{error}</div>}
+            </div>
+
+            {questions.length > 0 && (
+              <>
+                <div className={styles.questionsHeader}>
+                  <h3>Questions ({questions.length})</h3>
+                  <div className={styles.selectionInfo}>
+                    <span>{selectedCount} questions selected</span>
+                    <button 
+                      onClick={handleImportQuestions}
+                      className={styles.importButton}
+                      disabled={selectedCount === 0 || loading}
+                    >
+                      {loading ? 'Importing...' : 'Import Selected'}
+                    </button>
+                  </div>
+                </div>
                 
-                {questions.map((question, index) => (
-      
-                  <div 
-                    key={index} 
-                    className={`${styles.questionCard} ${selectedQuestions[index] ? styles.selectedCard : ''}`}
-                    onClick={() => toggleQuestionSelection(index)}
-                  >
-                   
-                    <div className={styles.questionHeader}>
-                      <span className={styles.questionNumber}>Q{index + 1}</span>
-                      <span className={styles.questionType}>
-                        {question.questionType === 'single_choice' ? 'Single Choice' : 'Multiple Choice'}
-                      </span>
-                      <span className={styles.marks}>{question.marks} marks</span>
-                      <div className={styles.checkbox}>
-                        <input 
-                          type="checkbox" 
-                          checked={!!selectedQuestions[index]} 
-                          onChange={() => {}} // Handled by the div click
-                          onClick={(e) => e.stopPropagation()}
-                        />
+                <div className={styles.questionsContainer}>
+                  
+                  {questions.map((question, index) => (
+        
+                    <div 
+                      key={index} 
+                      className={`${styles.questionCard} ${selectedQuestions[index] ? styles.selectedCard : ''}`}
+                      onClick={() => toggleQuestionSelection(index)}
+                    >
+                     
+                      <div className={styles.questionHeader}>
+                        <span className={styles.questionNumber}>Q{index + 1}</span>
+                        <span className={styles.questionType}>
+                          {question.questionType === 'single_choice' ? 'Single Choice' : 'Multiple Choice'}
+                        </span>
+                        <span className={styles.marks}>{question.marks} marks</span>
+                        <div className={styles.checkbox}>
+                          <input 
+                            type="checkbox" 
+                            checked={!!selectedQuestions[index]} 
+                            onChange={() => {}} // Handled by the div click
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div dangerouslySetInnerHTML={{ __html: question.description || 'No question text available' }} />
+                      
+                      <div className={styles.options}>
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(num => {
+                          const optionKey = `option${num}`;
+                          return renderOption(question, optionKey, question[optionKey]);
+                        })}
                       </div>
                     </div>
-                    
-                    <div dangerouslySetInnerHTML={{ __html: question.description || 'No question text available' }} />
-                    
-                    <div className={styles.options}>
-                      {[1, 2, 3, 4, 5, 6, 7, 8].map(num => {
-                        const optionKey = `option${num}`;
-                        return renderOption(question, optionKey, question[optionKey]);
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+      
+      {/* Render the success modal when showSuccessModal is true */}
+      {showSuccessModal && (
+        <SuccessModal 
+          message="Questions have been successfully added to the test!" 
+          onClose={handleSuccessModalClose} 
+        />
+      )}
+    </>
   );
 };
 
