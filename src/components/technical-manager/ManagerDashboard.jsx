@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { findDashboardInformation } from "../../features/manager/managerActions";
 import styles from "./ManagerDashboard.module.css";
 import Sidebar from "./Sidebar";
+import CategoryPopup from "./CategoryPopup";
+import OfficePopup from "./OfficePopup";
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
@@ -17,6 +19,8 @@ const ManagerDashboard = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("course");
   const [viewMode, setViewMode] = useState("card"); // 'card' or 'table'
+  const [isCategoryPopupOpen, setIsCategoryPopupOpen] = useState(false);
+  const [isOfficePopupOpen, setIsOfficePopupOpen] = useState(false);
 
   // Status and type filter options
   const statusOptions = ["all", "approved", "pending", "rejected"];
@@ -131,6 +135,12 @@ const ManagerDashboard = () => {
   const handleTestPreviewClick = (testId) => {
     navigate(`/test/view/${testId}`);
   };
+
+  // Popup handlers
+  const openCategoryPopup = () => setIsCategoryPopupOpen(true);
+  const closeCategoryPopup = () => setIsCategoryPopupOpen(false);
+  const openOfficePopup = () => setIsOfficePopupOpen(true);
+  const closeOfficePopup = () => setIsOfficePopupOpen(false);
 
   // Render card view content
   const renderCardView = () => {
@@ -352,24 +362,41 @@ const ManagerDashboard = () => {
           </div>
         </header>
 
-        <div className={styles.viewToggle}>
-          <div className={styles.viewToggleLabel}>View Mode:</div>
-          <div className={styles.viewModeOptions}>
-            {viewOptions.map((option) => (
-              <label key={option} className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="viewMode"
-                  value={option}
-                  checked={viewMode === option}
-                  onChange={handleViewModeChange}
-                  className={styles.radioFilter}
-                />
-                <span className={styles.radioText}>
-                  {option.charAt(0).toUpperCase() + option.slice(1)} View
-                </span>
-              </label>
-            ))}
+        <div className={styles.controlsContainer}>
+          <div className={styles.viewToggle}>
+            <div className={styles.viewToggleLabel}>View Mode:</div>
+            <div className={styles.viewModeOptions}>
+              {viewOptions.map((option) => (
+                <label key={option} className={styles.radioLabel}>
+                  <input
+                    type="radio"
+                    name="viewMode"
+                    value={option}
+                    checked={viewMode === option}
+                    onChange={handleViewModeChange}
+                    className={styles.radioFilter}
+                  />
+                  <span className={styles.radioText}>
+                    {option.charAt(0).toUpperCase() + option.slice(1)} View
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+          
+          <div className={styles.actionButtons}>
+            <button 
+              className={styles.actionButton} 
+              onClick={openCategoryPopup}
+            >
+              Add Questions Category
+            </button>
+            <button 
+              className={styles.actionButton}
+              onClick={openOfficePopup}
+            >
+              Add Office
+            </button>
           </div>
         </div>
 
@@ -378,6 +405,10 @@ const ManagerDashboard = () => {
 
         {viewMode === "card" ? renderCardView() : renderTableView()}
       </main>
+
+      {/* Popup Components */}
+      <CategoryPopup isOpen={isCategoryPopupOpen} onClose={closeCategoryPopup} />
+      <OfficePopup isOpen={isOfficePopupOpen} onClose={closeOfficePopup} />
     </div>
   );
 };

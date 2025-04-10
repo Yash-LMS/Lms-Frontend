@@ -511,3 +511,55 @@
   color: var(--primary-color);
   font-weight: 500;
 }
+
+.controlsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 2rem;
+}
+
+.actionButton {
+  background-color: #8e6cef;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.actionButton:hover {
+  background-color: #7559ce;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .controlsContainer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .actionButtons {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .actionButton {
+    flex: 1;
+    justify-content: center;
+  }
+}
