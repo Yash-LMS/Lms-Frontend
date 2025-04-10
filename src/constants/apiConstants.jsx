@@ -53,6 +53,7 @@ export const REQUEST_BADGE_URL = `${API_BASE_URL}/manager/findSideBarBadgeInform
 export const ALL_USER_TRACKING_DETAIL_URL = `${API_BASE_URL}/manager/tracking/findTraineeCourse`;
 export const USER_TRACKING_DETAIL_URL = `${API_BASE_URL}/manager/traineeCourseTracking`;
 export const ADD_OFFICE_URL = `${API_BASE_URL}/manager/addOffice`;
+export const CREATE_QUESTION_CATEGORY_URL = `${API_BASE_URL}/manager/createCategory`;
 
 
 //User

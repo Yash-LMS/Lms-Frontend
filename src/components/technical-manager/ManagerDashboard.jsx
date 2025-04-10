@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import CategoryPopup from "./CategoryPopup";
 import OfficePopup from "./OfficePopup";
 import AddOffice from "./AddOffice";
+import CategoryCreator from "./CategoryCreator";
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
@@ -339,6 +340,7 @@ const ManagerDashboard = () => {
               ))}
             </div>
             <AddOffice />
+            <CategoryCreator />
           </div>
           <div className={styles.headerRight}>
             <div className={styles.filterContainer}>
