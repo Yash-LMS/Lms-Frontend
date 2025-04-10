@@ -6,6 +6,7 @@ import styles from './QuestionRandomModal.module.css';
 import { 
   VIEW_QUESTION_DISTINCT_CATEGORY_URL, 
   VIEW_RANDOM_QUESTION_Library_URL,
+  VIEW_QUESTION_DISTINCT_SUB_CATEGORY_URL,
   ADD_QUESTION_URL 
 } from '../../constants/apiConstants';
 import SuccessModal from "../../assets/SuccessModal";
@@ -19,8 +20,9 @@ const QuestionRandomModal = ({
   if (!isOpen) return null;
 
   const [categories, setCategories] = useState([]);
+  const [subcategoriesMap, setSubcategoriesMap] = useState({}); // Map of category to array of subcategories
   const [selectedItems, setSelectedItems] = useState([
-    { category: '', questionLevel: 'easy', questionCount: 1 }
+    { category: '', subcategory: '', questionLevel: 'easy', questionCount: 1 }
   ]);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -69,7 +71,7 @@ const QuestionRandomModal = ({
   // Fetch distinct categories on component mount and when modal opens
   useEffect(() => {
     if (isOpen) {
-      setSelectedItems([{ category: '', questionLevel: 'easy', questionCount: 1 }]);
+      setSelectedItems([{ category: '', subcategory: '', questionLevel: 'easy', questionCount: 1 }]);
       setQuestions([]);
       setError(null);
       setSelectedQuestions({});
@@ -91,16 +93,54 @@ const QuestionRandomModal = ({
     }
   };
 
+  const fetchSubCategories = async (category) => {
+    // If we already have subcategories for this category, no need to fetch again
+    if (subcategoriesMap[category]) {
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${VIEW_QUESTION_DISTINCT_SUB_CATEGORY_URL}?category=${category}`);
+      if (response.data.response === 'success') {
+        // Store subcategories for this category
+        setSubcategoriesMap(prev => ({
+          ...prev,
+          [category]: response.data.payload || []
+        }));
+      } else {
+        setError('Failed to fetch subcategories');
+      }
+    } catch (err) {
+      setError('Error fetching subcategories: ' + err.message);
+    }
+  };
+
   const handleItemChange = (index, field, value) => {
     const newItems = [...selectedItems];
-    newItems[index] = { ...newItems[index], [field]: value };
+    
+    // If category is changing, reset the subcategory
+    if (field === 'category') {
+      newItems[index] = { 
+        ...newItems[index], 
+        [field]: value,
+        subcategory: '' // Reset subcategory when category changes
+      };
+      
+      // Fetch subcategories for this category if not already fetched
+      if (value) {
+        fetchSubCategories(value);
+      }
+    } else {
+      newItems[index] = { ...newItems[index], [field]: value };
+    }
+    
     setSelectedItems(newItems);
   };
 
   const addItem = () => {
     setSelectedItems([
       ...selectedItems,
-      { category: '', questionLevel: 'easy', questionCount: 1 }
+      { category: '', subcategory: '', questionLevel: 'easy', questionCount: 1 }
     ]);
   };
 
@@ -127,6 +167,7 @@ const QuestionRandomModal = ({
         token: token,
         libraryQuestionList: selectedItems.map(item => ({
           category: item.category,
+          subCategory: item.subcategory,
           questionLevel: item.questionLevel,
           questionCount: parseInt(item.questionCount, 10)
         }))
@@ -510,6 +551,21 @@ const QuestionRandomModal = ({
                   {categories.map(category => (
                     <option key={category} value={category}>{category}</option>
                   ))}
+                </select>
+                
+                {/* Subcategory dropdown - only appears after category is selected */}
+                <select
+                  value={item.subcategory}
+                  onChange={(e) => handleItemChange(index, 'subcategory', e.target.value)}
+                  className={styles.select}
+                  disabled={!item.category}
+                >
+                  <option value="">Select Subcategory</option>
+                  {item.category && subcategoriesMap[item.category] && 
+                    subcategoriesMap[item.category].map(subcat => (
+                      <option key={subcat} value={subcat}>{subcat}</option>
+                    ))
+                  }
                 </select>
                 
                 <select

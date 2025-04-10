@@ -4,7 +4,7 @@ import styles from "./TestList.module.css";
 import { useNavigate } from "react-router-dom";
 import QuestionModal from "./QuestionModal";
 import BulkUploadQuestionModal from "./BulkUploadQuestionModal";
-import QuestionViewerModal from "./QuestionViewerModal";
+import QuestionViewerModal from "./QuestionRandomModal";
 import QuestionCategoryImport from "./QuestionCategoryImport";
 
 const TestList = ({
