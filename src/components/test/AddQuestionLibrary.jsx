@@ -12,9 +12,6 @@ import {
 } from "../../constants/apiConstants";
 import BulkUploadQuestionLibrary from "./BulkUploadQuestionLibrary";
 
-// Add the subcategory API constant
-const DISTINCT_SUBCATEGORY_URL = "/find/distinct/question/subcategory";
-
 const AddQuestionLibrary = () => {
   const quillRef = useRef(null);
   const navigate = useNavigate();
@@ -390,7 +387,7 @@ const AddQuestionLibrary = () => {
       difficultyLevel: question.difficultyLevel,
       marks: question.marks,
       category: selectedCategory,
-      subcategory: selectedSubcategory,
+      subCategory: selectedSubcategory,
       ...optionFields,
       correctOption: correctOptions,
     };
@@ -424,6 +421,8 @@ const AddQuestionLibrary = () => {
       subcategory: selectedSubcategory,
       questionsLibraryList: questionList,
     };
+
+    
 
     console.log(requestBody);
 

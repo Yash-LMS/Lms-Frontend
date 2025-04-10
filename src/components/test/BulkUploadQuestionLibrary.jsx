@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import styles from "./BulkUploadQuestionLibrary.module.css";
-import { VIEW_QUESTION_DISTINCT_CATEGORY_URL, ADD_QUESTION_Library_URL, VIEW_QUESTION_ALL_SUB_CATEGORY_URL } from "../../constants/apiConstants";
+import { VIEW_QUESTION_ALL_CATEGORY_URL, ADD_QUESTION_Library_URL, VIEW_QUESTION_ALL_SUB_CATEGORY_URL } from "../../constants/apiConstants";
 
 const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
   const [step, setStep] = useState("upload"); // upload, selectCategory, review, success
@@ -25,7 +25,7 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
   const fetchCategories = async () => {
     try {
       const { token } = getUserData();
-      const response = await axios.get(`${VIEW_QUESTION_DISTINCT_CATEGORY_URL}`, {
+      const response = await axios.get(`${VIEW_QUESTION_ALL_CATEGORY_URL}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -334,7 +334,7 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
       difficultyLevel: question.difficultyLevel,
       marks: question.marks,
       category: question.category,
-      subcategory: question.subcategory,
+      subCategory: question.subcategory,
       ...optionFields,
       correctOption: correctOptions,
     };

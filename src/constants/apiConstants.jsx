@@ -82,7 +82,11 @@ export const PREVIEW_TEST_MANAGER_URL = `${API_BASE_URL}/manager/view/question`;
 
 // Question Library
 export const VIEW_QUESTION_ALL_CATEGORY_URL = `${API_BASE_URL}/library/find/all/question/category`;
+export const VIEW_QUESTION_ALL_SUB_CATEGORY_URL = `${API_BASE_URL}/library/find/all/question/subcategory`;
+
 export const VIEW_QUESTION_DISTINCT_CATEGORY_URL = `${API_BASE_URL}/library/find/distinct/question/category`;
+export const VIEW_QUESTION_DISTINCT__SUB_CATEGORY_URL = `${API_BASE_URL}/library/find/distinct/question/subcategory`;
+
 export const ADD_QUESTION_Library_URL = `${API_BASE_URL}/library/addQuestion`;
 export const VIEW_RANDOM_QUESTION_Library_URL = `${API_BASE_URL}/library/random/findQuestion`;
 export const VIEW_QUESTION_BY_CATEGORY_Library_URL = `${API_BASE_URL}/library/category/findQuestion`;
