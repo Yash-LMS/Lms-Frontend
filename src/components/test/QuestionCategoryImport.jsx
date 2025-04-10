@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import styles from './QuestionViewerModal.module.css';
 import { 
   VIEW_QUESTION_DISTINCT_CATEGORY_URL, 
@@ -25,6 +27,30 @@ const QuestionCategoryImport = ({
   const [error, setError] = useState(null);
   const [selectedQuestions, setSelectedQuestions] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false); // Add state for success modal
+  const [editMode, setEditMode] = useState({});
+
+  // Enhanced Quill editor modules and formats
+  const modules = {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'script': 'sub' }, { 'script': 'super' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'color': [] }, { 'background': [] }],
+      ['link'],
+      ['clean']
+    ],
+  };
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet', 'indent',
+    'script',
+    'color', 'background',
+    'link'
+  ];
 
   const getUserData = () => {
     try {
@@ -42,13 +68,19 @@ const QuestionCategoryImport = ({
   // Fetch distinct categories on component mount and when modal opens
   useEffect(() => {
     if (isOpen) {
-      setSelectedItems([{ category: '', questionLevel: 'easy'}]);
-      setQuestions([]);
-      setError(null);
-      setSelectedQuestions({});
+      resetModalState();
       fetchCategories();
     }
   }, [isOpen]);
+
+  // Reset the modal state to initial values
+  const resetModalState = () => {
+    setSelectedItems([{ category: '', questionLevel: 'easy' }]);
+    setQuestions([]);
+    setError(null);
+    setSelectedQuestions({});
+    setEditMode({});
+  };
 
   const fetchCategories = async () => {
     try {
@@ -106,10 +138,29 @@ const QuestionCategoryImport = ({
       const response = await axios.post(`${VIEW_QUESTION_BY_CATEGORY_Library_URL}`, payload);
       
       if (response.data.response === 'success') {
-        console.log(response.data.payload);
-        setQuestions(response.data.payload);
-        // Reset selected questions
+        // Transform the question data to have an options array for each question
+        const transformedQuestions = response.data.payload.map(question => {
+          // Create an options array from the option fields
+          const options = [];
+          for (let i = 1; i <= 8; i++) {
+            const optionKey = `option${i}`;
+            if (question[optionKey]) {
+              options.push({
+                id: optionKey,
+                text: question[optionKey]
+              });
+            }
+          }
+          
+          return {
+            ...question,
+            options
+          };
+        });
+        
+        setQuestions(transformedQuestions);
         setSelectedQuestions({});
+        setEditMode({});
       } else {
         setError(response.data.message || 'Failed to fetch questions');
       }
@@ -120,8 +171,16 @@ const QuestionCategoryImport = ({
     }
   };
 
-  // Handle question selection
-  const toggleQuestionSelection = (questionIndex) => {
+  // Toggle question selection via checkbox
+  const toggleQuestionSelection = (questionIndex, e) => {
+    // If coming from a div click, don't need the stopPropagation
+    if (e) {
+      e.stopPropagation();
+    }
+    
+    // Don't allow selection if question is in edit mode
+    if (editMode[questionIndex]) return;
+
     setSelectedQuestions(prev => {
       const newSelections = { ...prev };
       if (newSelections[questionIndex]) {
@@ -133,11 +192,245 @@ const QuestionCategoryImport = ({
     });
   };
 
+  // Toggle edit mode for a question
+  const toggleEditMode = (questionIndex, e) => {
+    e.stopPropagation();
+    
+    setEditMode(prev => ({
+      ...prev,
+      [questionIndex]: !prev[questionIndex]
+    }));
+    
+    // Deselect the question if it's selected and going into edit mode
+    if (selectedQuestions[questionIndex]) {
+      setSelectedQuestions(prev => {
+        const newSelections = { ...prev };
+        delete newSelections[questionIndex];
+        return newSelections;
+      });
+    }
+  };
+
+  // Handle description change with ReactQuill
+  const handleDescriptionChange = (questionIndex, content) => {
+    setQuestions(prev => {
+      const updated = [...prev];
+      updated[questionIndex].description = content;
+      return updated;
+    });
+  };
+
+  // Handle option text change
+  const handleOptionTextChange = (questionIndex, optionId, newText) => {
+    setQuestions(prev => {
+      const updated = [...prev];
+      const optionIndex = updated[questionIndex].options.findIndex(opt => opt.id === optionId);
+      
+      if (optionIndex !== -1) {
+        updated[questionIndex].options[optionIndex].text = newText;
+        // Also update the original format option field
+        updated[questionIndex][optionId] = newText;
+      }
+      
+      return updated;
+    });
+  };
+
+  // Toggle correct option for a question
+  const handleCorrectOptionToggle = (questionIndex, optionId) => {
+    setQuestions(prev => {
+      const updated = [...prev];
+      const question = updated[questionIndex];
+      
+      // For single_choice questions, unselect all other options
+      if (question.questionType === 'single_choice') {
+        question.correctOption = optionId;
+      } else if (question.questionType === 'multiple_choice') {
+        // For multiple_choice, toggle this option in the list
+        const currentOptions = question.correctOption ? question.correctOption.split('/') : [];
+        const isSelected = currentOptions.includes(optionId);
+        
+        if (isSelected) {
+          // Remove this option if it's already selected
+          if (currentOptions.length > 1) { // Ensure at least one option remains selected
+            question.correctOption = currentOptions.filter(opt => opt !== optionId).join('/');
+          }
+        } else {
+          // Add this option if it's not already selected
+          currentOptions.push(optionId);
+          question.correctOption = currentOptions.join('/');
+        }
+      }
+      
+      return updated;
+    });
+  };
+
+  // Add new option to a question
+  const handleAddOption = (questionIndex) => {
+    setQuestions(prev => {
+      const updated = [...prev];
+      const question = updated[questionIndex];
+      
+      // Maximum 8 options
+      if (question.options.length >= 8) {
+        setError('Maximum 8 options allowed per question');
+        return prev;
+      }
+      
+      // Create a new option - with empty text
+      const newOptionId = `option${question.options.length + 1}`;
+      const newOptionText = ""; // Empty text
+      
+      // Add to options array
+      question.options.push({
+        id: newOptionId,
+        text: newOptionText
+      });
+      
+      // Also add to the original format
+      question[newOptionId] = newOptionText;
+      
+      // If this is the first option and it's single choice, make it correct by default
+      if (question.options.length === 1 && question.questionType === 'single_choice') {
+        question.correctOption = newOptionId;
+      }
+      
+      // If this is the first option and it's multiple choice with no correct options
+      if (question.options.length === 1 && question.questionType === 'multiple_choice' && !question.correctOption) {
+        question.correctOption = newOptionId;
+      }
+      
+      return updated;
+    });
+  };
+
+  // Delete option from a question  
+  const handleDeleteOption = (questionIndex, optionId) => {
+    setQuestions(prev => {
+      const updated = [...prev];
+      const question = updated[questionIndex];
+      
+      // Ensure at least one option remains
+      if (question.options.length <= 1) {
+        setError('At least one option must be present');
+        return prev;
+      }
+      
+      // Find the option's index
+      const optionIndex = question.options.findIndex(opt => opt.id === optionId);
+      if (optionIndex === -1) return prev;
+      
+      // Check if this is a correct option
+      const isCorrectOption = question.correctOption === optionId || 
+                             (question.correctOption && question.correctOption.split('/').includes(optionId));
+      
+      if (isCorrectOption) {
+        // If this is a correct option in a single choice question
+        if (question.questionType === 'single_choice') {
+          // Find another option to make correct
+          const otherOption = question.options.find(opt => opt.id !== optionId);
+          if (otherOption) {
+            question.correctOption = otherOption.id;
+          }
+        } else {
+          // For multiple choice, remove this from correct options
+          const correctOptions = question.correctOption.split('/').filter(opt => opt !== optionId);
+          
+          // If no correct options would remain, don't allow deletion
+          if (correctOptions.length === 0) {
+            setError('Question must have at least one correct option');
+            return prev;
+          }
+          
+          question.correctOption = correctOptions.join('/');
+        }
+      }
+      
+      // Remove the option
+      question.options.splice(optionIndex, 1);
+      
+      // Also remove from original format
+      delete question[optionId];
+      
+      // Reindex options
+      const newOptions = [];
+      for (let i = 0; i < question.options.length; i++) {
+        const oldOption = question.options[i];
+        const newOptionId = `option${i + 1}`;
+        
+        // Check if this was a correct option
+        let isThisCorrect = false;
+        if (question.questionType === 'single_choice') {
+          isThisCorrect = question.correctOption === oldOption.id;
+        } else {
+          isThisCorrect = question.correctOption && question.correctOption.split('/').includes(oldOption.id);
+        }
+        
+        // Update correctOption references
+        if (isThisCorrect) {
+          if (question.questionType === 'single_choice') {
+            question.correctOption = newOptionId;
+          } else {
+            const correctOptions = question.correctOption.split('/');
+            const updatedCorrectOptions = correctOptions.map(opt => 
+              opt === oldOption.id ? newOptionId : opt
+            );
+            question.correctOption = updatedCorrectOptions.join('/');
+          }
+        }
+        
+        // Create new option with new ID
+        newOptions.push({
+          id: newOptionId,
+          text: oldOption.text
+        });
+        
+        // Update in original format
+        question[newOptionId] = oldOption.text;
+        if (oldOption.id !== newOptionId) {
+          delete question[oldOption.id];
+        }
+      }
+      
+      // Replace options array
+      question.options = newOptions;
+      
+      return updated;
+    });
+  };
+
+  // Switch question type between single and multiple choice
+  const changeQuestionType = (questionIndex, newType) => {
+    setQuestions(prev => {
+      const updated = [...prev];
+      const question = updated[questionIndex];
+      
+      question.questionType = newType;
+      
+      // Reset correct options based on new type
+      if (newType === 'single_choice') {
+        // For single choice, just select the first option
+        const firstOption = question.options[0];
+        if (firstOption) {
+          question.correctOption = firstOption.id;
+        } else {
+          question.correctOption = '';
+        }
+      } 
+      // For multiple choice, keep current option if it exists
+      
+      return updated;
+    });
+  };
+
   // Get count of selected questions
   const selectedCount = Object.keys(selectedQuestions).length;
 
   // Parse correct options for highlighting
   const parseCorrectOptions = (question) => {
+    if (!question.correctOption) return [];
+    
     if (question.questionType === 'single_choice') {
       return [question.correctOption];
     } else if (question.questionType === 'multiple_choice') {
@@ -146,22 +439,19 @@ const QuestionCategoryImport = ({
     return [];
   };
 
-  // Render option with correct highlighting
-  const renderOption = (question, optionKey, optionValue) => {
-    if (!optionValue) return null; // Don't render empty options
-
+  // Check if an option is correct
+  const isCorrectOption = (question, optionId) => {
     const correctOptions = parseCorrectOptions(question);
-    const isCorrect = correctOptions.includes(optionKey);
+    return correctOptions.includes(optionId);
+  };
 
-    return (
-      <div 
-        key={optionKey} 
-        className={`${styles.option} ${isCorrect ? styles.correctOption : ''}`}
-      >
-        <span className={styles.optionKey}>{optionKey.replace('option', '')}</span>
-        <span className={styles.optionValue}>{optionValue}</span>
-      </div>
-    );
+  // Update marks handler
+  const handleMarksChange = (questionIndex, value) => {
+    setQuestions(prev => {
+      const updated = [...prev];
+      updated[questionIndex].marks = value;
+      return updated;
+    });
   };
 
   // Handle import of selected questions
@@ -171,7 +461,10 @@ const QuestionCategoryImport = ({
       return;
     }
 
-    const questionsToImport = questions.filter((_, index) => selectedQuestions[index]);
+    const questionsToImport = questions
+      .filter((_, index) => selectedQuestions[index])
+      .map(({ options, ...questionData }) => questionData); // Remove the options array we added
+      
     setLoading(true);
     
     try {
@@ -184,14 +477,12 @@ const QuestionCategoryImport = ({
         testId: testId,
         questionList: questionsToImport
       };
-
-      console.log(apiPayload);
       
       // Make API call to add questions to the test
       const response = await axios.post(ADD_QUESTION_URL, apiPayload);
       
       if (response.data.response === 'success') {
-        // Show success modal instead of alert
+        // Show success modal
         setShowSuccessModal(true);
       } else {
         setError(response.data.message || 'Failed to import questions');
@@ -246,7 +537,6 @@ const QuestionCategoryImport = ({
                     <option value="hard">Hard</option>
                   </select>
                   
-                  
                   <button 
                     onClick={() => removeItem(index)}
                     className={styles.removeButton}
@@ -291,39 +581,152 @@ const QuestionCategoryImport = ({
                 </div>
                 
                 <div className={styles.questionsContainer}>
-                  
                   {questions.map((question, index) => (
-        
                     <div 
                       key={index} 
-                      className={`${styles.questionCard} ${selectedQuestions[index] ? styles.selectedCard : ''}`}
-                      onClick={() => toggleQuestionSelection(index)}
+                      className={`${styles.questionCard} ${selectedQuestions[index] ? styles.selectedCard : ''} ${editMode[index] ? styles.editModeCard : ''}`}
+                      onClick={() => !editMode[index] && toggleQuestionSelection(index)}
                     >
-                     
                       <div className={styles.questionHeader}>
                         <span className={styles.questionNumber}>Q{index + 1}</span>
                         <span className={styles.questionType}>
                           {question.questionType === 'single_choice' ? 'Single Choice' : 'Multiple Choice'}
                         </span>
                         <span className={styles.marks}>{question.marks} marks</span>
-                        <div className={styles.checkbox}>
-                          <input 
-                            type="checkbox" 
-                            checked={!!selectedQuestions[index]} 
-                            onChange={() => {}} // Handled by the div click
-                            onClick={(e) => e.stopPropagation()}
-                          />
+                        <div className={styles.questionControls}>
+                          <button 
+                            className={styles.editButton} 
+                            onClick={(e) => toggleEditMode(index, e)}
+                          >
+                            {editMode[index] ? 'Save' : 'Edit'}
+                          </button>
+                          {/* Checkbox for selecting questions */}
+                          <div className={styles.checkbox}>
+                            <input 
+                              type="checkbox" 
+                              checked={!!selectedQuestions[index]} 
+                              onChange={(e) => toggleQuestionSelection(index, e)}
+                              disabled={editMode[index]}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
                         </div>
                       </div>
                       
-                      <div dangerouslySetInnerHTML={{ __html: question.description || 'No question text available' }} />
-                      
-                      <div className={styles.options}>
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map(num => {
-                          const optionKey = `option${num}`;
-                          return renderOption(question, optionKey, question[optionKey]);
-                        })}
-                      </div>
+                      {editMode[index] ? (
+                        <div className={styles.editModeContainer}>
+                          {/* Question description editor */}
+                          <div className={styles.quillContainer}>
+                            <ReactQuill
+                              value={question.description}
+                              onChange={(content) => handleDescriptionChange(index, content)}
+                              modules={modules}
+                              formats={formats}
+                              placeholder="Enter your question here"
+                            />
+                          </div>
+
+                          {/* Marks input */}
+                          <div className={styles.marksEditor}>
+                            <label>Marks:</label>
+                            <input 
+                              type="number" 
+                              value={question.marks}
+                              onChange={(e) => handleMarksChange(index, e.target.value)}
+                              className={styles.marksInput}
+                            />
+                          </div>
+
+                          {/* Question type selector */}
+                          <div className={styles.questionTypeEditor}>
+                            <label>Question Type:</label>
+                            <div className={styles.radioGroup}>
+                              <label>
+                                <input 
+                                  type="radio" 
+                                  name={`questionType-${index}`}
+                                  checked={question.questionType === 'single_choice'}
+                                  onChange={() => changeQuestionType(index, 'single_choice')} 
+                                /> 
+                                Single Choice
+                              </label>
+                              <label>
+                                <input 
+                                  type="radio" 
+                                  name={`questionType-${index}`}
+                                  checked={question.questionType === 'multiple_choice'}
+                                  onChange={() => changeQuestionType(index, 'multiple_choice')} 
+                                /> 
+                                Multiple Choice
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* Options editor with Add Option button */}
+                          <div className={styles.optionsEditor}>
+                            <div className={styles.optionsHeader}>
+                              <h4>Options:</h4>
+                              <button 
+                                className={styles.addOptionButton}
+                                onClick={() => handleAddOption(index)}
+                                disabled={question.options.length >= 8}
+                              >
+                                + Add Option
+                              </button>
+                            </div>
+                            
+                            {question.options.map((option, optionIndex) => (
+                              <div key={option.id} className={styles.optionEditor}>
+                                {question.questionType === 'single_choice' ? (
+                                  <input
+                                    type="radio"
+                                    name={`question-${index}-options`}
+                                    checked={isCorrectOption(question, option.id)}
+                                    onChange={() => handleCorrectOptionToggle(index, option.id)}
+                                  />
+                                ) : (
+                                  <input
+                                    type="checkbox"
+                                    name={`question-${index}-options`}
+                                    checked={isCorrectOption(question, option.id)}
+                                    onChange={() => handleCorrectOptionToggle(index, option.id)}
+                                  />
+                                )}
+                                <input
+                                  type="text"
+                                  value={option.text}
+                                  onChange={(e) => handleOptionTextChange(index, option.id, e.target.value)}
+                                  placeholder={`Option ${optionIndex + 1}`}
+                                  className={styles.optionInput}
+                                />
+                                <button 
+                                  className={styles.removeOptionButton}
+                                  onClick={() => handleDeleteOption(index, option.id)}
+                                  disabled={question.options.length <= 1}
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div dangerouslySetInnerHTML={{ __html: question.description || 'No question text available' }} />
+                          
+                          <div className={styles.options}>
+                            {question.options.map((option, optionIndex) => (
+                              <div 
+                                key={option.id} 
+                                className={`${styles.option} ${isCorrectOption(question, option.id) ? styles.correctOption : ''}`}
+                              >
+                                <span className={styles.optionKey}>{optionIndex + 1}</span>
+                                <span className={styles.optionValue}>{option.text}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
