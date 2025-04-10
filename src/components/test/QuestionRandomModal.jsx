@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import styles from './QuestionViewerModal.module.css';
+import ReactQuill from 'react-quill'; // Import ReactQuill
+import 'react-quill/dist/quill.snow.css'; // Import Quill styles
+import styles from './QuestionRandomModal.module.css';
 import { 
   VIEW_QUESTION_DISTINCT_CATEGORY_URL, 
   VIEW_RANDOM_QUESTION_Library_URL,
@@ -10,7 +10,11 @@ import {
 } from '../../constants/apiConstants';
 import SuccessModal from "../../assets/SuccessModal";
 
-const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
+const QuestionRandomModal = ({ 
+  testId, 
+  onClose,
+  isOpen
+}) => {
   // If modal is not open, don't render anything
   if (!isOpen) return null;
 
@@ -24,7 +28,7 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
   const [selectedQuestions, setSelectedQuestions] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [editMode, setEditMode] = useState({});
+  const [editMode, setEditMode] = useState({}); // Track which questions are in edit mode
 
   // Enhanced Quill editor modules and formats
   const modules = {
@@ -65,30 +69,25 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
   // Fetch distinct categories on component mount and when modal opens
   useEffect(() => {
     if (isOpen) {
-      resetModalState();
+      setSelectedItems([{ category: '', questionLevel: 'easy', questionCount: 1 }]);
+      setQuestions([]);
+      setError(null);
+      setSelectedQuestions({});
+      setEditMode({});
       fetchCategories();
     }
   }, [isOpen]);
 
-  // Reset the modal state to initial values
-  const resetModalState = () => {
-    setSelectedItems([{ category: '', questionLevel: 'easy', questionCount: 1 }]);
-    setQuestions([]);
-    setError(null);
-    setSelectedQuestions({});
-    setEditMode({});
-  };
-
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(VIEW_QUESTION_DISTINCT_CATEGORY_URL);
+      const response = await axios.get(`${VIEW_QUESTION_DISTINCT_CATEGORY_URL}`);
       if (response.data.response === 'success') {
         setCategories(response.data.payload || []);
       } else {
         setError('Failed to fetch categories');
       }
     } catch (err) {
-      setError(`Error fetching categories: ${err.message}`);
+      setError('Error fetching categories: ' + err.message);
     }
   };
 
@@ -107,7 +106,8 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
 
   const removeItem = (index) => {
     if (selectedItems.length > 1) {
-      setSelectedItems(selectedItems.filter((_, i) => i !== index));
+      const newItems = selectedItems.filter((_, i) => i !== index);
+      setSelectedItems(newItems);
     }
   };
 
@@ -121,11 +121,10 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
     setLoading(true);
     setError(null);
     const { user, token } = getUserData();
-    
     try {
       const payload = {
-        user,
-        token,
+        user: user,
+        token: token,
         libraryQuestionList: selectedItems.map(item => ({
           category: item.category,
           questionLevel: item.questionLevel,
@@ -133,9 +132,11 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
         }))
       };
 
-      const response = await axios.post(VIEW_RANDOM_QUESTION_Library_URL, payload);
+      const response = await axios.post(`${VIEW_RANDOM_QUESTION_Library_URL}`, payload);
       
       if (response.data.response === 'success') {
+        console.log(response.data.payload);
+        
         // Transform the question data to have an options array for each question
         const transformedQuestions = response.data.payload.map(question => {
           // Create an options array from the option fields
@@ -150,6 +151,7 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
             }
           }
           
+          // Return the question with the options array added
           return {
             ...question,
             options
@@ -157,22 +159,21 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
         });
         
         setQuestions(transformedQuestions);
+        // Reset selected questions
         setSelectedQuestions({});
         setEditMode({});
       } else {
         setError(response.data.message || 'Failed to fetch questions');
       }
     } catch (err) {
-      setError(`Error fetching questions: ${err.message}`);
+      setError('Error fetching questions: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle question selection via checkbox
-  const toggleQuestionSelection = (questionIndex, e) => {
-    e.stopPropagation();
-    
+  // Handle question selection
+  const toggleQuestionSelection = (questionIndex) => {
     // Don't allow selection if question is in edit mode
     if (editMode[questionIndex]) return;
 
@@ -188,9 +189,7 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
   };
 
   // Toggle edit mode for a question
-  const toggleEditMode = (questionIndex, e) => {
-    e.stopPropagation();
-    
+  const toggleEditMode = (questionIndex) => {
     setEditMode(prev => ({
       ...prev,
       [questionIndex]: !prev[questionIndex]
@@ -208,215 +207,208 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
 
   // Handle description change with ReactQuill
   const handleDescriptionChange = (questionIndex, content) => {
-    setQuestions(prev => {
-      const updated = [...prev];
-      updated[questionIndex].description = content;
-      return updated;
-    });
+    const updatedQuestions = [...questions];
+    updatedQuestions[questionIndex].description = content;
+    setQuestions(updatedQuestions);
   };
 
   // Handle option text change
   const handleOptionTextChange = (questionIndex, optionId, newText) => {
-    setQuestions(prev => {
-      const updated = [...prev];
-      const optionIndex = updated[questionIndex].options.findIndex(opt => opt.id === optionId);
-      
-      if (optionIndex !== -1) {
-        updated[questionIndex].options[optionIndex].text = newText;
-        // Also update the original format option field
-        updated[questionIndex][optionId] = newText;
-      }
-      
-      return updated;
-    });
+    const updatedQuestions = [...questions];
+    const optionIndex = updatedQuestions[questionIndex].options.findIndex(opt => opt.id === optionId);
+    
+    if (optionIndex !== -1) {
+      updatedQuestions[questionIndex].options[optionIndex].text = newText;
+      // Also update the original format option field
+      updatedQuestions[questionIndex][optionId] = newText;
+      setQuestions(updatedQuestions);
+    }
   };
 
   // Toggle correct option for a question
   const handleCorrectOptionToggle = (questionIndex, optionId) => {
-    setQuestions(prev => {
-      const updated = [...prev];
-      const question = updated[questionIndex];
+    const updatedQuestions = [...questions];
+    const question = updatedQuestions[questionIndex];
+    
+    // For single_choice questions, unselect all other options
+    if (question.questionType === 'single_choice') {
+      question.correctOption = optionId;
+    } else if (question.questionType === 'multiple_choice') {
+      // For multiple_choice, toggle this option in the list
+      const currentOptions = question.correctOption ? question.correctOption.split('/') : [];
+      const isSelected = currentOptions.includes(optionId);
       
-      // For single_choice questions, unselect all other options
-      if (question.questionType === 'single_choice') {
-        question.correctOption = optionId;
-      } else if (question.questionType === 'multiple_choice') {
-        // For multiple_choice, toggle this option in the list
-        const currentOptions = question.correctOption ? question.correctOption.split('/') : [];
-        const isSelected = currentOptions.includes(optionId);
-        
-        if (isSelected) {
-          // Remove this option if it's already selected
-          if (currentOptions.length > 1) { // Ensure at least one option remains selected
-            question.correctOption = currentOptions.filter(opt => opt !== optionId).join('/');
-          }
-        } else {
-          // Add this option if it's not already selected
-          currentOptions.push(optionId);
-          question.correctOption = currentOptions.join('/');
+      if (isSelected) {
+        // Remove this option if it's already selected
+        if (currentOptions.length > 1) { // Ensure at least one option remains selected
+          question.correctOption = currentOptions.filter(opt => opt !== optionId).join('/');
         }
+      } else {
+        // Add this option if it's not already selected
+        currentOptions.push(optionId);
+        question.correctOption = currentOptions.join('/');
       }
-      
-      return updated;
-    });
+    }
+    
+    setQuestions(updatedQuestions);
   };
 
-  // Add new option to a question - CHANGED: Leave text blank with just placeholder
+  // Add new option to a question
   const handleAddOption = (questionIndex) => {
-    setQuestions(prev => {
-      const updated = [...prev];
-      const question = updated[questionIndex];
-      
-      // Maximum 8 options
-      if (question.options.length >= 8) {
-        setError('Maximum 8 options allowed per question');
-        return prev;
-      }
-      
-      // Create a new option - with empty text
-      const newOptionId = `option${question.options.length + 1}`;
-      const newOptionText = ""; // Empty text as requested
-      
-      // Add to options array
-      question.options.push({
-        id: newOptionId,
-        text: newOptionText
-      });
-      
-      // Also add to the original format
-      question[newOptionId] = newOptionText;
-      
-      // If this is the first option and it's single choice, make it correct by default
-      if (question.options.length === 1 && question.questionType === 'single_choice') {
-        question.correctOption = newOptionId;
-      }
-      
-      // If this is the first option and it's multiple choice with no correct options
-      if (question.options.length === 1 && question.questionType === 'multiple_choice' && !question.correctOption) {
-        question.correctOption = newOptionId;
-      }
-      
-      return updated;
+    const updatedQuestions = [...questions];
+    const question = updatedQuestions[questionIndex];
+    
+    // Maximum 8 options
+    if (question.options.length >= 8) {
+      setError('Maximum 8 options allowed per question');
+      return;
+    }
+    
+    // Create a new option
+    const newOptionId = `option${question.options.length + 1}`;
+    const newOptionText = `Option ${question.options.length + 1}`;
+    
+    // Add to options array
+    question.options.push({
+      id: newOptionId,
+      text: newOptionText
     });
+    
+    // Also add to the original format
+    question[newOptionId] = newOptionText;
+    
+    // If this is the first option and it's single choice, make it correct by default
+    if (question.options.length === 1 && question.questionType === 'single_choice') {
+      question.correctOption = newOptionId;
+    }
+    
+    // If this is the first option and it's multiple choice with no correct options
+    if (question.options.length === 1 && question.questionType === 'multiple_choice' && !question.correctOption) {
+      question.correctOption = newOptionId;
+    }
+    
+    setQuestions(updatedQuestions);
   };
 
   // Delete option from a question  
   const handleDeleteOption = (questionIndex, optionId) => {
-    setQuestions(prev => {
-      const updated = [...prev];
-      const question = updated[questionIndex];
+    const updatedQuestions = [...questions];
+    const question = updatedQuestions[questionIndex];
+    
+    // Ensure at least two options remain
+    if (question.options.length <= 2) {
+      setError('At least two options must be present');
+      return;
+    }
+    
+    // Find the option's index
+    const optionIndex = question.options.findIndex(opt => opt.id === optionId);
+    if (optionIndex === -1) return;
+    
+    // Check if this is a correct option
+    const isCorrectOption = question.correctOption === optionId || 
+                           (question.correctOption && question.correctOption.split('/').includes(optionId));
+    
+    if (isCorrectOption) {
+      // If this is a correct option in a single choice question
+      if (question.questionType === 'single_choice') {
+        // Find another option to make correct
+        const otherOption = question.options.find(opt => opt.id !== optionId);
+        if (otherOption) {
+          question.correctOption = otherOption.id;
+        }
+      } else {
+        // For multiple choice, remove this from correct options
+        const correctOptions = question.correctOption.split('/').filter(opt => opt !== optionId);
+        
+        // If no correct options would remain, don't allow deletion
+        if (correctOptions.length === 0) {
+          setError('Question must have at least one correct option');
+          return;
+        }
+        
+        question.correctOption = correctOptions.join('/');
+      }
+    }
+    
+    // Remove the option
+    question.options.splice(optionIndex, 1);
+    
+    // Also remove from original format
+    delete question[optionId];
+    
+    // Reindex options
+    const newOptions = [];
+    for (let i = 0; i < question.options.length; i++) {
+      const oldOption = question.options[i];
+      const newOptionId = `option${i + 1}`;
       
-      // Ensure at least one option remains
-      if (question.options.length <= 1) {
-        setError('At least one option must be present');
-        return prev;
+      // Check if this was a correct option
+      let isThisCorrect = false;
+      if (question.questionType === 'single_choice') {
+        isThisCorrect = question.correctOption === oldOption.id;
+      } else {
+        isThisCorrect = question.correctOption && question.correctOption.split('/').includes(oldOption.id);
       }
       
-      // Find the option's index
-      const optionIndex = question.options.findIndex(opt => opt.id === optionId);
-      if (optionIndex === -1) return prev;
-      
-      // Check if this is a correct option
-      const isCorrectOption = question.correctOption === optionId || 
-                             (question.correctOption && question.correctOption.split('/').includes(optionId));
-      
-      if (isCorrectOption) {
-        // If this is a correct option in a single choice question
+      // Update correctOption references
+      if (isThisCorrect) {
         if (question.questionType === 'single_choice') {
-          // Find another option to make correct
-          const otherOption = question.options.find(opt => opt.id !== optionId);
-          if (otherOption) {
-            question.correctOption = otherOption.id;
-          }
+          question.correctOption = newOptionId;
         } else {
-          // For multiple choice, remove this from correct options
-          const correctOptions = question.correctOption.split('/').filter(opt => opt !== optionId);
-          
-          // If no correct options would remain, don't allow deletion
-          if (correctOptions.length === 0) {
-            setError('Question must have at least one correct option');
-            return prev;
-          }
-          
-          question.correctOption = correctOptions.join('/');
+          const correctOptions = question.correctOption.split('/');
+          const updatedCorrectOptions = correctOptions.map(opt => 
+            opt === oldOption.id ? newOptionId : opt
+          );
+          question.correctOption = updatedCorrectOptions.join('/');
         }
       }
       
-      // Remove the option
-      question.options.splice(optionIndex, 1);
+      // Create new option with new ID
+      newOptions.push({
+        id: newOptionId,
+        text: oldOption.text
+      });
       
-      // Also remove from original format
-      delete question[optionId];
-      
-      // Reindex options
-      const newOptions = [];
-      for (let i = 0; i < question.options.length; i++) {
-        const oldOption = question.options[i];
-        const newOptionId = `option${i + 1}`;
-        
-        // Check if this was a correct option
-        let isThisCorrect = false;
-        if (question.questionType === 'single_choice') {
-          isThisCorrect = question.correctOption === oldOption.id;
-        } else {
-          isThisCorrect = question.correctOption && question.correctOption.split('/').includes(oldOption.id);
-        }
-        
-        // Update correctOption references
-        if (isThisCorrect) {
-          if (question.questionType === 'single_choice') {
-            question.correctOption = newOptionId;
-          } else {
-            const correctOptions = question.correctOption.split('/');
-            const updatedCorrectOptions = correctOptions.map(opt => 
-              opt === oldOption.id ? newOptionId : opt
-            );
-            question.correctOption = updatedCorrectOptions.join('/');
-          }
-        }
-        
-        // Create new option with new ID
-        newOptions.push({
-          id: newOptionId,
-          text: oldOption.text
-        });
-        
-        // Update in original format
-        question[newOptionId] = oldOption.text;
-        if (oldOption.id !== newOptionId) {
-          delete question[oldOption.id];
-        }
+      // Update in original format
+      question[newOptionId] = oldOption.text;
+      if (oldOption.id !== newOptionId) {
+        delete question[oldOption.id];
       }
-      
-      // Replace options array
-      question.options = newOptions;
-      
-      return updated;
-    });
+    }
+    
+    // Replace options array
+    question.options = newOptions;
+    
+    setQuestions(updatedQuestions);
   };
 
   // Switch question type between single and multiple choice
   const changeQuestionType = (questionIndex, newType) => {
-    setQuestions(prev => {
-      const updated = [...prev];
-      const question = updated[questionIndex];
-      
-      question.questionType = newType;
-      
-      // Reset correct options based on new type
-      if (newType === 'single_choice') {
-        // For single choice, just select the first option
-        const firstOption = question.options[0];
-        if (firstOption) {
-          question.correctOption = firstOption.id;
-        } else {
-          question.correctOption = '';
-        }
-      } 
-      // For multiple choice, keep current option if it exists
-      
-      return updated;
-    });
+    const updatedQuestions = [...questions];
+    const question = updatedQuestions[questionIndex];
+    
+    question.questionType = newType;
+    
+    // Reset correct options based on new type
+    if (newType === 'single_choice') {
+      // For single choice, just select the first option
+      const firstOption = question.options[0];
+      if (firstOption) {
+        question.correctOption = firstOption.id;
+      } else {
+        question.correctOption = '';
+      }
+    } else {
+      // For multiple choice, default to the current correctOption
+      // If it's already in the format with slashes, keep it
+      // If not, just use the current single option
+      if (!question.correctOption || !question.correctOption.includes('/')) {
+        // Keep it as is, since it's probably a single option like "option1"
+      }
+    }
+    
+    setQuestions(updatedQuestions);
   };
 
   // Get count of selected questions
@@ -449,7 +441,12 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
 
     const questionsToImport = questions
       .filter((_, index) => selectedQuestions[index])
-      .map(({ options, ...questionData }) => questionData); // Remove the options array
+      .map(question => {
+        // Restructure question to match API expectations
+        // Remove the options array that we added for UI
+        const { options, ...questionData } = question;
+        return questionData;
+      });
       
     setLoading(true);
     
@@ -458,23 +455,26 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
       
       // Prepare API request payload
       const apiPayload = {
-        user,
-        token,
-        testId,
+        user: user,
+        token: token,
+        testId: testId,
         questionList: questionsToImport
       };
+
+      console.log(apiPayload);
       
       // Make API call to add questions to the test
       const response = await axios.post(ADD_QUESTION_URL, apiPayload);
       
       if (response.data.response === 'success') {
+        // Replace alert with success modal
         setSuccessMessage("Questions added successfully!");
         setShowSuccessModal(true);
       } else {
         setError(response.data.message || 'Failed to import questions');
       }
     } catch (err) {
-      setError(`Error importing questions: ${err.message}`);
+      setError('Error importing questions: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -484,15 +484,6 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
     onClose(); // Close the main modal after success
-  };
-
-  // Update marks handler
-  const handleMarksChange = (questionIndex, value) => {
-    setQuestions(prev => {
-      const updated = [...prev];
-      updated[questionIndex].marks = value;
-      return updated;
-    });
   };
 
   return (
@@ -584,11 +575,14 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
               </div>
               
               <div className={styles.questionsContainer}>
+                
                 {questions.map((question, index) => (
                   <div 
                     key={index} 
                     className={`${styles.questionCard} ${selectedQuestions[index] ? styles.selectedCard : ''} ${editMode[index] ? styles.editModeCard : ''}`}
+                    onClick={() => !editMode[index] && toggleQuestionSelection(index)}
                   >
+                   
                     <div className={styles.questionHeader}>
                       <span className={styles.questionNumber}>Q{index + 1}</span>
                       <span className={styles.questionType}>
@@ -598,19 +592,23 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
                       <div className={styles.questionControls}>
                         <button 
                           className={styles.editButton} 
-                          onClick={(e) => toggleEditMode(index, e)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleEditMode(index);
+                          }}
                         >
                           {editMode[index] ? 'Save' : 'Edit'}
                         </button>
-                        {/* Checkbox for selecting questions */}
-                        <div className={styles.checkbox}>
-                          <input 
-                            type="checkbox" 
-                            checked={!!selectedQuestions[index]} 
-                            onChange={(e) => toggleQuestionSelection(index, e)}
-                            disabled={editMode[index]}
-                          />
-                        </div>
+                        {!editMode[index] && (
+                          <div className={styles.checkbox}>
+                            <input 
+                              type="checkbox" 
+                              checked={!!selectedQuestions[index]} 
+                              onChange={() => {}} // Handled by the div click
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
                     
@@ -633,7 +631,11 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
                           <input 
                             type="number" 
                             value={question.marks}
-                            onChange={(e) => handleMarksChange(index, e.target.value)}
+                            onChange={(e) => {
+                              const updatedQuestions = [...questions];
+                              updatedQuestions[index].marks = e.target.value;
+                              setQuestions(updatedQuestions);
+                            }}
                             className={styles.marksInput}
                           />
                         </div>
@@ -676,7 +678,6 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
                             </button>
                           </div>
                           
-                          {/* FIXED: Display options one by one, not in pairs */}
                           {question.options.map((option, optionIndex) => (
                             <div key={option.id} className={styles.optionEditor}>
                               {question.questionType === 'single_choice' ? (
@@ -704,7 +705,7 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
                               <button 
                                 className={styles.removeOptionButton}
                                 onClick={() => handleDeleteOption(index, option.id)}
-                                disabled={question.options.length <= 1}
+                                disabled={question.options.length <= 2}
                               >
                                 ×
                               </button>
@@ -717,15 +718,19 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
                         <div dangerouslySetInnerHTML={{ __html: question.description || 'No question text available' }} />
                         
                         <div className={styles.options}>
-                          {question.options.map((option, optionIndex) => (
-                            <div 
-                              key={option.id} 
-                              className={`${styles.option} ${isCorrectOption(question, option.id) ? styles.correctOption : ''}`}
-                            >
-                              <span className={styles.optionKey}>{optionIndex + 1}</span>
-                              <span className={styles.optionValue}>{option.text}</span>
-                            </div>
-                          ))}
+                          {question.options.map((option, optionIndex) => {
+                            const isCorrect = isCorrectOption(question, option.id);
+                            
+                            return (
+                              <div 
+                                key={option.id} 
+                                className={`${styles.option} ${isCorrect ? styles.correctOption : ''}`}
+                              >
+                                <span className={styles.optionKey}>{optionIndex + 1}</span>
+                                <span className={styles.optionValue}>{option.text}</span>
+                              </div>
+                            );
+                          })}
                         </div>
                       </>
                     )}
@@ -748,4 +753,4 @@ const QuestionViewerModal = ({ testId, onClose, isOpen }) => {
   );
 };
 
-export default QuestionViewerModal;
+export default QuestionRandomModal;

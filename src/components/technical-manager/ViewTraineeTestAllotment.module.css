@@ -177,7 +177,9 @@
 }
 
 .tableContainer {
-  overflow-x: auto; /* This handles horizontal scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: auto; /* Keep horizontal scrolling */
+  max-height: 450px;
   width: 100%;
   margin-bottom: 1rem;
 }
