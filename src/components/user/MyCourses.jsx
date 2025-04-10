@@ -312,8 +312,8 @@ const MyCourses = () => {
                     : "Continue Learning"}
                 </button>
 
-                {/* Show Submit Feedback button if completionStatus is 95% or more */}
-                {course.completionStatus >= 95 && (
+                {/* Show Submit Feedback button if completionStatus is 100% */}
+                {course.completionStatus >= 100 && (
                   <button
                     className={styles.feedbackButton}
                     onClick={() => {
