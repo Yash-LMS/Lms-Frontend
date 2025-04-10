@@ -23,20 +23,22 @@ const AddQuestionLibrary = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [isBulkUploadModelOpen, setIsBulkUploadModelOpen] = useState(false);
+  // Add a key state for forcing re-render
+  const [formKey, setFormKey] = useState(0);
 
-  const [questions, setQuestions] = useState([
-    {
-      id: 1,
-      description: "",
-      questionType: "single_choice",
-      difficultyLevel: "medium",
-      marks: 1,
-      options: [
-        { id: "option1", text: "", isCorrect: false },
-        { id: "option2", text: "", isCorrect: false },
-      ],
-    },
-  ]);
+  const initialQuestion = {
+    id: 1,
+    description: "",
+    questionType: "single_choice",
+    difficultyLevel: "medium",
+    marks: 1,
+    options: [
+      { id: "option1", text: "", isCorrect: false },
+      { id: "option2", text: "", isCorrect: false },
+    ],
+  };
+
+  const [questions, setQuestions] = useState([{ ...initialQuestion }]);
 
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -392,28 +394,43 @@ const AddQuestionLibrary = () => {
       correctOption: correctOptions,
     };
   };
+  
+  const resetForm = () => {
+    // Increment the form key to force a complete re-render
+    setFormKey(prevKey => prevKey + 1);
+    
+    // Reset all form state to initial values
+    setQuestions([{ ...initialQuestion }]);
+    setSelectedCategory("");
+    setSelectedSubcategory("");
+    setErrorMessage("");
+    
+    // Set success message
+    setSuccessMessage("Questions saved successfully!");
+    setTimeout(() => setSuccessMessage(""), 3000);
+  };
 
   const handleSubmit = async () => {
     setErrorMessage("");
-
+  
     if (!validateQuestions()) {
       setTimeout(() => setErrorMessage(""), 3000);
       return;
     }
-
+  
     // Get user data from session storage
     const { user, token, role } = getUserData();
-
+  
     if (!user || !token) {
       setErrorMessage("User session data is missing. Please log in again.");
       return;
     }
-
+  
     // Prepare all questions data for submission
     const questionList = questions.map((question) =>
       prepareQuestionData(question)
     );
-
+  
     const requestBody = {
       user,
       token,
@@ -421,37 +438,23 @@ const AddQuestionLibrary = () => {
       subcategory: selectedSubcategory,
       questionsLibraryList: questionList,
     };
-
-    
-
+  
     console.log(requestBody);
-
+  
     try {
       setLoading(true);
       const response = await axios.post(
         `${ADD_QUESTION_Library_URL}`,
         requestBody
       );
-
+  
       if (response.data && response.data.response === "success") {
-        setSuccessMessage("All questions saved successfully!");
+        // Show success modal
         setShowSuccessModal(true);
-
-        // Reset form after successful save
-        setQuestions([
-          {
-            id: 1,
-            description: "",
-            questionType: "single_choice",
-            difficultyLevel: "medium",
-            marks: 1,
-            options: [
-              { id: "option1", text: "", isCorrect: false },
-              { id: "option2", text: "", isCorrect: false },
-            ],
-          },
-        ]);
-
+        
+        // Reset the form completely
+        resetForm();
+  
         setTimeout(() => {
           setShowSuccessModal(false);
         }, 2000);
@@ -477,7 +480,7 @@ const AddQuestionLibrary = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} key={formKey}>
       <div className={styles.pageHeader}>
         <h2>Add Questions to Library</h2>
         <div className={styles.backNavigation}>
@@ -541,7 +544,7 @@ const AddQuestionLibrary = () => {
       </div>
 
       {questions.map((question, index) => (
-        <div key={question.id} className={styles.questionContainer}>
+        <div key={`${formKey}-question-${question.id}`} className={styles.questionContainer}>
           <div className={styles.questionHeader}>
             <h3>Question {index + 1}</h3>
             <div className={styles.questionActions}>
@@ -654,7 +657,7 @@ const AddQuestionLibrary = () => {
             </div>
 
             {question.options.map((option) => (
-              <div key={option.id} className={styles.optionItem}>
+              <div key={`${formKey}-option-${question.id}-${option.id}`} className={styles.optionItem}>
                 <div
                   className={`${styles.optionContent} ${
                     option.isCorrect ? styles.correctOption : ""
@@ -751,14 +754,14 @@ const AddQuestionLibrary = () => {
       {/* Success Modal */}
       {showSuccessModal && (
         <SuccessModal
-          message={successMessage}
+          message="Questions saved successfully!"
           onClose={() => setShowSuccessModal(false)}
         />
       )}
 
       {isBulkUploadModelOpen && (
         <BulkUploadQuestionLibrary 
-          isOpen={openModal}
+          isOpen={isBulkUploadModelOpen}
           onClose={closeModal}
           onUploadSuccess={handleUploadSuccess}
         />
