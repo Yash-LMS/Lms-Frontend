@@ -8,8 +8,12 @@ import "react-quill/dist/quill.snow.css";
 import {
   VIEW_QUESTION_ALL_CATEGORY_URL,
   ADD_QUESTION_Library_URL,
+  VIEW_QUESTION_ALL_SUB_CATEGORY_URL,
 } from "../../constants/apiConstants";
 import BulkUploadQuestionLibrary from "./BulkUploadQuestionLibrary";
+
+// Add the subcategory API constant
+const DISTINCT_SUBCATEGORY_URL = "/find/distinct/question/subcategory";
 
 const AddQuestionLibrary = () => {
   const quillRef = useRef(null);
@@ -19,7 +23,9 @@ const AddQuestionLibrary = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const[isBulkUploadModelOpen,setIsBulkUploadModelOpen]=useState(false);
+  const [subcategories, setSubcategories] = useState([]);
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [isBulkUploadModelOpen, setIsBulkUploadModelOpen] = useState(false);
 
   const [questions, setQuestions] = useState([
     {
@@ -28,7 +34,6 @@ const AddQuestionLibrary = () => {
       questionType: "single_choice",
       difficultyLevel: "medium",
       marks: 1,
-      category: "",
       options: [
         { id: "option1", text: "", isCorrect: false },
         { id: "option2", text: "", isCorrect: false },
@@ -68,7 +73,6 @@ const AddQuestionLibrary = () => {
     "link",
   ];
 
-
   const openModal = () => {
     setIsBulkUploadModelOpen(true);
   };
@@ -88,6 +92,16 @@ const AddQuestionLibrary = () => {
     fetchCategories();
   }, []);
 
+  // Fetch subcategories when category changes
+  useEffect(() => {
+    if (selectedCategory) {
+      fetchSubcategories(selectedCategory);
+    } else {
+      setSubcategories([]);
+      setSelectedSubcategory("");
+    }
+  }, [selectedCategory]);
+
   const fetchCategories = async () => {
     try {
       const { token } = getUserData();
@@ -101,6 +115,23 @@ const AddQuestionLibrary = () => {
     } catch (error) {
       console.error("Error fetching categories:", error);
       setError("Failed to load categories. Please try again.");
+    }
+  };
+
+  const fetchSubcategories = async (category) => {
+    try {
+      const { token } = getUserData();
+      const response = await axios.get(`${VIEW_QUESTION_ALL_SUB_CATEGORY_URL}`, {
+        params: { category },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data && response.data.response === "success") {
+        setSubcategories(response.data.payload || []);
+      }
+    } catch (error) {
+      console.error("Error fetching subcategories:", error);
+      setError("Failed to load subcategories. Please try again.");
     }
   };
 
@@ -157,12 +188,6 @@ const AddQuestionLibrary = () => {
       questions.map((q) =>
         q.id === questionId ? { ...q, difficultyLevel: difficulty } : q
       )
-    );
-  };
-
-  const handleCategoryChange = (questionId, category) => {
-    setQuestions(
-      questions.map((q) => (q.id === questionId ? { ...q, category } : q))
     );
   };
 
@@ -276,7 +301,6 @@ const AddQuestionLibrary = () => {
       questionType: "single_choice",
       difficultyLevel: "medium",
       marks: 1,
-      category: selectedCategory,
       options: [
         { id: "option1", text: "", isCorrect: false },
         { id: "option2", text: "", isCorrect: false },
@@ -296,38 +320,18 @@ const AddQuestionLibrary = () => {
     setQuestions(questions.filter((q) => q.id !== questionId));
   };
 
-  const validateQuestion = (question) => {
-    // Check if there's any content (including HTML tags)
-    const hasContent =
-      question.description.trim() !== "" &&
-      question.description !== "<p><br></p>" &&
-      question.description !== "<p></p>";
-
-    if (!hasContent) {
-      setErrorMessage(`Question text is required`);
-      return false;
-    }
-
-    if (!question.options.some((opt) => opt.isCorrect)) {
-      setErrorMessage(`At least one correct answer must be selected`);
-      return false;
-    }
-
-    const emptyOptions = question.options.some((opt) => !opt.text.trim());
-    if (emptyOptions) {
-      setErrorMessage(`All options must have text`);
-      return false;
-    }
-
-    if (!question.category) {
-      setErrorMessage(`Category is required`);
-      return false;
-    }
-
-    return true;
-  };
-
   const validateQuestions = () => {
+    // First check if category and subcategory are selected
+    if (!selectedCategory) {
+      setErrorMessage("A category must be selected");
+      return false;
+    }
+
+    if (!selectedSubcategory) {
+      setErrorMessage("A subcategory must be selected");
+      return false;
+    }
+
     for (const question of questions) {
       // Check if there's any content (including HTML tags)
       const hasContent =
@@ -362,13 +366,6 @@ const AddQuestionLibrary = () => {
         );
         return false;
       }
-
-      if (!question.category) {
-        setErrorMessage(
-          `Question ${questions.indexOf(question) + 1}: Category is required`
-        );
-        return false;
-      }
     }
 
     return true;
@@ -392,7 +389,8 @@ const AddQuestionLibrary = () => {
       questionType: question.questionType,
       difficultyLevel: question.difficultyLevel,
       marks: question.marks,
-      category: question.category,
+      category: selectedCategory,
+      subcategory: selectedSubcategory,
       ...optionFields,
       correctOption: correctOptions,
     };
@@ -422,7 +420,8 @@ const AddQuestionLibrary = () => {
     const requestBody = {
       user,
       token,
-      category: selectedCategory || questions[0].category,
+      category: selectedCategory,
+      subcategory: selectedSubcategory,
       questionsLibraryList: questionList,
     };
 
@@ -447,7 +446,6 @@ const AddQuestionLibrary = () => {
             questionType: "single_choice",
             difficultyLevel: "medium",
             marks: 1,
-            category: selectedCategory,
             options: [
               { id: "option1", text: "", isCorrect: false },
               { id: "option2", text: "", isCorrect: false },
@@ -484,13 +482,13 @@ const AddQuestionLibrary = () => {
       <div className={styles.pageHeader}>
         <h2>Add Questions to Library</h2>
         <div className={styles.backNavigation}>
-        <button 
-          className={styles.uploadButton}
-          onClick={openModal}
-        >
-          Bulk Upload Questions
-        </button>
-        
+          <button 
+            className={styles.uploadButton}
+            onClick={openModal}
+          >
+            Bulk Upload Questions
+          </button>
+          
           <button
             className={styles.backButton}
             onClick={() => navigate("/instructor-dashboard")}
@@ -509,25 +507,38 @@ const AddQuestionLibrary = () => {
       {error && <div className={styles.errorMessage}>{error}</div>}
 
       <div className={styles.globalCategorySelector}>
-        <label>Select Global Category</label>
-        <select
-          value={selectedCategory}
-          onChange={(e) => {
-            setSelectedCategory(e.target.value);
-            // Update all questions to use this category
-            setQuestions(
-              questions.map((q) => ({ ...q, category: e.target.value }))
-            );
-          }}
-          className={styles.selectInput}
-        >
-          <option value="">Select a category</option>
-          {categories.map((category, idx) => (
-            <option key={idx} value={category}>
-              {category}
-            </option>
-          ))}
-        </select>
+        <div className={styles.formGroup}>
+          <label>Select Global Category</label>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className={styles.selectInput}
+          >
+            <option value="">Select a category</option>
+            {categories.map((category, idx) => (
+              <option key={idx} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>Select Global Subcategory</label>
+          <select
+            value={selectedSubcategory}
+            onChange={(e) => setSelectedSubcategory(e.target.value)}
+            className={styles.selectInput}
+            disabled={!selectedCategory || subcategories.length === 0}
+          >
+            <option value="">Select a subcategory</option>
+            {subcategories.map((subcategory, idx) => (
+              <option key={idx} value={subcategory}>
+                {subcategory}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {questions.map((question, index) => (
@@ -594,25 +605,6 @@ const AddQuestionLibrary = () => {
                 <option value="easy">Easy</option>
                 <option value="medium">Medium</option>
                 <option value="hard">Hard</option>
-              </select>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor={`category-${question.id}`}>Category</label>
-              <select
-                id={`category-${question.id}`}
-                value={question.category}
-                onChange={(e) =>
-                  handleCategoryChange(question.id, e.target.value)
-                }
-                className={styles.selectInput}
-              >
-                <option value="">Select a category</option>
-                {categories.map((category, idx) => (
-                  <option key={idx} value={category}>
-                    {category}
-                  </option>
-                ))}
               </select>
             </div>
           </div>
@@ -765,17 +757,13 @@ const AddQuestionLibrary = () => {
         />
       )}
 
-
-
-{isBulkUploadModelOpen && (
-          <BulkUploadQuestionLibrary 
+      {isBulkUploadModelOpen && (
+        <BulkUploadQuestionLibrary 
           isOpen={openModal}
           onClose={closeModal}
           onUploadSuccess={handleUploadSuccess}
         />
       )}
-
-   
     </div>
   );
 };
