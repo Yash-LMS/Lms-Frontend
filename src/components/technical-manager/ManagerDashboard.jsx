@@ -6,6 +6,7 @@ import styles from "./ManagerDashboard.module.css";
 import Sidebar from "./Sidebar";
 import CategoryPopup from "./CategoryPopup";
 import OfficePopup from "./OfficePopup";
+import AddOffice from "./AddOffice";
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
@@ -337,6 +338,7 @@ const ManagerDashboard = () => {
                 </label>
               ))}
             </div>
+            <AddOffice />
           </div>
           <div className={styles.headerRight}>
             <div className={styles.filterContainer}>
