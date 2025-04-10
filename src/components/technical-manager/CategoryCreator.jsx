@@ -26,19 +26,19 @@ const CategoryCreator = () => {
     }
   };
 
-  useEffect(() => {
-    // Fetch existing categories when component mounts
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get(`${VIEW_QUESTION_ALL_CATEGORY_URL}`);
-        
-        if (response.data.response === 'success') {
-          setExistingCategories(response.data.payload);
-        }
-      } catch (error) {
-        console.error('Error fetching categories:', error);
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${VIEW_QUESTION_ALL_CATEGORY_URL}`);
+      
+      if (response.data.response === 'success') {
+        setExistingCategories(response.data.payload);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  useEffect(() => {
 
     fetchCategories();
   }, []);
