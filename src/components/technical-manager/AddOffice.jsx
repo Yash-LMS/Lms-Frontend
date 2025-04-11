@@ -3,7 +3,6 @@ import styles from './AddOffice.module.css';
 import { ADD_OFFICE_URL } from '../../constants/apiConstants';
 import axios from 'axios';
 
-
 const AddOffice = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [office, setOffice] = useState({
@@ -14,8 +13,7 @@ const AddOffice = () => {
   });
   const [errors, setErrors] = useState({});
   const [submitMessage, setSubmitMessage] = useState({ type: '', message: '' });
-
-  
+  const [isLoading, setIsLoading] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
@@ -24,7 +22,6 @@ const AddOffice = () => {
     setErrors({});
     setSubmitMessage({ type: '', message: '' });
   };
-
 
   const getUserData = () => {
     try {
@@ -38,7 +35,6 @@ const AddOffice = () => {
       return { user: null, token: null, role: null };
     }
   };
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,13 +75,18 @@ const AddOffice = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-
-    const{user,token}=getUserData();
+    const { user, token } = getUserData();
+    
+    if (!user || !token) {
+      setSubmitMessage({ type: 'error', message: 'You must be logged in to add an office' });
+      return;
+    }
 
     if (!validateOfficeData()) {
       return;
     }
   
+    setIsLoading(true);
     try {
       const payload = {
         user,
@@ -99,20 +100,43 @@ const AddOffice = () => {
         }
       });
   
-  
       if (response.data.response === 'success') {
         setSubmitMessage({ type: 'success', message: response.data.message || 'Office added successfully!' });
         setTimeout(() => {
           closeModal();
         }, 2000);
       } else {
-        setSubmitMessage({ type: 'error', message: response.data.message || 'Failed to add office.' });
+        // Handle specific error cases if API returns them
+        if (response.data.error === 'office_exists') {
+          setSubmitMessage({ type: 'error', message: 'An office with this ID already exists.' });
+        } else {
+          setSubmitMessage({ type: 'error', message: response.data.message || 'Failed to add office.' });
+        }
       }
     } catch (error) {
-      setSubmitMessage({ type: 'error', message: 'An error occurred. Please try again.' });
       console.error('Error adding office:', error);
+      
+      // Handle specific HTTP error codes
+      if (error.response) {
+        if (error.response.status === 409) {
+          setSubmitMessage({ type: 'error', message: 'This office already exists in the system.' });
+        } else if (error.response.status === 401 || error.response.status === 403) {
+          setSubmitMessage({ type: 'error', message: 'You are not authorized to add offices.' });
+        } else {
+          setSubmitMessage({ type: 'error', message: error.response.data?.message || 'Server error. Please try again.' });
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        setSubmitMessage({ type: 'error', message: 'No response from server. Please check your connection.' });
+      } else {
+        // Something happened in setting up the request
+        setSubmitMessage({ type: 'error', message: 'An error occurred. Please try again.' });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
+
   return (
     <div className={styles.container}>
       <button 
@@ -148,6 +172,7 @@ const AddOffice = () => {
                   placeholder='Enter Office ID'
                   required
                   className={errors.officeId ? styles.inputError : ''}
+                  disabled={isLoading}
                 />
                 {errors.officeId && <span className={styles.errorText}>{errors.officeId}</span>}
               </div>
@@ -163,6 +188,7 @@ const AddOffice = () => {
                   placeholder='Enter Office Name'
                   required
                   className={errors.officeName ? styles.inputError : ''}
+                  disabled={isLoading}
                 />
                 {errors.officeName && <span className={styles.errorText}>{errors.officeName}</span>}
               </div>
@@ -177,6 +203,7 @@ const AddOffice = () => {
                   placeholder='Enter Address'
                   required
                   className={errors.address ? styles.inputError : ''}
+                  disabled={isLoading}
                 />
                 {errors.address && <span className={styles.errorText}>{errors.address}</span>}
               </div>
@@ -192,16 +219,26 @@ const AddOffice = () => {
                   placeholder='Enter City'  
                   required
                   className={errors.city ? styles.inputError : ''}
+                  disabled={isLoading}
                 />
                 {errors.city && <span className={styles.errorText}>{errors.city}</span>}
               </div>
               
               <div className={styles.formActions}>
-                <button type="button" className={styles.cancelBtn} onClick={closeModal}>
+                <button 
+                  type="button" 
+                  className={styles.cancelBtn} 
+                  onClick={closeModal}
+                  disabled={isLoading}
+                >
                   Cancel
                 </button>
-                <button onClick={handleSubmit} className={styles.submitBtn}>
-                  Add Office
+                <button 
+                  type="submit" 
+                  className={styles.submitBtn}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Adding...' : 'Add Office'}
                 </button>
               </div>
             </form>

@@ -4,8 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { findDashboardInformation } from "../../features/manager/managerActions";
 import styles from "./ManagerDashboard.module.css";
 import Sidebar from "./Sidebar";
-import CategoryPopup from "./CategoryPopup";
-import OfficePopup from "./OfficePopup";
 import AddOffice from "./AddOffice";
 import CategoryCreator from "./CategoryCreator";
 
@@ -21,8 +19,6 @@ const ManagerDashboard = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("course");
   const [viewMode, setViewMode] = useState("card"); // 'card' or 'table'
-  const [isCategoryPopupOpen, setIsCategoryPopupOpen] = useState(false);
-  const [isOfficePopupOpen, setIsOfficePopupOpen] = useState(false);
 
   // Status and type filter options
   const statusOptions = ["all", "approved", "pending", "rejected"];
@@ -137,12 +133,6 @@ const ManagerDashboard = () => {
   const handleTestPreviewClick = (testId) => {
     navigate(`/test/view/${testId}`);
   };
-
-  // Popup handlers
-  const openCategoryPopup = () => setIsCategoryPopupOpen(true);
-  const closeCategoryPopup = () => setIsCategoryPopupOpen(false);
-  const openOfficePopup = () => setIsOfficePopupOpen(true);
-  const closeOfficePopup = () => setIsOfficePopupOpen(false);
 
   // Render card view content
   const renderCardView = () => {

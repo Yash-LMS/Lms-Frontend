@@ -11,6 +11,8 @@ const CategoryCreator = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [inputMode, setInputMode] = useState('manual'); // 'manual' or 'import'
   const [message, setMessage] = useState({ show: false, type: '', text: '' });
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasCategories, setHasCategories] = useState(true);
 
   // Function to get user data from session storage
   const getUserData = () => {
@@ -27,6 +29,7 @@ const CategoryCreator = () => {
   };
 
   const fetchCategories = async () => {
+    setIsLoading(true);
     try {
       const response = await axios.get(`${VIEW_QUESTION_ALL_CATEGORY_URL}`);
       
@@ -34,24 +37,37 @@ const CategoryCreator = () => {
         // Process categories to get unique values (case-insensitive)
         const uniqueCategories = getUniqueCategories(response.data.payload);
         setExistingCategories(uniqueCategories);
+        setHasCategories(uniqueCategories.length > 0);
+      } else {
+        setHasCategories(false);
+        showMessage('error', 'Failed to load categories');
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
+      setHasCategories(false);
       showMessage('error', 'Failed to load categories');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Function to filter unique categories ignoring case
   const getUniqueCategories = (categoriesArray) => {
+    if (!Array.isArray(categoriesArray) || categoriesArray.length === 0) {
+      return [];
+    }
+    
     const uniqueMap = new Map();
     
     categoriesArray.forEach(category => {
-      const lowerCaseCategory = category.toLowerCase();
-      
-      // If this category (ignoring case) is not already in our map, add it
-      // We use the original case version as the value
-      if (!uniqueMap.has(lowerCaseCategory)) {
-        uniqueMap.set(lowerCaseCategory, category);
+      if (category) {
+        const lowerCaseCategory = category.toLowerCase();
+        
+        // If this category (ignoring case) is not already in our map, add it
+        // We use the original case version as the value
+        if (!uniqueMap.has(lowerCaseCategory)) {
+          uniqueMap.set(lowerCaseCategory, category);
+        }
       }
     });
     
@@ -76,6 +92,11 @@ const CategoryCreator = () => {
     setIsModalOpen(true);
     // Clear any previous messages when opening the modal
     setMessage({ show: false, type: '', text: '' });
+    
+    // If in import mode and no categories exist yet, switch to manual entry
+    if (inputMode === 'import' && !hasCategories) {
+      setInputMode('manual');
+    }
   };
 
   const handleCloseModal = () => {
@@ -113,6 +134,7 @@ const CategoryCreator = () => {
         return;
       }
 
+      setIsLoading(true);
       const response = await axios.post(`${CREATE_QUESTION_CATEGORY_URL}`, {
         category: categoryToSubmit,
         subCategory: subCategory,
@@ -126,22 +148,31 @@ const CategoryCreator = () => {
           handleCloseModal();
         }, 2000);
       } else {
-        showMessage('error', `Failed to add category: ${response.data.message}`);
+        showMessage('error', `Failed to add category: ${response.data.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error creating category:', error);
       showMessage('error', 'An error occurred while creating the category');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const toggleInputMode = (mode) => {
+    // If there are no categories and trying to switch to import mode, show a message
+    if (mode === 'import' && !hasCategories) {
+      showMessage('error', 'No categories available to import');
+      return;
+    }
+    
     setInputMode(mode);
     if (mode === 'manual') {
       setSelectedCategory('');
     } else {
       setCategory('');
+      // Refresh categories when switching to import mode
+      fetchCategories();
     }
-    fetchCategories();
   };
 
   return (
@@ -186,6 +217,7 @@ const CategoryCreator = () => {
                     type="button"
                     className={`${styles.toggleButton} ${inputMode === 'import' ? styles.active : ''}`}
                     onClick={() => toggleInputMode('import')}
+                    disabled={!hasCategories}
                   >
                     Import Category
                   </button>
@@ -207,20 +239,28 @@ const CategoryCreator = () => {
                 ) : (
                   <div className={styles.formGroup}>
                     <label htmlFor="existingCategory">Select Category:</label>
-                    <select
-                      id="existingCategory"
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                      className={styles.select}
-                      required
-                    >
-                      <option value="">-- Select a category --</option>
-                      {existingCategories.map((cat, index) => (
-                        <option key={index} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
+                    {isLoading ? (
+                      <div className={styles.loadingText}>Loading categories...</div>
+                    ) : !hasCategories ? (
+                      <div className={styles.noDataMessage}>
+                        No categories available. Please switch to manual entry.
+                      </div>
+                    ) : (
+                      <select
+                        id="existingCategory"
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className={styles.select}
+                        required
+                      >
+                        <option value="">-- Select a category --</option>
+                        {existingCategories.map((cat, index) => (
+                          <option key={index} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                 )}
 
@@ -248,8 +288,9 @@ const CategoryCreator = () => {
                   <button 
                     type="submit" 
                     className={styles.submitBtn}
+                    disabled={isLoading}
                   >
-                    Create
+                    {isLoading ? 'Creating...' : 'Create'}
                   </button>
                 </div>
               </form>
