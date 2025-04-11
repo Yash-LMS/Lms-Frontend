@@ -145,6 +145,8 @@ const AddOffice = () => {
                   name="officeId"
                   value={office.officeId}
                   onChange={handleChange}
+                  placeholder='Enter Office ID'
+                  required
                   className={errors.officeId ? styles.inputError : ''}
                 />
                 {errors.officeId && <span className={styles.errorText}>{errors.officeId}</span>}
@@ -158,6 +160,8 @@ const AddOffice = () => {
                   name="officeName"
                   value={office.officeName}
                   onChange={handleChange}
+                  placeholder='Enter Office Name'
+                  required
                   className={errors.officeName ? styles.inputError : ''}
                 />
                 {errors.officeName && <span className={styles.errorText}>{errors.officeName}</span>}
@@ -170,6 +174,8 @@ const AddOffice = () => {
                   name="address"
                   value={office.address}
                   onChange={handleChange}
+                  placeholder='Enter Address'
+                  required
                   className={errors.address ? styles.inputError : ''}
                 />
                 {errors.address && <span className={styles.errorText}>{errors.address}</span>}
@@ -183,16 +189,18 @@ const AddOffice = () => {
                   name="city"
                   value={office.city}
                   onChange={handleChange}
+                  placeholder='Enter City'  
+                  required
                   className={errors.city ? styles.inputError : ''}
                 />
                 {errors.city && <span className={styles.errorText}>{errors.city}</span>}
               </div>
               
               <div className={styles.formActions}>
-                <button type="button" className={styles.cancelButton} onClick={closeModal}>
+                <button type="button" className={styles.cancelBtn} onClick={closeModal}>
                   Cancel
                 </button>
-                <button onClick={handleSubmit} className={styles.submitButton}>
+                <button onClick={handleSubmit} className={styles.submitBtn}>
                   Add Office
                 </button>
               </div>

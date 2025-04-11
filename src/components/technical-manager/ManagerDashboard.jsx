@@ -339,8 +339,7 @@ const ManagerDashboard = () => {
                 </label>
               ))}
             </div>
-            <AddOffice />
-            <CategoryCreator />
+           
           </div>
           <div className={styles.headerRight}>
             <div className={styles.filterContainer}>
@@ -389,18 +388,8 @@ const ManagerDashboard = () => {
           </div>
           
           <div className={styles.actionButtons}>
-            <button 
-              className={styles.actionButton} 
-              onClick={openCategoryPopup}
-            >
-              Add Questions Category
-            </button>
-            <button 
-              className={styles.actionButton}
-              onClick={openOfficePopup}
-            >
-              Add Office
-            </button>
+          <AddOffice />
+          <CategoryCreator />
           </div>
         </div>
 
@@ -410,9 +399,6 @@ const ManagerDashboard = () => {
         {viewMode === "card" ? renderCardView() : renderTableView()}
       </main>
 
-      {/* Popup Components */}
-      <CategoryPopup isOpen={isCategoryPopupOpen} onClose={closeCategoryPopup} />
-      <OfficePopup isOpen={isOfficePopupOpen} onClose={closeOfficePopup} />
     </div>
   );
 };

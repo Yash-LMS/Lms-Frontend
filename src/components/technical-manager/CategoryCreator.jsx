@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
 import axios from 'axios';
 import styles from './CategoryCreator.module.css';
 import { VIEW_QUESTION_ALL_CATEGORY_URL, CREATE_QUESTION_CATEGORY_URL } from '../../constants/apiConstants';
@@ -11,6 +10,7 @@ const CategoryCreator = () => {
   const [existingCategories, setExistingCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [inputMode, setInputMode] = useState('manual'); // 'manual' or 'import'
+  const [message, setMessage] = useState({ show: false, type: '', text: '' });
 
   // Function to get user data from session storage
   const getUserData = () => {
@@ -31,20 +31,51 @@ const CategoryCreator = () => {
       const response = await axios.get(`${VIEW_QUESTION_ALL_CATEGORY_URL}`);
       
       if (response.data.response === 'success') {
-        setExistingCategories(response.data.payload);
+        // Process categories to get unique values (case-insensitive)
+        const uniqueCategories = getUniqueCategories(response.data.payload);
+        setExistingCategories(uniqueCategories);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
+      showMessage('error', 'Failed to load categories');
     }
   };
 
-  useEffect(() => {
+  // Function to filter unique categories ignoring case
+  const getUniqueCategories = (categoriesArray) => {
+    const uniqueMap = new Map();
+    
+    categoriesArray.forEach(category => {
+      const lowerCaseCategory = category.toLowerCase();
+      
+      // If this category (ignoring case) is not already in our map, add it
+      // We use the original case version as the value
+      if (!uniqueMap.has(lowerCaseCategory)) {
+        uniqueMap.set(lowerCaseCategory, category);
+      }
+    });
+    
+    // Return just the values (original case preserved)
+    return Array.from(uniqueMap.values());
+  };
 
+  useEffect(() => {
     fetchCategories();
   }, []);
 
+  const showMessage = (type, text) => {
+    setMessage({ show: true, type, text });
+    
+    // Auto-hide message after 5 seconds
+    setTimeout(() => {
+      setMessage({ show: false, type: '', text: '' });
+    }, 5000);
+  };
+
   const handleOpenModal = () => {
     setIsModalOpen(true);
+    // Clear any previous messages when opening the modal
+    setMessage({ show: false, type: '', text: '' });
   };
 
   const handleCloseModal = () => {
@@ -57,6 +88,7 @@ const CategoryCreator = () => {
     setSubCategory('');
     setSelectedCategory('');
     setInputMode('manual');
+    setMessage({ show: false, type: '', text: '' });
   };
 
   const handleSubmit = async (e) => {
@@ -68,7 +100,7 @@ const CategoryCreator = () => {
     }
     
     if (!categoryToSubmit || !subCategory) {
-      alert('Please fill in all required fields');
+      showMessage('error', 'Please fill in all required fields');
       return;
     }
 
@@ -77,7 +109,7 @@ const CategoryCreator = () => {
       const { user, token } = getUserData();
       
       if (!user || !token) {
-        alert('You must be logged in to create a category');
+        showMessage('error', 'You must be logged in to create a category');
         return;
       }
 
@@ -89,14 +121,16 @@ const CategoryCreator = () => {
       });
 
       if (response.data.response === 'success') {
-        alert('Category added successfully!');
-        handleCloseModal();
+        showMessage('success', 'Category added successfully!');
+        setTimeout(() => {
+          handleCloseModal();
+        }, 2000);
       } else {
-        alert(`Failed to add category: ${response.data.message}`);
+        showMessage('error', `Failed to add category: ${response.data.message}`);
       }
     } catch (error) {
       console.error('Error creating category:', error);
-      alert('An error occurred while creating the category');
+      showMessage('error', 'An error occurred while creating the category');
     }
   };
 
@@ -107,6 +141,7 @@ const CategoryCreator = () => {
     } else {
       setCategory('');
     }
+    fetchCategories();
   };
 
   return (
@@ -115,7 +150,7 @@ const CategoryCreator = () => {
         className={styles.createButton}
         onClick={handleOpenModal}
       >
-        Create Category
+        Create Question Category
       </button>
 
       {isModalOpen && (
@@ -127,11 +162,17 @@ const CategoryCreator = () => {
                 className={styles.closeButton} 
                 onClick={handleCloseModal}
               >
-                <X size={20} />
+                ×
               </button>
             </div>
             
             <div className={styles.modalBody}>
+              {message.show && (
+                <div className={`${styles.message} ${styles[message.type]}`}>
+                  {message.text}
+                </div>
+              )}
+              
               <form onSubmit={handleSubmit}>
                 <div className={styles.inputTypeToggle}>
                   <button 
@@ -199,14 +240,14 @@ const CategoryCreator = () => {
                 <div className={styles.buttonGroup}>
                   <button 
                     type="button" 
-                    className={styles.cancelButton} 
+                    className={styles.cancelBtn} 
                     onClick={handleCloseModal}
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit" 
-                    className={styles.submitButton}
+                    className={styles.submitBtn}
                   >
                     Create
                   </button>
