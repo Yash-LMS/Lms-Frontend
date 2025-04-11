@@ -283,6 +283,8 @@
 .tableContainer {
   width: 100%;
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 450px;
   background-color: var(--background-card);
   border-radius: 12px;
   border: 1px solid var(--border-color);

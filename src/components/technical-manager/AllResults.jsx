@@ -13,8 +13,13 @@ const AllResults = () => {
   const [filteredResults, setFilteredResults] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBy, setFilterBy] = useState("all");
-  const [filterValue, setFilterValue] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+
+  // Add sort state
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: 'ascending'
+  });
 
   const getUserData = () => {
     try {
@@ -37,27 +42,27 @@ const AllResults = () => {
     setIsLoading(true);
     try {
       const { user, token } = getUserData();
-  
+
       if (!user || !token) {
         console.error("User  or token is missing.");
         setIsLoading(false);
         return;
       }
-  
+
       const response = await axios.post(`${ALL_TRAINEE_RESULT}`, {
         user,
         token,
       });
-  
+
       console.log("API Response:", response.data); // Log the API response
-  
+
       if (response.data.response === "success") {
         // Calculate pass percentage for each result
         const resultsWithPassPercentage = response.data.payload.map((result) => {
           const passPercentage = calculatePassPercentage(result.score, result.totalMarks);
           return { ...result, passPercentage }; // Add passPercentage to each result
         });
-  
+
         setResults(resultsWithPassPercentage);
         setFilteredResults(resultsWithPassPercentage);
       } else {
@@ -72,7 +77,7 @@ const AllResults = () => {
 
   useEffect(() => {
     filterResults();
-  }, [searchTerm, filterBy, results]);
+  }, [searchTerm, filterBy, results, sortConfig]);
 
   const filterResults = () => {
     let filtered = [...results];
@@ -111,8 +116,48 @@ const AllResults = () => {
         break;
     }
 
+    // Apply column sorting if a sort configuration is set
+    if (sortConfig.key) {
+      filtered.sort((a, b) => {
+        // Handle numeric values
+        if (!isNaN(parseFloat(a[sortConfig.key])) && !isNaN(parseFloat(b[sortConfig.key]))) {
+          return sortConfig.direction === 'ascending'
+            ? parseFloat(a[sortConfig.key]) - parseFloat(b[sortConfig.key])
+            : parseFloat(b[sortConfig.key]) - parseFloat(a[sortConfig.key]);
+        }
+
+        // Handle string values
+        if ((a[sortConfig.key] || '').toString().toLowerCase() < (b[sortConfig.key] || '').toString().toLowerCase()) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if ((a[sortConfig.key] || '').toString().toLowerCase() > (b[sortConfig.key] || '').toString().toLowerCase()) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
     setFilteredResults(filtered);
   };
+
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortDirectionIcon = (name) => {
+      if (sortConfig.key !== name) {
+        return <span className={styles.sortIcon}>↕</span>;
+      }
+      return sortConfig.direction === "ascending" ? (
+        <span className={styles.sortIcon}>▲</span> // Up arrow
+      ) : (
+        <span className={styles.sortIcon}>▼</span>
+      ); // Down arrow
+    };
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -120,15 +165,6 @@ const AllResults = () => {
 
   const handleFilterByChange = (e) => {
     setFilterBy(e.target.value);
-    setFilterValue(""); // Reset filter value when filter type changes
-  };
-
-  const handleTraineeChange = (selectedOption) => {
-    setSelectedTrainee(selectedOption);
-    setSelectedEmailId(selectedOption?.value);
-    // Reset filters when a new trainee is selected
-    setSearchTerm("");
-    setFilterBy("all");
   };
 
   const calculatePassPercentage = (score, totalMarks) => {
@@ -159,15 +195,20 @@ const AllResults = () => {
   };
 
   const exportData = filteredResults.map((result) => {
-    const passPercentage = calculatePassPercentage(
-      result.score,
-      result.totalMarks
-    );
+    const passPercentage = calculatePassPercentage(result.score, result.totalMarks);
     return {
       ...result,
       passPercentage: `${passPercentage}%`, // Add pass percentage to each result
     };
   });
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0'); // Get day and pad with zero if needed
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Get month (0-indexed) and pad
+    const year = date.getFullYear(); // Get full year
+    return `${day}-${month}-${year}`; // Return formatted date
+  };
 
   return (
     <div className={styles.container}>
@@ -223,19 +264,51 @@ const AllResults = () => {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Allotment ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Test Name</th>
-                <th>Test Type</th>
-                <th>Course Name</th>
-                <th>Score</th>
-                <th>Total Marks</th>
-                <th>Pass %</th>
-                <th>Correct</th>
-                <th>Incorrect</th>
-                <th>Unattempted</th>
-                <th>Total</th>
+                <th onClick={() => requestSort('allotmentId')} className={styles.sortableHeader}>
+                  Allotment ID {getSortDirectionIcon('allotmentId')}
+                </th>
+                <th onClick={() => requestSort('name')} className={styles.sortableHeader}>
+                  Name {getSortDirectionIcon('name')}
+                </th>
+                <th onClick={() => requestSort('emailId')} className={styles.sortableHeader}>
+                  Email {getSortDirectionIcon('emailId')}
+                </ th>
+                <th onClick={() => requestSort('testName')} className={styles.sortableHeader}>
+                  Test Name {getSortDirectionIcon('testName')}
+                </th>
+                <th onClick={() => requestSort('testType')} className={styles.sortableHeader}>
+                  Test Type {getSortDirectionIcon('testType')}
+                </th>
+                <th onClick={() => requestSort('courseName')} className={styles.sortableHeader}>
+                  Course Name {getSortDirectionIcon('courseName')}
+                </th>
+                <th onClick={() => requestSort('score')} className={styles.sortableHeader}>
+                  Score {getSortDirectionIcon('score')}
+                </th>
+                <th onClick={() => requestSort('totalMarks')} className={styles.sortableHeader}>
+                  Total Marks {getSortDirectionIcon('totalMarks')}
+                </th>
+                <th onClick={() => requestSort('passPercentage')} className={styles.sortableHeader}>
+                  Pass % {getSortDirectionIcon('passPercentage')}
+                </th>
+                <th onClick={() => requestSort('correctAnswers')} className={styles.sortableHeader}>
+                  Correct {getSortDirectionIcon('correctAnswers')}
+                </th>
+                <th onClick={() => requestSort('incorrectAnswers')} className={styles.sortableHeader}>
+                  Incorrect {getSortDirectionIcon('incorrectAnswers')}
+                </th>
+                <th onClick={() => requestSort('questionSkipped')} className={styles.sortableHeader}>
+                  Unattempted {getSortDirectionIcon('questionSkipped')}
+                </th>
+                <th onClick={() => requestSort('totalQuestion')} className={styles.sortableHeader}>
+                  Total {getSortDirectionIcon('totalQuestion')}
+                </th>
+                <th onClick={() => requestSort('submissionDate')} className={styles.sortableHeader}>
+                  Submission Date {getSortDirectionIcon('submissionDate')}
+                </th>
+                <th onClick={() => requestSort('submissionTime')} className={styles.sortableHeader}>
+                  Submission Time {getSortDirectionIcon('submissionTime')}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -278,6 +351,8 @@ const AllResults = () => {
                       <td>{result.incorrectAnswers}</td>
                       <td>{result.questionSkipped}</td>
                       <td>{result.totalQuestion}</td>
+                      <td>{formatDate(result.submissionDate)}</td>
+                      <td>{result.submissionTime}</td>
                     </tr>
                   );
                 })
