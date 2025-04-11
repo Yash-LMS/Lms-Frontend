@@ -37,23 +37,29 @@ const AllResults = () => {
     setIsLoading(true);
     try {
       const { user, token } = getUserData();
-
+  
       if (!user || !token) {
         console.error("User  or token is missing.");
         setIsLoading(false);
         return;
       }
-
+  
       const response = await axios.post(`${ALL_TRAINEE_RESULT}`, {
         user,
         token,
       });
-
+  
       console.log("API Response:", response.data); // Log the API response
-
+  
       if (response.data.response === "success") {
-        setResults(response.data.payload);
-        setFilteredResults(response.data.payload);
+        // Calculate pass percentage for each result
+        const resultsWithPassPercentage = response.data.payload.map((result) => {
+          const passPercentage = calculatePassPercentage(result.score, result.totalMarks);
+          return { ...result, passPercentage }; // Add passPercentage to each result
+        });
+  
+        setResults(resultsWithPassPercentage);
+        setFilteredResults(resultsWithPassPercentage);
       } else {
         console.error("Failed to fetch results:", response.data.message);
       }
@@ -85,10 +91,10 @@ const AllResults = () => {
     // Apply filters based on selection
     switch (filterBy) {
       case "score_high_to_low":
-        filtered.sort((a, b) => b.score - a.score);
+        filtered.sort((a, b) => b.passPercentage - a.passPercentage);
         break;
       case "score_low_to_high":
-        filtered.sort((a, b) => a.score - b.score);
+        filtered.sort((a, b) => a.passPercentage - b.passPercentage);
         break;
       case "internal_tests":
         filtered = filtered.filter(
@@ -193,8 +199,8 @@ const AllResults = () => {
               className={styles.filterSelect}
             >
               <option value="all">All Results</option>
-              <option value="score_high_to_low">Score (High to Low)</option>
-              <option value="score_low_to_high">Score (Low to High)</option>
+              <option value="score_high_to_low">Percentage (High to Low)</option>
+              <option value="score_low_to_high">Percentage (Low to High)</option>
               <option value="internal_tests">Internal Tests</option>
               <option value="external_tests">External Tests</option>
             </select>
