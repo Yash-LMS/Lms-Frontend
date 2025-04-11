@@ -18,7 +18,7 @@
 .testList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 0.5rem;
+  gap: 1.2rem;
 }
 
 .testCard {

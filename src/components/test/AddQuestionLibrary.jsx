@@ -107,9 +107,30 @@ const AddQuestionLibrary = () => {
       const response = await axios.get(`${VIEW_QUESTION_ALL_CATEGORY_URL}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+  
       if (response.data && response.data.response === "success") {
-        setCategories(response.data.payload || []);
+        // Get the payload data
+        const categoriesData = response.data.payload || [];
+        
+        // Create a map to store unique categories in a case-insensitive manner
+        const uniqueCategoriesMap = new Map();
+        
+        // Process each category to ensure uniqueness
+        categoriesData.forEach(category => {
+          // Convert to lowercase for case-insensitive comparison
+          const lowerCaseCategory = category.toLowerCase();
+          
+          // Only add if not already in the map (keeping the original case)
+          if (!uniqueCategoriesMap.has(lowerCaseCategory)) {
+            uniqueCategoriesMap.set(lowerCaseCategory, category);
+          }
+        });
+        
+        // Convert the map values back to an array
+        const uniqueCategories = Array.from(uniqueCategoriesMap.values());
+        
+        // Set the unique categories to state
+        setCategories(uniqueCategories);
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
