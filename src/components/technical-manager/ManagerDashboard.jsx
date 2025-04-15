@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { findDashboardInformation } from "../../features/manager/managerActions";
+import {
+  findDashboardInformation,
+  findCoursesCount,
+  findTestsCount,
+  findEmployeesCount,
+} from "../../features/manager/managerActions";
 import styles from "./ManagerDashboard.module.css";
 import Sidebar from "./Sidebar";
 import AddOffice from "./AddOffice";
@@ -11,9 +16,17 @@ const ManagerDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [dashboardItems, setDashboardItems] = useState([]);
-  const { loading, error, dashboardInfo } = useSelector(
-    (state) => state.manager
-  );
+  const {
+    loading,
+    error,
+    dashboardInfo,
+    courseCount, // Use these from state
+    testCount, // Use these from state
+    employeeCount, // Use these from state
+  } = useSelector((state) => state.manager);
+
+  const controlsSectionRef = React.useRef(null);
+
   const [activeTab, setActiveTab] = useState("dashboard");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -40,7 +53,19 @@ const ManagerDashboard = () => {
 
   useEffect(() => {
     fetchDashboardInformation();
+    fetchCounts(); // Fetch counts when component mounts
   }, [dispatch]);
+
+  // New function to fetch all counts
+  const fetchCounts = async () => {
+    const { user, token } = getUserData();
+    if (user && token) {
+      // Dispatch all count actions
+      dispatch(findCoursesCount({ user, token }));
+      dispatch(findTestsCount({ user, token }));
+      dispatch(findEmployeesCount({ user, token }));
+    }
+  };
 
   const fetchDashboardInformation = () => {
     const { user, token } = getUserData();
@@ -132,6 +157,25 @@ const ManagerDashboard = () => {
 
   const handleTestPreviewClick = (testId) => {
     navigate(`/test/view/${testId}`);
+  };
+
+  const handleStatsCardClick = (type) => {
+    setTypeFilter(type);
+
+    // Wait for state update and DOM changes to complete
+    setTimeout(() => {
+      if (controlsSectionRef.current) {
+        const yOffset = -80; // Adjust this value to control scroll position (negative = less scrolling)
+        const element = controlsSectionRef.current;
+        const y =
+          element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+        window.scrollTo({
+          top: y,
+          behavior: "smooth",
+        });
+      }
+    }, 100);
   };
 
   // Render card view content
@@ -245,7 +289,9 @@ const ManagerDashboard = () => {
             <tr>
               <th>{typeFilter === "course" ? "Course Name" : "Test Name"}</th>
               <th>Instructor</th>
-              <th>{typeFilter === "course" ? "Total Hours" : "Duration (min)"}</th>
+              <th>
+                {typeFilter === "course" ? "Total Hours" : "Duration (min)"}
+              </th>
               <th>Status</th>
               {typeFilter === "course" && <th>Last Modified</th>}
               {typeFilter === "course" && <th>Modified Value</th>}
@@ -261,7 +307,9 @@ const ManagerDashboard = () => {
                   <td>{item.totalHours || item.duration}</td>
                   <td>
                     <span
-                      className={`${styles.tableStatus} ${getStatusClass(item)}`}
+                      className={`${styles.tableStatus} ${getStatusClass(
+                        item
+                      )}`}
                     >
                       {(item.courseStatus || item.testStatus)?.toUpperCase()}
                     </span>
@@ -292,7 +340,10 @@ const ManagerDashboard = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={typeFilter === "course" ? 7 : 5} className={styles.noItems}>
+                <td
+                  colSpan={typeFilter === "course" ? 7 : 5}
+                  className={styles.noItems}
+                >
                   No items found
                 </td>
               </tr>
@@ -329,7 +380,6 @@ const ManagerDashboard = () => {
                 </label>
               ))}
             </div>
-           
           </div>
           <div className={styles.headerRight}>
             <div className={styles.filterContainer}>
@@ -355,7 +405,35 @@ const ManagerDashboard = () => {
           </div>
         </header>
 
-        <div className={styles.controlsContainer}>
+        {/* Dashboard Stats Section with Click Navigation */}
+        <div className={styles.dashboardStats}>
+          <div
+            className={styles.statCard}
+            onClick={() => handleStatsCardClick("course")}
+            style={{ cursor: "pointer" }}
+          >
+            <div className={styles.statValue}>{courseCount || 0}</div>
+            <div className={styles.statLabel}>Total Courses</div>
+          </div>
+          <div
+            className={styles.statCard}
+            onClick={() => handleStatsCardClick("test")}
+            style={{ cursor: "pointer" }}
+          >
+            <div className={styles.statValue}>{testCount || 0}</div>
+            <div className={styles.statLabel}>Total Tests</div>
+          </div>
+          <div
+            className={styles.statCard}
+            onClick={() => navigate("/manager/employee")}
+            style={{ cursor: "pointer" }}
+          >
+            <div className={styles.statValue}>{employeeCount || 0}</div>
+            <div className={styles.statLabel}>Total Employees</div>
+          </div>
+        </div>
+
+        <div className={styles.controlsContainer} ref={controlsSectionRef}>
           <div className={styles.viewToggle}>
             <div className={styles.viewToggleLabel}>View Mode:</div>
             <div className={styles.viewModeOptions}>
@@ -376,10 +454,10 @@ const ManagerDashboard = () => {
               ))}
             </div>
           </div>
-          
+
           <div className={styles.actionButtons}>
-          <AddOffice />
-          <CategoryCreator />
+            <AddOffice />
+            <CategoryCreator />
           </div>
         </div>
 
@@ -388,7 +466,6 @@ const ManagerDashboard = () => {
 
         {viewMode === "card" ? renderCardView() : renderTableView()}
       </main>
-
     </div>
   );
 };

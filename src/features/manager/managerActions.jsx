@@ -5,7 +5,10 @@ import {
   APPROVE_COURSE_URL,
   REJECT_COURSE_URL,
   FIND_COURSE_URL, FIND_TRAINEE_URL, ALLOT_COURSE_URL, UPDATE_USER_ROLE_AND_STATUS_URL, FIND_EMPLOYEE_LIST_URL, APPROVE_TEST_URL, REJECT_TEST_URL, FIND_TEST_BY_STATUS_URL, VIEW_TRAINEE_ALLOTED_COURSE_URL,
-  FIND_DASHBOARD_INFORMATION_URL
+  FIND_DASHBOARD_INFORMATION_URL,
+  TEST_COUNT_URL,
+  EMPLOYEE_COUNT_URL,
+  COURSE_COUNT_URL
 } from "../../constants/apiConstants";
 
 export const findCoursesByStatus = createAsyncThunk(
@@ -241,6 +244,51 @@ export const findDashboardInformation = createAsyncThunk(
         token,
         filter,
         status,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const findCoursesCount = createAsyncThunk(
+  "manager/findCoursesCount",
+  async ({ user, token }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(COURSE_COUNT_URL, {
+        user,
+        token
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const findTestsCount = createAsyncThunk(
+  "manager/findTestsCount",
+  async ({ user, token }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(TEST_COUNT_URL, {
+        user,
+        token
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const findEmployeesCount = createAsyncThunk(
+  "manager/findEmployeesCount",
+  async ({ user, token }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(EMPLOYEE_COUNT_URL, {
+        user,
+        token
       });
       return response.data;
     } catch (error) {
