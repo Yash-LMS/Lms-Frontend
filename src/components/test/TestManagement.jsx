@@ -7,6 +7,7 @@ import SuccessModal from "../../assets/SuccessModal";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createTest, viewTest } from "../../features/test/testActions";
+import InstructorSidebar from "../instructor/InstructorSidebar";
 
 const TestManagement = () => {
   const dispatch = useDispatch();
@@ -141,64 +142,7 @@ const TestManagement = () => {
 
   return (
     <div className={styles.adminDashboard}>
-      {/* Sidebar Navigation */}
-      <aside className={styles.dashboardSidebar}>
-        <nav className={styles.sidebarNav}>
-          <ul>
-            <li
-              className={`${styles.navItem} ${
-                activeTab === "dashboard" ? styles.active : ""
-              }`}
-            >
-              <a
-                href="#dashboard"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveTab("dashboard");
-                  navigate("/instructor-dashboard");
-                }}
-              >
-                <i className="fas fa-tachometer-alt"></i>
-                Courses
-              </a>
-            </li>
-            <li
-              className={`${styles.navItem} ${
-                activeTab === "tests" ? styles.active : ""
-              }`}
-            >
-              <a
-                href="#tests"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveTab("tests");
-                  navigate("/instructor/view/test");
-                }}
-              >
-                <i className="fas fa-clipboard-list"></i>
-                Tests
-              </a>
-            </li>
-            <li
-              className={`${styles.navItem} ${
-                activeTab === "library" ? styles.active : ""
-              }`}
-            >
-              <a
-                href="#library"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveTab("library");
-                  navigate("/instructor/course/library");
-                }}
-              >
-                <i className="fas fa-users"></i>
-                Question Library
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </aside>
+     <InstructorSidebar activeTab={activeTab}/>
 
       {/* Main Content Area */}
       <main className={styles.mainContent}>
