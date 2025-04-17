@@ -262,7 +262,7 @@ const managerSlice = createSlice({
             .addCase(findDashboardInformation.fulfilled, (state, action) => {
                 state.loading = false;
                 if (action.payload.response === 'success') {
-                    console.log(action.payload.payload)
+                    console.log(action.payload)
                     state.dashboardInfo = action.payload.payload || []; // Store the dashboard information
                 } else {
                     state.error = action.payload.message || 'Failed to fetch dashboard information';
@@ -321,6 +321,7 @@ const managerSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload?.message || 'Failed to fetch courses';
             });
+           
     },
 });
 

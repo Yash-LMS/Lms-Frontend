@@ -3,6 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { REQUEST_BADGE_URL } from '../../constants/apiConstants'; // Import your API constant
 import styles from './Sidebar.module.css';
+// Import Font Awesome components
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faHouse, 
+  faClipboardList, 
+  faUsers,
+  faPenToSquare,
+  faBarsProgress,
+  faBell,
+  faEye
+} from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = ({ activeTab }) => {
   const navigate = useNavigate();
@@ -31,7 +42,7 @@ const Sidebar = ({ activeTab }) => {
       const { user, token } = getUserData(); 
 
       if (!user || !token) {
-        console.error("User  session data is missing.");
+        console.error("User session data is missing.");
         return;
       }
 
@@ -62,8 +73,8 @@ const Sidebar = ({ activeTab }) => {
               href="#dashboard"
               onClick={(e) => handleNavigation('/manager-dashboard', 'dashboard', e)}
             >
-              <i className="fas fa-tachometer-alt"></i>
-              Dashboard
+              <FontAwesomeIcon icon={faHouse} />
+              <span className={styles.navText}>Dashboard</span>
             </a>
           </li>
           <li className={`${styles.navItem} ${activeTab === "requests" ? styles.active : ""}`}>
@@ -71,10 +82,10 @@ const Sidebar = ({ activeTab }) => {
               href="#requests"
               onClick={(e) => handleNavigation('/manager/requests', 'requests', e)}
             >
-              <i className="fas fa-clipboard-list"></i>
-              Course Requests
+              <FontAwesomeIcon icon={faBell} />
+              <span className={styles.navText}>Course Requests</span>
               {courseBadgeCount > 0 && (
-                <span className={styles.badge}>{courseBadgeCount}</span> // Display course badge count
+                <span className={styles.badge}>{courseBadgeCount}</span>
               )}
             </a>
           </li>
@@ -84,10 +95,10 @@ const Sidebar = ({ activeTab }) => {
               onClick={(e) => handleNavigation('/manager/test/requests', 'testRequests', e)}
               className={styles.navButton}
             >
-              <i className="fas fa-clipboard-list"></i>
-              Test Requests
+              <FontAwesomeIcon icon={faBell} />
+              <span className={styles.navText}>Test Requests</span>
               {testBadgeCount > 0 && (
-                <span className={styles.badge}>{testBadgeCount}</span> // Display test badge count
+                <span className={styles.badge}>{testBadgeCount}</span>
               )}
             </a>
           </li>
@@ -96,8 +107,8 @@ const Sidebar = ({ activeTab }) => {
               href="#allotment"
               onClick={(e) => handleNavigation('/manager/allotment', 'allot', e)}
             >
-              <i className="fas fa-clipboard-list"></i>
-              Allotments
+              <FontAwesomeIcon icon={faPenToSquare} />
+              <span className={styles.navText}>Allotments</span>
             </a>
           </li>
 
@@ -106,8 +117,8 @@ const Sidebar = ({ activeTab }) => {
               href="#progress"
               onClick={(e) => handleNavigation('/manager/courseProgress', 'progress', e)}
             >
-              <i className="fas fa-users"></i>
-              User Course Progress
+              <FontAwesomeIcon icon={faBarsProgress} />
+              <span className={styles.navText}>User Course Progress</span>
             </a>
           </li>
 
@@ -116,8 +127,8 @@ const Sidebar = ({ activeTab }) => {
               href="#testResults"
               onClick={(e) => handleNavigation('/manager/result', 'results', e)}
             >
-              <i className="fas fa-clipboard-list"></i>
-              Results
+              <FontAwesomeIcon icon={faClipboardList} />
+              <span className={styles.navText}>Results</span>
             </a>
           </li>
 
@@ -126,8 +137,8 @@ const Sidebar = ({ activeTab }) => {
               href="#userAllotment"
               onClick={(e) => handleNavigation('/manager/allottedtest/user', 'alloted', e)}
             >
-              <i className="fas fa-clipboard-list"></i>
-              View Allotted Test
+              <FontAwesomeIcon icon={faEye} />
+              <span className={styles.navText}>View Allotted Test</span>
             </a>
           </li>
           
@@ -136,8 +147,8 @@ const Sidebar = ({ activeTab }) => {
               href="#employee"
               onClick={(e) => handleNavigation('/manager/employee', 'employee', e)}
             >
-              <i className="fas fa-clipboard-list"></i>
-              Employee Management
+              <FontAwesomeIcon icon={faUsers} />
+              <span className={styles.navText}>Employee Management</span>
             </a>
           </li>
         </ul>

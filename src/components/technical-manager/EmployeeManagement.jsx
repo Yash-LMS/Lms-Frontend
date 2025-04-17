@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
   findEmployeeList,
   updateUserRoleAndStatus,
+  findEmployeesCount,
 } from "../../features/manager/managerActions";
 import styles from "./EmployeeManagement.module.css";
 import Sidebar from "./Sidebar";
@@ -30,7 +31,7 @@ const EmployeeManagementPage = () => {
   };
 
   // Employee list from Redux state
-  const { users, loading: reduxLoading } = useSelector(
+  const { users, loading: reduxLoading, employeeCount } = useSelector(
     (state) => state.manager
   );
 
@@ -75,7 +76,16 @@ const EmployeeManagementPage = () => {
           setLoading(false);
         });
     }
+    fetchCounts();
   }, [dispatch, roleFilter, statusFilter]);
+
+  // New function to fetch count
+  const fetchCounts = async () => {
+    const { user, token } = getUserData();
+    if (user && token) {
+      dispatch(findEmployeesCount({ user, token }));
+    }
+  };
 
   // Handle role change - using emailId as the primary identifier
   const handleRoleChange = (emailId, newRole) => {
@@ -193,20 +203,22 @@ const EmployeeManagementPage = () => {
   };
 
   // Filter users based on search term
-  const filteredUsers = users && users.length > 0 
-    ? users.filter(user => {
-        const searchTermLower = searchTerm.toLowerCase();
-        const name = user.name || `${user.firstName || ""} ${user.lastName || ""}`;
-        
-        return (
-          name.toLowerCase().includes(searchTermLower) ||
-          user.emailId.toLowerCase().includes(searchTermLower) ||
-          user.officeId?.toLowerCase().includes(searchTermLower) ||
-          user.role.toLowerCase().includes(searchTermLower) ||
-          user.status?.toLowerCase().includes(searchTermLower) 
-        );
-      })
-    : [];
+  const filteredUsers =
+    users && users.length > 0
+      ? users.filter((user) => {
+          const searchTermLower = searchTerm.toLowerCase();
+          const name =
+            user.name || `${user.firstName || ""} ${user.lastName || ""}`;
+
+          return (
+            name.toLowerCase().includes(searchTermLower) ||
+            user.emailId.toLowerCase().includes(searchTermLower) ||
+            user.officeId?.toLowerCase().includes(searchTermLower) ||
+            user.role.toLowerCase().includes(searchTermLower) ||
+            user.status?.toLowerCase().includes(searchTermLower)
+          );
+        })
+      : [];
 
   const isLoading = reduxLoading || loading;
 
@@ -250,6 +262,13 @@ const EmployeeManagementPage = () => {
       <div className={styles.card}>
         <div className={styles.pageHeader}>
           <h1>Employee Management</h1>
+          <div className={styles.dashboardStats}>
+            <div
+              className={styles.statCard}>
+              <div className={styles.statValue}>{employeeCount || 0}</div>
+              <div className={styles.statLabel}>Total Employees</div>
+            </div>
+          </div>
           <div className={styles.searchField}>
             <input
               type="text"
@@ -259,7 +278,7 @@ const EmployeeManagementPage = () => {
               onChange={handleSearch}
             />
             {searchTerm && (
-              <button 
+              <button
                 className={styles.clearSearchButton}
                 onClick={clearSearch}
                 aria-label="Clear search"
@@ -312,7 +331,7 @@ const EmployeeManagementPage = () => {
 
         <div className={styles.headerActions}>
           <ExportToExcel
-            data={filteredUsers.length > 0 ? filteredUsers : users} 
+            data={filteredUsers.length > 0 ? filteredUsers : users}
             headers={excelHeaders}
             fileName="Employee-Management-Results"
             sheetName="Employees"
@@ -402,7 +421,7 @@ const EmployeeManagementPage = () => {
                   ) : (
                     <tr>
                       <td colSpan={6} className={styles.emptyMessage}>
-                        {searchTerm 
+                        {searchTerm
                           ? "No results found. Try a different search term."
                           : "No users found with the selected filters. Try changing your filters."}
                       </td>

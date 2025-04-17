@@ -11,18 +11,21 @@ import styles from "./ManagerDashboard.module.css";
 import Sidebar from "./Sidebar";
 import AddOffice from "./AddOffice";
 import CategoryCreator from "./CategoryCreator";
+import axios from "axios";
+import { FETCH_CATEGORIES_URL, DELETE_CATEGORY_URL } from "../../constants/apiConstants";
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [dashboardItems, setDashboardItems] = useState([]);
+  const [categoriesData, setCategoriesData] = useState([]); // Added for categories data
   const {
     loading,
     error,
     dashboardInfo,
-    courseCount, // Use these from state
-    testCount, // Use these from state
-    employeeCount, // Use these from state
+    courseCount,
+    testCount,
+    employeeCount,
   } = useSelector((state) => state.manager);
 
   const controlsSectionRef = React.useRef(null);
@@ -32,10 +35,14 @@ const ManagerDashboard = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("course");
   const [viewMode, setViewMode] = useState("card"); // 'card' or 'table'
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 4;
 
   // Status and type filter options
   const statusOptions = ["all", "approved", "pending", "rejected"];
-  const typeOptions = ["course", "test"];
+  const typeOptions = ["course", "test", "categories"]; // Added categories
   const viewOptions = ["card", "table"];
 
   const getUserData = () => {
@@ -52,9 +59,15 @@ const ManagerDashboard = () => {
   };
 
   useEffect(() => {
-    fetchDashboardInformation();
     fetchCounts(); // Fetch counts when component mounts
-  }, [dispatch]);
+    
+    if (typeFilter === "categories") {
+      fetchCategoriesData();
+      setViewMode("table");
+    } else {
+      fetchDashboardInformation();
+    }
+  }, [dispatch, typeFilter, statusFilter]);
 
   // New function to fetch all counts
   const fetchCounts = async () => {
@@ -64,6 +77,33 @@ const ManagerDashboard = () => {
       dispatch(findCoursesCount({ user, token }));
       dispatch(findTestsCount({ user, token }));
       dispatch(findEmployeesCount({ user, token }));
+    }
+  };
+
+  const fetchCategoriesData = async () => {
+    try {
+      const { user, token } = getUserData();
+  
+      if (!user || !token) {
+        console.error("User or token is missing.");
+        return;
+      }
+  
+      const response = await axios.post(`${FETCH_CATEGORIES_URL}`, {
+        user,
+        token,
+      });
+  
+      if (response.data.response === "success") {
+        setCategoriesData(response.data.payload); // Update local state with fetched categories
+        console.log("Categories loaded:", response.data.payload);
+      } else {
+        setCategoriesData([]); // Clear categories if the response is not successful
+        console.error("Failed to fetch categories or no data found.");
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setCategoriesData([]); // Clear categories in case of an error
     }
   };
 
@@ -80,6 +120,7 @@ const ManagerDashboard = () => {
       ).then((action) => {
         if (action.payload && Array.isArray(action.payload.payload)) {
           setDashboardItems(action.payload.payload);
+          setCurrentPage(1); // Reset to first page when fetching new data
         } else {
           console.error("Unexpected response format:", action.payload);
         }
@@ -108,6 +149,14 @@ const ManagerDashboard = () => {
 
   // Filter items based on search term and filters
   const getFilteredItems = () => {
+    if (typeFilter === "categories") {
+      // Filter categories data
+      return categoriesData.filter(item => {
+        return item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+               item.subCategory.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+    }
+
     if (!dashboardItems) return [];
 
     return dashboardItems.filter((item) => {
@@ -130,20 +179,50 @@ const ManagerDashboard = () => {
 
   // Get filtered items
   const filteredItems = getFilteredItems();
+  
+  // Calculate pagination
+  const indexOfLastItem = currentPage * cardsPerPage;
+  const indexOfFirstItem = indexOfLastItem - cardsPerPage;
+  const currentItems = typeFilter !== "categories" 
+    ? filteredItems.slice(indexOfFirstItem, indexOfLastItem)
+    : filteredItems; // Don't paginate categories
+  const totalPages = Math.ceil(filteredItems.length / cardsPerPage);
+
+  // Pagination handlers
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   // Handle search input change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   // Handle status filter change
   const handleStatusFilterChange = (e) => {
     setStatusFilter(e.target.value);
+    setCurrentPage(1); // Reset to first page when filtering
   };
 
   // Handle type filter change
   const handleTypeFilterChange = (e) => {
-    setTypeFilter(e.target.value);
+    const newType = e.target.value;
+    setTypeFilter(newType);
+    setCurrentPage(1); // Reset to first page when changing type
+    
+    // Force table view when categories is selected
+    if (newType === "categories") {
+      setViewMode("table");
+    }
   };
 
   // Handle view mode change
@@ -157,6 +236,35 @@ const ManagerDashboard = () => {
 
   const handleTestPreviewClick = (testId) => {
     navigate(`/test/view/${testId}`);
+  };
+
+  const handleDeleteCategory = async (categoryId) => {
+    try {
+      const { user, token } = getUserData();
+      
+      if (!user || !token) {
+        console.error("User or token is missing.");
+        return;
+      }
+      
+      const response = await axios.post(`${ DELETE_CATEGORY_URL}`, {
+        user,
+        token,
+        categoryId
+      });
+      
+      if (response.data.response === "success") {
+        // Refresh the categories list after successful deletion
+        fetchCategoriesData();
+        console.log("Category deleted successfully");
+      } else {
+        console.error("Failed to delete category:", response.data.message);
+        alert("Failed to delete category: " + response.data.message);
+      }
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      alert("Error deleting category. Please try again.");
+    }
   };
 
   const handleStatsCardClick = (type) => {
@@ -178,110 +286,179 @@ const ManagerDashboard = () => {
     }, 100);
   };
 
-  // Render card view content
+  // Render card view content with pagination
   const renderCardView = () => {
     return (
-      <div className={styles.courseRequests}>
-        {Array.isArray(filteredItems) && filteredItems.length > 0 ? (
-          filteredItems.map((item) => (
-            <div
-              key={item.courseId || item.testId}
-              className={styles.courseCard}
+      <>
+        <div className={styles.courseRequests}>
+          {Array.isArray(currentItems) && currentItems.length > 0 ? (
+            currentItems.map((item) => (
+              <div
+                key={item.courseId || item.testId}
+                className={styles.courseCard}
+              >
+                {/* Course Item */}
+                {item.courseName && (
+                  <>
+                    <div className={styles.courseHeader}>
+                      <h2 className={styles.courseName}>{item.courseName}</h2>
+                      <span
+                        className={`${styles.courseStatus} ${getStatusClass(
+                          item
+                        )}`}
+                      >
+                        {item.courseStatus.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className={styles.courseDetails}>
+                      <p>
+                        <strong>Instructor:</strong> {item.instructor}
+                      </p>
+                      <p>
+                        <strong>Total Hours:</strong> {item.totalHours}
+                      </p>
+                      <p>
+                        <strong>Course Status:</strong>{" "}
+                        {item.courseStatus.toUpperCase()}
+                      </p>
+
+                      {item.lastModifiedDate && item.lastModifiedTime && (
+                        <p>
+                          <strong>Last Modified:</strong>{" "}
+                          {`${item.lastModifiedDate}, ${item.lastModifiedTime}`}
+                        </p>
+                      )}
+                      {item.modifiedValue && (
+                        <p>
+                          <strong>Modified Value:</strong> {item.modifiedValue}
+                        </p>
+                      )}
+
+                      <button
+                        className={`${styles.btn} ${styles.btnPreview}`}
+                        onClick={() =>
+                          handleCoursePreviewClick(item.courseId || item.id)
+                        }
+                      >
+                        Preview
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* Test Item */}
+                {item.testName && (
+                  <>
+                    <div className={styles.courseHeader}>
+                      <h2 className={styles.courseName}>{item.testName}</h2>
+                      <span
+                        className={`${styles.courseStatus} ${getStatusClass(
+                          item
+                        )}`}
+                      >
+                        {item.testStatus.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className={styles.courseDetails}>
+                      <p>
+                        <strong>Instructor:</strong> {item.instructorName}
+                      </p>
+                      <p>
+                        <strong>Duration (in min):</strong> {item.duration}
+                      </p>
+                      <p>
+                        <strong>Test Status:</strong>{" "}
+                        {item.testStatus?.toUpperCase()}
+                      </p>
+
+                      <button
+                        className={styles.btnPreview}
+                        onClick={() => handleTestPreviewClick(item.testId)}
+                      >
+                        Preview
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className={styles.noCourses}>No items found</p>
+          )}
+        </div>
+        
+        {/* Pagination Controls */}
+        {filteredItems.length > 0 && typeFilter !== "categories" && (
+          <div className={styles.paginationControls}>
+            <button 
+              className={styles.paginationButton} 
+              onClick={prevPage} 
+              disabled={currentPage === 1}
             >
-              {/* Course Item */}
-              {item.courseName && (
-                <>
-                  <div className={styles.courseHeader}>
-                    <h2 className={styles.courseName}>{item.courseName}</h2>
-                    <span
-                      className={`${styles.courseStatus} ${getStatusClass(
-                        item
-                      )}`}
-                    >
-                      {item.courseStatus.toUpperCase()}
-                    </span>
-                  </div>
-                  <div className={styles.courseDetails}>
-                    <p>
-                      <strong>Instructor:</strong> {item.instructor}
-                    </p>
-                    <p>
-                      <strong>Total Hours:</strong> {item.totalHours}
-                    </p>
-                    <p>
-                      <strong>Course Status:</strong>{" "}
-                      {item.courseStatus.toUpperCase()}
-                    </p>
-
-                    {item.lastModifiedDate && item.lastModifiedTime && (
-                      <p>
-                        <strong>Last Modified:</strong>{" "}
-                        {`${item.lastModifiedDate}, ${item.lastModifiedTime}`}
-                      </p>
-                    )}
-                    {item.modifiedValue && (
-                      <p>
-                        <strong>Modified Value:</strong> {item.modifiedValue}
-                      </p>
-                    )}
-
-                    <button
-                      className={`${styles.btn} ${styles.btnPreview}`}
-                      onClick={() =>
-                        handleCoursePreviewClick(item.courseId || item.id)
-                      }
-                    >
-                      Preview
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {/* Test Item */}
-              {item.testName && (
-                <>
-                  <div className={styles.courseHeader}>
-                    <h2 className={styles.courseName}>{item.testName}</h2>
-                    <span
-                      className={`${styles.courseStatus} ${getStatusClass(
-                        item
-                      )}`}
-                    >
-                      {item.testStatus.toUpperCase()}
-                    </span>
-                  </div>
-                  <div className={styles.courseDetails}>
-                    <p>
-                      <strong>Instructor:</strong> {item.instructorName}
-                    </p>
-                    <p>
-                      <strong>Duration (in min):</strong> {item.duration}
-                    </p>
-                    <p>
-                      <strong>Test Status:</strong>{" "}
-                      {item.testStatus?.toUpperCase()}
-                    </p>
-
-                    <button
-                      className={styles.btnPreview}
-                      onClick={() => handleTestPreviewClick(item.testId)}
-                    >
-                      Preview
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          ))
-        ) : (
-          <p className={styles.noCourses}>No items found</p>
+              Previous
+            </button>
+            <span className={styles.pageIndicator}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button 
+              className={styles.paginationButton} 
+              onClick={nextPage} 
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
         )}
-      </div>
+      </>
     );
   };
 
   // Render table view content
   const renderTableView = () => {
+    if (typeFilter === "categories") {
+      return (
+        <div className={styles.tableContainer}>
+          <table className={styles.itemsTable}>
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Sub-Category</th>
+                <th>Actions</th> {/* Add this new column */}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(filteredItems) && filteredItems.length > 0 ? (
+                filteredItems.map((item, index) => (
+                  <tr key={`category-${index}`}>
+                    <td>{item.category}</td>
+                    <td>{item.subCategory}</td>
+                    <td>
+                      <button
+                        className={styles.deleteButton}
+                        onClick={() => {
+                          if (window.confirm("Are you sure you want to delete this category and its subcategory?")) {
+                            handleDeleteCategory(item.categoryId);
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={3} className={styles.noItems}> {/* Update colspan to 3 */}
+                    No categories found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
     return (
       <div className={styles.tableContainer}>
         <table className={styles.itemsTable}>
@@ -385,22 +562,24 @@ const ManagerDashboard = () => {
             <div className={styles.filterContainer}>
               <input
                 type="search"
-                placeholder="Search items..."
+                placeholder={`Search ${typeFilter}...`}
                 className={styles.searchInput}
                 value={searchTerm}
                 onChange={handleSearchChange}
               />
-              <select
-                className={styles.filterSelect}
-                value={statusFilter}
-                onChange={handleStatusFilterChange}
-              >
-                {statusOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </option>
-                ))}
-              </select>
+              {typeFilter !== "categories" && (
+                <select
+                  className={styles.filterSelect}
+                  value={statusFilter}
+                  onChange={handleStatusFilterChange}
+                >
+                  {statusOptions.map((status) => (
+                    <option key={status} value={status}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
         </header>
@@ -434,37 +613,42 @@ const ManagerDashboard = () => {
         </div>
 
         <div className={styles.controlsContainer} ref={controlsSectionRef}>
-          <div className={styles.viewToggle}>
-            <div className={styles.viewToggleLabel}>View Mode:</div>
-            <div className={styles.viewModeOptions}>
-              {viewOptions.map((option) => (
-                <label key={option} className={styles.radioLabel}>
-                  <input
-                    type="radio"
-                    name="viewMode"
-                    value={option}
-                    checked={viewMode === option}
-                    onChange={handleViewModeChange}
-                    className={styles.radioFilter}
-                  />
-                  <span className={styles.radioText}>
-                    {option.charAt(0).toUpperCase() + option.slice(1)} View
-                  </span>
-                </label>
-              ))}
+          {typeFilter !== "categories" && (
+            <div className={styles.viewToggle}>
+              <div className={styles.viewToggleLabel}>View Mode:</div>
+              <div className={styles.viewModeOptions}>
+                {viewOptions.map((option) => (
+                  <label key={option} className={styles.radioLabel}>
+                    <input
+                      type="radio"
+                      name="viewMode"
+                      value={option}
+                      checked={viewMode === option}
+                      onChange={handleViewModeChange}
+                      className={styles.radioFilter}
+                      disabled={typeFilter === "categories" && option === "card"}
+                    />
+                    <span className={styles.radioText}>
+                      {option.charAt(0).toUpperCase() + option.slice(1)} View
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className={styles.actionButtons}>
             <AddOffice />
-            <CategoryCreator />
+            <CategoryCreator
+               fetchAllCategories={fetchCategoriesData} 
+            />
           </div>
         </div>
 
         {loading && <p>Loading...</p>}
         {error && <p className={styles.error}>{error}</p>}
 
-        {viewMode === "card" ? renderCardView() : renderTableView()}
+        {typeFilter === "categories" || viewMode === "table" ? renderTableView() : renderCardView()}
       </main>
     </div>
   );
