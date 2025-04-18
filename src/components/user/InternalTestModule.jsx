@@ -587,6 +587,10 @@ const InternalTestModule = () => {
   if (loading && !testInformation) return <div className={styles.loading}>Loading test...</div>;
   if (error) return <div className={styles.error}>{error}</div>;
 
+  const userData = getUserData();
+  const userFirstName = userData?.user?.firstName || "User";
+  const userLastName = userData?.user?.LastName || "Name";
+
   // If test details loaded but test not started yet, show start screen
   if (!isTestStarted && testInformation) {
     return (
@@ -701,6 +705,7 @@ const InternalTestModule = () => {
           <div className={styles.testHeader}>
             <h2>{testDetails.testName}</h2>
             <div className={styles.testInfo}>
+              <div className={styles.infoItem}>Name: {userFirstName} {userLastName}</div>
               <div className={styles.infoItem}>Type: MCQ</div>
               <div className={styles.infoItem}>Question: {totalQuestions}</div>
               <div className={styles.infoItem}>Marks: {totalQuestions}</div>
