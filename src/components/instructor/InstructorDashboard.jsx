@@ -9,6 +9,8 @@ import SuccessModal from '../../assets/SuccessModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewCourse, viewCourse, editCourseDetail } from '../../features/course/courseActions';
 import InstructorSidebar from './InstructorSidebar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const InstructorDashboard = () => {
   const dispatch = useDispatch();
@@ -186,7 +188,8 @@ const InstructorDashboard = () => {
               className={styles.addCourseBtn}
               onClick={() => setShowAddCourse(true)}
             >
-              Create New Course
+              <FontAwesomeIcon icon={faPlus} />
+              <span style={{marginLeft:'5px'}}>Create Course</span>
             </button>
           </div>
           <div className={styles.headerRight}>

@@ -1,4 +1,3 @@
-// TestList.jsx - Updated with Import Questions Modal
 import React, { useState } from "react";
 import styles from "./TestList.module.css";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +5,8 @@ import QuestionModal from "./QuestionModal";
 import BulkUploadQuestionModal from "./BulkUploadQuestionModal";
 import QuestionViewerModal from "./QuestionRandomModal";
 import QuestionCategoryImport from "./QuestionCategoryImport";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faPlus, faDownload, faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons";
 
 const TestList = ({
   tests,
@@ -132,19 +133,22 @@ const TestList = ({
                   className={styles.previewButton}
                   onClick={() => handlePreviewClick(test.testId)}
                 >
-                  Preview
+                  <FontAwesomeIcon icon={faEye} />
+                  <span style={{marginLeft:'5px'}}>Preview</span>
                 </button>
                 <button
                   className={styles.addQuestionsButton}
                   onClick={() => handleOpenQuestionModal(test)}
                 >
-                  Add Single Question
+                  <FontAwesomeIcon icon={faPlus} />
+                  <span style={{marginLeft:'5px'}}>Add Single Question</span>
                 </button>
                 <button
                   className={styles.uploadButton}
                   onClick={() => handleOpenBulkUploadModal(test)}
                 >
-                  Bulk Upload
+                  <FontAwesomeIcon icon={faArrowUpFromBracket} />
+                  <span style={{marginLeft:'5px'}}>Bulk Upload</span>
                 </button>
               </div>
               <div className={styles.questionActionButtons}>
@@ -152,13 +156,15 @@ const TestList = ({
                 className={styles.importButton}
                 onClick={() => handleOpenImportRandomModal(test)}
               >
-                Import Random Questions
+                <FontAwesomeIcon icon={faDownload} />
+                <span style={{marginLeft:'5px'}}>Import Random Questions</span>
               </button>
               <button
                 className={styles.importButton}
                 onClick={() => handleOpenImportAllModal(test)}
               >
-                Import All Questions
+                <FontAwesomeIcon icon={faDownload} />
+                <span style={{marginLeft:'5px'}}>Import All Questions</span>
               </button>
               </div>
             </div>

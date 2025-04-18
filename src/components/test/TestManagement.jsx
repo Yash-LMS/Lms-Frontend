@@ -8,6 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createTest, viewTest } from "../../features/test/testActions";
 import InstructorSidebar from "../instructor/InstructorSidebar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 const TestManagement = () => {
   const dispatch = useDispatch();
@@ -153,7 +155,8 @@ const TestManagement = () => {
               className={styles.addTestBtn}
               onClick={() => setShowAddTest(true)}
             >
-              Create New Test
+              <FontAwesomeIcon icon={faPlus} />
+              <span style={{marginLeft:'5px'}}>Create New Test</span>
             </button>
           </div>
           <div className={styles.headerRight}>
