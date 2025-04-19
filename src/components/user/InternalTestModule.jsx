@@ -354,7 +354,7 @@ const InternalTestModule = () => {
         setShowShortcutWarning(true);
       }
   
-      // Detect Alt key press (best-effort Alt+Tab prevention)
+      // Detect Alt key press
       if (e.key === "Alt") {
         e.preventDefault();
         setShowShortcutWarning(true);
