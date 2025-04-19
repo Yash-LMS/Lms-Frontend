@@ -17,16 +17,28 @@ const TestAllotment = () => {
   const navigate = useNavigate();
   const [userList, setUserList] = useState([]);
   const [testList, setTestList] = useState([]);
-  const [rows, setRows] = useState([
-    { emailId: "", testId: "", startDate: "", endDate: "" },
-  ]);
+
   const [errorRows, setErrorRows] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [popupStatus, setPopupStatus] = useState("");
   const [activeTab, setActiveTab] = useState("testAllot");
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+  const [masterShowScores, setMasterShowScores] = useState("disabled");
+  const [masterShowDetailedScores, setMasterShowDetailedScores] = useState("disabled");
+
+  const [rows, setRows] = useState([
+    {
+      emailId: "",
+      testId: "",
+      startDate: "",
+      endDate: "",
+      showScores: "disabled",
+      showDetailedScores: "disabled",
+    },
+  ]);
+  
+
 
   // Custom styles for React Select to match the design of original select fields
   const selectStyles = {
@@ -76,6 +88,8 @@ const TestAllotment = () => {
     }
   };
 
+
+  
   const fetchUserList = async () => {
     try {
       const userData = getUserData();
@@ -143,10 +157,10 @@ const TestAllotment = () => {
       return;
     }
 
-    setShowConfirmationDialog(true);
+    handleConfirmUpdate();
   };
 
-  const handleConfirmUpdate = async (options) => {
+  const handleConfirmUpdate = async () => {
     try {
       const userData = getUserData();
       if (!userData.user || !userData.token) {
@@ -168,8 +182,8 @@ const TestAllotment = () => {
           testId: parseInt(row.testId),
           startDate: row.startDate, // yyyy-mm-dd format
           endDate: row.endDate, // yyyy-mm-dd format
-          showScores: options.showScores,
-          showDetailedScores: options.showDetailedScores
+          showScores: row.showScores,
+          showDetailedScores: row.showDetailedScores
         })),
       };
 
@@ -185,17 +199,24 @@ const TestAllotment = () => {
       setPopupStatus("Error updating tests. Please try again.");
       setShowPopup(true);
     } finally {
-      setShowConfirmationDialog(false);
     }
   };
 
-  const cancelUpdate = () => {
-    setShowConfirmationDialog(false);
-  };
 
   const addRow = () => {
-    setRows([...rows, { emailId: "", testId: "", startDate: "", endDate: "" }]);
+    setRows([
+      ...rows,
+      {
+        emailId: "",
+        testId: "",
+        startDate: "",
+        endDate: "",
+        showScores: masterShowScores,
+        showDetailedScores: masterShowDetailedScores,
+      },
+    ]);
   };
+  
 
   const deleteRow = (index) => {
     setRows(rows.filter((_, i) => i !== index));
@@ -215,6 +236,25 @@ const TestAllotment = () => {
     setShowBulkUploadModal(!showBulkUploadModal);
   };
 
+  const handleToggleChange = (index, field) => {
+    const updatedRows = [...rows];
+    updatedRows[index][field] =
+      updatedRows[index][field] === "enabled" ? "disabled" : "enabled";
+    setRows(updatedRows);
+  };
+  
+  const handleMasterToggle = (field, value) => {
+    if (field === "showScores") setMasterShowScores(value);
+    if (field === "showDetailedScores") setMasterShowDetailedScores(value);
+  
+    const updatedRows = rows.map((row) => ({
+      ...row,
+      [field]: value,
+    }));
+    setRows(updatedRows);
+  };
+  
+
   const handleBulkUploadSuccess = () => {
     setShowBulkUploadModal(false);
     setPopupStatus("Success! Tests have been bulk allotted.");
@@ -231,6 +271,9 @@ const TestAllotment = () => {
     value: test.testId.toString(),
     label: test.testName
   }));
+
+
+ 
 
   return (
     <div className={styles.dashboardContainer}>
@@ -261,92 +304,150 @@ const TestAllotment = () => {
                 </table>
 
                 <div className={styles.tableScrollContainer}>
-                  <table className={styles.dataTable}>
-                    <tbody>
-                      {rows.map((row, index) => (
-                        <tr
-                          key={index}
-                          className={
-                            errorRows.includes(index) ? styles.errorRow : ""
-                          }
-                        >
-                          <td>
-                            <div className={styles.selectFieldContainer}>
-                              <Select
-                                options={userOptions}
-                                value={userOptions.find(option => option.value === row.emailId) || null}
-                                onChange={(selectedOption) => 
-                                  handleRowChange(index, "emailId", selectedOption ? selectedOption.value : "")
-                                }
-                                placeholder="Select Employee"
-                                isClearable
-                                isSearchable
-                                styles={selectStyles}
-                                menuPortalTarget={document.body}
-                                classNamePrefix="react-select"
-                                className={styles.reactSelect}
-                              />
-                            </div>
-                          </td>
-                          <td>
-                            <div className={styles.selectFieldContainer}>
-                              <Select
-                                options={testOptions}
-                                value={testOptions.find(option => option.value === row.testId) || null}
-                                onChange={(selectedOption) => 
-                                  handleRowChange(index, "testId", selectedOption ? selectedOption.value : "")
-                                }
-                                placeholder="Select Test"
-                                isClearable
-                                isSearchable
-                                styles={selectStyles}
-                                menuPortalTarget={document.body}
-                                classNamePrefix="react-select"
-                                className={styles.reactSelect}
-                              />
-                            </div>
-                          </td>
-                          <td>
-                            <input
-                              type="date"
-                              className={styles.dateField}
-                              value={row.startDate}
-                              onChange={(e) =>
-                                handleRowChange(
-                                  index,
-                                  "startDate",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="date"
-                              className={styles.dateField}
-                              value={row.endDate}
-                              onChange={(e) =>
-                                handleRowChange(
-                                  index,
-                                  "endDate",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </td>
-                          <td>
-                            <button
-                              className={styles.deleteButton}
-                              onClick={() => deleteRow(index)}
-                              disabled={rows.length === 1}
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <table className={styles.dataTable}>
+  <thead>
+    <tr>
+      <th>Employee</th>
+      <th>Test</th>
+      <th>Start Date</th>
+      <th>End Date</th>
+      <th>
+        Show Scores <br />
+        <label className={styles.toggleSwitch}>
+          <input
+            type="checkbox"
+            checked={masterShowScores === "enabled"}
+            onChange={() =>
+              handleMasterToggle(
+                "showScores",
+                masterShowScores === "enabled" ? "disabled" : "enabled"
+              )
+            }
+          />
+          <span className={styles.slider}></span>
+        </label>
+      </th>
+      <th>
+        Show Detailed <br />
+        <label className={styles.toggleSwitch}>
+          <input
+            type="checkbox"
+            checked={masterShowDetailedScores === "enabled"}
+            onChange={() =>
+              handleMasterToggle(
+                "showDetailedScores",
+                masterShowDetailedScores === "enabled" ? "disabled" : "enabled"
+              )
+            }
+          />
+          <span className={styles.slider}></span>
+        </label>
+      </th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {rows.map((row, index) => (
+      <tr
+        key={index}
+        className={errorRows.includes(index) ? styles.errorRow : ""}
+      >
+        <td>
+          <div className={styles.selectFieldContainer}>
+            <Select
+              options={userOptions}
+              value={
+                userOptions.find((option) => option.value === row.emailId) ||
+                null
+              }
+              onChange={(selectedOption) =>
+                handleRowChange(index, "emailId", selectedOption ? selectedOption.value : "")
+              }
+              placeholder="Select Employee"
+              isClearable
+              isSearchable
+              styles={selectStyles}
+              menuPortalTarget={document.body}
+              classNamePrefix="react-select"
+              className={styles.reactSelect}
+            />
+          </div>
+        </td>
+        <td>
+          <div className={styles.selectFieldContainer}>
+            <Select
+              options={testOptions}
+              value={
+                testOptions.find((option) => option.value === row.testId) ||
+                null
+              }
+              onChange={(selectedOption) =>
+                handleRowChange(index, "testId", selectedOption ? selectedOption.value : "")
+              }
+              placeholder="Select Test"
+              isClearable
+              isSearchable
+              styles={selectStyles}
+              menuPortalTarget={document.body}
+              classNamePrefix="react-select"
+              className={styles.reactSelect}
+            />
+          </div>
+        </td>
+        <td>
+          <input
+            type="date"
+            className={styles.dateField}
+            value={row.startDate}
+            onChange={(e) =>
+              handleRowChange(index, "startDate", e.target.value)
+            }
+          />
+        </td>
+        <td>
+          <input
+            type="date"
+            className={styles.dateField}
+            value={row.endDate}
+            onChange={(e) =>
+              handleRowChange(index, "endDate", e.target.value)
+            }
+          />
+        </td>
+        <td>
+          <label className={styles.toggleSwitch}>
+            <input
+              type="checkbox"
+              checked={row.showScores === "enabled"}
+              onChange={() => handleToggleChange(index, "showScores")}
+            />
+            <span className={styles.slider}></span>
+          </label>
+        </td>
+        <td>
+          <label className={styles.toggleSwitch}>
+            <input
+              type="checkbox"
+              checked={row.showDetailedScores === "enabled"}
+              onChange={() => handleToggleChange(index, "showDetailedScores")}
+            />
+            <span className={styles.slider}></span>
+          </label>
+        </td>
+        <td>
+          <button
+            className={styles.deleteButton}
+            onClick={() => deleteRow(index)}
+            disabled={rows.length === 1}
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
                 </div>
 
                 <div className={styles.buttonGroup}>
@@ -388,14 +489,7 @@ const TestAllotment = () => {
         </div>
       )}
 
-      {/* Confirmation Dialog */}
-      {showConfirmationDialog && (
-        <ShowScoresConfirmation
-          onConfirm={handleConfirmUpdate} 
-          onCancel={cancelUpdate} 
-        />
-      )}
-
+      
       {/* Bulk Upload Modal */}
       {showBulkUploadModal && (
         <div className={styles.modalOverlay}>
