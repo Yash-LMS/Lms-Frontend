@@ -38,6 +38,7 @@ const TestModule = () => {
 
   // Added for submit confirmation popup
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
+  const[showShortcutWarning,setShowShortcutWarning]=useState(false);
 
   useEffect(() => {}, [location.state, navigate]);
 
@@ -234,6 +235,81 @@ const TestModule = () => {
       state: { message: message, redirectPath: path },
     });
   };
+
+  // Windows switch security
+  useEffect(() => {
+    const handleWindowBlur = () => {
+      if (testStarted && !loading) {
+        pauseTest();
+        setFullScreenExitCount(prev => prev + 1);
+        setShowNotification(true);
+  
+        if (fullScreenExitCount >= 3) {
+          handleSubmit("User changed window many times");
+        }
+      }
+    };
+  
+    window.addEventListener("blur", handleWindowBlur);
+  
+    return () => {
+      window.removeEventListener("blur", handleWindowBlur);
+    };
+  }, [testStarted, loading, fullScreenExitCount]);
+
+  
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const key = e.key.toLowerCase();
+  
+      // Disable Ctrl/Meta + C/V/X/P
+      if ((e.ctrlKey || e.metaKey) && ["c", "v", "x", "p"].includes(key)) {
+        e.preventDefault();
+        setShowShortcutWarning(true);
+      }
+  
+      // Detect Alt key press (best-effort Alt+Tab prevention)
+      if (e.key === "Alt") {
+        e.preventDefault();
+        setShowShortcutWarning(true);
+      }
+    };
+  
+    const handleKeyUp = (e) => {
+      if (e.key === "Alt") {
+        e.preventDefault();
+      }
+    };
+  
+    const handleRightClick = (e) => {
+      e.preventDefault(); // Disable context menu
+      setShowShortcutWarning(true);
+    };
+  
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("contextmenu", handleRightClick);
+  
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("contextmenu", handleRightClick);
+    };
+  }, []);
+  
+  
+  
+  useEffect(() => {
+    if (showShortcutWarning) {
+      const timer = setTimeout(() => {
+        setShowShortcutWarning(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showShortcutWarning]);
+  
+
+
 
   // Fullscreen event listeners
   useEffect(() => {
@@ -909,6 +985,19 @@ const TestModule = () => {
           </div>
         </div>
       </div>
+
+      {showShortcutWarning && (
+  <div className={styles.shortcutPopupOverlay}>
+    <div className={styles.shortcutPopup}>
+      <h2>⚠️ Shortcut Blocked</h2>
+      <p>Shortcut keys like Ctrl+C, Ctrl+V, and Alt+Tab are disabled during the test.</p>
+      <button onClick={() => setShowShortcutWarning(false)}>OK</button>
+    </div>
+  </div>
+)}
+
+
+
     </div>
   );
 };
