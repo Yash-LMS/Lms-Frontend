@@ -589,6 +589,7 @@ const InternalTestModule = () => {
         const resultData=response.data.payload;
         navigate("/result", { state: { result: resultData,
           navigationPath:  `/user/courseContent/${courseId}/${courseAllotmentId}` , // The path to navigate to when button is clicked
+          message: response.data.message,
           buttonText: "Back to Course" // Custom button text
                              } 
                       });
