@@ -236,26 +236,26 @@ const TestModule = () => {
     });
   };
 
-  // Windows switch security
-  useEffect(() => {
-    const handleWindowBlur = () => {
-      if (testStarted && !loading) {
-        pauseTest();
-        setFullScreenExitCount(prev => prev + 1);
-        setShowNotification(true);
+  // // Windows switch security
+  // useEffect(() => {
+  //   const handleWindowBlur = () => {
+  //     if (testStarted && !loading) {
+  //       pauseTest();
+  //       setFullScreenExitCount(prev => prev + 1);
+  //       setShowNotification(true);
   
-        if (fullScreenExitCount >= 3) {
-          handleSubmit("User changed window many times");
-        }
-      }
-    };
+  //       if (fullScreenExitCount >= 3) {
+  //         handleSubmit("User changed window many times");
+  //       }
+  //     }
+  //   };
   
-    window.addEventListener("blur", handleWindowBlur);
+  //   window.addEventListener("blur", handleWindowBlur);
   
-    return () => {
-      window.removeEventListener("blur", handleWindowBlur);
-    };
-  }, [testStarted, loading, fullScreenExitCount]);
+  //   return () => {
+  //     window.removeEventListener("blur", handleWindowBlur);
+  //   };
+  // }, [testStarted, loading, fullScreenExitCount]);
 
   
   useEffect(() => {
@@ -308,8 +308,6 @@ const TestModule = () => {
     }
   }, [showShortcutWarning]);
   
-
-
 
   // Fullscreen event listeners
   useEffect(() => {

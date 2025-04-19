@@ -88,7 +88,6 @@ const ResultPopup = ({ testAllotmentId, onClose }) => {
           {error && (
             <div className={styles.errorContainer}>
               <div className={styles.errorIcon}>!</div>
-              <h3>Unable to Load Results</h3>
               <p>{error}</p>
             </div>
           )}
