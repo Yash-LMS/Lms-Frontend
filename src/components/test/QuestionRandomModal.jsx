@@ -5,13 +5,13 @@ import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 import styles from './QuestionRandomModal.module.css';
 import { 
   VIEW_QUESTION_DISTINCT_CATEGORY_URL, 
-  VIEW_QUESTION_BY_CATEGORY_Library_URL,
+  VIEW_RANDOM_QUESTION_Library_URL,
   VIEW_QUESTION_DISTINCT_SUB_CATEGORY_URL,
   ADD_QUESTION_URL 
 } from '../../constants/apiConstants';
 import SuccessModal from "../../assets/SuccessModal";
 
-const QuestionCategoryImport = ({ 
+const QuestionRandomModal = ({ 
   testId, 
   onClose,
   isOpen
@@ -168,11 +168,12 @@ const QuestionCategoryImport = ({
         libraryQuestionList: selectedItems.map(item => ({
           category: item.category,
           subCategory: item.subcategory,
-          questionLevel: item.questionLevel
+          questionLevel: item.questionLevel,
+          questionCount: parseInt(item.questionCount, 10)
         }))
       };
 
-      const response = await axios.post(`${VIEW_QUESTION_BY_CATEGORY_Library_URL}`, payload);
+      const response = await axios.post(`${VIEW_RANDOM_QUESTION_Library_URL}`, payload);
       
       if (response.data.response === 'success') {
         console.log(response.data.payload);
@@ -530,7 +531,7 @@ const QuestionCategoryImport = ({
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Import All Questions</h2>
+          <h2 className={styles.modalTitle}>Import Random Questions</h2>
           {testId && <div className={styles.testId}>Test ID: {testId}</div>}
           <button className={styles.closeButton} onClick={onClose}>×</button>
         </div>
@@ -577,7 +578,14 @@ const QuestionCategoryImport = ({
                   <option value="hard">Hard</option>
                 </select>
                 
-            
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={item.questionCount}
+                  onChange={(e) => handleItemChange(index, 'questionCount', e.target.value)}
+                  className={styles.numberInput}
+                />
                 
                 <button 
                   onClick={() => removeItem(index)}
@@ -801,4 +809,4 @@ const QuestionCategoryImport = ({
   );
 };
 
-export default QuestionCategoryImport;
+export default QuestionRandomModal;

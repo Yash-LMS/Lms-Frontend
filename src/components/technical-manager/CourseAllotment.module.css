@@ -110,14 +110,12 @@
   padding: 30px 30px 90px; /* Increased bottom padding to make room for buttons */
   width: 780px;
   position: relative; /* Add position relative to contain the fixed buttons */
-  overflow: hidden; /* Hide overflow except for the table wrapper */
 }
 
 .tableWrapper {
   max-height: 450px; 
   overflow-y: auto;
   overflow-x: auto;
-  overflow: visible !important;
   margin-bottom: 20px; /* Space between table and buttons */
 }
 

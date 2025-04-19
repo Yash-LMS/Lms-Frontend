@@ -26,6 +26,8 @@ const CertificateValidation = () => {
         },
       });
 
+      console.log(response.data);
+
       if (response.status !== 200) {
         setError("Server error. Please try again later.");
         return;
@@ -84,6 +86,21 @@ const CertificateValidation = () => {
     const year = date.getFullYear();
     
     return `${day}-${month}-${year}`;
+  };
+
+  // Calculate percentage score from feedback
+  const calculatePercentage = (feedback) => {
+    if (!feedback) return 'N/A';
+    
+    // Assuming feedback format is like "75/100" or "15/20"
+    const parts = feedback.split('/');
+    if (parts.length !== 2) return feedback; // Return original if not in expected format
+    
+    const [scored, total] = parts.map(part => parseFloat(part));
+    if (isNaN(scored) || isNaN(total) || total === 0) return feedback;
+    
+    const percentage = (scored / total) * 100;
+    return `${percentage.toFixed(1)}%`;
   };
 
   const resetForm = () => {
@@ -190,26 +207,35 @@ const CertificateValidation = () => {
             </div>
             
             <div className={styles.topicsSection}>
-              <h3>Course Topics</h3>
+              <h3>Assessments</h3>
               <div className={styles.topicsGrid}>
-                {certificateData.courseResultTopicList.map((topic) => (
-                  <div key={topic.trackingId} className={styles.topicCard}>
-                    <div className={styles.topicHeader}>
-                      <span className={styles.topicIcon}>{getTopicTypeIcon(topic.topicType)}</span>
-                      <span className={`${styles.statusBadge} ${getStatusColorClass(topic.topicCompletionStatus)}`}>
-                        {topic.topicCompletionStatus}
-                      </span>
-                    </div>
-                    <h4 className={styles.topicName}>{topic.topicName}</h4>
-                    <p className={styles.topicDesc}>{topic.description || 'No description available'}</p>
-                    {topic.feedback && (
-                      <div className={styles.topicScore}>
-                        Score: <strong>{topic.feedback}</strong>
+                {certificateData.courseResultTopicList
+                  .filter(topic => topic.topicType === 'test')
+                  .map((topic) => (
+                    <div key={topic.trackingId} className={styles.topicCard}>
+                      <div className={styles.topicHeader}>
+                        <span className={styles.topicIcon}>{getTopicTypeIcon(topic.topicType)}</span>
+                        <span className={`${styles.statusBadge} ${getStatusColorClass(topic.topicCompletionStatus)}`}>
+                          {topic.topicCompletionStatus}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                ))}
+                      <h4 className={styles.topicName}>{topic.topicName}</h4>
+                      <p className={styles.topicDesc}>{topic.description || 'No description available'}</p>
+                      {topic.feedback && (
+                        <div className={styles.topicScore}>
+                          Score: <strong>{topic.feedback} </strong>
+                          <span className={styles.scorePercentage}>
+                            ({calculatePercentage(topic.feedback)})
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
               </div>
+              
+              {certificateData.courseResultTopicList.filter(topic => topic.topicType === 'test').length === 0 && (
+                <p className={styles.noTestsMessage}>No assessments available for this certificate.</p>
+              )}
             </div>
             
             <div className={styles.actionSection}>

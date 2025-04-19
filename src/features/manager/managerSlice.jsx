@@ -12,7 +12,10 @@ import {
     rejectTest,  
     findTestByStatus,
     viewTraineeAllotedCourse ,
-    findDashboardInformation
+    findDashboardInformation,
+    findCoursesCount,
+    findTestsCount,
+    findEmployeesCount
 } from './managerActions';
 
 const managerSlice = createSlice({
@@ -22,6 +25,9 @@ const managerSlice = createSlice({
         users: [],
         tests: [],
         allottedCourses: [],
+        courseCount: [],
+        testCount: [],
+        employeeCount: [],
         dashboardInfo: null,
         loading: false,
         error: null,
@@ -256,7 +262,7 @@ const managerSlice = createSlice({
             .addCase(findDashboardInformation.fulfilled, (state, action) => {
                 state.loading = false;
                 if (action.payload.response === 'success') {
-                    console.log(action.payload.payload)
+                    console.log(action.payload)
                     state.dashboardInfo = action.payload.payload || []; // Store the dashboard information
                 } else {
                     state.error = action.payload.message || 'Failed to fetch dashboard information';
@@ -265,7 +271,57 @@ const managerSlice = createSlice({
             .addCase(findDashboardInformation.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload?.message || 'Failed to fetch dashboard information';
+            })
+
+            .addCase(findCoursesCount.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(findCoursesCount.fulfilled, (state, action) => {
+                state.loading = false;
+                if (action.payload.response === 'success') {
+                    state.courseCount = action.payload.payload || [];
+                } else {
+                    state.error = action.payload.message || 'Failed to fetch courses';
+                }
+            })
+            .addCase(findCoursesCount.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || 'Failed to fetch courses';
+            })
+            .addCase(findTestsCount.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(findTestsCount.fulfilled, (state, action) => {
+                state.loading = false;
+                if (action.payload.response === 'success') {
+                    state.testCount = action.payload.payload || [];
+                } else {
+                    state.error = action.payload.message || 'Failed to fetch courses';
+                }
+            })
+            .addCase(findTestsCount.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || 'Failed to fetch courses';
+            })
+            .addCase(findEmployeesCount.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(findEmployeesCount.fulfilled, (state, action) => {
+                state.loading = false;
+                if (action.payload.response === 'success') {
+                    state.employeeCount = action.payload.payload || [];
+                } else {
+                    state.error = action.payload.message || 'Failed to fetch courses';
+                }
+            })
+            .addCase(findEmployeesCount.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || 'Failed to fetch courses';
             });
+           
     },
 });
 

@@ -2,13 +2,16 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import styles from "./BulkUploadQuestionLibrary.module.css";
-import { VIEW_QUESTION_ALL_CATEGORY_URL, ADD_QUESTION_Library_URL } from "../../constants/apiConstants";
+import { VIEW_QUESTION_ALL_CATEGORY_URL, ADD_QUESTION_Library_URL, VIEW_QUESTION_ALL_SUB_CATEGORY_URL } from "../../constants/apiConstants";
 
 const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
-  const [step, setStep] = useState("upload"); // upload, review, success
+  const [step, setStep] = useState("upload"); // upload, selectCategory, review, success
   const [file, setFile] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
   const [generalError, setGeneralError] = useState("");
@@ -35,6 +38,22 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
     }
   };
 
+  const fetchSubcategories = async (category) => {
+    try {
+      const { token } = getUserData();
+      const response = await axios.get(`${VIEW_QUESTION_ALL_SUB_CATEGORY_URL}?category=${encodeURIComponent(category)}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data && response.data.response === "success") {
+        setSubcategories(response.data.payload || []);
+      }
+    } catch (error) {
+      console.error("Error fetching subcategories:", error);
+      setGeneralError("Failed to load subcategories. Please try again.");
+    }
+  };
+
   const getUserData = () => {
     try {
       return {
@@ -49,10 +68,10 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
   };
 
   const downloadTemplate = () => {
-    // Create a template Excel file
+    // Create a template Excel file - removed Category column
     const template = [
       [
-        "Sno", "Category", "Level(easy/medium/hard)", "Description", "Marks", 
+        "Sno", "Level(easy/medium/hard)", "Description", "Marks", 
         "TYPE (single_choice/multiple_choice)", "option1(A)", "option2(B)", 
         "option3(C)", "option4(D)", "option5(E)", "option6(F)", "option7(G)", 
         "option8(H)", "Correct Answer (a,b,c if multiple, b if single)"
@@ -78,43 +97,20 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
     setGeneralError("");
   };
 
-  const findBestMatchCategory = (inputCategory) => {
-    if (!inputCategory) return { match: null, exactMatch: false };
+  const handleCategoryChange = (e) => {
+    const category = e.target.value;
+    setSelectedCategory(category);
+    setSelectedSubcategory("");
     
-    // Check for exact match first
-    const exactMatch = categories.find(
-      cat => cat.toLowerCase() === inputCategory.toLowerCase()
-    );
-    
-    if (exactMatch) return { match: exactMatch, exactMatch: true };
-    
-    // If no exact match, find the closest match
-    let bestMatch = null;
-    let bestScore = 0;
-    
-    categories.forEach(category => {
-      // Simple similarity score - count matching characters
-      let score = 0;
-      const lowerCat = category.toLowerCase();
-      const lowerInput = inputCategory.toLowerCase();
-      
-      // Check if one is substring of the other
-      if (lowerCat.includes(lowerInput) || lowerInput.includes(lowerCat)) {
-        score = Math.min(lowerCat.length, lowerInput.length);
-      }
-      
-      if (score > bestScore) {
-        bestScore = score;
-        bestMatch = category;
-      }
-    });
-    
-    // Only return a match if it's reasonably close
-    if (bestScore > inputCategory.length / 2) {
-      return { match: bestMatch, exactMatch: false };
+    if (category) {
+      fetchSubcategories(category);
+    } else {
+      setSubcategories([]);
     }
-    
-    return { match: null, exactMatch: false };
+  };
+
+  const handleSubcategoryChange = (e) => {
+    setSelectedSubcategory(e.target.value);
   };
 
   const parseCorrectOptions = (correctAnswerString, optionsCount) => {
@@ -149,35 +145,29 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
       const row = data[i];
       
       // Skip empty rows
-      if (!row || row.length === 0 || !row[3]) continue;
+      if (!row || row.length === 0 || !row[2]) continue;
       
       const rowNumber = i + 1;
       const questionErrors = [];
       
-      // Validate category
-      const categoryResult = findBestMatchCategory(row[1]);
-      if (!categoryResult.match) {
-        questionErrors.push(`Row ${rowNumber}: Category "${row[1]}" not found`);
-      }
-      
-      // Validate difficulty level
-      const level = (row[2] || "").toLowerCase();
+      // Validate difficulty level (now at index 1)
+      const level = (row[1] || "").toLowerCase();
       if (!["easy", "medium", "hard"].includes(level)) {
-        questionErrors.push(`Row ${rowNumber}: Invalid difficulty level "${row[2]}". Must be easy, medium, or hard.`);
+        questionErrors.push(`Row ${rowNumber}: Invalid difficulty level "${row[1]}". Must be easy, medium, or hard.`);
       }
       
-      // Validate question type
-      const qType = (row[5] || "").toLowerCase();
+      // Validate question type (now at index 4)
+      const qType = (row[4] || "").toLowerCase();
       if (!["single_choice", "multiple_choice"].includes(qType)) {
-        questionErrors.push(`Row ${rowNumber}: Invalid question type "${row[5]}". Must be single_choice or multiple_choice.`);
+        questionErrors.push(`Row ${rowNumber}: Invalid question type "${row[4]}". Must be single_choice or multiple_choice.`);
       }
       
-      // Get options (skip empty ones)
+      // Get options (shifted by 1)
       const options = [];
-      for (let j = 6; j <= 13; j++) {
+      for (let j = 5; j <= 12; j++) {
         if (row[j]) {
           options.push({
-            id: `option${j - 5}`,
+            id: `option${j - 4}`,
             text: row[j],
             isCorrect: false
           });
@@ -189,8 +179,8 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
         questionErrors.push(`Row ${rowNumber}: At least 2 options are required`);
       }
       
-      // Parse correct answers
-      const correctOptionIds = parseCorrectOptions(row[14], options.length);
+      // Parse correct answers (now at index 13)
+      const correctOptionIds = parseCorrectOptions(row[13], options.length);
       if (correctOptionIds.length === 0) {
         questionErrors.push(`Row ${rowNumber}: No valid correct answer specified`);
       }
@@ -212,14 +202,14 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
       
       parsedQuestions.push({
         id: i,
-        description: row[3] || "",
-        category: categoryResult.match || "",
+        description: row[2] || "",
+        category: selectedCategory,
+        subcategory: selectedSubcategory,
         difficultyLevel: level || "medium",
         questionType: qType || "single_choice",
-        marks: parseInt(row[4]) || 1,
+        marks: parseInt(row[3]) || 1,
         options: options,
-        rowErrors: questionErrors,
-        originalCategory: row[1]
+        rowErrors: questionErrors
       });
     }
     
@@ -227,9 +217,18 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
     return parsedQuestions;
   };
 
-  const handleUpload = async () => {
+  const handleProceedToCategory = () => {
     if (!file) {
       setGeneralError("Please select a file to upload");
+      return;
+    }
+    
+    setStep("selectCategory");
+  };
+
+  const handleProceedToReview = async () => {
+    if (!selectedCategory) {
+      setGeneralError("Please select a category");
       return;
     }
     
@@ -335,6 +334,7 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
       difficultyLevel: question.difficultyLevel,
       marks: question.marks,
       category: question.category,
+      subCategory: question.subcategory,
       ...optionFields,
       correctOption: correctOptions,
     };
@@ -405,6 +405,8 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
     setQuestions([]);
     setErrors([]);
     setGeneralError("");
+    setSelectedCategory("");
+    setSelectedSubcategory("");
     onClose();
   };
 
@@ -414,9 +416,12 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
-          <h2>{step === "upload" ? "Bulk Upload Questions" : 
-               step === "review" ? "Review Questions" : 
-               "Upload Successful"}</h2>
+          <h2>
+            {step === "upload" ? "Bulk Upload Questions" : 
+             step === "selectCategory" ? "Select Category and Subcategory" :
+             step === "review" ? "Review Questions" : 
+             "Upload Successful"}
+          </h2>
           <button className={styles.closeButton} onClick={closeModal}>×</button>
         </div>
 
@@ -447,23 +452,59 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
               <span>{file ? file.name : "No file chosen"}</span>
             </div>
             
-            {errors.length > 0 && (
-              <div className={styles.errorsContainer}>
-                <h4>Validation Errors ({errors.length})</h4>
-                <ul className={styles.errorsList}>
-                  {errors.map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            
             <div className={styles.actionButtons}>
               <button onClick={closeModal} className={styles.cancelButton}>Cancel</button>
               <button 
-                onClick={handleUpload} 
+                onClick={handleProceedToCategory} 
                 className={styles.uploadButton}
                 disabled={!file || loading}
+              >
+                Next: Select Category
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === "selectCategory" && (
+          <div className={styles.categorySelectContainer}>
+            <p>Select a category and subcategory for all questions in this batch.</p>
+            
+            <div className={styles.formGroup}>
+              <label>Category <span className={styles.requiredField}>*</span></label>
+              <select
+                value={selectedCategory}
+                onChange={handleCategoryChange}
+                className={styles.selectInput}
+                required
+              >
+                <option value="">Select category</option>
+                {categories.map((category, idx) => (
+                  <option key={idx} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className={styles.formGroup}>
+              <label>Subcategory</label>
+              <select
+                value={selectedSubcategory}
+                onChange={handleSubcategoryChange}
+                className={styles.selectInput}
+                disabled={!selectedCategory}
+              >
+                <option value="">Select subcategory (optional)</option>
+                {subcategories.map((subcategory, idx) => (
+                  <option key={idx} value={subcategory}>{subcategory}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className={styles.actionButtons}>
+              <button onClick={() => setStep("upload")} className={styles.backButton}>Back</button>
+              <button 
+                onClick={handleProceedToReview} 
+                className={styles.uploadButton}
+                disabled={!selectedCategory || loading}
               >
                 {loading ? "Processing..." : "Upload and Review"}
               </button>
@@ -474,6 +515,10 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
         {step === "review" && (
           <div className={styles.reviewContainer}>
             <p>Review and edit your questions before saving. {questions.length} questions found.</p>
+            <div className={styles.categoryInfo}>
+              <strong>Category:</strong> {selectedCategory} 
+              {selectedSubcategory && <> | <strong>Subcategory:</strong> {selectedSubcategory}</>}
+            </div>
             
             <div className={styles.questionsReview}>
               {questions.map((question, index) => (
@@ -496,25 +541,6 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
                   </div>
                   
                   <div className={styles.formRow}>
-                    <div className={styles.formGroup}>
-                      <label>Category</label>
-                      <select
-                        value={question.category}
-                        onChange={(e) => handleQuestionChange(index, 'category', e.target.value)}
-                        className={styles.selectInput}
-                      >
-                        <option value="">Select category</option>
-                        {categories.map((category, idx) => (
-                          <option key={idx} value={category}>{category}</option>
-                        ))}
-                      </select>
-                      {question.originalCategory !== question.category && (
-                        <small className={styles.categoryNote}>
-                          Original: {question.originalCategory} → Matched to: {question.category}
-                        </small>
-                      )}
-                    </div>
-                    
                     <div className={styles.formGroup}>
                       <label>Difficulty</label>
                       <select
@@ -601,7 +627,7 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
             </div>
             
             <div className={styles.actionButtons}>
-              <button onClick={() => setStep("upload")} className={styles.backButton}>Back</button>
+              <button onClick={() => setStep("selectCategory")} className={styles.backButton}>Back</button>
               <button 
                 onClick={handleSave} 
                 className={styles.saveButton}

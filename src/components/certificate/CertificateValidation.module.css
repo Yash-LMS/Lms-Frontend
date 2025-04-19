@@ -60,7 +60,7 @@
 .validationCard {
   max-width: 520px;
   padding: 3rem;
-  margin-top: 66px;
+  margin-top: 30px;
 }
 
 .certificateCard {
@@ -442,4 +442,11 @@
   .certificateCard {
     max-height: calc(100vh - 180px);
   }
+}
+
+.noTestsMessage {
+  text-align: center;
+  padding: 32px;
+  color: #6b7280;
+  font-style: italic;
 }

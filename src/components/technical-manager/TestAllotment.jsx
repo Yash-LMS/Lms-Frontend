@@ -11,6 +11,7 @@ import {
 } from "../../constants/apiConstants";
 
 import Sidebar from "./Sidebar";
+import ShowScoresConfirmation from "./ShowScoresConfirmation";
 
 const TestAllotment = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const TestAllotment = () => {
   const [activeTab, setActiveTab] = useState("testAllot");
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
 
   // Custom styles for React Select to match the design of original select fields
   const selectStyles = {
@@ -41,8 +43,20 @@ const TestAllotment = () => {
     }),
     menu: (provided) => ({
       ...provided,
-      zIndex: 10,
+      zIndex: 9999,
+      position: 'absolute',
+      width: '100%',
+      marginTop: '4px',
+      overflow: 'visible'
     }),
+    menuPortal: (provided) => ({
+      ...provided,
+      zIndex: 9999
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      maxHeight: '200px'
+    })
   };
 
   const customSelectClassName = {
@@ -118,7 +132,21 @@ const TestAllotment = () => {
     fetchTestList();
   }, []);
 
-  const handleUpdate = async () => {
+  const initiateUpdate = () => {
+    const validRows = rows.filter(
+      (row) => row.emailId && row.testId && row.startDate && row.endDate
+    );
+
+    if (validRows.length === 0) {
+      setPopupStatus("Please fill in all fields for at least one row.");
+      setShowPopup(true);
+      return;
+    }
+
+    setShowConfirmationDialog(true);
+  };
+
+  const handleConfirmUpdate = async (options) => {
     try {
       const userData = getUserData();
       if (!userData.user || !userData.token) {
@@ -131,12 +159,6 @@ const TestAllotment = () => {
         (row) => row.emailId && row.testId && row.startDate && row.endDate
       );
 
-      if (validRows.length === 0) {
-        setPopupStatus("Please fill in all fields for at least one row.");
-        setShowPopup(true);
-        return;
-      }
-
       // Create the proper request structure to match ApiRequestModelTest
       const requestData = {
         user: userData.user,
@@ -146,6 +168,8 @@ const TestAllotment = () => {
           testId: parseInt(row.testId),
           startDate: row.startDate, // yyyy-mm-dd format
           endDate: row.endDate, // yyyy-mm-dd format
+          showScores: options.showScores,
+          showDetailedScores: options.showDetailedScores
         })),
       };
 
@@ -160,7 +184,13 @@ const TestAllotment = () => {
       console.error("Error updating tests:", error);
       setPopupStatus("Error updating tests. Please try again.");
       setShowPopup(true);
+    } finally {
+      setShowConfirmationDialog(false);
     }
+  };
+
+  const cancelUpdate = () => {
+    setShowConfirmationDialog(false);
   };
 
   const addRow = () => {
@@ -252,6 +282,7 @@ const TestAllotment = () => {
                                 isClearable
                                 isSearchable
                                 styles={selectStyles}
+                                menuPortalTarget={document.body}
                                 classNamePrefix="react-select"
                                 className={styles.reactSelect}
                               />
@@ -269,6 +300,7 @@ const TestAllotment = () => {
                                 isClearable
                                 isSearchable
                                 styles={selectStyles}
+                                menuPortalTarget={document.body}
                                 classNamePrefix="react-select"
                                 className={styles.reactSelect}
                               />
@@ -323,7 +355,7 @@ const TestAllotment = () => {
                   </button>
                   <button
                     className={styles.updateButton}
-                    onClick={handleUpdate}
+                    onClick={initiateUpdate}
                   >
                     Save Changes
                   </button>
@@ -354,6 +386,14 @@ const TestAllotment = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Confirmation Dialog */}
+      {showConfirmationDialog && (
+        <ShowScoresConfirmation
+          onConfirm={handleConfirmUpdate} 
+          onCancel={cancelUpdate} 
+        />
       )}
 
       {/* Bulk Upload Modal */}

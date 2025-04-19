@@ -1,6 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from '../components/user/UserDashboard.module.css'; 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faListCheck, faFolderOpen
+} from '@fortawesome/free-solid-svg-icons';
 
 const DashboardSidebar = ({ activeLink }) => {
   return (
@@ -9,13 +13,13 @@ const DashboardSidebar = ({ activeLink }) => {
         <ul>
           <li className={`${styles.navItem} ${activeLink === "dashboard" ? styles.active : ""}`}>
             <Link to="/user-dashboard">
-              <i className="fas fa-home"></i>
+              <FontAwesomeIcon icon={faFolderOpen} />
               <span>My Courses</span>
             </Link>
           </li>
           <li className={`${styles.navItem} ${activeLink === "tests" ? styles.active : ""}`}>
             <Link to="/my-test">
-              <i className="fas fa-play-circle"></i>
+              <FontAwesomeIcon icon={faListCheck} />
               <span>My Tests</span>
             </Link>
           </li>

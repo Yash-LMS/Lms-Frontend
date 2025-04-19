@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
   findEmployeeList,
   updateUserRoleAndStatus,
+  findEmployeesCount,
 } from "../../features/manager/managerActions";
 import styles from "./EmployeeManagement.module.css";
 import Sidebar from "./Sidebar";
@@ -14,6 +15,7 @@ const EmployeeManagementPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // Add search term state
 
   // Function to get user data from sessionStorage
   const getUserData = () => {
@@ -29,7 +31,7 @@ const EmployeeManagementPage = () => {
   };
 
   // Employee list from Redux state
-  const { users, loading: reduxLoading } = useSelector(
+  const { users, loading: reduxLoading, employeeCount } = useSelector(
     (state) => state.manager
   );
 
@@ -74,7 +76,16 @@ const EmployeeManagementPage = () => {
           setLoading(false);
         });
     }
+    fetchCounts();
   }, [dispatch, roleFilter, statusFilter]);
+
+  // New function to fetch count
+  const fetchCounts = async () => {
+    const { user, token } = getUserData();
+    if (user && token) {
+      dispatch(findEmployeesCount({ user, token }));
+    }
+  };
 
   // Handle role change - using emailId as the primary identifier
   const handleRoleChange = (emailId, newRole) => {
@@ -181,6 +192,34 @@ const EmployeeManagementPage = () => {
       });
   };
 
+  // Handle search
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchTerm("");
+  };
+
+  // Filter users based on search term
+  const filteredUsers =
+    users && users.length > 0
+      ? users.filter((user) => {
+          const searchTermLower = searchTerm.toLowerCase();
+          const name =
+            user.name || `${user.firstName || ""} ${user.lastName || ""}`;
+
+          return (
+            name.toLowerCase().includes(searchTermLower) ||
+            user.emailId.toLowerCase().includes(searchTermLower) ||
+            user.officeId?.toLowerCase().includes(searchTermLower) ||
+            user.role.toLowerCase().includes(searchTermLower) ||
+            user.status?.toLowerCase().includes(searchTermLower)
+          );
+        })
+      : [];
+
   const isLoading = reduxLoading || loading;
 
   const [activeTab, setActiveTab] = useState("employee");
@@ -223,44 +262,76 @@ const EmployeeManagementPage = () => {
       <div className={styles.card}>
         <div className={styles.pageHeader}>
           <h1>Employee Management</h1>
-          <div className={styles.filterContainer}>
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Filter by Role</label>
-              <select
-                className={styles.select}
-                value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value)}
-              >
-                <option value="all">All Roles</option>
-                {roles.map((role) => (
-                  <option key={role} value={role}>
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                  </option>
-                ))}
-              </select>
+          <div className={styles.dashboardStats}>
+            <div
+              className={styles.statCard}>
+              <div className={styles.statValue}>{employeeCount || 0}</div>
+              <div className={styles.statLabel}>Total Employees</div>
             </div>
-
-            <div className={styles.filterGroup}>
-              <label className={styles.filterLabel}>Filter by Status</label>
-              <select
-                className={styles.select}
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+          </div>
+          <div className={styles.searchField}>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search employees..."
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+            {searchTerm && (
+              <button
+                className={styles.clearSearchButton}
+                onClick={clearSearch}
+                aria-label="Clear search"
               >
-                <option value="all">All Status</option>
-                {statusOptions.map((status) => (
-                  <option key={status.value} value={status.value}>
-                    {status.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+                ✕
+              </button>
+            )}
           </div>
         </div>
 
+        <div className={styles.filterContainer}>
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Filter by Role</label>
+            <select
+              className={styles.select}
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+            >
+              <option value="all">All Roles</option>
+              {roles.map((role) => (
+                <option key={role} value={role}>
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Filter by Status</label>
+            <select
+              className={styles.select}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="all">All Status</option>
+              {statusOptions.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {searchTerm && (
+          <div className={styles.searchResultCount}>
+            Found <span>{filteredUsers.length}</span> results for "{searchTerm}"
+          </div>
+        )}
+
         <div className={styles.headerActions}>
           <ExportToExcel
-            data={users} 
+            data={filteredUsers.length > 0 ? filteredUsers : users}
             headers={excelHeaders}
             fileName="Employee-Management-Results"
             sheetName="Employees"
@@ -289,8 +360,8 @@ const EmployeeManagementPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {users && users.length > 0 ? (
-                    users.map((user) => (
+                  {filteredUsers.length > 0 ? (
+                    filteredUsers.map((user) => (
                       <tr key={user.emailId || Math.random()}>
                         <td>
                           {user.name ||
@@ -350,8 +421,9 @@ const EmployeeManagementPage = () => {
                   ) : (
                     <tr>
                       <td colSpan={6} className={styles.emptyMessage}>
-                        No users found with the selected filters. Try changing
-                        your filters.
+                        {searchTerm
+                          ? "No results found. Try a different search term."
+                          : "No users found with the selected filters. Try changing your filters."}
                       </td>
                     </tr>
                   )}

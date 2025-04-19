@@ -233,19 +233,75 @@
   font-size: 15px;
 }
 
-/* Search field to match screenshot */
+/* Search Bar Styles */
 .searchField {
-  flex: 1;
-  max-width: 400px;
-  padding: 12px 16px;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
+  position: relative;
+  max-width: 300px;
+  width: 100%;
+  margin-right: 16px;
+}
+
+.searchInput {
+  width: 80%;
+  height: 16px;
+  padding: 10px 40px 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background-color: white;
   font-size: 14px;
-  background-color: #fff;
+  transition: all 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* Responsive adjustments */
+.searchInput:focus {
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.1);
+  outline: none;
+}
+
+/* Clear button */
+.clearSearchButton {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.clearSearchButton:hover {
+  background-color: #f0f0f0;
+  color: #4a5568;
+}
+
+/* Search results count indicator */
+.searchResultCount {
+  font-size: 14px;
+  color: #718096;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.searchResultCount span {
+  font-weight: 600;
+  color: #6c5ce7;
+}
+
+.headerActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+/* Responsive styles */
 @media (max-width: 768px) {
   .container {
     margin-left: 0;
@@ -258,6 +314,17 @@
     position: relative;
     top: 0;
   }
+  
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .searchField {
+    max-width: 100%;
+    margin-right: 0;
+    margin-top: 16px;
+  }
 
   .filterContainer {
     flex-direction: column;
@@ -268,4 +335,41 @@
   .table td {
     padding: 12px 10px;
   }
+}
+
+.dashboardStats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1.5rem;
+}
+
+.statCard {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem;
+  text-align: center;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.statLabel {
+  font-size: 1rem;
+  color: #7f8c8d;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }

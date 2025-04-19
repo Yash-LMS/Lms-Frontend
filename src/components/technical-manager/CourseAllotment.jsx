@@ -36,8 +36,20 @@ const CourseAllotment = () => {
     }),
     menu: (provided) => ({
       ...provided,
-      zIndex: 10,
+      zIndex: 9999,
+      position: 'absolute',
+      width: '100%',
+      marginTop: '4px',
+      overflow: 'visible'
     }),
+    menuPortal: (provided) => ({
+      ...provided,
+      zIndex: 9999
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      maxHeight: '200px'
+    })
   };
 
   const getUserData = () => {
@@ -204,6 +216,7 @@ const CourseAllotment = () => {
                             isClearable
                             isSearchable
                             styles={selectStyles}
+                            menuPortalTarget={document.body}
                             className={styles.reactSelect}
                           />
                         </td>
@@ -218,6 +231,7 @@ const CourseAllotment = () => {
                             isClearable
                             isSearchable
                             styles={selectStyles}
+                            menuPortalTarget={document.body}
                             className={styles.reactSelect}
                           />
                         </td>

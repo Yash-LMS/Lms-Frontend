@@ -39,6 +39,9 @@ import AllCourseProgressTracker from "./components/technical-manager/AllCoursePr
 import CertificateValidation from "./components/certificate/CertificateValidation";
 import AddQuestionLibrary from "./components/test/AddQuestionLibrary";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRightToBracket, faRightFromBracket, faUserPlus, faCircleCheck} from "@fortawesome/free-solid-svg-icons";
+
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
   const token = sessionStorage.getItem("token");
@@ -472,7 +475,8 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
           onClick={handleCertificateVerification}
           className={styles.logoutBtn}
         >
-          Verify Certificate
+          <FontAwesomeIcon icon={faCircleCheck} />
+          <span>Verify Certificate</span>
         </button>
           {sessionStorage.getItem("user") ? (
             <>
@@ -495,16 +499,19 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
                 </div>
               </div>
               <button onClick={handleLogout} className={styles.logoutBtn}>
-                Logout
+              <FontAwesomeIcon icon={faRightFromBracket} /> 
+              <span>Logout</span>
               </button>
             </>
           ) : (
             <>
               <button onClick={handleLoginClick} className={styles.navLinks}>
-                Login
+                <FontAwesomeIcon icon={faRightToBracket} /> 
+                <span>Login</span>
               </button>
               <button onClick={handleRegisterClick} className={styles.navLinks}>
-                Register
+                <FontAwesomeIcon icon={faUserPlus} /> 
+                <span>Register</span>
               </button>
             </>
           )}

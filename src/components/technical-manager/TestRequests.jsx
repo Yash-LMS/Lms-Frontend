@@ -76,9 +76,7 @@ const TestRequests = () => {
     const { user, token } = getUserData();
 
     // Get the test name for the success message
-    const test = testRequests.find(
-      (t) => (t.testId || t.id) === testId
-    );
+    const test = testRequests.find((t) => (t.testId || t.id) === testId);
     const testName = test ? test.testName : "Test";
 
     dispatch(
@@ -156,7 +154,7 @@ const TestRequests = () => {
   return (
     <div className={styles.testRequestsWrapper}>
       {/* Sidebar Navigation */}
-      <Sidebar activeTab={activeTab}  />
+      <Sidebar activeTab={activeTab} />
 
       {/* Main Content */}
       <div className={styles.testRequestsContent}>
@@ -234,6 +232,14 @@ const TestRequests = () => {
                               }
                             >
                               Reject
+                            </button>
+                            <button
+                              className={styles.btnPreview}
+                              onClick={() =>
+                                handlePreviewClick(course.courseId || course.id)
+                              }
+                            >
+                              Preview
                             </button>
                           </div>
                         )}
