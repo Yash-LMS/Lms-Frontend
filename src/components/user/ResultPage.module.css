@@ -271,6 +271,7 @@
   background: linear-gradient(135deg, #c53030 0%, #e53e3e 100%);
 }
 
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .card {
@@ -307,4 +308,12 @@
   .dashboardButton, .downloadBtn {
     width: 100%;
   }
+}
+
+
+.messageBox {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.2rem;
+  color: #666;
 }

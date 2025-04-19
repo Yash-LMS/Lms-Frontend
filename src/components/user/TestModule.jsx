@@ -528,6 +528,7 @@ const TestModule = () => {
           state: {
             result: resultData,
             navigationPath: "/user-dashboard", // The path to navigate to when button is clicked
+            message: response.data.message,
             buttonText: "Back to Dashboard", // Custom button text
           },
         });
