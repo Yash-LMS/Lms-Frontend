@@ -593,8 +593,6 @@ const InternalTestModule = () => {
                              } 
                       });
 
-
-
       } else {
         const message = response.data.message;
         handleRedirect(message, "/user-dashboard");
