@@ -16,6 +16,12 @@ const TestBulkAllotment = () => {
   const [message, setMessage] = useState({ show: false, type: "", text: "" });
   const fileInputRef = useRef(null);
 
+
+  const [masterScoresPermission, setMasterScoresPermission] = useState("disabled");
+  const [masterDetailedScoresPermission, setMasterDetailedScoresPermission] = useState("disabled");
+
+
+
   useEffect(() => {
     fetchTestList();
   }, []);
@@ -276,7 +282,9 @@ const TestBulkAllotment = () => {
               startDateValid: startDateValid,
               endDateValid: endDateValid,
               status: status,
-              editable: true, // Always allow editing for better user experience
+              editable: true,
+              showScores: "disabled",
+              showDetailedScores: "disabled",
             };
           })
         );
@@ -363,10 +371,32 @@ const TestBulkAllotment = () => {
     setUserTable(updatedTable);
   };
 
+  const handleTogglePermission = (index, field) => {
+    const updatedTable = [...userTable];
+    updatedTable[index][field] =
+      updatedTable[index][field] === "enabled" ? "disabled" : "enabled";
+    setUserTable(updatedTable);
+  };
+  
+  const handleMasterToggle = (field, value) => {
+    const updatedTable = userTable.map((user) => ({
+      ...user,
+      [field]: value,
+    }));
+    setUserTable(updatedTable);
+  
+    if (field === "showScores") {
+      setMasterScoresPermission(value);
+    } else if (field === "showDetailedScores") {
+      setMasterDetailedScoresPermission(value);
+    }
+  };
+  
+
   const handleSubmitAllotment = async () => {
     // Check if all records are verified
     const allVerified = userTable.every((user) => user.status === "Verified");
-
+  
     if (!allVerified) {
       showMessage(
         "error",
@@ -374,7 +404,7 @@ const TestBulkAllotment = () => {
       );
       return;
     }
-
+  
     try {
       const userData = getUserData();
       const testAllotmentList = userTable.map((user) => {
@@ -384,21 +414,23 @@ const TestBulkAllotment = () => {
           const [day, month, year] = dateStr.split("-");
           return `${year}-${month}-${day}`;
         };
-
+  
         return {
           emailId: user.emailId,
           testId: parseInt(selectedTestId),
-          startDate: formatDate(user.startDate), // Convert to yyyy-mm-dd
-          endDate: formatDate(user.endDate), // Convert to yyyy-mm-dd
+          startDate: formatDate(user.startDate),
+          endDate: formatDate(user.endDate),
+          showScores: user.showScores ? "enabled" : "disabled",
+          showDetailedScores: user.showDetailedScores ? "enabled" : "disabled",
         };
       });
-
+  
       const response = await axios.post(ALLOT_TEST_URL, {
         user: userData.user,
         token: userData.token,
         testAllotmentList: testAllotmentList,
       });
-
+  
       if (response.data.response === "success") {
         showMessage("success", "Test allotment completed successfully!");
         setUserTable([]);
@@ -414,6 +446,7 @@ const TestBulkAllotment = () => {
       );
     }
   };
+  
 
   const handleClear = () => {
     // Reset file input using ref
@@ -475,78 +508,135 @@ const TestBulkAllotment = () => {
 
         {userTable.length > 0 && (
           <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>S.No</th>
-                  <th>Email ID</th>
-                  <th>Employee Name</th>
-                  <th>Office ID</th>
-                  <th>Start Date</th>
-                  <th>End Date</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {userTable.map((user, index) => (
-                  <tr
-                    key={index}
-                    className={
-                      user.status === "Verified"
-                        ? styles.approved
-                        : styles.notFound
-                    }
-                  >
-                    <td>{index + 1}</td>
-                    <td>{user.emailId}</td>
-                    <td>{user.name || "-"}</td>
-                    <td>{user.officeId || "-"}</td>
-                    <td>
-                      <input
-                        type="date"
-                        value={formatToHtmlDate(user.startDate)}
-                        onChange={(e) =>
-                          handleDateChange(
-                            index,
-                            "htmlStartDate",
-                            e.target.value
-                          )
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="date"
-                        value={formatToHtmlDate(user.endDate)}
-                        onChange={(e) =>
-                          handleDateChange(index, "htmlEndDate", e.target.value)
-                        }
-                      />
-                    </td>
-                    <td>
-                      <span
-                        className={`${styles.statusBadge} ${
-                          user.status === "Verified"
-                            ? styles.approvedBadge
-                            : styles.notFoundBadge
-                        }`}
-                      >
-                        {user.status}
-                      </span>
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => handleDeleteRow(index)}
-                        className={styles.deleteButton}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+           <table className={styles.table}>
+  <thead>
+    <tr>
+      <th>S.No</th>
+      <th>Email ID</th>
+      <th>Employee Name</th>
+      <th>Office ID</th>
+      <th>Start Date</th>
+      <th>End Date</th>
+      <th>Status</th>
+      <th>
+        Show Scores<br />
+        <label className={styles.toggleSwitch}>
+          <input
+            type="checkbox"
+            onChange={(e) => {
+              const updated = userTable.map((user) => ({
+                ...user,
+                showScores: e.target.checked,
+              }));
+              setUserTable(updated);
+            }}
+          />
+          <span className={styles.slider}></span>
+        </label>
+      </th>
+      <th>
+        Show Detailed<br />Scores
+        <label className={styles.toggleSwitch}>
+          <input
+            type="checkbox"
+            onChange={(e) => {
+              const updated = userTable.map((user) => ({
+                ...user,
+                showDetailedScores: e.target.checked,
+              }));
+              setUserTable(updated);
+            }}
+          />
+          <span className={styles.slider}></span>
+        </label>
+      </th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {userTable.map((user, index) => (
+      <tr
+        key={index}
+        className={
+          user.status === "Verified"
+            ? styles.approved
+            : styles.notFound
+        }
+      >
+        <td>{index + 1}</td>
+        <td>{user.emailId}</td>
+        <td>{user.name || "-"}</td>
+        <td>{user.officeId || "-"}</td>
+        <td>
+          <input
+            type="date"
+            value={formatToHtmlDate(user.startDate)}
+            onChange={(e) =>
+              handleDateChange(index, "htmlStartDate", e.target.value)
+            }
+          />
+        </td>
+        <td>
+          <input
+            type="date"
+            value={formatToHtmlDate(user.endDate)}
+            onChange={(e) =>
+              handleDateChange(index, "htmlEndDate", e.target.value)
+            }
+          />
+        </td>
+        <td>
+          <span
+            className={`${styles.statusBadge} ${
+              user.status === "Verified"
+                ? styles.approvedBadge
+                : styles.notFoundBadge
+            }`}
+          >
+            {user.status}
+          </span>
+        </td>
+        <td>
+          <label className={styles.toggleSwitch}>
+            <input
+              type="checkbox"
+              checked={user.showScores || false}
+              onChange={(e) => {
+                const updated = [...userTable];
+                updated[index].showScores = e.target.checked;
+                setUserTable(updated);
+              }}
+            />
+            <span className={styles.slider}></span>
+          </label>
+        </td>
+        <td>
+          <label className={styles.toggleSwitch}>
+            <input
+              type="checkbox"
+              checked={user.showDetailedScores || false}
+              onChange={(e) => {
+                const updated = [...userTable];
+                updated[index].showDetailedScores = e.target.checked;
+                setUserTable(updated);
+              }}
+            />
+            <span className={styles.slider}></span>
+          </label>
+        </td>
+        <td>
+          <button
+            onClick={() => handleDeleteRow(index)}
+            className={styles.deleteButton}
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
           </div>
         )}
 
