@@ -7,7 +7,8 @@ const ResultPopup = ({ testAllotmentId, onClose }) => {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+  const[message,setMessage]=useState('');
+
   const getUserData = () => {
     try {
       return {
@@ -20,23 +21,24 @@ const ResultPopup = ({ testAllotmentId, onClose }) => {
       return { user: null, token: null, role: null };
     }
   };
-  
+
   useEffect(() => {
     const fetchTestResult = async () => {
       try {
         const { user, token } = getUserData();
-        
+
         const response = await axios.post(RESULT_TEST_URL, {
           user,
           token,
           testAllotmentId
         });
-        
+
         if (response.data.response === "success") {
           setResult(response.data.payload);
         } else {
-          setError(response.data.message);
+          setError(response.data.message || "Result not found.");
         }
+        setMessage(response.data.message)
       } catch (err) {
         setError("An error occurred while fetching test results");
         console.error("Error fetching test results:", err);
@@ -44,19 +46,17 @@ const ResultPopup = ({ testAllotmentId, onClose }) => {
         setLoading(false);
       }
     };
-    
+
     if (testAllotmentId) {
       fetchTestResult();
     }
   }, [testAllotmentId]);
 
-  // Calculate percentage score
   const calculatePercentage = () => {
     if (!result) return 0;
     return ((result.score / result.totalMarks) * 100).toFixed(1);
   };
 
-  // Determine result status based on score
   const getResultStatus = () => {
     if (!result) return '';
     const percentage = (result.score / result.totalMarks) * 100;
@@ -76,7 +76,7 @@ const ResultPopup = ({ testAllotmentId, onClose }) => {
             <span aria-hidden="true">×</span>
           </button>
         </div>
-        
+
         <div className={styles.popupContent}>
           {loading && (
             <div className={styles.loadingContainer}>
@@ -84,14 +84,26 @@ const ResultPopup = ({ testAllotmentId, onClose }) => {
               <p>Loading your results...</p>
             </div>
           )}
-          
+
           {error && (
             <div className={styles.errorContainer}>
               <div className={styles.errorIcon}>!</div>
               <p>{error}</p>
             </div>
           )}
-          
+
+        {!loading && !error && !result && (
+           <div className={styles.restrictedContainer}>
+           <div className={styles.lockWrapper}>
+           <span className={styles.lockIcon}>🔒</span>
+          </div>
+          <h2 className={styles.title}>Test Results Restricted</h2>
+          <p className={styles.description}>{message} </p>
+          </div>
+        )}
+
+
+
           {!loading && !error && result && (
             <div className={styles.resultContainer}>
               <div className={styles.resultHeader}>
@@ -99,52 +111,52 @@ const ResultPopup = ({ testAllotmentId, onClose }) => {
                   <div className={styles.scoreValue}>{calculatePercentage()}%</div>
                   <div className={styles.scoreLabel}>Score</div>
                 </div>
-                
+
                 <div className={styles.testInfo}>
                   <h3>Test Summary</h3>
                   <p className={styles.testDescription}>Test Name: {result.testName || "Assessment Results"}</p>
                   <p className={styles.testId}>Allotment ID: {result.allotmentId}</p>
                 </div>
               </div>
-              
+
               <div className={styles.resultMetrics}>
                 <div className={styles.metricCard}>
                   <div className={styles.metricValue}>{result.correctAnswers}</div>
                   <div className={styles.metricLabel}>Correct</div>
                 </div>
-                
+
                 <div className={styles.metricCard}>
                   <div className={styles.metricValue}>{result.incorrectAnswers}</div>
                   <div className={styles.metricLabel}>Incorrect</div>
                 </div>
-                
+
                 <div className={styles.metricCard}>
                   <div className={styles.metricValue}>{result.questionSkipped}</div>
                   <div className={styles.metricLabel}>Unattempted</div>
                 </div>
-                
+
                 <div className={styles.metricCard}>
                   <div className={styles.metricValue}>{result.totalQuestion}</div>
                   <div className={styles.metricLabel}>Total</div>
                 </div>
               </div>
-              
+
               <div className={styles.scoreDetails}>
                 <div className={styles.scoreItem}>
                   <span className={styles.scoreLabel}>Score:</span>
                   <span className={styles.scoreValue}>{result.score} out of {result.totalMarks} points</span>
                 </div>
-                
+
                 <div className={styles.progressBarContainer}>
-                  <div 
-                    className={`${styles.progressBar} ${getResultStatus()}`} 
+                  <div
+                    className={`${styles.progressBar} ${getResultStatus()}`}
                     style={{ width: `${calculatePercentage()}%` }}
                   ></div>
                 </div>
               </div>
             </div>
           )}
-          
+
           <div className={styles.popupFooter}>
             <button className={styles.closeBtn} onClick={onClose}>
               Close
