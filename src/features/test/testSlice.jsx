@@ -7,7 +7,6 @@ const testSlice = createSlice({
     tests: [],
     loading: false,
     error: null,
-    questionAddSuccess: false,
     questions: [], 
   },
   reducers: {
@@ -48,11 +47,9 @@ const testSlice = createSlice({
       .addCase(addQuestions.pending, (state) => {
         state.loading = true;
         state.error = null;
-        state.questionAddSuccess = false;
       })
       .addCase(addQuestions.fulfilled, (state, action) => {
         state.loading = false;
-        state.questionAddSuccess = true;
         
         // Update the test with new questions if needed
         if (action.payload.payload && action.payload.payload.testId) {
@@ -75,7 +72,6 @@ const testSlice = createSlice({
       .addCase(addQuestions.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        state.questionAddSuccess = false;
       })
       .addCase(viewTestQuestions.pending, (state) => {
         state.loading = true;

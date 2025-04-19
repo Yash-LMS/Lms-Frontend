@@ -133,7 +133,7 @@
 .detailItem {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
   font-size: 0.9rem;
 }
 
@@ -254,18 +254,18 @@
 .questionButtonsContainer {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 30px;
   flex: 1;
 }
 
 .questionActionButtons {
   display: flex;
-  gap: 10px;
+  gap: 17px;
 }
 
 .questionImportButtons {
   display: flex;
-  gap: 10px;
+  gap: 15px;
 }
 
 .importButton {

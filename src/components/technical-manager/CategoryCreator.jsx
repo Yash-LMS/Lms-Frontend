@@ -3,7 +3,7 @@ import axios from 'axios';
 import styles from './CategoryCreator.module.css';
 import { VIEW_QUESTION_ALL_CATEGORY_URL, CREATE_QUESTION_CATEGORY_URL } from '../../constants/apiConstants';
 
-const CategoryCreator = () => {
+const CategoryCreator = ({fetchAllCategories}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [category, setCategory] = useState('');
   const [subCategory, setSubCategory] = useState('');
@@ -13,6 +13,7 @@ const CategoryCreator = () => {
   const [message, setMessage] = useState({ show: false, type: '', text: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [hasCategories, setHasCategories] = useState(true);
+  const [categoriesData, setCategoriesData] = useState([]);
 
   // Function to get user data from session storage
   const getUserData = () => {
@@ -28,7 +29,7 @@ const CategoryCreator = () => {
     }
   };
 
-  const fetchCategories = async () => {
+  const fetchExistingCategories = async () => {
     setIsLoading(true);
     try {
       const response = await axios.get(`${VIEW_QUESTION_ALL_CATEGORY_URL}`);
@@ -76,7 +77,7 @@ const CategoryCreator = () => {
   };
 
   useEffect(() => {
-    fetchCategories();
+    fetchExistingCategories();
   }, []);
 
   const showMessage = (type, text) => {
@@ -147,6 +148,7 @@ const CategoryCreator = () => {
         setTimeout(() => {
           handleCloseModal();
         }, 2000);
+        fetchAllCategories();
       } else {
         showMessage('error', `Failed to add category: ${response.data.message || 'Unknown error'}`);
       }
@@ -171,7 +173,7 @@ const CategoryCreator = () => {
     } else {
       setCategory('');
       // Refresh categories when switching to import mode
-      fetchCategories();
+      fetchExistingCategories();
     }
   };
 

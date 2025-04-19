@@ -55,6 +55,12 @@ export const USER_TRACKING_DETAIL_URL = `${API_BASE_URL}/manager/traineeCourseTr
 export const ADD_OFFICE_URL = `${API_BASE_URL}/manager/addOffice`;
 export const CREATE_QUESTION_CATEGORY_URL = `${API_BASE_URL}/manager/createCategory`;
 
+export const COURSE_COUNT_URL = `${API_BASE_URL}/manager/totalCourses`;
+export const TEST_COUNT_URL = `${API_BASE_URL}/manager/totalTests`;
+export const EMPLOYEE_COUNT_URL = `${API_BASE_URL}/manager/totalEmployees`;
+export const FETCH_CATEGORIES_URL = `${API_BASE_URL}/manager/getCategories`;
+export const DELETE_CATEGORY_URL = `${API_BASE_URL}/manager/deleteCategory`;
+
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
