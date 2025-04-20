@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { viewAllotedTest } from "../../features/user/userActions";
 import DashboardSidebar from "../../assets/DashboardSidebar";
 import ResultPopup from "./ResultPopup"; // Import the ResultPopup component
+import TestResultPopup from "./TestResultPopup";
 import styles from "./MyTests.module.css";
 
 const MyTests = () => {
@@ -20,6 +21,7 @@ const MyTests = () => {
   // State for result popup
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [selectedTestId, setSelectedTestId] = useState(null);
+  const[showDetailedResult,setShowDetailedResult]=useState(false);
 
   useEffect(() => {
     dispatch(viewAllotedTest());
@@ -32,6 +34,10 @@ const MyTests = () => {
     }
   }, [allottedTest]);
 
+  const handleViewResults = (allotmentId) => {
+    setSelectedTestId(allotmentId);
+   setShowDetailedResult(true);
+  };
   // Status badge styling helper
   const getStatusBadgeClass = (status) => {
     const statusClasses = {
@@ -162,6 +168,11 @@ const MyTests = () => {
     setSelectedTestId(null);
   };
 
+  const handleCloseDetailResultPopup = () => {
+    setShowDetailedResult(false);
+    setSelectedTestId(null);
+  };
+
   return (
     <div className={styles.myTestsContainer}>
       <DashboardSidebar activeLink="tests" />
@@ -256,6 +267,16 @@ const MyTests = () => {
                           >
                             {buttonText}
                           </button>
+
+                          {(test.completionStatus === "completed") && (
+                  <button
+                    className={`${styles.actionButton}`}
+                    onClick={() => handleViewResults(test.allotmentId)}
+                  >
+                    View Answer
+                  </button>
+                )}
+
                         </td>
                       </tr>
                     );
@@ -279,6 +300,14 @@ const MyTests = () => {
             onClose={handleCloseResultPopup}
           />
         )}
+
+{showDetailedResult && (
+          <TestResultPopup
+            testAllotmentId={selectedTestId}
+            onClose={handleCloseDetailResultPopup}
+          />
+        )}
+
       </div>
     </div>
   );
