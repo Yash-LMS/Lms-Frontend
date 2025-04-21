@@ -12,13 +12,13 @@ import Sidebar from "./Sidebar";
 import AddOffice from "./AddOffice";
 import CategoryCreator from "./CategoryCreator";
 import axios from "axios";
-import { FETCH_CATEGORIES_URL, DELETE_CATEGORY_URL } from "../../constants/apiConstants";
+import { FETCH_CATEGORIES_URL, UPDATE_CATEGORY_URL } from "../../constants/apiConstants";
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [dashboardItems, setDashboardItems] = useState([]);
-  const [categoriesData, setCategoriesData] = useState([]); // Added for categories data
+  const [categoriesData, setCategoriesData] = useState([]);
   const {
     loading,
     error,
@@ -36,13 +36,19 @@ const ManagerDashboard = () => {
   const [typeFilter, setTypeFilter] = useState("course");
   const [viewMode, setViewMode] = useState("card"); // 'card' or 'table'
   
+  // Category update modal state
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [categoryToUpdate, setCategoryToUpdate] = useState(null);
+  const [updatedCategory, setUpdatedCategory] = useState("");
+  const [updatedSubCategory, setUpdatedSubCategory] = useState("");
+  
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const cardsPerPage = 4;
 
   // Status and type filter options
   const statusOptions = ["all", "approved", "pending", "rejected"];
-  const typeOptions = ["course", "test", "categories"]; // Added categories
+  const typeOptions = ["course", "test", "categories"];
   const viewOptions = ["card", "table"];
 
   const getUserData = () => {
@@ -95,15 +101,15 @@ const ManagerDashboard = () => {
       });
   
       if (response.data.response === "success") {
-        setCategoriesData(response.data.payload); // Update local state with fetched categories
+        setCategoriesData(response.data.payload);
         console.log("Categories loaded:", response.data.payload);
       } else {
-        setCategoriesData([]); // Clear categories if the response is not successful
+        setCategoriesData([]);
         console.error("Failed to fetch categories or no data found.");
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
-      setCategoriesData([]); // Clear categories in case of an error
+      setCategoriesData([]);
     }
   };
 
@@ -144,6 +150,55 @@ const ManagerDashboard = () => {
         return styles.statusRejected;
       default:
         return "";
+    }
+  };
+
+  // Start category update process - opens the modal with current values
+  const openUpdateCategoryModal = (category) => {
+    setCategoryToUpdate(category);
+    setUpdatedCategory(category.category);
+    setUpdatedSubCategory(category.subCategory);
+    setIsUpdateModalOpen(true);
+  };
+
+  // Close the update modal
+  const closeUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+    setCategoryToUpdate(null);
+    setUpdatedCategory("");
+    setUpdatedSubCategory("");
+  };
+
+  // Handle update category with new values
+  const handleUpdateCategory = async () => {
+    try {
+      const { user, token } = getUserData();
+      
+      if (!user || !token || !categoryToUpdate) {
+        console.error("User, token, or category data is missing.");
+        return;
+      }
+      
+      const response = await axios.post(`${UPDATE_CATEGORY_URL}`, {
+        user,
+        token,
+        categoryId: categoryToUpdate.categoryId,
+        category: updatedCategory,
+        subCategory: updatedSubCategory
+      });
+      
+      if (response.data.response === "success") {
+        // Close modal and refresh categories
+        closeUpdateModal();
+        fetchCategoriesData();
+        console.log("Category updated successfully");
+      } else {
+        console.error("Failed to update category:", response.data.message);
+        alert("Failed to update category: " + response.data.message);
+      }
+    } catch (error) {
+      console.error("Error updating category:", error);
+      alert("Error updating category. Please try again.");
     }
   };
 
@@ -236,35 +291,6 @@ const ManagerDashboard = () => {
 
   const handleTestPreviewClick = (testId) => {
     navigate(`/test/view/${testId}`);
-  };
-
-  const handleDeleteCategory = async (categoryId) => {
-    try {
-      const { user, token } = getUserData();
-      
-      if (!user || !token) {
-        console.error("User or token is missing.");
-        return;
-      }
-      
-      const response = await axios.post(`${ DELETE_CATEGORY_URL}`, {
-        user,
-        token,
-        categoryId
-      });
-      
-      if (response.data.response === "success") {
-        // Refresh the categories list after successful deletion
-        fetchCategoriesData();
-        console.log("Category deleted successfully");
-      } else {
-        console.error("Failed to delete category:", response.data.message);
-        alert("Failed to delete category: " + response.data.message);
-      }
-    } catch (error) {
-      console.error("Error deleting category:", error);
-      alert("Error deleting category. Please try again.");
-    }
   };
 
   const handleStatsCardClick = (type) => {
@@ -423,7 +449,7 @@ const ManagerDashboard = () => {
               <tr>
                 <th>Category</th>
                 <th>Sub-Category</th>
-                <th>Actions</th> {/* Add this new column */}
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -434,21 +460,17 @@ const ManagerDashboard = () => {
                     <td>{item.subCategory}</td>
                     <td>
                       <button
-                        className={styles.deleteButton}
-                        onClick={() => {
-                          if (window.confirm("Are you sure you want to delete this category and its subcategory?")) {
-                            handleDeleteCategory(item.categoryId);
-                          }
-                        }}
+                        className={styles.updateButton}
+                        onClick={() => openUpdateCategoryModal(item)}
                       >
-                        Delete
+                        Update
                       </button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={3} className={styles.noItems}> {/* Update colspan to 3 */}
+                  <td colSpan={3} className={styles.noItems}>
                     No categories found
                   </td>
                 </tr>
@@ -527,6 +549,64 @@ const ManagerDashboard = () => {
             )}
           </tbody>
         </table>
+      </div>
+    );
+  };
+
+  // Category Update Modal
+  const renderUpdateCategoryModal = () => {
+    if (!isUpdateModalOpen) return null;
+    
+    return (
+      <div className={styles.modalOverlay}>
+        <div className={styles.modal}>
+          <div className={styles.modalHeader}>
+            <h2>Update Category</h2>
+            <button 
+              className={styles.closeButton}
+              onClick={closeUpdateModal}
+            >
+              ×
+            </button>
+          </div>
+          <div className={styles.modalBody}>
+            <div className={styles.formGroup}>
+              <label htmlFor="categoryName">Category Name:</label>
+              <input
+                type="text"
+                id="categoryName"
+                value={updatedCategory}
+                onChange={(e) => setUpdatedCategory(e.target.value)}
+                className={styles.formInput}
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="subCategoryName">Sub-Category Name:</label>
+              <input
+                type="text"
+                id="subCategoryName"
+                value={updatedSubCategory}
+                onChange={(e) => setUpdatedSubCategory(e.target.value)}
+                className={styles.formInput}
+              />
+            </div>
+          </div>
+          <div className={styles.modalFooter}>
+            <button 
+              className={styles.cancelButton}
+              onClick={closeUpdateModal}
+            >
+              Cancel
+            </button>
+            <button 
+              className={styles.saveButton}
+              onClick={handleUpdateCategory}
+              disabled={!updatedCategory || !updatedSubCategory}
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
       </div>
     );
   };
@@ -649,6 +729,9 @@ const ManagerDashboard = () => {
         {error && <p className={styles.error}>{error}</p>}
 
         {typeFilter === "categories" || viewMode === "table" ? renderTableView() : renderCardView()}
+        
+        {/* Render the update category modal */}
+        {renderUpdateCategoryModal()}
       </main>
     </div>
   );

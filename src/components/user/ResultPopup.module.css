@@ -340,3 +340,61 @@
       gap: 8px;
     }
   }
+
+  .restrictedContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    margin: 1rem auto;
+    max-width: 500px;
+    min-height: 200px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .lockWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 48px;
+    height: 48px;
+    background-color: #e9ecef;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+  }
+  
+  .lockIcon {
+    font-size: 24px;
+    color: #6c757d;
+  }
+  
+  .title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #343a40;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .description {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #6c757d;
+    margin: 0;
+    max-width: 400px;
+  }
+  
+  /* For loading state effect if needed */
+  @keyframes fadeInOut {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+  }
+  
+  .loadingState {
+    animation: fadeInOut 1.5s infinite ease-in-out;
+  }

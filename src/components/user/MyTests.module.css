@@ -59,7 +59,8 @@
     background-color: white;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
+    max-height: 450px; 
+    overflow-x: auto;
     margin-bottom: 2rem;
   }
   
@@ -122,6 +123,13 @@
     background-color: #fee8e7;
     color: #f44336;
   }
+
+  .actionButtons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-direction: column;
+  }
   
   /* Action button styles */
   .actionButton {
@@ -143,6 +151,24 @@
     background-color: #5a4bd1;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
+
+  .viewButton {
+    background-color: #f0e6ff;
+    color: #8e6cef;
+    border: 1px solid #8e6cef;
+    border-radius: 8px;
+    padding: 0.6em 1.2em;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .viewButton:hover {
+    background-color: #e0d6ff;
+  }  
   
   .disabledButton {
     background-color: #e2e8f0;

@@ -1,3 +1,20 @@
+:root {
+  --primary-color: #8e6cef;
+  --primary-hover: #7559ce;
+  --secondary-color: #1c1d1f;
+  --text-primary: #1c1d1f;
+  --text-secondary: #6a6f73;
+  --border-color: #e5e7eb;
+  --background-main: #f5f7f9;
+  --background-card: #ffffff;
+  --sidebar-active: #f0e6ff;
+  --success-color: #1e7f2c;
+  --warning-color: #8b6f1c;
+  --error-color: #dc3545;
+  --info-color: #0d6efd;
+  --hold-color: #6c757d;
+}
+
 /* Main container styles */
 .container {
   max-width: 1200px;
@@ -465,4 +482,22 @@
   transition: border-color 0.25s;
   align-items: center;
   margin-left: 10px;
+}
+
+
+.previewButton {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  flex: 1;
+  text-align: center;
+  background-color: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.previewButton:hover {
+  background-color: var(--sidebar-active);
 }

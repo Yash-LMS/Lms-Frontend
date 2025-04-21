@@ -11,6 +11,7 @@ import {
   VIEW_QUESTION_ALL_SUB_CATEGORY_URL,
 } from "../../constants/apiConstants";
 import BulkUploadQuestionLibrary from "./BulkUploadQuestionLibrary";
+import QuestionLibraryPreview from './QuestionLibraryPreview';
 
 const AddQuestionLibrary = () => {
   const quillRef = useRef(null);
@@ -23,6 +24,7 @@ const AddQuestionLibrary = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [isBulkUploadModelOpen, setIsBulkUploadModelOpen] = useState(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   // Add a key state for forcing re-render
   const [formKey, setFormKey] = useState(0);
 
@@ -500,6 +502,14 @@ const AddQuestionLibrary = () => {
     window.history.back();
   };
 
+  const openPreviewModal = () => {
+    setIsPreviewModalOpen(true);
+  };
+  
+  const closePreviewModal = () => {
+    setIsPreviewModalOpen(false);
+  };
+
   return (
     <div className={styles.container} key={formKey}>
       <div className={styles.pageHeader}>
@@ -510,6 +520,13 @@ const AddQuestionLibrary = () => {
             onClick={openModal}
           >
             Bulk Upload Questions
+          </button>
+
+          <button 
+            className={styles.previewButton}
+            onClick={openPreviewModal}
+          >
+            Preview Library Questions
           </button>
           
           <button
@@ -771,6 +788,13 @@ const AddQuestionLibrary = () => {
           {loading ? "Saving..." : "Save All Questions"}
         </button>
       </div>
+
+      {isPreviewModalOpen && (
+        <QuestionLibraryPreview 
+          isOpen={isPreviewModalOpen}
+          onClose={closePreviewModal}
+        />
+      )}
 
       {/* Success Modal */}
       {showSuccessModal && (
