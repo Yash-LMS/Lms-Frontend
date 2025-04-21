@@ -501,13 +501,17 @@ const TestModule = () => {
       const { user, token } = getUserData();
 
       // Format answers according to the TestEvaluationModel structure
-      const testEvaluationList = Object.entries(answers)
-        .filter(([_, answer]) => answer) // Filter out empty answers
-        .map(([questionId, answerId]) => ({
+      const testEvaluationList = testDetails.questionList.map((question) => {
+        const questionId = question.questionId;
+        const answerId = answers[questionId] || ""; // Default to empty string if not answered
+      
+        return {
           testAllotmentId: testAllotmentId,
-          questionId: parseInt(questionId),
+          questionId: questionId,
           answerId: answerId,
-        }));
+        };
+      });
+      
 
       const submitData = {
         user: user,

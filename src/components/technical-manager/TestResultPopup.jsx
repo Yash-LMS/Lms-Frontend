@@ -111,9 +111,22 @@ const TestResultPopup = ({ testAllotmentId, onClose }) => {
                 <div key={index} className={styles.questionCard}>
                   <div className={styles.questionHeader}>
                     <span className={styles.questionNumber}>Question {item.evaluation.sno}</span>
-                    <span className={`${styles.status} ${item.evaluation.answerStatus === 'correct' ? styles.statusCorrect : styles.statusIncorrect}`}>
-                      {item.evaluation.answerStatus === 'correct' ? 'Correct' : 'Incorrect'}
-                    </span>
+                    <span
+  className={`${styles.status} ${
+    item.evaluation.questionStatus === "not_attempted"
+      ? styles.statusNotAttempted
+      : item.evaluation.answerStatus === "correct"
+      ? styles.statusCorrect
+      : styles.statusIncorrect
+  }`}
+>
+  {item.evaluation.questionStatus === "not_attempted"
+    ? "Not Attempted"
+    : item.evaluation.answerStatus === "correct"
+    ? "Correct"
+    : "Incorrect"}
+</span>
+
                     <span className={styles.questionMarks}>{item.questionDto.marks} marks</span>
                   </div>
                   
