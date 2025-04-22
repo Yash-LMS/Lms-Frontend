@@ -22,7 +22,11 @@ const TestList = ({
   const [isImportRandomModalOpen, setIsImportRandomModalOpen] = useState(false);
   const [isImportAllModalOpen, setIsImportAllModalOpen] = useState(false);
   const [selectedTest, setSelectedTest] = useState(null);
-
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 6;
+  
   const navigate = useNavigate();
 
   if (loading) {
@@ -40,6 +44,25 @@ const TestList = ({
       </div>
     );
   }
+  
+  // Calculate pagination
+  const indexOfLastTest = currentPage * cardsPerPage;
+  const indexOfFirstTest = indexOfLastTest - cardsPerPage;
+  const currentTests = tests.slice(indexOfFirstTest, indexOfLastTest);
+  const totalPages = Math.ceil(tests.length / cardsPerPage);
+
+  // Pagination handlers
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   // Function to get status badge style
   const getStatusBadgeClass = (testStatus) => {
@@ -104,73 +127,96 @@ const TestList = ({
   };
 
   return (
-    <div className={styles.testList}>
-      {tests.map((test) => (
-        <div key={test.testId} className={styles.testCard}>
-          <div className={styles.testTag}>TEST</div>
-          <div className={styles.testHeader}>
-            <h3 className={styles.testName}>{test.testName}</h3>
-            <span
-              className={`${styles.statusBadge} ${getStatusBadgeClass(
-                test.testStatus
-              )}`}
-            >
-              {test.testStatus.toUpperCase()}
-            </span>
-          </div>
-
-          <div className={styles.testDetails}>
-            <div className={styles.detailItem}>
-              <span className={styles.detailLabel}>Duration:</span>
-              <span>{test.duration} minutes</span>
+    <div className={styles.testListContainer}>
+      <div className={styles.testList}>
+        {currentTests.map((test) => (
+          <div key={test.testId} className={styles.testCard}>
+            <div className={styles.testTag}>TEST</div>
+            <div className={styles.testHeader}>
+              <h3 className={styles.testName}>{test.testName}</h3>
+              <span
+                className={`${styles.statusBadge} ${getStatusBadgeClass(
+                  test.testStatus
+                )}`}
+              >
+                {test.testStatus.toUpperCase()}
+              </span>
             </div>
-          </div>
 
-          <div className={styles.testActions}>
-            <div className={styles.questionButtonsContainer}>
-              <div className={styles.questionActionButtons}>
-                <button
-                  className={styles.previewButton}
-                  onClick={() => handlePreviewClick(test.testId)}
-                >
-                  <FontAwesomeIcon icon={faEye} />
-                  <span style={{marginLeft:'5px'}}>Preview</span>
-                </button>
-                <button
-                  className={styles.addQuestionsButton}
-                  onClick={() => handleOpenQuestionModal(test)}
-                >
-                  <FontAwesomeIcon icon={faPlus} />
-                  <span style={{marginLeft:'5px'}}>Add Single Question</span>
-                </button>
-                <button
-                  className={styles.uploadButton}
-                  onClick={() => handleOpenBulkUploadModal(test)}
-                >
-                  <FontAwesomeIcon icon={faArrowUpFromBracket} />
-                  <span style={{marginLeft:'5px'}}>Bulk Upload</span>
-                </button>
-              </div>
-              <div className={styles.questionActionButtons}>
-              <button
-                className={styles.importButton}
-                onClick={() => handleOpenImportRandomModal(test)}
-              >
-                <FontAwesomeIcon icon={faDownload} />
-                <span style={{marginLeft:'5px'}}>Import Random Questions</span>
-              </button>
-              <button
-                className={styles.importButton}
-                onClick={() => handleOpenImportAllModal(test)}
-              >
-                <FontAwesomeIcon icon={faDownload} />
-                <span style={{marginLeft:'5px'}}>Import All Questions</span>
-              </button>
+            <div className={styles.testDetails}>
+              <div className={styles.detailItem}>
+                <span className={styles.detailLabel}>Duration:</span>
+                <span>{test.duration} minutes</span>
               </div>
             </div>
+
+            <div className={styles.testActions}>
+              <div className={styles.questionButtonsContainer}>
+                <div className={styles.questionActionButtons}>
+                  <button
+                    className={styles.previewButton}
+                    onClick={() => handlePreviewClick(test.testId)}
+                  >
+                    <FontAwesomeIcon icon={faEye} />
+                    <span style={{marginLeft:'5px'}}>Preview</span>
+                  </button>
+                  <button
+                    className={styles.addQuestionsButton}
+                    onClick={() => handleOpenQuestionModal(test)}
+                  >
+                    <FontAwesomeIcon icon={faPlus} />
+                    <span style={{marginLeft:'5px'}}>Add Single Question</span>
+                  </button>
+                  <button
+                    className={styles.uploadButton}
+                    onClick={() => handleOpenBulkUploadModal(test)}
+                  >
+                    <FontAwesomeIcon icon={faArrowUpFromBracket} />
+                    <span style={{marginLeft:'5px'}}>Bulk Upload</span>
+                  </button>
+                </div>
+                <div className={styles.questionActionButtons}>
+                <button
+                  className={styles.importButton}
+                  onClick={() => handleOpenImportRandomModal(test)}
+                >
+                  <FontAwesomeIcon icon={faDownload} />
+                  <span style={{marginLeft:'5px'}}>Import Random Questions</span>
+                </button>
+                <button
+                  className={styles.importButton}
+                  onClick={() => handleOpenImportAllModal(test)}
+                >
+                  <FontAwesomeIcon icon={faDownload} />
+                  <span style={{marginLeft:'5px'}}>Import All Questions</span>
+                </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      
+      {/* Pagination Controls - Removing conditional rendering */}
+      <div className={styles.paginationControls}>
+        <button 
+          className={styles.paginationButton} 
+          onClick={prevPage} 
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        <span className={styles.pageIndicator}>
+          Page {currentPage} of {totalPages || 1}
+        </span>
+        <button 
+          className={styles.paginationButton} 
+          onClick={nextPage} 
+          disabled={currentPage === totalPages || totalPages === 0}
+        >
+          Next
+        </button>
+      </div>
 
       {/* Question Modal */}
       <QuestionModal
