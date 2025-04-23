@@ -9,7 +9,9 @@ export const VERIFY_USER_CERTIFICATE = `${API_BASE_URL}/certificate/verify`;
 
 //Instructor
 export const OFFICE_LIST_URL = `${API_BASE_URL}/office/findOfficeList`;
+export const INTERNSHIP_PROGRAM_LIST = `${API_BASE_URL}/office/internship/findAllPrograms`;
 export const REGISTER_USER_URL = `${API_BASE_URL}/user/register`;
+export const REGISTER_INTERN_URL = `${API_BASE_URL}/user/intern/register`;
 export const LOGIN_URL = `${API_BASE_URL}/user/login`;
 export const ADD_NEW_COURSE_URL = `${API_BASE_URL}/course/addNewCourse`;
 export const ADD_NEW_SECTION_URL = `${API_BASE_URL}/course/addNewSection`;

@@ -41,6 +41,7 @@ import AddQuestionLibrary from "./components/test/AddQuestionLibrary";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightToBracket, faRightFromBracket, faUserPlus, faCircleCheck} from "@fortawesome/free-solid-svg-icons";
+import InternRegistration from "./components/auth/InternRegistration";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -179,6 +180,8 @@ const AppContent = () => {
             element={<LoginForm setLoginStatus={setLoginStatus} />}
           />
           <Route path="/register" element={<RegisterForm />} />
+          <Route path="/intern/register" element={<InternRegistration />} />
+        
           <Route path="/certificate" element={<CertificateValidation />} />
 
           <Route path="/forgot-password" element={<ForgotPasswordForm />} />
