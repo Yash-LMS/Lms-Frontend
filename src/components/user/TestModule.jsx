@@ -40,6 +40,7 @@ const TestModule = () => {
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
   const[showShortcutWarning,setShowShortcutWarning]=useState(false);
   const[showDevToolWarning,setShowDevToolWarning]=useState(false);
+  const[showTimeConfirmation,setShowTimeConfirmation]=useState(false);
 
   useEffect(() => {}, [location.state, navigate]);
 
@@ -220,7 +221,8 @@ const TestModule = () => {
         if (prevTime <= 1) {
           clearInterval(timerRef.current);
           if (testDetails && testAllotmentId) {
-            handleSubmit("Test time out"); // Submit the test when the timer runs out
+           pauseTest();
+           setShowTimeConfirmation(true);
           }
           return 0;
         }
@@ -795,6 +797,37 @@ const TestModule = () => {
           </div>
         </div>
       )}
+
+
+{showTimeConfirmation && (
+        <div className={styles.confirmationOverlay}>
+          <div className={styles.confirmationPopup}>
+            <h3>Test Time Out</h3>
+            
+            <div className={styles.testSummary}>
+              <p>
+                Total Questions: <strong>{totalQuestions}</strong>
+              </p>
+              <p>
+                Answered: <strong>{answeredCount}</strong>
+              </p>
+              <p>
+                Unanswered: <strong>{unansweredCount}</strong>
+              </p>
+            </div>
+
+            <div className={styles.confirmationButtons}>
+              <button
+                className={styles.confirmSubmitBtn}
+                onClick={() => handleSubmit("Test time out")}
+              >
+                 Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       <div
         className={`${styles.testContent} ${

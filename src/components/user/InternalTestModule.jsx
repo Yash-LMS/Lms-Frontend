@@ -38,10 +38,12 @@ const InternalTestModule = () => {
   const [courseId, setCourseId] = useState(null);
   const [trackingId, setTrackingId] = useState(null);
   
+  
   // Added for submit confirmation popup
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
   const[showShortcutWarning,setShowShortcutWarning]=useState(false);
   const[showDevToolWarning,setShowDevToolWarning]=useState(false);
+  const[showTimeConfirmation,setShowTimeConfirmation]=useState(false);
   
 
 
@@ -304,7 +306,8 @@ const InternalTestModule = () => {
       setTimeRemaining(prevTime => {
         if (prevTime <= 1) {
           clearInterval(timerRef.current);
-          handleSubmit("Test time out");
+          pauseTest();
+          setShowTimeConfirmation(true);
           return 0;
         }
         return prevTime - 1;
@@ -815,6 +818,35 @@ const InternalTestModule = () => {
           </div>
         </div>
       )}
+
+      {showTimeConfirmation && (
+              <div className={styles.confirmationOverlay}>
+                <div className={styles.confirmationPopup}>
+                  <h3>Test Time Out</h3>
+                  
+                  <div className={styles.testSummary}>
+                    <p>
+                      Total Questions: <strong>{totalQuestions}</strong>
+                    </p>
+                    <p>
+                      Answered: <strong>{answeredCount}</strong>
+                    </p>
+                    <p>
+                      Unanswered: <strong>{unansweredCount}</strong>
+                    </p>
+                  </div>
+      
+                  <div className={styles.confirmationButtons}>
+                    <button
+                      className={styles.confirmSubmitBtn}
+                      onClick={() => handleSubmit("Test time out")}
+                    >
+                       Submit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
       
       <div className={`${styles.testContent} ${isPaused || showSubmitConfirmation ? styles.blurred : ''}`}>
         <div className={styles.testPanel}>
