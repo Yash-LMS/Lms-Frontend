@@ -15,7 +15,7 @@ const EmployeeManagementPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(""); // Add search term state
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Function to get user data from sessionStorage
   const getUserData = () => {
@@ -93,7 +93,7 @@ const EmployeeManagementPage = () => {
     const userToUpdate = users.find((emp) => emp.emailId === emailId);
 
     if (!userToUpdate) {
-      console.error(`User  with email ${emailId} not found`);
+      console.error(`User with email ${emailId} not found`);
       return;
     }
 
@@ -145,7 +145,7 @@ const EmployeeManagementPage = () => {
     const userToUpdate = users.find((emp) => emp.emailId === emailId);
 
     if (!userToUpdate) {
-      console.error(`User  with email ${emailId} not found`);
+      console.error(`User with email ${emailId} not found`);
       return;
     }
 
@@ -202,10 +202,20 @@ const EmployeeManagementPage = () => {
     setSearchTerm("");
   };
 
-  // Filter users based on search term
+  // Filter users based on search term and exclude interns
   const filteredUsers =
     users && users.length > 0
       ? users.filter((user) => {
+          // First filter out interns
+          if (user.employeeType === "intern") {
+            return false;
+          }
+          
+          // Then apply search term filtering
+          if (!searchTerm) {
+            return true;
+          }
+          
           const searchTermLower = searchTerm.toLowerCase();
           const name =
             user.name || `${user.firstName || ""} ${user.lastName || ""}`;
@@ -219,6 +229,11 @@ const EmployeeManagementPage = () => {
           );
         })
       : [];
+      
+  // Calculate employee count excluding interns
+  const regularEmployeeCount = users && users.length > 0 
+    ? users.filter(user => user.employeeType !== "intern").length 
+    : 0;
 
   const isLoading = reduxLoading || loading;
 
@@ -263,9 +278,8 @@ const EmployeeManagementPage = () => {
         <div className={styles.pageHeader}>
           <h1>Employee Management</h1>
           <div className={styles.dashboardStats}>
-            <div
-              className={styles.statCard}>
-              <div className={styles.statValue}>{employeeCount || 0}</div>
+            <div className={styles.statCard}>
+              <div className={styles.statValue}>{regularEmployeeCount || 0}</div>
               <div className={styles.statLabel}>Total Employees</div>
             </div>
           </div>
@@ -331,7 +345,7 @@ const EmployeeManagementPage = () => {
 
         <div className={styles.headerActions}>
           <ExportToExcel
-            data={filteredUsers.length > 0 ? filteredUsers : users}
+            data={filteredUsers}
             headers={excelHeaders}
             fileName="Employee-Management-Results"
             sheetName="Employees"
