@@ -27,13 +27,13 @@
     font-size: 1.75rem;
     margin: 0;
     color: #8e6cef;
-    font-weight: 1.75rem;
+    font-weight: 600;
   }
   
   .filterContainer {
     display: flex;
     gap: 24px;
-    margin-top: 20px;
+    margin-bottom: 20px;
   }
   
   .filterGroup {
@@ -58,7 +58,6 @@
     min-width: 150px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     cursor: pointer;
-    margin-bottom: 20px;
   }
   
   .tableSelect {
@@ -77,35 +76,38 @@
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     width: 100%;
+    margin-bottom: 20px;
   }
   
   .tableContainer {
-    overflow-y: auto;
     overflow-x: auto;
-    max-height: 350px;
     width: 100%;
+    overflow-y: auto;
+    max-height: 450px; 
   }
   
   .table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
-    table-layout: fixed;
+    min-width: 1000px; 
   }
   
   .table th {
     text-align: center;
-    padding: 16px 20px;
+    padding: 16px 12px;
     background-color: #f9fafb;
     font-weight: 600;
     color: #374151;
     border-bottom: 1px solid #e5e7eb;
     white-space: nowrap;
+    position: sticky;
+    top: 0;
     z-index: 1;
   }
   
   .table td {
-    padding: 16px 20px;
+    padding: 16px 12px;
     border-bottom: 1px solid #e5e7eb;
     color: #4b5563;
     text-align: center;
@@ -174,11 +176,10 @@
     position: relative;
     max-width: 300px;
     width: 100%;
-    margin-right: 16px;
   }
   
   .searchInput {
-    width: 80%;
+    width: 100%;
     height: 16px;
     padding: 10px 40px 10px 16px;
     border-radius: 8px;
@@ -332,7 +333,40 @@
     cursor: not-allowed;
   }
   
+  .headerActions {
+    display: flex;
+    align-items: center;
+    gap: 5rem;
+  }
+  
+  .bulkRegisterButton {
+    background-color: #8e6cef;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+  
+  .bulkRegisterButton:hover {
+    background-color: #7559ce;
+    transform: translateY(-1px);
+  }
+  
+  .bulkRegisterButton:active {
+    transform: translateY(0);
+  }
+  
   /* Responsive styles */
+  @media (max-width: 1024px) {
+    .table {
+      min-width: 800px;
+    }
+  }
+  
   @media (max-width: 768px) {
     .container {
       margin-left: 0;
@@ -357,225 +391,7 @@
   
     .table th,
     .table td {
-      padding: 12px 10px;
+      padding: 12px 8px;
+      font-size: 13px;
     }
-  }
-
-  .headerActions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  
-  .searchField {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  
-  .bulkUploadButton {
-    background-color: #4f46e5;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  
-  .bulkUploadButton:hover {
-    background-color: #4338ca;
-  }
-  
-  .bulkUploadButton:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.5);
-  }
-  
-  .modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .modal {
-    background-color: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-  
-  .modalTitle {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    color: #1f2937;
-  }
-  
-  .modalDescription {
-    color: #4b5563;
-    margin-bottom: 1.5rem;
-  }
-  
-  .bulkUploadInstructions {
-    background-color: #f3f4f6;
-    border-radius: 4px;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    font-size: 0.875rem;
-    color: #4b5563;
-  }
-  
-  .bulkUploadInstructions ul {
-    margin-top: 0.5rem;
-    padding-left: 1.5rem;
-  }
-  
-  .bulkUploadInstructions li {
-    margin-bottom: 0.25rem;
-  }
-  
-  .templateDownloadContainer {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: flex-start;
-  }
-  
-  .templateDownloadButton {
-    display: inline-flex;
-    align-items: center;
-    background-color: #e5e7eb;
-    color: #111827;
-    font-size: 0.875rem;
-    padding: 0.375rem 0.75rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .templateDownloadButton:hover {
-    background-color: #d1d5db;
-  }
-  
-  .fileInput {
-    display: block;
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    margin-top: 0.25rem;
-    font-size: 0.875rem;
-  }
-  
-  .progressBarContainer {
-    width: 100%;
-    height: 0.5rem;
-    background-color: #e5e7eb;
-    border-radius: 9999px;
-    overflow: hidden;
-    margin: 1rem 0;
-    position: relative;
-  }
-  
-  .progressBar {
-    height: 100%;
-    background-color: #4f46e5;
-    transition: width 0.3s ease;
-  }
-  
-  .progressText {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 0.75rem;
-    color: #1f2937;
-    font-weight: 500;
-  }
-  
-  .uploadResultMessage {
-    margin: 1rem 0;
-    padding: 0.75rem;
-    border-radius: 4px;
-    font-size: 0.875rem;
-  }
-  
-  .successMessage {
-    background-color: #d1fae5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
-  }
-  
-  .errorMessage {
-    background-color: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-  }
-  
-  .resultDetails {
-    margin-top: 0.5rem;
-  }
-  
-  .resultDetails ul {
-    padding-left: 1.5rem;
-    margin-top: 0.25rem;
-  }
-  
-  .modalButtons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-  }
-  
-  .cancelButton {
-    background-color: #f3f4f6;
-    color: #374151;
-    border: none;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .cancelButton:hover {
-    background-color: #e5e7eb;
-  }
-  
-  .submitButton {
-    background-color: #4f46e5;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .submitButton:hover {
-    background-color: #4338ca;
-  }
-  
-  .submitButton:disabled,
-  .cancelButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }

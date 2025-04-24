@@ -214,18 +214,20 @@ const TestModule = () => {
   // Timer logic
   useEffect(() => {
     if (loading || !testDetails || isPaused || !testStarted) return;
-
+  
     timerRef.current = setInterval(() => {
       setTimeRemaining((prevTime) => {
         if (prevTime <= 1) {
           clearInterval(timerRef.current);
-          handleSubmit("Test time out");
+          if (testDetails && testAllotmentId) {
+            handleSubmit("Test time out"); // Submit the test when the timer runs out
+          }
           return 0;
         }
         return prevTime - 1;
       });
     }, 1000);
-
+  
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };

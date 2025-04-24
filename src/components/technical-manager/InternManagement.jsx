@@ -3,6 +3,7 @@ import axios from 'axios';
 import styles from './InternManagement.module.css';
 import { FIND_INTERN_LIST_URL, UPDATE_INTERN_STATUS_URL } from '../../constants/apiConstants';
 import Sidebar from './Sidebar'; 
+import InternBulkRegistration from './InternBulkRegistration';
 
 const InternManagement = () => {
   const [interns, setInterns] = useState([]);
@@ -15,6 +16,8 @@ const InternManagement = () => {
   const [selectedNewStatus, setSelectedNewStatus] = useState('');
   const [activeTab, setActiveTab] = useState("intern");
   const [searchTerm, setSearchTerm] = useState('');
+  // State for bulk registration modal
+  const [showBulkRegistrationModal, setShowBulkRegistrationModal] = useState(false);
   
   // Status options - matching the employee management page
   const statusOptions = [
@@ -66,17 +69,49 @@ const InternManagement = () => {
     }
   };
 
-  // Handle status change with modal
+  // Handle status change with modal only for "active" status
   const handleStatusChangeInitiate = (intern, newStatus) => {
     // If current status is the same as new status, do nothing
     if (intern.status.toLowerCase() === newStatus.toLowerCase()) {
       return;
     }
     
-    setSelectedIntern(intern);
-    setSelectedNewStatus(newStatus);
-    setRemark('');
-    setShowRemarkModal(true);
+    // Only show the remark modal when changing status to "active"
+    if (newStatus === 'active') {
+      setSelectedIntern(intern);
+      setSelectedNewStatus(newStatus);
+      setRemark('');
+      setShowRemarkModal(true);
+    } else {
+      // For other status changes, update directly without showing the modal
+      updateInternStatus(intern, newStatus);
+    }
+  };
+
+  // New function to handle status updates without showing the modal
+  const updateInternStatus = async (intern, newStatus) => {
+    try {
+      const { user, token } = getUserData();
+      
+      const response = await axios.post(UPDATE_INTERN_STATUS_URL, {
+        user,
+        token,
+        emailId: intern.emailId,
+        remark: `Status updated from ${intern.status} to ${newStatus}`,
+        status: newStatus
+      });
+
+      if (response.data && response.data.response === "success") {
+        // Update local state to reflect the change
+        setInterns(interns.map(i => 
+          i.emailId === intern.emailId 
+            ? { ...i, status: newStatus } 
+            : i
+        ));
+      }
+    } catch (error) {
+      // We don't want to show an error, just keep the current state
+    }
   };
 
   // Submit status change with remark
@@ -158,6 +193,11 @@ const InternManagement = () => {
     }
   };
 
+  // Handler for bulk registration success
+  const handleBulkRegistrationSuccess = () => {
+    fetchInterns();
+  };
+
   return (
     <div className={styles.container}>
       <Sidebar activeTab={activeTab} />
@@ -165,19 +205,27 @@ const InternManagement = () => {
       <div className={styles.card}>
         <div className={styles.pageHeader}>
           <h1>Intern Management</h1>
-          <div className={styles.searchField}>
-            <input 
-              type="text"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              placeholder="Search interns..."
-              className={styles.searchInput}
-            />
-            {searchTerm && (
-              <button className={styles.clearSearchButton} onClick={clearSearch}>
-                ✕
-              </button>
-            )}
+          <div className={styles.headerActions}>
+            <div className={styles.searchField}>
+              <input 
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                placeholder="Search interns..."
+                className={styles.searchInput}
+              />
+              {searchTerm && (
+                <button className={styles.clearSearchButton} onClick={clearSearch}>
+                  ✕
+                </button>
+              )}
+            </div>
+            <button 
+              className={styles.bulkRegisterButton}
+              onClick={() => setShowBulkRegistrationModal(true)}
+            >
+              Bulk Register
+            </button>
           </div>
         </div>
         
@@ -198,7 +246,6 @@ const InternManagement = () => {
           </div>
         </div>
     
-        
         {searchTerm && (
           <div className={styles.searchResultCount}>
             Found <span>{filteredInterns.length}</span> results for "{searchTerm}"
@@ -215,10 +262,14 @@ const InternManagement = () => {
                   <tr>
                     <th>Name</th>
                     <th>Email</th>
+                    <th>Address</th>
                     <th>Institution</th>
+                    <th>Stream</th>
+                    <th>Year Of Passing</th>
                     <th>Program</th>
                     <th>Start Date</th>
                     <th>End Date</th>
+                    <th>Duration (in months)</th>
                     <th>Status</th>
                     <th>Action</th>
                   </tr>
@@ -229,10 +280,14 @@ const InternManagement = () => {
                       <tr key={intern.emailId}>
                         <td>{`${intern.firstName} ${intern.lastName}`}</td>
                         <td>{intern.emailId}</td>
+                        <td>{intern.address}</td>
                         <td>{intern.institution}</td>
+                        <td>{intern.stream}</td>
+                        <td>{intern.yearOfPassing}</td>
                         <td>{intern.internshipProgram}</td>
                         <td>{formatDate(intern.startDate)}</td>
                         <td>{formatDate(intern.endDate)}</td>
+                        <td>{intern.duration}</td>
                         <td>
                           <span className={`${styles.statusBadge} ${
                             intern.status === 'active' ? styles.statusActive : 
@@ -260,7 +315,7 @@ const InternManagement = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={8} className={styles.noData}>
+                      <td colSpan={12} className={styles.noData}>
                         {getNoDataMessage()}
                       </td>
                     </tr>
@@ -280,7 +335,7 @@ const InternManagement = () => {
               Status Change: {selectedIntern?.status} → {selectedNewStatus}
             </h2>
             <p className={styles.modalDescription}>
-              Please provide a remark for changing the status of {selectedIntern?.firstName} {selectedIntern?.lastName}.
+              Please provide a remark for activating {selectedIntern?.firstName} {selectedIntern?.lastName}.
             </p>
             <div className={styles.formGroup}>
               <label htmlFor="remark">Remark:</label>
@@ -309,6 +364,14 @@ const InternManagement = () => {
             </div>
           </div>
         </div>
+      )}
+      
+      {/* Bulk Registration Modal */}
+      {showBulkRegistrationModal && (
+        <InternBulkRegistration
+          onClose={() => setShowBulkRegistrationModal(false)}
+          onUploadSuccess={handleBulkRegistrationSuccess}
+        />
       )}
     </div>
   );
