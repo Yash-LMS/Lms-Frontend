@@ -9,6 +9,7 @@ import {
 } from "../../constants/apiConstants";
 import Sidebar from "./Sidebar";
 import ExportToExcel from "../../assets/ExportToExcel";
+import TestResultPopup from "./TestResultPopup";
 
 const TraineeResults = () => {
   const navigate = useNavigate();
@@ -21,6 +22,8 @@ const TraineeResults = () => {
   const [selectedEmailId, setSelectedEmailId] = useState(null);
   const [traineeList, setTraineeList] = useState([]);
   const [selectedTrainee, setSelectedTrainee] = useState(null);
+  const[showDetailedResult,setShowDetailedResult]=useState(false);
+  const[selectedTestId,setSelectedTestId]=useState(null);
 
   // Add sort state
   const [sortConfig, setSortConfig] = useState({
@@ -148,6 +151,7 @@ const TraineeResults = () => {
     ); // Down arrow
   };
 
+  
   const filterResults = () => {
     let filtered = [...results];
 
@@ -329,6 +333,17 @@ const TraineeResults = () => {
     }),
   };
 
+  const handleViewResults = (allotmentId) => {
+    setSelectedTestId(allotmentId);
+   setShowDetailedResult(true);
+  };
+
+  const handleCloseDetailResultPopup = () => {
+    setShowDetailedResult(false);
+    setSelectedTestId(null);
+  };
+
+
   return (
     <div className={styles.container}>
       {/* Sidebar component with fixed width */}
@@ -499,6 +514,10 @@ const TraineeResults = () => {
                       Submission Time
                       {getSortDirectionIcon("submissionTime")}
                     </th>
+                    
+                    <th> Action</th>
+
+
                   </tr>
                 </thead>
                 <tbody>
@@ -547,6 +566,12 @@ const TraineeResults = () => {
                           <td>
                             {result.submissionTime}
                           </td>
+                          <td>
+  <button onClick={() => handleViewResults(result.allotmentId)}>
+    View Result
+  </button>
+</td>
+
                         </tr>
                       );
                     })
@@ -567,6 +592,13 @@ const TraineeResults = () => {
           <div className={styles.noTraineeSelected}>
             <p>Please select a trainee to view their test results.</p>
           </div>
+        )}
+
+       {showDetailedResult && (
+          <TestResultPopup
+            testAllotmentId={selectedTestId}
+            onClose={handleCloseDetailResultPopup}
+          />
         )}
       </div>
     </div>

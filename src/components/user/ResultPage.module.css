@@ -6,7 +6,7 @@
   height: 100%;
   width: 100%;
   padding: 40px 20px;
-  background-color: #f8f9fb;
+  margin-top: 80px;
 }
 
 .card {
@@ -271,6 +271,7 @@
   background: linear-gradient(135deg, #c53030 0%, #e53e3e 100%);
 }
 
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .card {
@@ -306,5 +307,89 @@
   
   .dashboardButton, .downloadBtn {
     width: 100%;
+  }
+}
+
+
+.messageBox {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.restrictedContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 30px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  max-width: 500px;
+  margin: 60px auto;
+  text-align: center;
+}
+
+.lockWrapper {
+  background-color: #e0f2fe;
+  padding: 20px;
+  border-radius: 50%;
+  margin-bottom: 24px;
+}
+
+.lockIcon {
+  font-size: 3.5rem;
+  color: #0ea5e9;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 12px;
+}
+
+.description {
+  font-size: 1.1rem;
+  color: #4b5563;
+  line-height: 1.6;
+  max-width: 90%;
+  margin-bottom: 32px;
+}
+
+.closeButton {
+  background-color: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: #1e40af;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .restrictedContainer {
+    padding: 40px 20px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
+  .lockIcon {
+    font-size: 3rem;
   }
 }

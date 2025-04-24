@@ -565,3 +565,63 @@
     pointer-events: none;
   }
   
+
+  /* ShortcutPopup.module.css */
+
+.shortcutPopupOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shortcutPopup {
+  background: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 10px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  animation: fadeInPop 0.3s ease;
+}
+
+.shortcutPopup h2 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: #dc2626;
+}
+
+.shortcutPopup p {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  color: #333;
+}
+
+.shortcutPopup button {
+  background: #dc2626;
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.shortcutPopup button:hover {
+  background: #b91c1c;
+}
+
+@keyframes fadeInPop {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

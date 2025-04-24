@@ -38,8 +38,13 @@ const InternalTestModule = () => {
   const [courseId, setCourseId] = useState(null);
   const [trackingId, setTrackingId] = useState(null);
   
+  
   // Added for submit confirmation popup
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
+  const[showShortcutWarning,setShowShortcutWarning]=useState(false);
+  const[showDevToolWarning,setShowDevToolWarning]=useState(false);
+  const[showTimeConfirmation,setShowTimeConfirmation]=useState(false);
+  
 
 
   useEffect(() => {
@@ -301,7 +306,8 @@ const InternalTestModule = () => {
       setTimeRemaining(prevTime => {
         if (prevTime <= 1) {
           clearInterval(timerRef.current);
-          handleSubmit("Test time out");
+          pauseTest();
+          setShowTimeConfirmation(true);
           return 0;
         }
         return prevTime - 1;
@@ -320,6 +326,117 @@ const InternalTestModule = () => {
     });
   };
 
+ // Windows switch security
+  useEffect(() => {
+    const handleWindowBlur = () => {
+      if (testStarted && !loading) {
+        pauseTest();
+        setFullScreenExitCount(prev => prev + 1);
+        setShowNotification(true);
+  
+        if (fullScreenExitCount >= 3) {
+          handleSubmit("User changed window many times");
+        }
+      }
+    };
+  
+    window.addEventListener("blur", handleWindowBlur);
+  
+    return () => {
+      window.removeEventListener("blur", handleWindowBlur);
+    };
+  }, [testStarted, loading, fullScreenExitCount]);
+
+  
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const key = e.key.toLowerCase();
+  
+      // Disable Ctrl/Meta + C/V/X/P
+      if ((e.ctrlKey || e.metaKey) && ["c", "v", "x", "p"].includes(key)) {
+        e.preventDefault();
+        setShowShortcutWarning(true);
+      }
+  
+      // Detect Alt key press
+      if (e.key === "Alt") {
+        e.preventDefault();
+        setShowShortcutWarning(true);
+      }
+    };
+  
+    const handleKeyUp = (e) => {
+      if (e.key === "Alt") {
+        e.preventDefault();
+      }
+    };
+  
+    const handleRightClick = (e) => {
+      e.preventDefault(); // Disable context menu
+      setShowShortcutWarning(true);
+    };
+  
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("contextmenu", handleRightClick);
+  
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("contextmenu", handleRightClick);
+    };
+  }, []);
+  
+  
+  
+  useEffect(() => {
+    if (showShortcutWarning) {
+      const timer = setTimeout(() => {
+        setShowShortcutWarning(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showShortcutWarning]);
+  
+  // Inspect warning 
+    useEffect(() => {
+      let devToolsOpen = false;
+      let checkInterval;
+    
+      const checkDevTools = () => {
+        const threshold = 160; // px difference to detect dev tools
+    
+        const isDevToolsOpen =
+          window.outerWidth - window.innerWidth > threshold ||
+          window.outerHeight - window.innerHeight > threshold;
+    
+        if (isDevToolsOpen && !devToolsOpen && !loading && testDetails && testStarted) {
+          devToolsOpen = true;
+    
+          // Increment the same warning count
+          setFullScreenExitCount((prev) => {
+            const updated = prev + 1;
+    
+            setShowDevToolWarning(true);
+  
+            // Auto-submit if limit exceeded
+            if (updated >= 4) {
+              handleSubmit("User opened inspect/ devtools");
+            }
+    
+            return updated;
+          });
+        }
+    
+        if (!isDevToolsOpen) {
+          devToolsOpen = false;
+        }
+      };
+    
+      checkInterval = setInterval(checkDevTools, 1000); // check every second
+    
+      return () => clearInterval(checkInterval);
+    }, [loading, testDetails, testStarted]);
 
   // Fullscreen event listeners
   useEffect(() => {
@@ -489,13 +606,16 @@ const InternalTestModule = () => {
       const { user, token } = getUserData();
       
       // Format answers according to the TestEvaluationModel structure
-      const testEvaluationList = Object.entries(answers)
-        .filter(([_, answer]) => answer) // Filter out empty answers
-        .map(([questionId, answerId]) => ({
+      const testEvaluationList = testDetails.questionList.map((question) => {
+        const questionId = question.questionId;
+        const answerId = answers[questionId] || ""; // Default to empty string if not answered
+      
+        return {
           testAllotmentId: testAllotmentId,
-          questionId: parseInt(questionId),
-          answerId: answerId
-        }));
+          questionId: questionId,
+          answerId: answerId,
+        };
+      });
   
       const submitData = {
         user: user,
@@ -515,11 +635,10 @@ const InternalTestModule = () => {
         const resultData=response.data.payload;
         navigate("/result", { state: { result: resultData,
           navigationPath:  `/user/courseContent/${courseId}/${courseAllotmentId}` , // The path to navigate to when button is clicked
+          message: response.data.message,
           buttonText: "Back to Course" // Custom button text
                              } 
                       });
-
-
 
       } else {
         const message = response.data.message;
@@ -699,6 +818,35 @@ const InternalTestModule = () => {
           </div>
         </div>
       )}
+
+      {showTimeConfirmation && (
+              <div className={styles.confirmationOverlay}>
+                <div className={styles.confirmationPopup}>
+                  <h3>Test Time Out</h3>
+                  
+                  <div className={styles.testSummary}>
+                    <p>
+                      Total Questions: <strong>{totalQuestions}</strong>
+                    </p>
+                    <p>
+                      Answered: <strong>{answeredCount}</strong>
+                    </p>
+                    <p>
+                      Unanswered: <strong>{unansweredCount}</strong>
+                    </p>
+                  </div>
+      
+                  <div className={styles.confirmationButtons}>
+                    <button
+                      className={styles.confirmSubmitBtn}
+                      onClick={() => handleSubmit("Test time out")}
+                    >
+                       Submit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
       
       <div className={`${styles.testContent} ${isPaused || showSubmitConfirmation ? styles.blurred : ''}`}>
         <div className={styles.testPanel}>
@@ -878,6 +1026,29 @@ const InternalTestModule = () => {
           </div>
         </div>
       </div>
+
+    {showShortcutWarning && (
+  <div className={styles.shortcutPopupOverlay}>
+    <div className={styles.shortcutPopup}>
+      <h2>⚠️ Shortcut Blocked</h2>
+      <p>Shortcut keys like Ctrl+C, Ctrl+V, and Alt+Tab are disabled during the test.</p>
+      <button onClick={() => setShowShortcutWarning(false)}>OK</button>
+    </div>
+  </div>
+)}
+
+{showDevToolWarning && (
+  <div className={styles.shortcutPopupOverlay}>
+    <div className={styles.shortcutPopup}>
+      <h2>⚠️ Developer Tools Detected</h2>
+      <p>Please close Developer Tools or test will be auto submitted</p>
+      <button onClick={() => setShowDevToolWarning(false)}>OK</button>
+    </div>
+  </div>
+)}
+
+
+
     </div>
   );
 };

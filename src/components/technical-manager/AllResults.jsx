@@ -5,6 +5,8 @@ import styles from "./TraineeResults.module.css";
 import { ALL_TRAINEE_RESULT } from "../../constants/apiConstants";
 import Sidebar from "./Sidebar";
 import ExportToExcel from "../../assets/ExportToExcel";
+import TestResultPopup from "./TestResultPopup";
+
 
 const AllResults = () => {
   const navigate = useNavigate();
@@ -14,6 +16,10 @@ const AllResults = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterBy, setFilterBy] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
+
+  const[showDetailedResult,setShowDetailedResult]=useState(false);
+  const[selectedTestId,setSelectedTestId]=useState(null);
+
 
   // Add sort state
   const [sortConfig, setSortConfig] = useState({
@@ -167,6 +173,16 @@ const AllResults = () => {
     setFilterBy(e.target.value);
   };
 
+  const handleViewResults = (allotmentId) => {
+    setSelectedTestId(allotmentId);
+   setShowDetailedResult(true);
+  };
+
+  const handleCloseDetailResultPopup = () => {
+    setShowDetailedResult(false);
+    setSelectedTestId(null);
+  };
+
   const calculatePassPercentage = (score, totalMarks) => {
     return ((score / totalMarks) * 100).toFixed(0);
   };
@@ -309,6 +325,7 @@ const AllResults = () => {
                 <th onClick={() => requestSort('submissionTime')} className={styles.sortableHeader}>
                   Submission Time {getSortDirectionIcon('submissionTime')}
                 </th>
+                <th>Result</th>
               </tr>
             </thead>
             <tbody>
@@ -353,6 +370,11 @@ const AllResults = () => {
                       <td>{result.totalQuestion}</td>
                       <td>{formatDate(result.submissionDate)}</td>
                       <td>{result.submissionTime}</td>
+                      <td>
+                          <button onClick={() => handleViewResults(result.allotmentId)}>
+                          View Result
+                          </button>
+                         </td>
                     </tr>
                   );
                 })
@@ -367,6 +389,13 @@ const AllResults = () => {
           </table>
         </div>
       </div>
+
+      {showDetailedResult && (
+          <TestResultPopup
+            testAllotmentId={selectedTestId}
+            onClose={handleCloseDetailResultPopup}
+          />
+        )}
     </div>
   );
 };

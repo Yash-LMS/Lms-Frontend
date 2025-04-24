@@ -74,9 +74,9 @@
 /* Main Content Styles */
 .mainContent {
   flex: 1;
-  margin-left: 50px; 
   padding: 20px; 
   min-height: calc(100vh - 60px);
+  width: 100%;
 }
 
 .pageHeader {
@@ -97,7 +97,9 @@
   color: #7b64c3;
   font-size: 28px;
   margin-bottom: 25px;
+  font-weight: 600;
 }
+
 
 .tableContainer {
   background-color: white;
@@ -105,22 +107,23 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   position: relative;
   margin-bottom: 20px;
-  padding: 15px; /* Reduce from 30px */
+  padding: 15px;
   width: 100%;
-  max-width: 900px; /* Reduce from 1100px */
 }
 
 .tableScrollContainer {
   max-height: 450px; 
   overflow-y: auto;
   overflow-x: auto;
-  margin-bottom: 20px
+  margin-bottom: 20px;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
 }
 
 .dataTable {
-  table-layout: fixed;
+  border-collapse: collapse;
   width: 100%;
-  min-width: 650px; /* Minimum width to prevent columns from getting too narrow */
+  min-width: 750px;
 }
 
 .dataTable th,
@@ -136,45 +139,23 @@
   color: #606060;
   font-weight: 500;
   font-size: 14px;
-}
-
-.dataTable thead {
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: #f9f9f9;
 }
 
-.selectField {
-  width: auto;
-  padding: 10px 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  background-color: #fff;
-  font-size: 14px;
-  max-width: 140px;
+.selectFieldContainer {
+  width: 100%;
+  min-width: 140px;
 }
 
 .dateField {
-  width: auto;
+  width: 90%;
   padding: 10px 15px;
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   background-color: #fff;
   font-size: 14px;
-}
-
-.bulkButton {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.25s;
-  align-items: center;
 }
 
 .deleteButton {
@@ -186,12 +167,17 @@
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s;
-  min-width: 100px;
+  min-width: 80px;
   text-align: center;
 }
 
 .deleteButton:hover {
   background-color: #ff3030;
+}
+
+.deleteButton:disabled {
+  background-color: #ffcccc;
+  cursor: not-allowed;
 }
 
 .buttonGroup {
@@ -281,14 +267,8 @@
 
 .contentWrapper {
   width: 100%;
-  overflow-x: auto;
-  padding: 0;
-}
-
-/* Make sure card layout has proper overflow handling */
-.cardLayout {
   overflow: hidden;
-  margin: 0 auto;
+  padding: 0;
 }
 
 /* Card Style Layout */
@@ -296,9 +276,11 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 20px; /* Reduce from 40px */
-  width: 100%;
-  max-width: 850px; /* Reduce from 1100px */
+  padding: 20px;
+  width: 90%;
+  margin: 0 auto;
+  overflow: hidden;
+  max-width: 90%;
 }
 
 .cardHeader {
@@ -338,6 +320,85 @@
   width: 120px;
 }
 
+/* Fix for content area */
+.dashboardContent {
+  flex: 1;
+  margin-left: 250px;
+  padding: 20px;
+  width: calc(100% - 250px);
+  box-sizing: border-box;
+}
+
+.reactSelect {
+  width: 100%;
+  font-size: 14px;
+}
+
+.reactSelectContainer {
+  min-width: 150px;
+}
+
+/* Toggle switch styling */
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+
+.toggleSwitch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #4caf50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* Loading and No Data States */
+.loadingState {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+}
+
+.noData {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+}
+
 /* Modal styles */
 .modalOverlay {
   position: fixed;
@@ -356,7 +417,7 @@
   background-color: white;
   border-radius: 8px;
   width: 90%;
-  max-width: 1000px;
+  max-width: 900px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -374,6 +435,10 @@
   align-items: center;
   padding: 15px 20px;
   border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 10;
 }
 
 .modalHeader h2 {
@@ -399,44 +464,12 @@
   padding: 20px;
 }
 
-/* You may need to modify your popup styles if they're conflicting */
+/* Make the popup have higher z-index than modal */
 .popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1100; /* Higher than the modal */
+  z-index: 1100;
 }
 
-.popupContent {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  max-width: 400px;
-  width: 90%;
-}
-
-.closeButton {
-  margin-top: 15px;
-  padding: 8px 20px;
-  background-color: #6c5ce7;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.closeButton:hover {
-  background-color: #5649c0;
-}
-
+/* Upload button styling */
 .uploadButton{
   background-color: #f9f9f9;
   border-radius: 8px;
@@ -450,14 +483,40 @@
   align-items: center;
 }
 
-/* Fix for content area */
-.dashboardContent {
-  flex: 1;
-  margin-left: 250px;
-  padding-right: 20px; /* Add padding to prevent content from touching the edge */
+/* Select field styles */
+.selectField {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #fff;
+  font-size: 14px;
 }
 
-.reactSelect {
-  width: 100%;
-  font-size: 14px;
+/* Additional responsive fixes */
+@media screen and (max-width: 1200px) {
+  .dashboardContent {
+    padding: 15px;
+  }
+  
+  .cardLayout {
+    padding: 15px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .dashboardContent {
+    margin-left: 0;
+    width: 100%;
+    padding: 10px;
+  }
+  
+  .buttonGroup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .buttonGroup button {
+    margin-bottom: 10px;
+  }
 }

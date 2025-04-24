@@ -8,6 +8,7 @@ const ResultPage = () => {
   const [result, setResult] = useState(null);
   const [navigationPath, setNavigationPath] = useState("/user-dashboard");
   const [buttonText, setButtonText] = useState("Go to Dashboard");
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     // Get result and navigation details from location state if available
@@ -15,13 +16,17 @@ const ResultPage = () => {
       if (location.state.result) {
         setResult(location.state.result);
       }
-      
+
       if (location.state.navigationPath) {
         setNavigationPath(location.state.navigationPath);
       }
-      
+
       if (location.state.buttonText) {
         setButtonText(location.state.buttonText);
+      }
+
+      if (location.state.message) {
+        setMessage(location.state.message);
       }
     }
   }, [location]);
@@ -43,12 +48,22 @@ const ResultPage = () => {
     return styles.poor;
   };
 
+  // Show message if result is invalid
   if (!result) {
     return (
       <div className={styles.container}>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner}></div>
-          <p>Loading results...</p>
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2>Test Submitted Successfully</h2>
+          </div>
+          <div className={styles.messageBox}>
+            <p>{message || "No result data found."}</p>
+          </div>
+          <div className={styles.cardFooter}>
+            <button className={styles.dashboardButton} onClick={() => navigate(navigationPath)}>
+              {buttonText}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -67,44 +82,44 @@ const ResultPage = () => {
               <div className={styles.scoreValue}>{calculatePercentage()}%</div>
               <div className={styles.scoreLabel}>Score</div>
             </div>
-            
+
             <div className={styles.testInfo}>
               <h3>Test Summary</h3>
               <p className={styles.testDescription}>Test Name: {result.testName || "Assessment Results"}</p>
               <p className={styles.testId}>Allotment ID: {result.allotmentId}</p>
             </div>
           </div>
-          
+
           <div className={styles.resultMetrics}>
             <div className={styles.metricCard}>
               <div className={styles.metricValue}>{result.correctAnswers}</div>
               <div className={styles.metricLabel}>Correct</div>
             </div>
-            
+
             <div className={styles.metricCard}>
               <div className={styles.metricValue}>{result.incorrectAnswers}</div>
               <div className={styles.metricLabel}>Incorrect</div>
             </div>
-            
+
             <div className={styles.metricCard}>
               <div className={styles.metricValue}>{result.questionSkipped}</div>
               <div className={styles.metricLabel}>Unattempted</div>
             </div>
-            
+
             <div className={styles.metricCard}>
               <div className={styles.metricValue}>{result.totalQuestion}</div>
               <div className={styles.metricLabel}>Total</div>
             </div>
           </div>
-          
+
           <div className={styles.scoreDetails}>
             <div className={styles.scoreItem}>
               <span className={styles.scoreLabel}>Score:</span>
               <span className={styles.scoreValue}>{result.score} out of {result.totalMarks} points</span>
             </div>
-            
+
             <div className={styles.progressBarContainer}>
-              <div 
+              <div
                 className={`${styles.progressBar} ${getResultStatus()}`}
                 style={{ width: `${calculatePercentage()}%` }}
               ></div>

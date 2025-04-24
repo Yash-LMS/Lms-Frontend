@@ -6,6 +6,8 @@ import {
   FIND_TEST_URL,
   FIND_TRAINEE_URL,
   VIEW_TRAINEE_ALLOTED_TEST_URL,
+  SHOW_RESULT_PERMISSION_URL,
+  SHOW_DETAIL_RESULT_PERMISSION_URL,
 } from "../../constants/apiConstants";
 import Sidebar from "./Sidebar";
 
@@ -18,12 +20,15 @@ const ViewTraineeTestAllotment = () => {
   const [filteredResults, setFilteredResults] = useState([]);
   const [displayedResults, setDisplayedResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [updating, setUpdating] = useState(false);
   const [activeTab, setActiveTab] = useState("allotted");
   const [error, setError] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
+  const [masterShowScores, setMasterShowScores] = useState("disabled");
+  const [masterShowDetailedScores, setMasterShowDetailedScores] = useState("disabled");
 
   const [exportData, setExportData] = useState([]);
   const [exportHeaders, setExportHeaders] = useState({});
@@ -41,6 +46,8 @@ const ViewTraineeTestAllotment = () => {
       startDate: "Start Date",
       endDate: "End Date",
       completionStatus: "Status",
+      showResult: "Show Scores",
+      showDetailedReport: "Show Detailed Scores"
     };
 
     // Format data for export to handle dates properly
@@ -48,6 +55,8 @@ const ViewTraineeTestAllotment = () => {
       ...result,
       startDate: formatDate(result.startDate),
       endDate: formatDate(result.endDate),
+      showResult: result.showResult === "enabled" ? "Yes" : "No",
+      showDetailedReport: result.showDetailedReport === "enabled" ? "Yes" : "No"
     }));
 
     // Update state with formatted data and headers
@@ -75,6 +84,18 @@ const ViewTraineeTestAllotment = () => {
     fetchUserList();
     fetchTestList();
   }, []);
+
+  // Update master toggle states when results are loaded
+  useEffect(() => {
+    if (filteredResults.length > 0) {
+      // Check if all results have the same permission value
+      const allShowScoresEnabled = filteredResults.every(result => result.showResult === "enabled");
+      const allShowDetailedEnabled = filteredResults.every(result => result.showDetailedReport === "enabled");
+      
+      setMasterShowScores(allShowScoresEnabled ? "enabled" : "disabled");
+      setMasterShowDetailedScores(allShowDetailedEnabled ? "enabled" : "disabled");
+    }
+  }, [filteredResults]);
 
   // Auto-fetch results when conditions are met
   useEffect(() => {
@@ -189,6 +210,7 @@ const ViewTraineeTestAllotment = () => {
       );
 
       if (response.data.response === "success") {
+        console.log("Filtered results:", response.data.payload);
         setFilteredResults(response.data.payload);
         setDisplayedResults(response.data.payload);
       } else {
@@ -259,6 +281,181 @@ const ViewTraineeTestAllotment = () => {
         {status}
       </span>
     );
+  };
+
+  // Toggle permission handlers
+  const handleToggleShowScores = async (allotmentId, currentValue) => {
+    try {
+      setUpdating(true);
+      const { user, token } = getUserData();
+      const newValue = currentValue === "enabled" ? "disabled" : "enabled";
+      
+      const response = await axios.post(SHOW_RESULT_PERMISSION_URL, {
+        user,
+        token,
+        testAllotmentId: allotmentId,
+        testPermission: newValue
+      });
+      
+      if (response.data.response === "success") {
+        // Update the local state to reflect the change
+        const updatedResults = filteredResults.map(result => {
+          if (result.allotmentId === allotmentId) {
+            return { ...result, showResult: newValue };
+          }
+          return result;
+        });
+        
+        setFilteredResults(updatedResults);
+        
+        // Also update displayed results if they're being filtered
+        if (searchTerm) {
+          const updatedDisplayed = displayedResults.map(result => {
+            if (result.allotmentId === allotmentId) {
+              return { ...result, showResult: newValue };
+            }
+            return result;
+          });
+          setDisplayedResults(updatedDisplayed);
+        } else {
+          setDisplayedResults(updatedResults);
+        }
+      } else {
+        console.log("Failed to update permission");
+      }
+    } catch (error) {
+      console.error("Error updating show scores permission:", error);
+    } finally {
+      setUpdating(false);
+    }
+  };
+  
+  const handleToggleShowDetailedScores = async (allotmentId, currentValue) => {
+    try {
+      setUpdating(true);
+      const { user, token } = getUserData();
+      const newValue = currentValue === "enabled" ? "disabled" : "enabled";
+      
+      const response = await axios.post(SHOW_DETAIL_RESULT_PERMISSION_URL, {
+        user,
+        token,
+        testAllotmentId: allotmentId,
+        testPermission: newValue
+      });
+      
+      if (response.data.response === "success") {
+        // Update the local state to reflect the change
+        const updatedResults = filteredResults.map(result => {
+          if (result.allotmentId === allotmentId) {
+            return { ...result, showDetailedReport: newValue };
+          }
+          return result;
+        });
+        
+        setFilteredResults(updatedResults);
+        
+        // Also update displayed results if they're being filtered
+        if (searchTerm) {
+          const updatedDisplayed = displayedResults.map(result => {
+            if (result.allotmentId === allotmentId) {
+              return { ...result, showDetailedReport: newValue };
+            }
+            return result;
+          });
+          setDisplayedResults(updatedDisplayed);
+        } else {
+          setDisplayedResults(updatedResults);
+        }
+      } else {
+        console.log("Failed to update detailed permission");
+      }
+    } catch (error) {
+      console.error("Error updating show detailed scores permission:", error);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  // Handle master toggle for Show Scores
+  const handleMasterToggleShowScores = async () => {
+    try {
+      setUpdating(true);
+      const { user, token } = getUserData();
+      const newValue = masterShowScores === "enabled" ? "disabled" : "enabled";
+      
+      // Create an array of promises for all API calls
+      const promises = displayedResults.map(result => 
+        axios.post(SHOW_RESULT_PERMISSION_URL, {
+          user,
+          token,
+          testAllotmentId: result.allotmentId,
+          testPermission: newValue
+        })
+      );
+      
+      // Wait for all promises to resolve
+      await Promise.all(promises);
+      
+      // Update all results with the new value
+      const updatedResults = filteredResults.map(result => ({
+        ...result,
+        showResult: newValue
+      }));
+      
+      setFilteredResults(updatedResults);
+      setDisplayedResults(updatedResults.filter(result => 
+        !searchTerm || 
+        result.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        result.testName.toLowerCase().includes(searchTerm.toLowerCase())
+      ));
+      
+      setMasterShowScores(newValue);
+    } catch (error) {
+      console.error("Error updating master show scores permission:", error);
+    } finally {
+      setUpdating(false);
+    }
+  };
+  
+  // Handle master toggle for Show Detailed Scores
+  const handleMasterToggleShowDetailedScores = async () => {
+    try {
+      setUpdating(true);
+      const { user, token } = getUserData();
+      const newValue = masterShowDetailedScores === "enabled" ? "disabled" : "enabled";
+      
+      // Create an array of promises for all API calls
+      const promises = displayedResults.map(result => 
+        axios.post(SHOW_DETAIL_RESULT_PERMISSION_URL, {
+          user,
+          token,
+          testAllotmentId: result.allotmentId,
+          testPermission: newValue
+        })
+      );
+      
+      // Wait for all promises to resolve
+      await Promise.all(promises);
+      
+      // Update all results with the new value
+      const updatedResults = filteredResults.map(result => ({
+        ...result,
+        showDetailedReport: newValue
+      }));
+      
+      setFilteredResults(updatedResults);
+      setDisplayedResults(updatedResults.filter(result => 
+        !searchTerm || 
+        result.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        result.testName.toLowerCase().includes(searchTerm.toLowerCase())
+      ));
+      
+      setMasterShowDetailedScores(newValue);
+    } catch (error) {
+      console.error("Error updating master show detailed scores permission:", error);
+    } finally {
+      setUpdating(false);
+    }
   };
 
   return (
@@ -468,6 +665,30 @@ const ViewTraineeTestAllotment = () => {
                             <th>Start Date</th>
                             <th>End Date</th>
                             <th>Status</th>
+                            <th>
+                              Show Scores <br />
+                              <label className={styles.toggleSwitch}>
+                                <input
+                                  type="checkbox"
+                                  checked={masterShowScores === "enabled"}
+                                  onChange={handleMasterToggleShowScores}
+                                  disabled={updating || displayedResults.length === 0}
+                                />
+                                <span className={styles.slider}></span>
+                              </label>
+                            </th>
+                            <th>
+                              Show Detailed <br />
+                              <label className={styles.toggleSwitch}>
+                                <input
+                                  type="checkbox"
+                                  checked={masterShowDetailedScores === "enabled"}
+                                  onChange={handleMasterToggleShowDetailedScores}
+                                  disabled={updating || displayedResults.length === 0}
+                                />
+                                <span className={styles.slider}></span>
+                              </label>
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
@@ -484,6 +705,28 @@ const ViewTraineeTestAllotment = () => {
                               <td>{formatDate(result.endDate)}</td>
                               <td>
                                 {renderStatus(result.completionStatus)}
+                              </td>
+                              <td>
+                                <label className={styles.toggleSwitch}>
+                                  <input
+                                    type="checkbox"
+                                    checked={result.showResult === "enabled"}
+                                    onChange={() => handleToggleShowScores(result.allotmentId, result.showResult)}
+                                    disabled={updating}
+                                  />
+                                  <span className={styles.slider}></span>
+                                </label>
+                              </td>
+                              <td>
+                                <label className={styles.toggleSwitch}>
+                                  <input
+                                    type="checkbox"
+                                    checked={result.showDetailedReport === "enabled"}
+                                    onChange={() => handleToggleShowDetailedScores(result.allotmentId, result.showDetailedReport)}
+                                    disabled={updating}
+                                  />
+                                  <span className={styles.slider}></span>
+                                </label>
                               </td>
                             </tr>
                           ))}
@@ -505,11 +748,13 @@ const ViewTraineeTestAllotment = () => {
                             <th>Start Date</th>
                             <th>End Date</th>
                             <th>Status</th>
+                            <th>Show Scores</th>
+                            <th>Show Detailed</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr>
-                            <td colSpan="10" className={styles.noRecordsCell}>
+                            <td colSpan="12" className={styles.noRecordsCell}>
                               No records available
                             </td>
                           </tr>

@@ -28,6 +28,13 @@ export const COURSE_IMAGE_VIEW_URL = `${API_BASE_URL}/course/image`;
 export const TEST_INSTRUCTOR_URL = `${API_BASE_URL}/test/findTests`;
 export const UPDATE_SECTION_SEQUENCE = `${API_BASE_URL}/course/update/section/sequence`;
 
+
+//Intern
+export const REGISTER_INTERN_URL = `${API_BASE_URL}/user/intern/register`;
+export const FIND_INTERN_LIST_URL = `${API_BASE_URL}/manager/findInternList`;
+export const UPDATE_INTERN_STATUS_URL = `${API_BASE_URL}/manager/update/internStatus`;
+export const INTERNSHIP_PROGRAM_LIST = `${API_BASE_URL}/office/internship/findAllPrograms`;
+
 //Technical Manager
 export const FIND_COURSE_BY_STATUS_URL = `${API_BASE_URL}/manager/findCourseByStatus`;
 export const FIND_DASHBOARD_INFORMATION_URL = `${API_BASE_URL}/manager/findDashboardInformation`;
@@ -54,12 +61,15 @@ export const ALL_USER_TRACKING_DETAIL_URL = `${API_BASE_URL}/manager/tracking/fi
 export const USER_TRACKING_DETAIL_URL = `${API_BASE_URL}/manager/traineeCourseTracking`;
 export const ADD_OFFICE_URL = `${API_BASE_URL}/manager/addOffice`;
 export const CREATE_QUESTION_CATEGORY_URL = `${API_BASE_URL}/manager/createCategory`;
+export const FIND_TRAINEE_RESULT_URL = `${API_BASE_URL}/manager/test/detail/result`;
 
+export const SHOW_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/permission/showResult`;
+export const SHOW_DETAIL_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/permission/showDetailResult`;
 export const COURSE_COUNT_URL = `${API_BASE_URL}/manager/totalCourses`;
 export const TEST_COUNT_URL = `${API_BASE_URL}/manager/totalTests`;
 export const EMPLOYEE_COUNT_URL = `${API_BASE_URL}/manager/totalEmployees`;
 export const FETCH_CATEGORIES_URL = `${API_BASE_URL}/manager/getCategories`;
-export const DELETE_CATEGORY_URL = `${API_BASE_URL}/manager/deleteCategory`;
+export const UPDATE_CATEGORY_URL = `${API_BASE_URL}/manager/updateCategory`;
 
 
 //User
@@ -74,6 +84,8 @@ export const VIEW_USER_TEST_URL = `${API_BASE_URL}/user/test/view`;
 export const START_TEST_URL = `${API_BASE_URL}/user/test/start/view`;
 export const SUBMIT_TEST_URL = `${API_BASE_URL}/user/test/submit`;
 export const RESULT_TEST_URL = `${API_BASE_URL}/user/test/result`;
+export const DETAIL_RESULT_TEST_URL = `${API_BASE_URL}/user/test/detail/result`;
+
 export const USER_COURSE_FEEDBACK_URL = `${API_BASE_URL}/user/course/submitFeedback`;
 export const USER_COURSE_CERTIFICATE_URL = `${API_BASE_URL}/user/course/request/certificate`;
 export const VIEW_VIDEO_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/video/view/updateStatus`;

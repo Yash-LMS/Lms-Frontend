@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import { viewAllotedTest } from "../../features/user/userActions";
 import DashboardSidebar from "../../assets/DashboardSidebar";
 import ResultPopup from "./ResultPopup"; // Import the ResultPopup component
+import TestResultPopup from "./TestResultPopup";
 import styles from "./MyTests.module.css";
 
 const MyTests = () => {
@@ -16,10 +17,11 @@ const MyTests = () => {
   // State for search and filter
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  
+
   // State for result popup
   const [showResultPopup, setShowResultPopup] = useState(false);
   const [selectedTestId, setSelectedTestId] = useState(null);
+  const [showDetailedResult, setShowDetailedResult] = useState(false);
 
   useEffect(() => {
     dispatch(viewAllotedTest());
@@ -32,6 +34,10 @@ const MyTests = () => {
     }
   }, [allottedTest]);
 
+  const handleViewResults = (allotmentId) => {
+    setSelectedTestId(allotmentId);
+    setShowDetailedResult(true);
+  };
   // Status badge styling helper
   const getStatusBadgeClass = (status) => {
     const statusClasses = {
@@ -48,17 +54,23 @@ const MyTests = () => {
     const now = new Date();
     const startDate = new Date(test.startDate);
     const endDate = new Date(test.endDate);
-    
+
     // Reset time to midnight (00:00:00) for all dates to compare only the date portion
     const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const testStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-    const testEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-    
-    
+    const testStartDate = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth(),
+      startDate.getDate()
+    );
+    const testEndDate = new Date(
+      endDate.getFullYear(),
+      endDate.getMonth(),
+      endDate.getDate()
+    );
+
     const dateRangeValid = nowDate >= testStartDate && nowDate <= testEndDate;
     const statusValid = test.completionStatus === "pending";
-    
-    
+
     // Include both start and end dates in the valid range
     return dateRangeValid && statusValid;
   };
@@ -71,8 +83,8 @@ const MyTests = () => {
       setShowResultPopup(true);
     } else if (canStartTest(test)) {
       // Navigate to test page
-      navigate('/user/test', { 
-        state: { testAllotmentId: test.allotmentId } 
+      navigate("/user/test", {
+        state: { testAllotmentId: test.allotmentId },
       });
     }
     // For other statuses, button is disabled
@@ -83,12 +95,20 @@ const MyTests = () => {
     const now = new Date();
     const startDate = new Date(test.startDate);
     const endDate = new Date(test.endDate);
-    
+
     // Reset time to midnight for all dates
     const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const testStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-    const testEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-    
+    const testStartDate = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth(),
+      startDate.getDate()
+    );
+    const testEndDate = new Date(
+      endDate.getFullYear(),
+      endDate.getMonth(),
+      endDate.getDate()
+    );
+
     if (test.completionStatus === "completed") {
       return "View Results";
     } else if (nowDate < testStartDate) {
@@ -112,13 +132,14 @@ const MyTests = () => {
     ? allottedTest.filter((test) => {
         // Handle different data structures that might exist
         const testName = test.test?.testName || test.testName || "";
-        
-        const matchesSearch = searchQuery === "" || 
+
+        const matchesSearch =
+          searchQuery === "" ||
           testName.toLowerCase().includes(searchQuery.toLowerCase());
-        
+
         const status = test.completionStatus || test.status || "pending";
         const matchesStatus = statusFilter === "all" || status === statusFilter;
-        
+
         return matchesSearch && matchesStatus;
       })
     : [];
@@ -126,12 +147,12 @@ const MyTests = () => {
   // Format date function with error handling - removing time component
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
-    
+
     try {
-      const options = { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric'
+      const options = {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       };
       return new Date(dateString).toLocaleDateString(undefined, options);
     } catch (e) {
@@ -162,10 +183,15 @@ const MyTests = () => {
     setSelectedTestId(null);
   };
 
+  const handleCloseDetailResultPopup = () => {
+    setShowDetailedResult(false);
+    setSelectedTestId(null);
+  };
+
   return (
     <div className={styles.myTestsContainer}>
       <DashboardSidebar activeLink="tests" />
-      
+
       <div className={styles.testContent}>
         <header className={styles.pageHeader}>
           <h1>My Tests</h1>
@@ -192,7 +218,7 @@ const MyTests = () => {
         </header>
 
         {loading && <div className={styles.loading}>Loading tests...</div>}
-        
+
         {error && (
           <div className={styles.error}>
             {typeof error === "string"
@@ -201,15 +227,13 @@ const MyTests = () => {
           </div>
         )}
 
-        {!loading &&
-          !error &&
-          (!allottedTest || allottedTest.length === 0) && (
-            <div className={styles.noData}>
-              <p>
-                No tests have been allotted to you yet. Please check back later.
-              </p>
-            </div>
-          )}
+        {!loading && !error && (!allottedTest || allottedTest.length === 0) && (
+          <div className={styles.noData}>
+            <p>
+              No tests have been allotted to you yet. Please check back later.
+            </p>
+          </div>
+        )}
 
         {!loading && !error && allottedTest && allottedTest.length > 0 && (
           <div className={styles.tableContainer}>
@@ -232,7 +256,7 @@ const MyTests = () => {
                     // Button is enabled for completed tests (to view results) or for startable tests
                     const buttonEnabled = isButtonEnabled(test);
                     const buttonText = getActionButtonText(test);
-                    
+
                     return (
                       <tr key={test.id || index}>
                         <td>{test.allotmentId}</td>
@@ -242,20 +266,45 @@ const MyTests = () => {
                         <td>{formatDate(test.startDate)}</td>
                         <td>{formatDate(test.endDate)}</td>
                         <td>
-                          <span className={`${styles.statusBadge} ${getStatusBadgeClass(test.completionStatus || test.status || "pending")}`}>
-                            {(test.completionStatus || test.status || "pending").toUpperCase()}
+                          <span
+                            className={`${
+                              styles.statusBadge
+                            } ${getStatusBadgeClass(
+                              test.completionStatus || test.status || "pending"
+                            )}`}
+                          >
+                            {(
+                              test.completionStatus ||
+                              test.status ||
+                              "pending"
+                            ).toUpperCase()}
                           </span>
                         </td>
                         <td>
+                          <div className={styles.actionButtons}>
                           <button
                             className={`${styles.actionButton} ${
-                              buttonEnabled ? styles.activeButton : styles.disabledButton
+                              buttonEnabled
+                                ? styles.activeButton
+                                : styles.disabledButton
                             }`}
                             onClick={() => handleActionButtonClick(test)}
                             disabled={!buttonEnabled}
                           >
                             {buttonText}
                           </button>
+
+                          {test.completionStatus === "completed" && (
+                            <button
+                              className={`${styles.viewButton}`}
+                              onClick={() =>
+                                handleViewResults(test.allotmentId)
+                              }
+                            >
+                              View Answer
+                            </button>
+                          )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -271,12 +320,19 @@ const MyTests = () => {
             </table>
           </div>
         )}
-        
+
         {/* Render the ResultPopup when showResultPopup is true */}
         {showResultPopup && (
           <ResultPopup
             testAllotmentId={selectedTestId}
             onClose={handleCloseResultPopup}
+          />
+        )}
+
+        {showDetailedResult && (
+          <TestResultPopup
+            testAllotmentId={selectedTestId}
+            onClose={handleCloseDetailResultPopup}
           />
         )}
       </div>

@@ -11,52 +11,62 @@ import {
 } from "../../constants/apiConstants";
 
 import Sidebar from "./Sidebar";
-import ShowScoresConfirmation from "./ShowScoresConfirmation";
 
 const TestAllotment = () => {
   const navigate = useNavigate();
   const [userList, setUserList] = useState([]);
   const [testList, setTestList] = useState([]);
-  const [rows, setRows] = useState([
-    { emailId: "", testId: "", startDate: "", endDate: "" },
-  ]);
+
   const [errorRows, setErrorRows] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [popupStatus, setPopupStatus] = useState("");
   const [activeTab, setActiveTab] = useState("testAllot");
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+  const [masterShowScores, setMasterShowScores] = useState("disabled");
+  const [masterShowDetailedScores, setMasterShowDetailedScores] =
+    useState("disabled");
+
+  const [rows, setRows] = useState([
+    {
+      emailId: "",
+      testId: "",
+      startDate: "",
+      endDate: "",
+      showScores: "disabled",
+      showDetailedScores: "disabled",
+    },
+  ]);
 
   // Custom styles for React Select to match the design of original select fields
   const selectStyles = {
     control: (provided) => ({
       ...provided,
-      minHeight: '38px',
-      border: '1px solid #ccc',
-      boxShadow: 'none',
-      '&:hover': {
-        border: '1px solid #888',
+      minHeight: "38px",
+      border: "1px solid #ccc",
+      boxShadow: "none",
+      "&:hover": {
+        border: "1px solid #888",
       },
-      whiteSpace: 'nowrap',
-      textOverflow: 'ellipsis',
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis",
     }),
     menu: (provided) => ({
       ...provided,
       zIndex: 9999,
-      position: 'absolute',
-      width: '100%',
-      marginTop: '4px',
-      overflow: 'visible'
+      position: "absolute",
+      width: "100%",
+      marginTop: "4px",
+      overflow: "visible",
     }),
     menuPortal: (provided) => ({
       ...provided,
-      zIndex: 9999
+      zIndex: 9999,
     }),
     menuList: (provided) => ({
       ...provided,
-      maxHeight: '200px'
-    })
+      maxHeight: "200px",
+    }),
   };
 
   const customSelectClassName = {
@@ -143,10 +153,10 @@ const TestAllotment = () => {
       return;
     }
 
-    setShowConfirmationDialog(true);
+    handleConfirmUpdate();
   };
 
-  const handleConfirmUpdate = async (options) => {
+  const handleConfirmUpdate = async () => {
     try {
       const userData = getUserData();
       if (!userData.user || !userData.token) {
@@ -168,8 +178,8 @@ const TestAllotment = () => {
           testId: parseInt(row.testId),
           startDate: row.startDate, // yyyy-mm-dd format
           endDate: row.endDate, // yyyy-mm-dd format
-          showScores: options.showScores,
-          showDetailedScores: options.showDetailedScores
+          showScores: row.showScores,
+          showDetailedScores: row.showDetailedScores,
         })),
       };
 
@@ -185,16 +195,21 @@ const TestAllotment = () => {
       setPopupStatus("Error updating tests. Please try again.");
       setShowPopup(true);
     } finally {
-      setShowConfirmationDialog(false);
     }
   };
 
-  const cancelUpdate = () => {
-    setShowConfirmationDialog(false);
-  };
-
   const addRow = () => {
-    setRows([...rows, { emailId: "", testId: "", startDate: "", endDate: "" }]);
+    setRows([
+      ...rows,
+      {
+        emailId: "",
+        testId: "",
+        startDate: "",
+        endDate: "",
+        showScores: masterShowScores,
+        showDetailedScores: masterShowDetailedScores,
+      },
+    ]);
   };
 
   const deleteRow = (index) => {
@@ -215,6 +230,24 @@ const TestAllotment = () => {
     setShowBulkUploadModal(!showBulkUploadModal);
   };
 
+  const handleToggleChange = (index, field) => {
+    const updatedRows = [...rows];
+    updatedRows[index][field] =
+      updatedRows[index][field] === "enabled" ? "disabled" : "enabled";
+    setRows(updatedRows);
+  };
+
+  const handleMasterToggle = (field, value) => {
+    if (field === "showScores") setMasterShowScores(value);
+    if (field === "showDetailedScores") setMasterShowDetailedScores(value);
+
+    const updatedRows = rows.map((row) => ({
+      ...row,
+      [field]: value,
+    }));
+    setRows(updatedRows);
+  };
+
   const handleBulkUploadSuccess = () => {
     setShowBulkUploadModal(false);
     setPopupStatus("Success! Tests have been bulk allotted.");
@@ -222,14 +255,14 @@ const TestAllotment = () => {
   };
 
   // Transform user list and test list into options format for React Select
-  const userOptions = userList.map(user => ({
+  const userOptions = userList.map((user) => ({
     value: user.emailId,
-    label: user.name
+    label: user.name,
   }));
-  
-  const testOptions = testList.map(test => ({
+
+  const testOptions = testList.map((test) => ({
     value: test.testId.toString(),
-    label: test.testName
+    label: test.testName,
   }));
 
   return (
@@ -248,20 +281,53 @@ const TestAllotment = () => {
               <div className={styles.loadingState}>Loading test data...</div>
             ) : testList && testList.length > 0 ? (
               <div className={styles.contentWrapper}>
-                <table className={styles.dataTable}>
-                  <thead>
-                    <tr>
-                      <th>Employee</th>
-                      <th>Test</th>
-                      <th>Start Date</th>
-                      <th>End Date</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                </table>
-
                 <div className={styles.tableScrollContainer}>
                   <table className={styles.dataTable}>
+                    <thead>
+                      <tr>
+                        <th>Employee</th>
+                        <th>Test</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>
+                          Show Scores <br />
+                          <label className={styles.toggleSwitch}>
+                            <input
+                              type="checkbox"
+                              checked={masterShowScores === "enabled"}
+                              onChange={() =>
+                                handleMasterToggle(
+                                  "showScores",
+                                  masterShowScores === "enabled"
+                                    ? "disabled"
+                                    : "enabled"
+                                )
+                              }
+                            />
+                            <span className={styles.slider}></span>
+                          </label>
+                        </th>
+                        <th>
+                          Show Detailed <br />
+                          <label className={styles.toggleSwitch}>
+                            <input
+                              type="checkbox"
+                              checked={masterShowDetailedScores === "enabled"}
+                              onChange={() =>
+                                handleMasterToggle(
+                                  "showDetailedScores",
+                                  masterShowDetailedScores === "enabled"
+                                    ? "disabled"
+                                    : "enabled"
+                                )
+                              }
+                            />
+                            <span className={styles.slider}></span>
+                          </label>
+                        </th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
                     <tbody>
                       {rows.map((row, index) => (
                         <tr
@@ -274,9 +340,17 @@ const TestAllotment = () => {
                             <div className={styles.selectFieldContainer}>
                               <Select
                                 options={userOptions}
-                                value={userOptions.find(option => option.value === row.emailId) || null}
-                                onChange={(selectedOption) => 
-                                  handleRowChange(index, "emailId", selectedOption ? selectedOption.value : "")
+                                value={
+                                  userOptions.find(
+                                    (option) => option.value === row.emailId
+                                  ) || null
+                                }
+                                onChange={(selectedOption) =>
+                                  handleRowChange(
+                                    index,
+                                    "emailId",
+                                    selectedOption ? selectedOption.value : ""
+                                  )
                                 }
                                 placeholder="Select Employee"
                                 isClearable
@@ -292,9 +366,17 @@ const TestAllotment = () => {
                             <div className={styles.selectFieldContainer}>
                               <Select
                                 options={testOptions}
-                                value={testOptions.find(option => option.value === row.testId) || null}
-                                onChange={(selectedOption) => 
-                                  handleRowChange(index, "testId", selectedOption ? selectedOption.value : "")
+                                value={
+                                  testOptions.find(
+                                    (option) => option.value === row.testId
+                                  ) || null
+                                }
+                                onChange={(selectedOption) =>
+                                  handleRowChange(
+                                    index,
+                                    "testId",
+                                    selectedOption ? selectedOption.value : ""
+                                  )
                                 }
                                 placeholder="Select Test"
                                 isClearable
@@ -335,6 +417,33 @@ const TestAllotment = () => {
                             />
                           </td>
                           <td>
+                            <label className={styles.toggleSwitch}>
+                              <input
+                                type="checkbox"
+                                checked={row.showScores === "enabled"}
+                                onChange={() =>
+                                  handleToggleChange(index, "showScores")
+                                }
+                              />
+                              <span className={styles.slider}></span>
+                            </label>
+                          </td>
+                          <td>
+                            <label className={styles.toggleSwitch}>
+                              <input
+                                type="checkbox"
+                                checked={row.showDetailedScores === "enabled"}
+                                onChange={() =>
+                                  handleToggleChange(
+                                    index,
+                                    "showDetailedScores"
+                                  )
+                                }
+                              />
+                              <span className={styles.slider}></span>
+                            </label>
+                          </td>
+                          <td>
                             <button
                               className={styles.deleteButton}
                               onClick={() => deleteRow(index)}
@@ -360,7 +469,7 @@ const TestAllotment = () => {
                     Save Changes
                   </button>
                   <button
-                    className={styles.bulkButton}
+                    className={styles.uploadButton}
                     onClick={toggleBulkUploadModal}
                   >
                     Bulk Upload
@@ -386,14 +495,6 @@ const TestAllotment = () => {
             </button>
           </div>
         </div>
-      )}
-
-      {/* Confirmation Dialog */}
-      {showConfirmationDialog && (
-        <ShowScoresConfirmation
-          onConfirm={handleConfirmUpdate} 
-          onCancel={cancelUpdate} 
-        />
       )}
 
       {/* Bulk Upload Modal */}
