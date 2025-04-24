@@ -39,6 +39,7 @@ const TestModule = () => {
   // Added for submit confirmation popup
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
   const[showShortcutWarning,setShowShortcutWarning]=useState(false);
+  const[showDevToolWarning,setShowDevToolWarning]=useState(false);
 
   useEffect(() => {}, [location.state, navigate]);
 
@@ -308,6 +309,47 @@ const TestModule = () => {
     }
   }, [showShortcutWarning]);
   
+// Inspect warning 
+  useEffect(() => {
+    let devToolsOpen = false;
+    let checkInterval;
+  
+    const checkDevTools = () => {
+      const threshold = 160; // px difference to detect dev tools
+  
+      const isDevToolsOpen =
+        window.outerWidth - window.innerWidth > threshold ||
+        window.outerHeight - window.innerHeight > threshold;
+  
+      if (isDevToolsOpen && !devToolsOpen && !loading && testDetails && testStarted) {
+        devToolsOpen = true;
+  
+        // Increment the same warning count
+        setFullScreenExitCount((prev) => {
+          const updated = prev + 1;
+  
+          setShowDevToolWarning(true);
+
+          // Auto-submit if limit exceeded
+          if (updated >= 4) {
+            handleSubmit("User opened inspect/ devtools");
+          }
+  
+          return updated;
+        });
+      }
+  
+      if (!isDevToolsOpen) {
+        devToolsOpen = false;
+      }
+    };
+  
+    checkInterval = setInterval(checkDevTools, 1000); // check every second
+  
+    return () => clearInterval(checkInterval);
+  }, [loading, testDetails, testStarted]);
+  
+
 
   // Fullscreen event listeners
   useEffect(() => {
@@ -995,6 +1037,16 @@ const TestModule = () => {
       <h2>⚠️ Shortcut Blocked</h2>
       <p>Shortcut keys like Ctrl+C, Ctrl+V, and Alt+Tab are disabled during the test.</p>
       <button onClick={() => setShowShortcutWarning(false)}>OK</button>
+    </div>
+  </div>
+)}
+
+{showDevToolWarning && (
+  <div className={styles.shortcutPopupOverlay}>
+    <div className={styles.shortcutPopup}>
+      <h2>⚠️ Developer Tools Detected</h2>
+      <p>Please close Developer Tools or test will be auto submitted</p>
+      <button onClick={() => setShowDevToolWarning(false)}>OK</button>
     </div>
   </div>
 )}

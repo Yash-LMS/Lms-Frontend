@@ -165,12 +165,12 @@ const CourseAllotment = () => {
   };
 
   // Transform user list and course list into options format for React Select
-  const userOptions = userList.map(user => ({
+  const userOptions = (userList || []).map(user => ({
     value: user.emailId,
     label: user.name
   }));
   
-  const courseOptions = courseList.map(course => ({
+  const courseOptions = (courseList || []).map(course => ({
     value: course.courseId,
     label: course.courseName
   }));
