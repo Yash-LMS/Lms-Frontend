@@ -151,6 +151,15 @@ const Sidebar = ({ activeTab }) => {
               <span className={styles.navText}>Employee Management</span>
             </a>
           </li>
+          <li className={`${styles.navItem} ${activeTab === "intern" ? styles.active : ""}`}>
+            <a
+              href="#intern"
+              onClick={(e) => handleNavigation('/manager/intern', 'intern', e)}
+            >
+              <FontAwesomeIcon icon={faUsers} />
+              <span className={styles.navText}>Intern Management</span>
+            </a>
+          </li>
         </ul>
       </nav>
     </aside>

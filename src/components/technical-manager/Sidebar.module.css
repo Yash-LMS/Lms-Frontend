@@ -9,7 +9,6 @@
     left: 0;
     z-index: 100;
     border-radius: 0;
-    padding: 1.5rem 0;
   }
   
   .sidebarNav ul {
@@ -19,7 +18,7 @@
   }
   
   .navItem {
-    margin-top: 15px;
+    margin-top: 12px;
     margin-bottom: 0.5rem;
   }
   

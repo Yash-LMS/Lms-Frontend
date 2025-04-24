@@ -20,6 +20,7 @@ import CourseView from "./components/technical-manager/CourseView";
 import CourseAllotment from "./components/technical-manager/CourseAllotment";
 import CourseBulkAllotment from "./components/technical-manager/CourseBulkAllotment";
 import EmployeeManagement from "./components/technical-manager/EmployeeManagement";
+import InternManagement from "./components/technical-manager/InternManagement";
 import CourseContent from "./components/user/CourseContent";
 import UserCourseView from "./components/user/UserCourseView";
 import { API_BASE_URL } from "./constants/apiConstants";
@@ -40,7 +41,12 @@ import CertificateValidation from "./components/certificate/CertificateValidatio
 import AddQuestionLibrary from "./components/test/AddQuestionLibrary";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRightToBracket, faRightFromBracket, faUserPlus, faCircleCheck} from "@fortawesome/free-solid-svg-icons";
+import {
+  faRightToBracket,
+  faRightFromBracket,
+  faUserPlus,
+  faCircleCheck,
+} from "@fortawesome/free-solid-svg-icons";
 import InternRegistration from "./components/auth/InternRegistration";
 
 // Protected Route component
@@ -181,7 +187,7 @@ const AppContent = () => {
           />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/intern/register" element={<InternRegistration />} />
-        
+
           <Route path="/certificate" element={<CertificateValidation />} />
 
           <Route path="/forgot-password" element={<ForgotPasswordForm />} />
@@ -291,6 +297,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <EmployeeManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/manager/intern"
+            element={
+              <ProtectedRoute>
+                <InternManagement />
               </ProtectedRoute>
             }
           />
@@ -429,7 +443,7 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
   };
 
   const handleDashboardNavigate = () => {
-    if ((userData.role === "instructor")) {
+    if (userData.role === "instructor") {
       navigate("/instructor-dashboard");
     } else if (userData.role === "technical_manager") {
       navigate("/manager-dashboard");
@@ -447,6 +461,11 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
   const handleRegisterClick = (e) => {
     e.preventDefault();
     navigate("/register");
+  };
+
+  const handleInternRegisterClick = (e) => {
+    e.preventDefault();
+    navigate("/intern/register");
   };
 
   // Function to handle login navigation directly
@@ -472,15 +491,14 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
           <h3>LMS</h3>
         </span>
 
-
         <div className={styles.navbarLinks}>
-        <button
-          onClick={handleCertificateVerification}
-          className={styles.logoutBtn}
-        >
-          <FontAwesomeIcon icon={faCircleCheck} />
-          <span>Verify Certificate</span>
-        </button>
+          <button
+            onClick={handleCertificateVerification}
+            className={styles.logoutBtn}
+          >
+            <FontAwesomeIcon icon={faCircleCheck} />
+            <span>Verify Certificate</span>
+          </button>
           {sessionStorage.getItem("user") ? (
             <>
               <div className={styles.userProfile}>
@@ -497,24 +515,34 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
                     className={styles.userRole}
                     style={{ fontWeight: 700, fontSize: "14px" }}
                   >
-                    {(userData.role ? userData.role.replace(/_/g, " ") : 'Not Available').toUpperCase()}
+                    {(userData.role
+                      ? userData.role.replace(/_/g, " ")
+                      : "Not Available"
+                    ).toUpperCase()}
                   </span>
                 </div>
               </div>
               <button onClick={handleLogout} className={styles.logoutBtn}>
-              <FontAwesomeIcon icon={faRightFromBracket} /> 
-              <span>Logout</span>
+                <FontAwesomeIcon icon={faRightFromBracket} />
+                <span>Logout</span>
               </button>
             </>
           ) : (
             <>
-              <button onClick={handleLoginClick} className={styles.navLinks}>
-                <FontAwesomeIcon icon={faRightToBracket} /> 
-                <span>Login</span>
-              </button>
               <button onClick={handleRegisterClick} className={styles.navLinks}>
-                <FontAwesomeIcon icon={faUserPlus} /> 
-                <span>Register</span>
+                <FontAwesomeIcon icon={faUserPlus} />
+                <span>Register as Employee</span>
+              </button>
+              <button
+                onClick={handleInternRegisterClick}
+                className={styles.navLinks}
+              >
+                <FontAwesomeIcon icon={faUserPlus} />
+                <span>Register as Intern</span>
+              </button>
+              <button onClick={handleLoginClick} className={styles.navLinks}>
+                <FontAwesomeIcon icon={faRightToBracket} />
+                <span>Login</span>
               </button>
             </>
           )}

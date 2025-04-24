@@ -9,9 +9,7 @@ export const VERIFY_USER_CERTIFICATE = `${API_BASE_URL}/certificate/verify`;
 
 //Instructor
 export const OFFICE_LIST_URL = `${API_BASE_URL}/office/findOfficeList`;
-export const INTERNSHIP_PROGRAM_LIST = `${API_BASE_URL}/office/internship/findAllPrograms`;
 export const REGISTER_USER_URL = `${API_BASE_URL}/user/register`;
-export const REGISTER_INTERN_URL = `${API_BASE_URL}/user/intern/register`;
 export const LOGIN_URL = `${API_BASE_URL}/user/login`;
 export const ADD_NEW_COURSE_URL = `${API_BASE_URL}/course/addNewCourse`;
 export const ADD_NEW_SECTION_URL = `${API_BASE_URL}/course/addNewSection`;
@@ -29,6 +27,13 @@ export const FILE_PREVIEW_URL = `${API_BASE_URL}/file/view`;
 export const COURSE_IMAGE_VIEW_URL = `${API_BASE_URL}/course/image`;
 export const TEST_INSTRUCTOR_URL = `${API_BASE_URL}/test/findTests`;
 export const UPDATE_SECTION_SEQUENCE = `${API_BASE_URL}/course/update/section/sequence`;
+
+
+//Intern
+export const REGISTER_INTERN_URL = `${API_BASE_URL}/user/intern/register`;
+export const FIND_INTERN_LIST_URL = `${API_BASE_URL}/manager/findInternList`;
+export const UPDATE_INTERN_STATUS_URL = `${API_BASE_URL}/manager/update/internStatus`;
+export const INTERNSHIP_PROGRAM_LIST = `${API_BASE_URL}/office/internship/findAllPrograms`;
 
 //Technical Manager
 export const FIND_COURSE_BY_STATUS_URL = `${API_BASE_URL}/manager/findCourseByStatus`;
@@ -58,7 +63,8 @@ export const ADD_OFFICE_URL = `${API_BASE_URL}/manager/addOffice`;
 export const CREATE_QUESTION_CATEGORY_URL = `${API_BASE_URL}/manager/createCategory`;
 export const FIND_TRAINEE_RESULT_URL = `${API_BASE_URL}/manager/test/detail/result`;
 
-
+export const SHOW_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/permission/showResult`;
+export const SHOW_DETAIL_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/permission/showDetailResult`;
 export const COURSE_COUNT_URL = `${API_BASE_URL}/manager/totalCourses`;
 export const TEST_COUNT_URL = `${API_BASE_URL}/manager/totalTests`;
 export const EMPLOYEE_COUNT_URL = `${API_BASE_URL}/manager/totalEmployees`;
