@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './InternManagement.module.css';
-import { FIND_INTERN_LIST_URL, UPDATE_INTERN_STATUS_URL } from '../../constants/apiConstants';
-import Sidebar from './Sidebar'; 
+import { FIND_INTERN_LIST_URL, UPDATE_INTERN_STATUS_URL, UPDATE_COMPLETION_STATUS_URL } from '../../constants/apiConstants';
+import Sidebar from './Sidebar';
 import InternBulkRegistration from './InternBulkRegistration';
 
 const InternManagement = () => {
@@ -16,17 +16,20 @@ const InternManagement = () => {
   const [selectedNewStatus, setSelectedNewStatus] = useState('');
   const [activeTab, setActiveTab] = useState("intern");
   const [searchTerm, setSearchTerm] = useState('');
-  // State for bulk registration modal
   const [showBulkRegistrationModal, setShowBulkRegistrationModal] = useState(false);
-  
-  // Status options - matching the employee management page
+
   const statusOptions = [
     { value: 'active', label: 'Active' },
     { value: 'not_active', label: 'Not Active' },
     { value: 'blocked', label: 'Blocked' },
   ];
-  
-  // Get user information using the provided function
+
+  const completionStatusOptions = [
+    { value: 'ongoing', label: 'Ongoing' },
+    { value: 'released', label: 'Released' },
+    { value: 'convertedToTrainee', label: 'Converted to Trainee' },
+  ];
+
   const getUserData = () => {
     try {
       return {
@@ -47,7 +50,7 @@ const InternManagement = () => {
     setLoading(true);
     try {
       const { user, token } = getUserData();
-      
+
       const response = await axios.post(FIND_INTERN_LIST_URL, {
         user,
         token,
@@ -56,43 +59,34 @@ const InternManagement = () => {
 
       if (response.data && response.data.response === "success") {
         setInterns(response.data.payload || []);
-        setError(null); // Clear any existing errors on successful fetch
+        setError(null);
       } else {
-        // Don't set error here, just set empty interns array
         setInterns([]);
       }
     } catch (error) {
-      // Don't set error message here, just set empty interns array
       setInterns([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle status change with modal only for "active" status
   const handleStatusChangeInitiate = (intern, newStatus) => {
-    // If current status is the same as new status, do nothing
-    if (intern.status.toLowerCase() === newStatus.toLowerCase()) {
-      return;
-    }
-    
-    // Only show the remark modal when changing status to "active"
+    if (intern.status.toLowerCase() === newStatus.toLowerCase()) return;
+
     if (newStatus === 'active') {
       setSelectedIntern(intern);
       setSelectedNewStatus(newStatus);
       setRemark('');
       setShowRemarkModal(true);
     } else {
-      // For other status changes, update directly without showing the modal
       updateInternStatus(intern, newStatus);
     }
   };
 
-  // New function to handle status updates without showing the modal
   const updateInternStatus = async (intern, newStatus) => {
     try {
       const { user, token } = getUserData();
-      
+
       const response = await axios.post(UPDATE_INTERN_STATUS_URL, {
         user,
         token,
@@ -102,25 +96,46 @@ const InternManagement = () => {
       });
 
       if (response.data && response.data.response === "success") {
-        // Update local state to reflect the change
-        setInterns(interns.map(i => 
-          i.emailId === intern.emailId 
-            ? { ...i, status: newStatus } 
+        setInterns(interns.map(i =>
+          i.emailId === intern.emailId
+            ? { ...i, status: newStatus }
             : i
         ));
       }
     } catch (error) {
-      // We don't want to show an error, just keep the current state
+      console.error("Error updating intern status", error);
     }
   };
 
-  // Submit status change with remark
-  const handleSubmitStatusChange = async () => {
-    if (!selectedIntern || !selectedNewStatus) return;
-    
+  const handleCompletionStatusChange = async (intern, newCompletionStatus) => {
     try {
       const { user, token } = getUserData();
-      
+
+      const response = await axios.post(UPDATE_COMPLETION_STATUS_URL, {
+        user,
+        token,
+        emailId: intern.emailId,
+        completionStatus: newCompletionStatus
+      });
+
+      if (response.data && response.data.response === "success") {
+        setInterns(interns.map(i =>
+          i.emailId === intern.emailId
+            ? { ...i, completionStatus: newCompletionStatus }
+            : i
+        ));
+      }
+    } catch (error) {
+      console.error("Error updating internship completion status", error);
+    }
+  };
+
+  const handleSubmitStatusChange = async () => {
+    if (!selectedIntern || !selectedNewStatus) return;
+
+    try {
+      const { user, token } = getUserData();
+
       const response = await axios.post(UPDATE_INTERN_STATUS_URL, {
         user,
         token,
@@ -130,35 +145,29 @@ const InternManagement = () => {
       });
 
       if (response.data && response.data.response === "success") {
-        // Update local state to reflect the change
-        setInterns(interns.map(intern => 
-          intern.emailId === selectedIntern.emailId 
-            ? { ...intern, status: selectedNewStatus } 
+        setInterns(interns.map(intern =>
+          intern.emailId === selectedIntern.emailId
+            ? { ...intern, status: selectedNewStatus }
             : intern
         ));
         setShowRemarkModal(false);
-        // Reset selected data
         setSelectedIntern(null);
         setSelectedNewStatus('');
         setRemark('');
-      } else {
-        // We don't want to show an error, just keep the current state
       }
     } catch (error) {
-      // We don't want to show an error, just keep the current state
+      console.error("Error updating status with remark", error);
     }
   };
 
-  // Format date to dd/mm/yyyy
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-based
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
 
-  // Search functionality
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -167,22 +176,21 @@ const InternManagement = () => {
     setSearchTerm('');
   };
 
-  const filteredInterns = searchTerm.trim() === '' 
-    ? interns 
-    : interns.filter(intern => 
-        intern.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        intern.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        intern.emailId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        intern.institution.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        intern.internshipProgram.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  const filteredInterns = searchTerm.trim() === ''
+    ? interns
+    : interns.filter(intern =>
+      intern.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      intern.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      intern.emailId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      intern.institution.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      intern.internshipProgram.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   const handleFilterChange = (e) => {
     setSelectedStatus(e.target.value);
-    setError(null); // Clear any previous errors when changing filters
+    setError(null);
   };
 
-  // Determine the appropriate message to display when no interns are found
   const getNoDataMessage = () => {
     if (searchTerm) {
       return "No results found. Try a different search term.";
@@ -193,21 +201,48 @@ const InternManagement = () => {
     }
   };
 
-  // Handler for bulk registration success
   const handleBulkRegistrationSuccess = () => {
     fetchInterns();
+  };
+
+  // Function to get appropriate style class for completion status
+  const getCompletionStatusClass = (status) => {
+    switch(status) {
+      case 'ongoing':
+        return styles.completionOngoing;
+      case 'released':
+        return styles.completionReleased;
+      case 'convertedToTrainee':
+        return styles.completionConverted;
+      default:
+        return styles.completionOngoing;
+    }
+  };
+
+  // Function to get display text for completion status
+  const getCompletionStatusDisplay = (status) => {
+    switch(status) {
+      case 'ongoing':
+        return 'Ongoing';
+      case 'released':
+        return 'Released';
+      case 'convertedToTrainee':
+        return 'Converted to Trainee';
+      default:
+        return 'Ongoing';
+    }
   };
 
   return (
     <div className={styles.container}>
       <Sidebar activeTab={activeTab} />
-      
+
       <div className={styles.card}>
         <div className={styles.pageHeader}>
           <h1>Intern Management</h1>
           <div className={styles.headerActions}>
             <div className={styles.searchField}>
-              <input 
+              <input
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
@@ -220,7 +255,7 @@ const InternManagement = () => {
                 </button>
               )}
             </div>
-            <button 
+            <button
               className={styles.bulkRegisterButton}
               onClick={() => setShowBulkRegistrationModal(true)}
             >
@@ -228,11 +263,11 @@ const InternManagement = () => {
             </button>
           </div>
         </div>
-        
+
         <div className={styles.filterContainer}>
           <div className={styles.filterGroup}>
-            <select 
-              value={selectedStatus} 
+            <select
+              value={selectedStatus}
               onChange={handleFilterChange}
               className={styles.select}
             >
@@ -245,13 +280,13 @@ const InternManagement = () => {
             </select>
           </div>
         </div>
-    
+
         {searchTerm && (
           <div className={styles.searchResultCount}>
             Found <span>{filteredInterns.length}</span> results for "{searchTerm}"
           </div>
         )}
-        
+
         <div className={styles.cardContent}>
           {loading ? (
             <div className={styles.loading}>Loading interns...</div>
@@ -270,7 +305,8 @@ const InternManagement = () => {
                     <th>Start Date</th>
                     <th>End Date</th>
                     <th>Duration (in months)</th>
-                    <th>Status</th>
+                    <th>Account Status</th>
+                    <th>Completion Status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -290,13 +326,21 @@ const InternManagement = () => {
                         <td>{intern.duration}</td>
                         <td>
                           <span className={`${styles.statusBadge} ${
-                            intern.status === 'active' ? styles.statusActive : 
-                            intern.status === 'blocked' ? styles.statusBlocked : 
+                            intern.status === 'active' ? styles.statusActive :
+                            intern.status === 'blocked' ? styles.statusBlocked :
                             styles.statusNotActive
                           }`}>
-                            {intern.status === 'not_active' ? 'Not Active' : 
-                             intern.status.charAt(0).toUpperCase() + intern.status.slice(1).toLowerCase()}
+                            {intern.status === 'not_active' ? 'Not Active' :
+                              intern.status.charAt(0).toUpperCase() + intern.status.slice(1).toLowerCase()}
                           </span>
+                        </td>
+                        <td>
+                          <div className={styles.completionStatusContainer}>
+                            <span className={`${styles.statusBadge} ${getCompletionStatusClass(intern.completionStatus || 'ongoing')}`}>
+                              {getCompletionStatusDisplay(intern.completionStatus || 'ongoing')}
+                            </span>
+                           
+                          </div>
                         </td>
                         <td>
                           <select
@@ -304,18 +348,32 @@ const InternManagement = () => {
                             value={intern.status}
                             onChange={(e) => handleStatusChangeInitiate(intern, e.target.value)}
                           >
+
+                            
                             {statusOptions.map((status) => (
                               <option key={status.value} value={status.value}>
                                 {status.label}
                               </option>
                             ))}
                           </select>
+
+                          <select
+                              className={styles.tableSelect}
+                              value={intern.completionStatus || 'ongoing'}
+                              onChange={(e) => handleCompletionStatusChange(intern, e.target.value)}
+                            >
+                              {completionStatusOptions.map(status => (
+                                <option key={status.value} value={status.value}>
+                                  {status.label}
+                                </option>
+                              ))}
+                            </select>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={12} className={styles.noData}>
+                      <td colSpan={13} className={styles.noData}>
                         {getNoDataMessage()}
                       </td>
                     </tr>
@@ -326,8 +384,7 @@ const InternManagement = () => {
           )}
         </div>
       </div>
-      
-      {/* Remark Modal */}
+
       {showRemarkModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
@@ -349,13 +406,13 @@ const InternManagement = () => {
               />
             </div>
             <div className={styles.modalButtons}>
-              <button 
+              <button
                 className={styles.cancelButton}
                 onClick={() => setShowRemarkModal(false)}
               >
                 Cancel
               </button>
-              <button 
+              <button
                 className={styles.submitButton}
                 onClick={handleSubmitStatusChange}
               >
@@ -365,8 +422,7 @@ const InternManagement = () => {
           </div>
         </div>
       )}
-      
-      {/* Bulk Registration Modal */}
+
       {showBulkRegistrationModal && (
         <InternBulkRegistration
           onClose={() => setShowBulkRegistrationModal(false)}
