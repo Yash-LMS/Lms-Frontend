@@ -107,91 +107,157 @@ const InternRegistration = () => {
     return end > start && daysDiff >= 30;
   };
   
+  // Validate specific field in real-time
+  const validateField = (name, value) => {
+    let errorMessage = "";
+
+    switch (name) {
+      case 'emailId':
+        if (!value.trim()) {
+          errorMessage = 'Email is required';
+        } else if (!validateEmail(value)) {
+          errorMessage = 'Invalid email address';
+        }
+        break;
+      
+      case 'password':
+        if (!value.trim()) {
+          errorMessage = 'Password is required';
+        } else if (!validatePassword(value)) {
+          errorMessage = 'Password must be at least 8 characters with uppercase, lowercase, and special character';
+        }
+        break;
+      
+      case 'firstName':
+        if (!value.trim()) {
+          errorMessage = 'First name is required';
+        } else if (!validateName(value)) {
+          errorMessage = 'First name must start with a capital letter';
+        }
+        break;
+      
+      case 'lastName':
+        if (!value.trim()) {
+          errorMessage = 'Last name is required';
+        } else if (!validateName(value)) {
+          errorMessage = 'Last name must start with a capital letter';
+        }
+        break;
+      
+      case 'officeId':
+        if (!value) {
+          errorMessage = 'Please select an office';
+        }
+        break;
+      
+      case 'internshipProgram':
+        if (!value) {
+          errorMessage = 'Please select an internship program';
+        }
+        break;
+      
+      case 'contactNo':
+        if (!value.trim()) {
+          errorMessage = 'Contact number is required';
+        } else if (!validatePhoneNumber(value)) {
+          errorMessage = 'Contact number must be 10 digits';
+        }
+        break;
+      
+      case 'address':
+        if (!value.trim()) {
+          errorMessage = 'Address is required';
+        } else if (!validateAddress(value)) {
+          errorMessage = 'Address must be at least 10 characters';
+        }
+        break;
+      
+      case 'yearOfPassing':
+        if (!value) {
+          errorMessage = 'Year of passing is required';
+        }
+        break;
+      
+      case 'stream':
+        if (!value.trim()) {
+          errorMessage = 'Stream is required';
+        } else if (!validateStream(value)) {
+          errorMessage = 'Stream must be at least 2 characters';
+        }
+        break;
+      
+      case 'institution':
+        if (!value.trim()) {
+          errorMessage = 'Institution is required';
+        } else if (!validateInstitution(value)) {
+          errorMessage = 'Institution must be at least 3 characters';
+        }
+        break;
+      
+      case 'startDate':
+        if (!value) {
+          errorMessage = 'Start date is required';
+        }
+        // Also validate end date if both have values
+        else if (formData.endDate && !validateDates(value, formData.endDate)) {
+          setErrors(prev => ({
+            ...prev,
+            endDate: 'End date must be at least 30 days after start date'
+          }));
+        } else if (formData.endDate) {
+          // Clear end date error if it's now valid
+          setErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.endDate;
+            return newErrors;
+          });
+        }
+        break;
+      
+      case 'endDate':
+        if (!value) {
+          errorMessage = 'End date is required';
+        } else if (formData.startDate && !validateDates(formData.startDate, value)) {
+          errorMessage = 'End date must be at least 30 days after start date';
+        }
+        break;
+      
+      default:
+        break;
+    }
+
+    setErrors(prev => {
+      // If there's no error message, remove the field from errors
+      if (!errorMessage) {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      }
+      // Otherwise update the error message
+      return {
+        ...prev,
+        [name]: errorMessage
+      };
+    });
+  };
+  
+  // Full form validation for submission
   const validateForm = () => {
     const newErrors = {};
     
-    // Email validation
-    if (!formData.emailId) {
-      newErrors.emailId = 'Email is required';
-    } else if (!validateEmail(formData.emailId)) {
-      newErrors.emailId = 'Invalid email address';
-    }
+    // Validate all fields
+    Object.keys(formData).forEach((field) => {
+      validateField(field, formData[field]);
+      
+      // Also check for empty fields
+      if (!formData[field] && field !== 'general') {
+        newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')} is required`;
+      }
+    });
     
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (!validatePassword(formData.password)) {
-      newErrors.password = 'Password must be at least 8 characters with uppercase, lowercase, and special character';
-    }
-
-    // First name validation
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
-    } else if (!validateName(formData.firstName)) {
-      newErrors.firstName = 'First name must start with a capital letter';
-    }
-
-    // Last name validation
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
-    } else if (!validateName(formData.lastName)) {
-      newErrors.lastName = 'Last name must start with a capital letter';
-    }
-
-    // Office validation
-    if (!formData.officeId) {
-      newErrors.officeId = 'Please select an office';
-    }
-
-    // Internship program validation
-    if (!formData.internshipProgram) {
-      newErrors.internshipProgram = 'Please select an internship program';
-    }
-
-    // Contact number validation
-    if (!formData.contactNo) {
-      newErrors.contactNo = 'Contact number is required';
-    } else if (!validatePhoneNumber(formData.contactNo)) {
-      newErrors.contactNo = 'Contact number must be 10 digits';
-    }
-
-    // Address validation
-    if (!formData.address.trim()) {
-      newErrors.address = 'Address is required';
-    } else if (!validateAddress(formData.address)) {
-      newErrors.address = 'Address must be at least 10 characters';
-    }
-
-    // Year of passing validation
-    if (!formData.yearOfPassing) {
-      newErrors.yearOfPassing = 'Year of passing is required';
-    }
-
-    // Stream validation
-    if (!formData.stream.trim()) {
-      newErrors.stream = 'Stream is required';
-    } else if (!validateStream(formData.stream)) {
-      newErrors.stream = 'Stream must be at least 2 characters';
-    }
-
-    // Institution validation
-    if (!formData.institution.trim()) {
-      newErrors.institution = 'Institution is required';
-    } else if (!validateInstitution(formData.institution)) {
-      newErrors.institution = 'Institution must be at least 3 characters';
-    }
-
-    // Date validations
-    if (!formData.startDate) {
-      newErrors.startDate = 'Start date is required';
-    }
-
-    if (!formData.endDate) {
-      newErrors.endDate = 'End date is required';
-    } else if (formData.startDate && !validateDates(formData.startDate, formData.endDate)) {
-      newErrors.endDate = 'End date must be at least 30 days after start date';
-    }
-
+    // Add any remaining errors from validateField
+    Object.assign(newErrors, errors);
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -203,13 +269,8 @@ const InternRegistration = () => {
       [name]: value
     });
     
-    // Clear the specific error when user starts typing
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: ''
-      });
-    }
+    // Real-time validation as user types
+    validateField(name, value);
   };
 
   const handleCloseSuccessModal = () => {
@@ -221,6 +282,8 @@ const InternRegistration = () => {
     
     if (validateForm()) {
       setIsSubmitting(true);
+      setErrorMessage('');
+      
       try {
         const response = await axios.post(`${REGISTER_INTERN_URL}`, formData);
        
@@ -244,6 +307,7 @@ const InternRegistration = () => {
             startDate: '',
             endDate: ''
           });
+          setErrors({});
         } else {
           setErrorMessage(response.data.message || 'Registration failed. Please try again.');
         }
@@ -254,6 +318,10 @@ const InternRegistration = () => {
       }
     }
   };
+
+  // Check if data is loading or if the lists have no options
+  const noOfficesAvailable = (!offices || offices.length === 0);
+  const noInternshipProgramsAvailable = (!internshipPrograms || internshipPrograms.length === 0);
 
   return (
     <div className={styles.container}>
@@ -418,13 +486,18 @@ const InternRegistration = () => {
               className={errors.officeId ? styles.inputError : ''}
             >
               <option value="">Select Office Location</option>
-              {offices.map((office) => (
-                <option key={office.officeId} value={office.officeId}>
-                  {office.officeName} - {office.city}
-                </option>
-              ))}
+              {offices && offices.length > 0 ? (
+                offices.map((office) => (
+                  <option key={office.officeId} value={office.officeId}>
+                    {office.officeName} - {office.city}
+                  </option>
+                ))
+              ) : (
+                <option disabled>No offices available</option>
+              )}
             </select>
             {errors.officeId && <span className={styles.error}>{errors.officeId}</span>}
+            {noOfficesAvailable && <span className={styles.error}>No offices available. Please contact administrator.</span>}
           </div>
 
           <div className={styles.formGroup}>
@@ -437,13 +510,18 @@ const InternRegistration = () => {
               className={errors.internshipProgram ? styles.inputError : ''}
             >
               <option value="">Select Programming Language</option>
-              {internshipPrograms.map((program) => (
-                <option key={program.id} value={program.description}>
-                  {program.description}
-                </option>
-              ))}
+              {internshipPrograms && internshipPrograms.length > 0 ? (
+                internshipPrograms.map((program) => (
+                  <option key={program.id} value={program.description}>
+                    {program.description}
+                  </option>
+                ))
+              ) : (
+                <option disabled>No internship programs available</option>
+              )}
             </select>
             {errors.internshipProgram && <span className={styles.error}>{errors.internshipProgram}</span>}
+            {noInternshipProgramsAvailable && <span className={styles.error}>No internship programs available. Please contact administrator.</span>}
           </div>
 
           <div className={styles.formGroup}>
@@ -476,7 +554,11 @@ const InternRegistration = () => {
         </div>
         
         <div className={styles.buttonContainer}>
-          <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
+          <button 
+            type="submit" 
+            className={styles.submitButton} 
+            disabled={isSubmitting || noOfficesAvailable || noInternshipProgramsAvailable}
+          >
             {isSubmitting ? 'Submitting...' : 'Register'}
           </button>
         </div>
