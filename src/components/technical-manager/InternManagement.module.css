@@ -338,6 +338,11 @@
     align-items: center;
     gap: 5rem;
   }
+
+  .actionContainer {
+    display: flex;
+    gap: 0.5rem;
+  }
   
   .bulkRegisterButton {
     background-color: #8e6cef;

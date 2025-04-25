@@ -251,6 +251,7 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
                       <th>Name</th>
                       <th>Office ID</th>
                       <th>Contact</th>
+                      <th>Address</th>
                       <th>Institution</th>
                       <th>Stream</th>
                       <th>Program</th>
@@ -267,6 +268,7 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
                         <td>{`${intern.firstName} ${intern.lastName}`}</td>
                         <td>{intern.officeId}</td>
                         <td>{intern.contactNo}</td>
+                        <td>{intern.address}</td>
                         <td>{intern.institution}</td>
                         <td>{intern.stream}</td>
                         <td>{intern.internshipProgram}</td>

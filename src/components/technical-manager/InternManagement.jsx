@@ -1,33 +1,38 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import styles from './InternManagement.module.css';
-import { FIND_INTERN_LIST_URL, UPDATE_INTERN_STATUS_URL, UPDATE_COMPLETION_STATUS_URL } from '../../constants/apiConstants';
-import Sidebar from './Sidebar';
-import InternBulkRegistration from './InternBulkRegistration';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import styles from "./InternManagement.module.css";
+import {
+  FIND_INTERN_LIST_URL,
+  UPDATE_INTERN_STATUS_URL,
+  UPDATE_COMPLETION_STATUS_URL,
+} from "../../constants/apiConstants";
+import Sidebar from "./Sidebar";
+import InternBulkRegistration from "./InternBulkRegistration";
 
 const InternManagement = () => {
   const [interns, setInterns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const [showRemarkModal, setShowRemarkModal] = useState(false);
-  const [remark, setRemark] = useState('');
+  const [remark, setRemark] = useState("");
   const [selectedIntern, setSelectedIntern] = useState(null);
-  const [selectedNewStatus, setSelectedNewStatus] = useState('');
+  const [selectedNewStatus, setSelectedNewStatus] = useState("");
   const [activeTab, setActiveTab] = useState("intern");
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showBulkRegistrationModal, setShowBulkRegistrationModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showBulkRegistrationModal, setShowBulkRegistrationModal] =
+    useState(false);
 
   const statusOptions = [
-    { value: 'active', label: 'Active' },
-    { value: 'not_active', label: 'Not Active' },
-    { value: 'blocked', label: 'Blocked' },
+    { value: "active", label: "Active" },
+    { value: "not_active", label: "Not Active" },
+    { value: "blocked", label: "Blocked" },
   ];
 
   const completionStatusOptions = [
-    { value: 'ongoing', label: 'Ongoing' },
-    { value: 'released', label: 'Released' },
-    { value: 'convertedToTrainee', label: 'Converted to Trainee' },
+    { value: "ongoing", label: "Ongoing" },
+    { value: "released", label: "Released" },
+    { value: "convertedToTrainee", label: "Converted to Trainee" },
   ];
 
   const getUserData = () => {
@@ -54,7 +59,7 @@ const InternManagement = () => {
       const response = await axios.post(FIND_INTERN_LIST_URL, {
         user,
         token,
-        status: selectedStatus
+        status: selectedStatus,
       });
 
       if (response.data && response.data.response === "success") {
@@ -73,10 +78,10 @@ const InternManagement = () => {
   const handleStatusChangeInitiate = (intern, newStatus) => {
     if (intern.status.toLowerCase() === newStatus.toLowerCase()) return;
 
-    if (newStatus === 'active') {
+    if (newStatus === "active") {
       setSelectedIntern(intern);
       setSelectedNewStatus(newStatus);
-      setRemark('');
+      setRemark("");
       setShowRemarkModal(true);
     } else {
       updateInternStatus(intern, newStatus);
@@ -92,15 +97,15 @@ const InternManagement = () => {
         token,
         emailId: intern.emailId,
         remark: `Status updated from ${intern.status} to ${newStatus}`,
-        status: newStatus
+        status: newStatus,
       });
 
       if (response.data && response.data.response === "success") {
-        setInterns(interns.map(i =>
-          i.emailId === intern.emailId
-            ? { ...i, status: newStatus }
-            : i
-        ));
+        setInterns(
+          interns.map((i) =>
+            i.emailId === intern.emailId ? { ...i, status: newStatus } : i
+          )
+        );
       }
     } catch (error) {
       console.error("Error updating intern status", error);
@@ -115,15 +120,17 @@ const InternManagement = () => {
         user,
         token,
         emailId: intern.emailId,
-        completionStatus: newCompletionStatus
+        completionStatus: newCompletionStatus,
       });
 
       if (response.data && response.data.response === "success") {
-        setInterns(interns.map(i =>
-          i.emailId === intern.emailId
-            ? { ...i, completionStatus: newCompletionStatus }
-            : i
-        ));
+        setInterns(
+          interns.map((i) =>
+            i.emailId === intern.emailId
+              ? { ...i, completionStatus: newCompletionStatus }
+              : i
+          )
+        );
       }
     } catch (error) {
       console.error("Error updating internship completion status", error);
@@ -140,20 +147,24 @@ const InternManagement = () => {
         user,
         token,
         emailId: selectedIntern.emailId,
-        remark: remark || `Status updated from ${selectedIntern.status} to ${selectedNewStatus}`,
-        status: selectedNewStatus
+        remark:
+          remark ||
+          `Status updated from ${selectedIntern.status} to ${selectedNewStatus}`,
+        status: selectedNewStatus,
       });
 
       if (response.data && response.data.response === "success") {
-        setInterns(interns.map(intern =>
-          intern.emailId === selectedIntern.emailId
-            ? { ...intern, status: selectedNewStatus }
-            : intern
-        ));
+        setInterns(
+          interns.map((intern) =>
+            intern.emailId === selectedIntern.emailId
+              ? { ...intern, status: selectedNewStatus }
+              : intern
+          )
+        );
         setShowRemarkModal(false);
         setSelectedIntern(null);
-        setSelectedNewStatus('');
-        setRemark('');
+        setSelectedNewStatus("");
+        setRemark("");
       }
     } catch (error) {
       console.error("Error updating status with remark", error);
@@ -162,8 +173,8 @@ const InternManagement = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
@@ -173,18 +184,24 @@ const InternManagement = () => {
   };
 
   const clearSearch = () => {
-    setSearchTerm('');
+    setSearchTerm("");
   };
 
-  const filteredInterns = searchTerm.trim() === ''
-    ? interns
-    : interns.filter(intern =>
-      intern.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      intern.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      intern.emailId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      intern.institution.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      intern.internshipProgram.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  const filteredInterns =
+    searchTerm.trim() === ""
+      ? interns
+      : interns.filter(
+          (intern) =>
+            intern.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            intern.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            intern.emailId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            intern.institution
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            intern.internshipProgram
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())
+        );
 
   const handleFilterChange = (e) => {
     setSelectedStatus(e.target.value);
@@ -194,8 +211,11 @@ const InternManagement = () => {
   const getNoDataMessage = () => {
     if (searchTerm) {
       return "No results found. Try a different search term.";
-    } else if (selectedStatus !== 'all') {
-      return `No interns found with status "${statusOptions.find(option => option.value === selectedStatus)?.label || selectedStatus}". Try a different filter.`;
+    } else if (selectedStatus !== "all") {
+      return `No interns found with status "${
+        statusOptions.find((option) => option.value === selectedStatus)
+          ?.label || selectedStatus
+      }". Try a different filter.`;
     } else {
       return "No interns found.";
     }
@@ -207,12 +227,12 @@ const InternManagement = () => {
 
   // Function to get appropriate style class for completion status
   const getCompletionStatusClass = (status) => {
-    switch(status) {
-      case 'ongoing':
+    switch (status) {
+      case "ongoing":
         return styles.completionOngoing;
-      case 'released':
+      case "released":
         return styles.completionReleased;
-      case 'convertedToTrainee':
+      case "convertedToTrainee":
         return styles.completionConverted;
       default:
         return styles.completionOngoing;
@@ -221,15 +241,15 @@ const InternManagement = () => {
 
   // Function to get display text for completion status
   const getCompletionStatusDisplay = (status) => {
-    switch(status) {
-      case 'ongoing':
-        return 'Ongoing';
-      case 'released':
-        return 'Released';
-      case 'convertedToTrainee':
-        return 'Converted to Trainee';
+    switch (status) {
+      case "ongoing":
+        return "Ongoing";
+      case "released":
+        return "Released";
+      case "convertedToTrainee":
+        return "Converted to Trainee";
       default:
-        return 'Ongoing';
+        return "Ongoing";
     }
   };
 
@@ -250,7 +270,10 @@ const InternManagement = () => {
                 className={styles.searchInput}
               />
               {searchTerm && (
-                <button className={styles.clearSearchButton} onClick={clearSearch}>
+                <button
+                  className={styles.clearSearchButton}
+                  onClick={clearSearch}
+                >
                   ✕
                 </button>
               )}
@@ -283,7 +306,8 @@ const InternManagement = () => {
 
         {searchTerm && (
           <div className={styles.searchResultCount}>
-            Found <span>{filteredInterns.length}</span> results for "{searchTerm}"
+            Found <span>{filteredInterns.length}</span> results for "
+            {searchTerm}"
           </div>
         )}
 
@@ -325,49 +349,72 @@ const InternManagement = () => {
                         <td>{formatDate(intern.endDate)}</td>
                         <td>{intern.duration}</td>
                         <td>
-                          <span className={`${styles.statusBadge} ${
-                            intern.status === 'active' ? styles.statusActive :
-                            intern.status === 'blocked' ? styles.statusBlocked :
-                            styles.statusNotActive
-                          }`}>
-                            {intern.status === 'not_active' ? 'Not Active' :
-                              intern.status.charAt(0).toUpperCase() + intern.status.slice(1).toLowerCase()}
+                          <span
+                            className={`${styles.statusBadge} ${
+                              intern.status === "active"
+                                ? styles.statusActive
+                                : intern.status === "blocked"
+                                ? styles.statusBlocked
+                                : styles.statusNotActive
+                            }`}
+                          >
+                            {intern.status === "not_active"
+                              ? "Not Active"
+                              : intern.status.charAt(0).toUpperCase() +
+                                intern.status.slice(1).toLowerCase()}
                           </span>
                         </td>
                         <td>
                           <div className={styles.completionStatusContainer}>
-                            <span className={`${styles.statusBadge} ${getCompletionStatusClass(intern.completionStatus || 'ongoing')}`}>
-                              {getCompletionStatusDisplay(intern.completionStatus || 'ongoing')}
+                            <span
+                              className={`${
+                                styles.statusBadge
+                              } ${getCompletionStatusClass(
+                                intern.completionStatus || "ongoing"
+                              )}`}
+                            >
+                              {getCompletionStatusDisplay(
+                                intern.completionStatus || "ongoing"
+                              )}
                             </span>
-                           
                           </div>
                         </td>
                         <td>
-                          <select
-                            className={styles.tableSelect}
-                            value={intern.status}
-                            onChange={(e) => handleStatusChangeInitiate(intern, e.target.value)}
-                          >
-
-                            
-                            {statusOptions.map((status) => (
-                              <option key={status.value} value={status.value}>
-                                {status.label}
-                              </option>
-                            ))}
-                          </select>
-
-                          <select
+                          <div className={styles.actionContainer}>
+                            <select
                               className={styles.tableSelect}
-                              value={intern.completionStatus || 'ongoing'}
-                              onChange={(e) => handleCompletionStatusChange(intern, e.target.value)}
+                              value={intern.status}
+                              onChange={(e) =>
+                                handleStatusChangeInitiate(
+                                  intern,
+                                  e.target.value
+                                )
+                              }
                             >
-                              {completionStatusOptions.map(status => (
+                              {statusOptions.map((status) => (
                                 <option key={status.value} value={status.value}>
                                   {status.label}
                                 </option>
                               ))}
                             </select>
+
+                            <select
+                              className={styles.tableSelect}
+                              value={intern.completionStatus || "ongoing"}
+                              onChange={(e) =>
+                                handleCompletionStatusChange(
+                                  intern,
+                                  e.target.value
+                                )
+                              }
+                            >
+                              {completionStatusOptions.map((status) => (
+                                <option key={status.value} value={status.value}>
+                                  {status.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -392,7 +439,8 @@ const InternManagement = () => {
               Status Change: {selectedIntern?.status} → {selectedNewStatus}
             </h2>
             <p className={styles.modalDescription}>
-              Please provide a remark for activating {selectedIntern?.firstName} {selectedIntern?.lastName}.
+              Please provide a remark for activating {selectedIntern?.firstName}{" "}
+              {selectedIntern?.lastName}.
             </p>
             <div className={styles.formGroup}>
               <label htmlFor="remark">Remark:</label>
