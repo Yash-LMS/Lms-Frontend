@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import styles from './InternRegistration.module.css';
 import { OFFICE_LIST_URL, REGISTER_INTERN_URL, INTERNSHIP_PROGRAM_LIST } from '../../constants/apiConstants';
@@ -21,6 +21,10 @@ const InternRegistration = () => {
     endDate: ''
   });
 
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
+  
   const [offices, setOffices] = useState([]);
   const [internshipPrograms, setInternshipPrograms] = useState([]);
   const [errors, setErrors] = useState({});
@@ -105,6 +109,20 @@ const InternRegistration = () => {
     const daysDiff = timeDiff / (1000 * 3600 * 24);
     
     return end > start && daysDiff >= 30;
+  };
+
+  const validateImage = (file) => {
+    if (!file) return false;
+    
+    // Check file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      return false;
+    }
+    
+    // Check file type
+    const acceptedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    return acceptedTypes.includes(file.type);
   };
   
   // Validate specific field in real-time
@@ -222,6 +240,14 @@ const InternRegistration = () => {
         }
         break;
       
+      case 'image':
+        if (!value) {
+          errorMessage = 'Profile image is required';
+        } else if (!validateImage(value)) {
+          errorMessage = 'Invalid image. Use JPG or PNG format under 5MB';
+        }
+        break;
+      
       default:
         break;
     }
@@ -254,6 +280,13 @@ const InternRegistration = () => {
         newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')} is required`;
       }
     });
+
+    // Validate image separately
+    if (!selectedImage) {
+      newErrors.image = 'Profile image is required';
+    } else if (!validateImage(selectedImage)) {
+      newErrors.image = 'Invalid image. Use JPG or PNG format under 5MB';
+    }
     
     // Add any remaining errors from validateField
     Object.assign(newErrors, errors);
@@ -273,6 +306,29 @@ const InternRegistration = () => {
     validateField(name, value);
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      validateField('image', file);
+      
+      // Create image preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setSelectedImage(null);
+      setImagePreview(null);
+      validateField('image', null);
+    }
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current.click();
+  };
+
   const handleCloseSuccessModal = () => {
     setShowSuccessModal(false);
   };
@@ -285,7 +341,28 @@ const InternRegistration = () => {
       setErrorMessage('');
       
       try {
-        const response = await axios.post(`${REGISTER_INTERN_URL}`, formData);
+        // Create FormData object for multipart/form-data submission
+        const formDataToSend = new FormData();
+        
+        // Append the image file
+        formDataToSend.append('image', selectedImage);
+        
+        // Create and append the JSON data as a string inside a Blob
+        const internRegistrationDto = new Blob(
+          [JSON.stringify(formData)], 
+          { type: 'application/json' }
+        );
+        formDataToSend.append('internRegistrationDto', internRegistrationDto);
+        
+        const response = await axios.post(
+          REGISTER_INTERN_URL,
+          formDataToSend,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        );
        
         if(response.data.response === "success") {
           setSuccessMessage(response.data.message || 'Registration successful! Your internship application has been submitted.');
@@ -307,6 +384,8 @@ const InternRegistration = () => {
             startDate: '',
             endDate: ''
           });
+          setSelectedImage(null);
+          setImagePreview(null);
           setErrors({});
         } else {
           setErrorMessage(response.data.message || 'Registration failed. Please try again.');
@@ -341,6 +420,24 @@ const InternRegistration = () => {
       )}
       
       <form className={styles.form} onSubmit={handleSubmit}>
+        <div className={styles.imageUploadContainer}>
+          <div 
+            className={styles.imageUpload} 
+            onClick={handleImageClick}
+            style={{ backgroundImage: imagePreview ? `url(${imagePreview})` : 'none' }}
+          >
+            {!imagePreview && <span>Click to upload profile photo</span>}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              accept="image/jpeg, image/png, image/jpg"
+              style={{ display: 'none' }}
+            />
+          </div>
+          {errors.image && <span className={styles.error}>{errors.image}</span>}
+        </div>
+        
         <div className={styles.formGrid}>
           {/* Personal Information */}
           <div className={styles.formGroup}>

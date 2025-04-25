@@ -4,6 +4,7 @@ import styles from "./InternManagement.module.css";
 import {
   FIND_INTERN_LIST_URL,
   UPDATE_INTERN_STATUS_URL,
+  FIND_INTERN_IMAGE_URL,
   UPDATE_COMPLETION_STATUS_URL,
 } from "../../constants/apiConstants";
 import Sidebar from "./Sidebar";
@@ -20,8 +21,8 @@ const InternManagement = () => {
   const [selectedNewStatus, setSelectedNewStatus] = useState("");
   const [activeTab, setActiveTab] = useState("intern");
   const [searchTerm, setSearchTerm] = useState("");
-  const [showBulkRegistrationModal, setShowBulkRegistrationModal] =
-    useState(false);
+  const [showBulkRegistrationModal, setShowBulkRegistrationModal] = useState(false);
+  const [internImages, setInternImages] = useState({});
 
   const statusOptions = [
     { value: "active", label: "Active" },
@@ -51,6 +52,16 @@ const InternManagement = () => {
     fetchInterns();
   }, [selectedStatus]);
 
+  // Clean up blob URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      // Revoke all blob URLs to prevent memory leaks
+      Object.values(internImages).forEach(url => {
+        if (url) URL.revokeObjectURL(url);
+      });
+    };
+  }, [internImages]);
+
   const fetchInterns = async () => {
     setLoading(true);
     try {
@@ -63,15 +74,62 @@ const InternManagement = () => {
       });
 
       if (response.data && response.data.response === "success") {
-        setInterns(response.data.payload || []);
+        const internList = response.data.payload || [];
+        setInterns(internList);
         setError(null);
+        
+        // Fetch intern images after loading the intern data
+        if (internList.length > 0) {
+          fetchInternImages(internList);
+        }
       } else {
         setInterns([]);
       }
     } catch (error) {
       setInterns([]);
+      setError("Failed to fetch interns data");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch all intern images in a batch
+  const fetchInternImages = async (internList) => {
+    const { token } = getUserData();
+    
+    try {
+      const imagePromises = internList.map(async (intern) => {
+        try {
+          const response = await axios.get(
+            `${FIND_INTERN_IMAGE_URL}?emailId=${encodeURIComponent(intern.emailId)}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              responseType: 'blob', // Tell axios to expect binary data
+            }
+          );
+          
+          // Create a blob URL from the response data
+          const imageUrl = URL.createObjectURL(response.data);
+          return { emailId: intern.emailId, imageUrl };
+        } catch (error) {
+          console.error(`Error fetching image for ${intern.emailId}:`, error);
+          return { emailId: intern.emailId, imageUrl: null };
+        }
+      });
+      
+      const imagesResult = await Promise.all(imagePromises);
+      
+      // Convert array to object with emailId as keys
+      const imagesMap = imagesResult.reduce((acc, curr) => {
+        acc[curr.emailId] = curr.imageUrl;
+        return acc;
+      }, {});
+      
+      setInternImages(imagesMap);
+    } catch (error) {
+      console.error("Error fetching intern images:", error);
     }
   };
 
@@ -253,6 +311,12 @@ const InternManagement = () => {
     }
   };
 
+  // Function to handle image loading errors
+  const handleImageError = (e) => {
+    e.target.src = "/placeholder-profile.png"; // Replace with your default placeholder image path
+    e.target.classList.add(styles.placeholderImage);
+  };
+
   return (
     <div className={styles.container}>
       <Sidebar activeTab={activeTab} />
@@ -319,6 +383,7 @@ const InternManagement = () => {
               <table className={styles.table}>
                 <thead>
                   <tr>
+                    <th>Profile</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Address</th>
@@ -338,6 +403,22 @@ const InternManagement = () => {
                   {filteredInterns.length > 0 ? (
                     filteredInterns.map((intern) => (
                       <tr key={intern.emailId}>
+                        <td className={styles.profileImageCell}>
+                          {internImages[intern.emailId] ? (
+                            <img
+                              src={internImages[intern.emailId]}
+                              alt={`${intern.firstName}'s profile`}
+                              className={styles.profileImage}
+                              onError={handleImageError}
+                            />
+                          ) : (
+                            <img
+                              src="/placeholder-profile.png" 
+                              alt={`${intern.firstName}'s profile`}
+                              className={`${styles.profileImage} ${styles.placeholderImage}`}
+                            />
+                          )}
+                        </td>
                         <td>{`${intern.firstName} ${intern.lastName}`}</td>
                         <td>{intern.emailId}</td>
                         <td>{intern.address}</td>
@@ -420,7 +501,7 @@ const InternManagement = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={13} className={styles.noData}>
+                      <td colSpan={14} className={styles.noData}>
                         {getNoDataMessage()}
                       </td>
                     </tr>
