@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 import axios from 'axios';
 import styles from './InternBulkRegistration.module.css';
 import { OFFICE_LIST_URL, BULK_REGISTER_INTERN_URL, INTERNSHIP_PROGRAM_LIST } from '../../constants/apiConstants';
+import { faL } from '@fortawesome/free-solid-svg-icons';
 
 const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
   const [officeList, setOfficeList] = useState([]);
@@ -464,7 +465,7 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
       // Send API request
       const response = await axios.post(`${BULK_REGISTER_INTERN_URL}`, requestData);
       
-      if (response.data && response.data.status === 'success') {
+      if ( response.data.response === 'success') {
         setUploadSuccess(true);
         setApiMessage(response.data.message || 'Interns registered successfully');
         
@@ -474,9 +475,10 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
         }
         
         // Reset form
-        setFileData([]);
+        setFileData(null);
         setIsUploaded(false);
-        setIsReviewing(false);
+        setIsReviewing(false);       
+      
       } else {
         setApiMessage(response.data.message || 'Error registering interns');
       }
