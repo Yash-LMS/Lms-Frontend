@@ -4,7 +4,7 @@ import axios from 'axios';
 import styles from './InternBulkRegistration.module.css';
 import { OFFICE_LIST_URL, BULK_REGISTER_INTERN_URL, INTERNSHIP_PROGRAM_LIST } from '../../constants/apiConstants';
 
-const InternBulkRegistration = () => {
+const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
   const [officeList, setOfficeList] = useState([]);
   const [internshipPrograms, setInternshipPrograms] = useState([]);
   const [fileData, setFileData] = useState([]);
@@ -49,8 +49,9 @@ const InternBulkRegistration = () => {
       const response = await axios.get(`${OFFICE_LIST_URL}`);
       if (response.data.response==="success") {
         setOfficeList(response.data.payload);
-        // Set default office to first office in list
-      
+        if (response.data.payload.length > 0) {
+          setDefaultOfficeId(response.data.payload[0].officeId);
+        }
       }
     } catch (error) {
       console.error('Error fetching office list:', error);
@@ -62,7 +63,9 @@ const InternBulkRegistration = () => {
       const response = await axios.get(`${INTERNSHIP_PROGRAM_LIST}`);
       if (response.data && response.data.payload) {
         setInternshipPrograms(response.data.payload);
-        
+        if (response.data.payload.length > 0) {
+          setDefaultProgram(response.data.payload[0].description);
+        }
       }
     } catch (error) {
       console.error('Error fetching internship programs:', error);
@@ -358,6 +361,12 @@ const InternBulkRegistration = () => {
       if (response.data && response.data.status === 'success') {
         setUploadSuccess(true);
         setApiMessage(response.data.message || 'Interns registered successfully');
+        
+        // Call the onUploadSuccess callback function if provided
+        if (onUploadSuccess) {
+          onUploadSuccess(response.data);
+        }
+        
         // Reset form
         setFileData([]);
         setIsUploaded(false);
@@ -380,333 +389,60 @@ const InternBulkRegistration = () => {
   // Count total errors
   const totalErrors = Object.keys(errors).length;
 
-  return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Bulk Intern Registration</h1>
-      
-      {uploadSuccess && (
-        <div className={styles.successMessage}>
-          <p>{apiMessage}</p>
-          <button 
-            className={styles.button} 
-            onClick={() => setUploadSuccess(false)}
-          >
-            Register More Interns
-          </button>
-        </div>
-      )}
-      
-      {!uploadSuccess && (
-        <>
-          {!isReviewing ? (
-            <div className={styles.uploadSection}>
-              {/* New section for common Office and Program selection */}
-              <div className={styles.defaultSelectionSection}>
-                <h2>Step 1: Select Default Office and Program</h2>
-                <p>These settings will be applied to all interns in the bulk upload</p>
-                
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label>Default Office:</label>
-                    <select
-                      name="defaultOffice"
-                      value={defaultOfficeId}
-                      onChange={handleDefaultOfficeChange}
-                      className={styles.selectInput}
-                    >
-                      {officeList.map(office => (
-                        <option key={office.officeId} value={office.officeId}>
-                          {office.officeName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div className={styles.formGroup}>
-                    <label>Default Internship Program:</label>
-                    <select
-                      name="defaultProgram"
-                      value={defaultProgram}
-                      onChange={handleDefaultProgramChange}
-                      className={styles.selectInput}
-                    >
-                      {internshipPrograms.map(program => (
-                        <option key={program.id} value={program.description}>
-                          {program.description}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
+  // Function to handle closing the modal
+  const handleCloseModal = () => {
+    if (onClose) {
+      onClose();
+    }
+  };
 
-              <div className={styles.downloadSection}>
-                <h2>Step 2: Download Template</h2>
-                <p>Download the Excel template and fill in the intern details</p>
-                <button 
-                  className={styles.button} 
-                  onClick={handleDownloadTemplate}
-                >
-                  Download Template
-                </button>
-              </div>
-              
+  return (
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent}>
+        <div className={styles.modalHeader}>
+          <h1 className={styles.title}>Bulk Intern Registration</h1>
+          <button className={styles.closeButton} onClick={handleCloseModal}>×</button>
+        </div>
+        
+        {uploadSuccess && (
+          <div className={styles.successMessage}>
+            <p>{apiMessage}</p>
+            <div className={styles.actionButtons}>
+              <button 
+                className={styles.button} 
+                onClick={() => setUploadSuccess(false)}
+              >
+                Register More Interns
+              </button>
+              <button 
+                className={styles.closeButton} 
+                onClick={handleCloseModal}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {!uploadSuccess && (
+          <>
+            {!isReviewing ? (
               <div className={styles.uploadSection}>
-                <h2>Step 3: Upload Completed Excel File</h2>
-                <input
-                  type="file"
-                  accept=".xlsx, .xls"
-                  onChange={handleFileUpload}
-                  className={styles.fileInput}
-                />
-              </div>
-              
-              {isLoading && (
-                <div className={styles.loading}>
-                  <p>Processing...</p>
-                </div>
-              )}
-              
-              {isUploaded && !isLoading && (
-                <div className={styles.previewSection}>
-                  <h2>Step 4: Preview and Fix Errors</h2>
+                {/* New section for common Office and Program selection */}
+                <div className={styles.defaultSelectionSection}>
+                  <h2>Step 1: Select Default Office and Program</h2>
+                  <p>These settings will be applied to all interns in the bulk upload</p>
                   
-                  {totalErrors > 0 && (
-                    <div className={styles.errorSummary}>
-                      <p className={styles.errorText}>
-                        Found {totalErrors} row(s) with errors. Please fix them before proceeding.
-                      </p>
-                    </div>
-                  )}
-                  
-                  <div className={styles.tableContainer}>
-                    <table className={styles.dataTable}>
-                      <thead>
-                        <tr>
-                          <th>Row</th>
-                          <th>Email</th>
-                          <th>Name</th>
-                          <th>Start Date</th>
-                          <th>End Date</th>
-                          <th>Status</th>
-                          <th>Remark</th>
-                          
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {fileData.map((item, index) => (
-                          <tr 
-                            key={index} 
-                            className={errors[index] ? styles.errorRow : ''}
-                          >
-                            <td>{index + 1}</td>
-                            <td>{item.emailId}</td>
-                            <td>{`${item.firstName} ${item.lastName}`}</td>
-                            <td>{item.startDate}</td>
-                            <td>{item.endDate}</td>
-                            <td>{item.completionStatus}</td>
-                            <td>{item.remark}</td>
-                            
-                            <td>
-                              <button 
-                                className={styles.editButton}
-                                onClick={() => handleEdit(index)}
-                              >
-                                Edit
-                              </button>
-                              {errors[index] && (
-                                <div className={styles.rowErrors}>
-                                  {Object.entries(errors[index]).map(([field, message]) => (
-                                    <p key={field} className={styles.errorText}>
-                                      {message}
-                                    </p>
-                                  ))}
-                                </div>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  
-                  <div className={styles.actionButtons}>
-                    <button 
-                      className={styles.button}
-                      onClick={handleReview}
-                      disabled={totalErrors > 0}
-                    >
-                      Review and Submit
-                    </button>
-                  </div>
-                </div>
-              )}
-              
-              {editingIndex !== null && (
-                <div className={styles.editModal}>
-                  <div className={styles.editModalContent}>
-                    <h3>Edit Intern Details</h3>
-                    
+                  <div className={styles.formRow}>
                     <div className={styles.formGroup}>
-                      <label>Email:</label>
-                      <input
-                        type="email"
-                        name="emailId"
-                        value={editForm.emailId || ''}
-                        onChange={handleEditChange}
-                        className={errors[editingIndex]?.emailId ? styles.inputError : ''}
-                      />
-                      {errors[editingIndex]?.emailId && (
-                        <p className={styles.errorText}>{errors[editingIndex].emailId}</p>
-                      )}
-                    </div>
-                    
-                    <div className={styles.formRow}>
-                      <div className={styles.formGroup}>
-                        <label>First Name:</label>
-                        <input
-                          type="text"
-                          name="firstName"
-                          value={editForm.firstName || ''}
-                          onChange={handleEditChange}
-                          className={errors[editingIndex]?.firstName ? styles.inputError : ''}
-                        />
-                        {errors[editingIndex]?.firstName && (
-                          <p className={styles.errorText}>{errors[editingIndex].firstName}</p>
-                        )}
-                      </div>
-                      
-                      <div className={styles.formGroup}>
-                        <label>Last Name:</label>
-                        <input
-                          type="text"
-                          name="lastName"
-                          value={editForm.lastName || ''}
-                          onChange={handleEditChange}
-                          className={errors[editingIndex]?.lastName ? styles.inputError : ''}
-                        />
-                        {errors[editingIndex]?.lastName && (
-                          <p className={styles.errorText}>{errors[editingIndex].lastName}</p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className={styles.formGroup}>
-                      <label>Password:</label>
-                      <input
-                        type="password"
-                        name="password"
-                        value={editForm.password || ''}
-                        onChange={handleEditChange}
-                        className={errors[editingIndex]?.password ? styles.inputError : ''}
-                      />
-                      {errors[editingIndex]?.password && (
-                        <p className={styles.errorText}>{errors[editingIndex].password}</p>
-                      )}
-                    </div>
-                    
-                    <div className={styles.formGroup}>
-                      <label>Contact Number:</label>
-                      <input
-                        type="text"
-                        name="contactNo"
-                        value={editForm.contactNo || ''}
-                        onChange={handleEditChange}
-                      />
-                    </div>
-                    
-                    <div className={styles.formGroup}>
-                      <label>Address:</label>
-                      <textarea
-                        name="address"
-                        value={editForm.address || ''}
-                        onChange={handleEditChange}
-                      />
-                    </div>
-                    
-                    <div className={styles.formRow}>
-                      <div className={styles.formGroup}>
-                        <label>Year of Passing:</label>
-                        <input
-                          type="text"
-                          name="yearOfPassing"
-                          value={editForm.yearOfPassing || ''}
-                          onChange={handleEditChange}
-                        />
-                      </div>
-                      
-                      <div className={styles.formGroup}>
-                        <label>Stream:</label>
-                        <input
-                          type="text"
-                          name="stream"
-                          value={editForm.stream || ''}
-                          onChange={handleEditChange}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className={styles.formGroup}>
-                      <label>Institution:</label>
-                      <input
-                        type="text"
-                        name="institution"
-                        value={editForm.institution || ''}
-                        onChange={handleEditChange}
-                      />
-                    </div>
-                    
-                    <div className={styles.formRow}>
-                      <div className={styles.formGroup}>
-                        <label>Start Date:</label>
-                        <input
-                          type="date"
-                          name="startDate"
-                          value={editForm.startDate || ''}
-                          onChange={handleEditChange}
-                          className={errors[editingIndex]?.startDate ? styles.inputError : ''}
-                        />
-                        {errors[editingIndex]?.startDate && (
-                          <p className={styles.errorText}>{errors[editingIndex].startDate}</p>
-                        )}
-                      </div>
-                      
-                      <div className={styles.formGroup}>
-                        <label>End Date:</label>
-                        <input
-                          type="date"
-                          name="endDate"
-                          value={editForm.endDate || ''}
-                          onChange={handleEditChange}
-                          className={errors[editingIndex]?.endDate ? styles.inputError : ''}
-                        />
-                        {errors[editingIndex]?.endDate && (
-                          <p className={styles.errorText}>{errors[editingIndex].endDate}</p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className={styles.formGroup}>
-                      <label>Completion Status:</label>
+                      <label>Default Office:</label>
                       <select
-                        name="completionStatus"
-                        value={editForm.completionStatus || 'ongoing'}
-                        onChange={handleEditChange}
+                        name="defaultOffice"
+                        value={defaultOfficeId}
+                        onChange={handleDefaultOfficeChange}
+                        className={styles.selectInput}
                       >
-                        <option value="ongoing">Ongoing</option>
-                        <option value="released">Released</option>
-                        <option value="convertedToTrainee">Converted To Trainee</option>
-                      </select>
-                    </div>
-                    
-                    <div className={styles.formGroup}>
-                      <label>Office:</label>
-                      <select
-                        name="officeId"
-                        value={editForm.officeId || defaultOfficeId}
-                        onChange={handleEditChange}
-                      >
+                        <option value="">Select Office</option>
                         {officeList.map(office => (
                           <option key={office.officeId} value={office.officeId}>
                             {office.officeName}
@@ -716,12 +452,14 @@ const InternBulkRegistration = () => {
                     </div>
                     
                     <div className={styles.formGroup}>
-                      <label>Internship Program:</label>
+                      <label>Default Internship Program:</label>
                       <select
-                        name="internshipProgram"
-                        value={editForm.internshipProgram || defaultProgram}
-                        onChange={handleEditChange}
+                        name="defaultProgram"
+                        value={defaultProgram}
+                        onChange={handleDefaultProgramChange}
+                        className={styles.selectInput}
                       >
+                        <option value="">Select Program</option>
                         {internshipPrograms.map(program => (
                           <option key={program.id} value={program.description}>
                             {program.description}
@@ -729,93 +467,398 @@ const InternBulkRegistration = () => {
                         ))}
                       </select>
                     </div>
+                  </div>
+                </div>
+
+                <div className={styles.downloadSection}>
+                  <h2>Step 2: Download Template</h2>
+                  <p>Download the Excel template and fill in the intern details</p>
+                  <button 
+                    className={styles.button} 
+                    onClick={handleDownloadTemplate}
+                  >
+                    Download Template
+                  </button>
+                </div>
+                
+                <div className={styles.uploadSection}>
+                  <h2>Step 3: Upload Completed Excel File</h2>
+                  <input
+                    type="file"
+                    accept=".xlsx, .xls"
+                    onChange={handleFileUpload}
+                    className={styles.fileInput}
+                  />
+                </div>
+                
+                {isLoading && (
+                  <div className={styles.loading}>
+                    <p>Processing...</p>
+                  </div>
+                )}
+                
+                {isUploaded && !isLoading && (
+                  <div className={styles.previewSection}>
+                    <h2>Step 4: Preview and Fix Errors</h2>
                     
-                    <div className={styles.formGroup}>
-                      <label>Remark:</label>
-                      <textarea
-                        name="remark"
-                        value={editForm.remark || ''}
-                        onChange={handleEditChange}
-                      />
+                    {totalErrors > 0 && (
+                      <div className={styles.errorSummary}>
+                        <p className={styles.errorText}>
+                          Found {totalErrors} row(s) with errors. Please fix them before proceeding.
+                        </p>
+                      </div>
+                    )}
+                    
+                    <div className={styles.tableContainer}>
+                      <table className={styles.dataTable}>
+                        <thead>
+                          <tr>
+                            <th>Row</th>
+                            <th>Email</th>
+                            <th>Name</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>Remark</th>
+                            
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {fileData.map((item, index) => (
+                            <tr 
+                              key={index} 
+                              className={errors[index] ? styles.errorRow : ''}
+                            >
+                              <td>{index + 1}</td>
+                              <td>{item.emailId}</td>
+                              <td>{`${item.firstName} ${item.lastName}`}</td>
+                              <td>{item.startDate}</td>
+                              <td>{item.endDate}</td>
+                              <td>{item.completionStatus}</td>
+                              <td>{item.remark}</td>
+                              
+                              <td>
+                                <button 
+                                  className={styles.editButton}
+                                  onClick={() => handleEdit(index)}
+                                >
+                                  Edit
+                                </button>
+                                {errors[index] && (
+                                  <div className={styles.rowErrors}>
+                                    {Object.entries(errors[index]).map(([field, message]) => (
+                                      <p key={field} className={styles.errorText}>
+                                        {message}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                     
-                    <div className={styles.modalButtons}>
+                    <div className={styles.actionButtons}>
                       <button 
-                        className={styles.saveButton}
-                        onClick={handleSaveEdit}
+                        className={styles.button}
+                        onClick={handleReview}
+                        disabled={totalErrors > 0}
                       >
-                        Save
+                        Review and Submit
                       </button>
                       <button 
                         className={styles.cancelButton}
-                        onClick={handleCancelEdit}
+                        onClick={handleCloseModal}
                       >
                         Cancel
                       </button>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className={styles.reviewSection}>
-              <h2>Final Review</h2>
-              <p>Please review all intern details before submitting</p>
-              
-              <div className={styles.tableContainer}>
-                <table className={styles.dataTable}>
-                  <thead>
-                    <tr>
-                      <th>Email</th>
-                      <th>Name</th>
-                      <th>Office</th>
-                      <th>Program</th>
-                      <th>Duration</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {fileData.map((item, index) => {
-                      const office = officeList.find(o => o.officeId === item.officeId);
+                )}
+                
+                {editingIndex !== null && (
+                  <div className={styles.editModal}>
+                    <div className={styles.editModalContent}>
+                      <h3>Edit Intern Details</h3>
                       
-                      return (
-                        <tr key={index}>
-                          <td>{item.emailId}</td>
-                          <td>{`${item.firstName} ${item.lastName}`}</td>
-                          <td>
-                            {office ? office.officeName : 'Not specified'}
-                          </td>
-                          <td>
-                            {item.internshipProgram || 'Not specified'}
-                          </td>
-                          <td>{`${item.startDate} to ${item.endDate}`}</td>
-                          <td>{item.completionStatus}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      <div className={styles.formGroup}>
+                        <label>Email:</label>
+                        <input
+                          type="email"
+                          name="emailId"
+                          value={editForm.emailId || ''}
+                          onChange={handleEditChange}
+                          className={errors[editingIndex]?.emailId ? styles.inputError : ''}
+                        />
+                        {errors[editingIndex]?.emailId && (
+                          <p className={styles.errorText}>{errors[editingIndex].emailId}</p>
+                        )}
+                      </div>
+                      
+                      <div className={styles.formRow}>
+                        <div className={styles.formGroup}>
+                          <label>First Name:</label>
+                          <input
+                            type="text"
+                            name="firstName"
+                            value={editForm.firstName || ''}
+                            onChange={handleEditChange}
+                            className={errors[editingIndex]?.firstName ? styles.inputError : ''}
+                          />
+                          {errors[editingIndex]?.firstName && (
+                            <p className={styles.errorText}>{errors[editingIndex].firstName}</p>
+                          )}
+                        </div>
+                        
+                        <div className={styles.formGroup}>
+                          <label>Last Name:</label>
+                          <input
+                            type="text"
+                            name="lastName"
+                            value={editForm.lastName || ''}
+                            onChange={handleEditChange}
+                            className={errors[editingIndex]?.lastName ? styles.inputError : ''}
+                          />
+                          {errors[editingIndex]?.lastName && (
+                            <p className={styles.errorText}>{errors[editingIndex].lastName}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label>Password:</label>
+                        <input
+                          type="password"
+                          name="password"
+                          value={editForm.password || ''}
+                          onChange={handleEditChange}
+                          className={errors[editingIndex]?.password ? styles.inputError : ''}
+                        />
+                        {errors[editingIndex]?.password && (
+                          <p className={styles.errorText}>{errors[editingIndex].password}</p>
+                        )}
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label>Contact Number:</label>
+                        <input
+                          type="text"
+                          name="contactNo"
+                          value={editForm.contactNo || ''}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label>Address:</label>
+                        <textarea
+                          name="address"
+                          value={editForm.address || ''}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                      
+                      <div className={styles.formRow}>
+                        <div className={styles.formGroup}>
+                          <label>Year of Passing:</label>
+                          <input
+                            type="text"
+                            name="yearOfPassing"
+                            value={editForm.yearOfPassing || ''}
+                            onChange={handleEditChange}
+                          />
+                        </div>
+                        
+                        <div className={styles.formGroup}>
+                          <label>Stream:</label>
+                          <input
+                            type="text"
+                            name="stream"
+                            value={editForm.stream || ''}
+                            onChange={handleEditChange}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label>Institution:</label>
+                        <input
+                          type="text"
+                          name="institution"
+                          value={editForm.institution || ''}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                      
+                      <div className={styles.formRow}>
+                        <div className={styles.formGroup}>
+                          <label>Start Date:</label>
+                          <input
+                            type="date"
+                            name="startDate"
+                            value={editForm.startDate || ''}
+                            onChange={handleEditChange}
+                            className={errors[editingIndex]?.startDate ? styles.inputError : ''}
+                          />
+                          {errors[editingIndex]?.startDate && (
+                            <p className={styles.errorText}>{errors[editingIndex].startDate}</p>
+                          )}
+                        </div>
+                        
+                        <div className={styles.formGroup}>
+                          <label>End Date:</label>
+                          <input
+                            type="date"
+                            name="endDate"
+                            value={editForm.endDate || ''}
+                            onChange={handleEditChange}
+                            className={errors[editingIndex]?.endDate ? styles.inputError : ''}
+                          />
+                          {errors[editingIndex]?.endDate && (
+                            <p className={styles.errorText}>{errors[editingIndex].endDate}</p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label>Completion Status:</label>
+                        <select
+                          name="completionStatus"
+                          value={editForm.completionStatus || 'ongoing'}
+                          onChange={handleEditChange}
+                        >
+                          <option value="ongoing">Ongoing</option>
+                          <option value="released">Released</option>
+                          <option value="convertedToTrainee">Converted To Trainee</option>
+                        </select>
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label>Office:</label>
+                        <select
+                          name="officeId"
+                          value={editForm.officeId || defaultOfficeId}
+                          onChange={handleEditChange}
+                        >
+                          {officeList.map(office => (
+                            <option key={office.officeId} value={office.officeId}>
+                              {office.officeName}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label>Internship Program:</label>
+                        <select
+                          name="internshipProgram"
+                          value={editForm.internshipProgram || defaultProgram}
+                          onChange={handleEditChange}
+                        >
+                          {internshipPrograms.map(program => (
+                            <option key={program.id} value={program.description}>
+                              {program.description}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      <div className={styles.formGroup}>
+                        <label>Remark:</label>
+                        <textarea
+                          name="remark"
+                          value={editForm.remark || ''}
+                          onChange={handleEditChange}
+                        />
+                      </div>
+                      
+                      <div className={styles.modalButtons}>
+                        <button 
+                          className={styles.saveButton}
+                          onClick={handleSaveEdit}
+                        >
+                          Save
+                        </button>
+                        <button 
+                          className={styles.cancelButton}
+                          onClick={handleCancelEdit}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-              
-              <div className={styles.actionButtons}>
-                <button 
-                  className={styles.backButton}
-                  onClick={handleBack}
-                >
-                  Back to Edit
-                </button>
-                <button 
-                  className={`${styles.button} ${styles.submitButton}`}
-                  onClick={handleSubmit}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Submitting...' : 'Submit Registration'}
-                </button>
+            ) : (
+              <div className={styles.reviewSection}>
+                <h2>Final Review</h2>
+                <p>Please review all intern details before submitting</p>
+                
+                <div className={styles.tableContainer}>
+                  <table className={styles.dataTable}>
+                    <thead>
+                      <tr>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Office</th>
+                        <th>Program</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {fileData.map((item, index) => {
+                        const office = officeList.find(o => o.officeId === item.officeId);
+                        
+                        return (
+                          <tr key={index}>
+                            <td>{item.emailId}</td>
+                            <td>{`${item.firstName} ${item.lastName}`}</td>
+                            <td>
+                              {office ? office.officeName : 'Not specified'}
+                            </td>
+                            <td>
+                              {item.internshipProgram || 'Not specified'}
+                            </td>
+                            <td>{`${item.startDate} to ${item.endDate}`}</td>
+                            <td>{item.completionStatus}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div className={styles.actionButtons}>
+                  <button 
+                    className={styles.backButton}
+                    onClick={handleBack}
+                  >
+                    Back to Edit
+                  </button>
+                  <button 
+                    className={`${styles.button} ${styles.submitButton}`}
+                    onClick={handleSubmit}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Submitting...' : 'Submit Registration'}
+                  </button>
+                  <button 
+                    className={styles.cancelButton}
+                    onClick={handleCloseModal}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };
