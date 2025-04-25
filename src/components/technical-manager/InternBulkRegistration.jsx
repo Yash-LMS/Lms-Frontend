@@ -137,10 +137,10 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
   const handleFileUpload = (e) => {
     setIsLoading(true);
     const file = e.target.files[0];
-    
+  
     if (file) {
       const reader = new FileReader();
-      
+  
       reader.onload = (event) => {
         try {
           const data = new Uint8Array(event.target.result);
@@ -148,82 +148,188 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
           const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-          
-          // Remove header row
-          const headers = jsonData[0];
+  
+          // Skip the first row (header)
           const rows = jsonData.slice(1).filter(row => row.length > 0 && row.some(cell => cell !== ""));
-          
-          // Transform data into the required format
-          const formattedData = rows.map(row => {
-            const rowData = {};
-            headers.forEach((header, index) => {
-              if (row[index] !== undefined) {
-                rowData[header.split(' ')[0]] = row[index]; // Only use the first part of header before any space
-              }
-            });
-            
-            // Apply default office and program to each record
-            return {
-              ...rowData,
-              officeId: defaultOfficeId,
-              internshipProgram: defaultProgram
-            };
-          });
-          
-          // Process and validate the data
+  
+          const formattedData = rows.map(row => ({
+            emailId: row[0],
+            firstName: row[1],
+            lastName: row[2],
+            password: row[3],
+            contactNo: row[4],
+            address: row[5],
+            yearOfPassing: row[6],
+            stream: row[7],
+            institution: row[8],
+            startDate: row[9],
+            endDate: row[10],
+            completionStatus: row[11],
+            remark: row[12],
+            officeId: defaultOfficeId,
+            internshipProgram: defaultProgram
+          }));
+  
           const processedData = processExcelData(formattedData);
           setFileData(processedData);
           setIsUploaded(true);
-          setIsLoading(false);
-          
-          // Validate all entries
           validateAllEntries(processedData);
         } catch (error) {
           console.error('Error processing Excel file:', error);
+        } finally {
           setIsLoading(false);
         }
       };
-      
+  
       reader.readAsArrayBuffer(file);
     } else {
       setIsLoading(false);
     }
   };
-
+  
+  // Improved getBestMatch function with better string matching
+  const getBestMatch = (input, options) => {
+    if (!input) return options[0]; // Default to first option if input is empty
+    
+    // Convert to lowercase and remove spaces for comparison
+    const cleanInput = String(input).toLowerCase().trim();
+    
+    // Direct match check first (case insensitive)
+    for (const option of options) {
+      if (option.toLowerCase() === cleanInput) {
+        return option;
+      }
+    }
+    
+    // Check for partial matches
+    for (const option of options) {
+      if (option.toLowerCase().includes(cleanInput) || 
+          cleanInput.includes(option.toLowerCase())) {
+        return option;
+      }
+    }
+    
+    // If no match found based on inclusion, use Levenshtein distance
+    let bestMatch = options[0];
+    let bestScore = Infinity;
+    
+    for (const option of options) {
+      // Calculate Levenshtein distance
+      const distance = levenshteinDistance(cleanInput, option.toLowerCase());
+      if (distance < bestScore) {
+        bestScore = distance;
+        bestMatch = option;
+      }
+    }
+    
+    return bestMatch;
+  };
+  
+  // Helper function for Levenshtein distance calculation
+  const levenshteinDistance = (a, b) => {
+    const matrix = Array(a.length + 1).fill().map(() => Array(b.length + 1).fill(0));
+    
+    for (let i = 0; i <= a.length; i++) {
+      matrix[i][0] = i;
+    }
+    
+    for (let j = 0; j <= b.length; j++) {
+      matrix[0][j] = j;
+    }
+    
+    for (let i = 1; i <= a.length; i++) {
+      for (let j = 1; j <= b.length; j++) {
+        const cost = a[i-1] === b[j-1] ? 0 : 1;
+        matrix[i][j] = Math.min(
+          matrix[i-1][j] + 1,      // deletion
+          matrix[i][j-1] + 1,      // insertion
+          matrix[i-1][j-1] + cost  // substitution
+        );
+      }
+    }
+    
+    return matrix[a.length][b.length];
+  };
+  
+  // Improved processExcelData function with better date handling
   const processExcelData = (data) => {
+    const validStatuses = ['ongoing', 'released', 'convertedToTrainee'];
+    
+    
+
     return data.map(item => {
-      // Process dates from Excel format (could be string "dd-mm-yyyy" or Excel date number)
-      let startDate = item.startDate;
-      let endDate = item.endDate;
-      
-      // If startDate exists and is a string in dd-mm-yyyy format, convert to yyyy-mm-dd
-      if (startDate && typeof startDate === 'string' && startDate.includes('-')) {
-        const [day, month, year] = startDate.split('-');
-        startDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-      } 
-      // If it's a number (Excel date), convert to yyyy-mm-dd
-      else if (startDate && typeof startDate === 'number') {
-        startDate = new Date((startDate - 25569) * 86400 * 1000).toISOString().split('T')[0];
-      }
-      
-      // Apply same logic for endDate
-      if (endDate && typeof endDate === 'string' && endDate.includes('-')) {
-        const [day, month, year] = endDate.split('-');
-        endDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-      } 
-      else if (endDate && typeof endDate === 'number') {
-        endDate = new Date((endDate - 25569) * 86400 * 1000).toISOString().split('T')[0];
-      }
-      
-      // Ensure completionStatus is one of the valid enum values
-      let completionStatus = item.completionStatus;
-      if (completionStatus && typeof completionStatus === 'string') {
-        completionStatus = completionStatus.trim().toLowerCase();
-        if (!['ongoing', 'released', 'convertedtotrainee'].includes(completionStatus)) {
-          completionStatus = 'ongoing'; // Default to ongoing if invalid value
+      // Process startDate - handle multiple date formats
+    console.log(item);
+      let startDate = '';
+      if (item.startDate) {
+        // Try to detect format
+        if (typeof item.startDate === 'string') {
+          // Handle dd-mm-yyyy format
+          if (item.startDate.includes('-')) {
+            const parts = item.startDate.split('-');
+            if (parts.length === 3) {
+              // Assuming dd-mm-yyyy format
+              if (parts[2].length === 4) { // Ensure year has 4 digits
+                startDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+              }
+            }
+          }
+        } else if (typeof item.startDate === 'number') {
+          // Handle Excel date serial number
+          const excelDate = new Date(Math.round((item.startDate - 25569) * 86400 * 1000));
+          startDate = excelDate.toISOString().split('T')[0]; // Get YYYY-MM-DD
         }
-      } else {
-        completionStatus = 'ongoing'; // Default if missing
+        
+        // If conversion failed, try to parse as date string
+        if (!startDate) {
+          const date = new Date(item.startDate);
+          if (!isNaN(date.getTime())) {
+            startDate = date.toISOString().split('T')[0];
+          } else {
+            startDate = item.startDate; // Keep original if all parsing fails
+          }
+        }
+      }
+      
+      // Process endDate - handle multiple date formats
+      let endDate = '';
+      if (item.endDate) {
+        // Try to detect format
+        if (typeof item.endDate === 'string') {
+          // Handle dd-mm-yyyy format
+          if (item.endDate.includes('-')) {
+            const parts = item.endDate.split('-');
+            if (parts.length === 3) {
+              // Assuming dd-mm-yyyy format
+              if (parts[2].length === 4) { // Ensure year has 4 digits
+                endDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+              }
+            }
+          }
+        } else if (typeof item.endDate === 'number') {
+          // Handle Excel date serial number
+          const excelDate = new Date(Math.round((item.endDate - 25569) * 86400 * 1000));
+          endDate = excelDate.toISOString().split('T')[0]; // Get YYYY-MM-DD
+        }
+        
+        // If conversion failed, try to parse as date string
+        if (!endDate) {
+          const date = new Date(item.endDate);
+          if (!isNaN(date.getTime())) {
+            endDate = date.toISOString().split('T')[0];
+          } else {
+            endDate = item.endDate; // Keep original if all parsing fails
+          }
+        }
+      }
+      
+      // Get best match for completionStatus with improved matching
+      let completionStatus = 'ongoing'; // Default value
+      console.log(item.completionStatus);
+      if (item.completionStatus) {
+        console.log(item.completionStatus);
+        const statusInput = String(item.completionStatus).trim();
+        completionStatus = getBestMatch(statusInput, validStatuses);
       }
       
       return {
@@ -234,7 +340,7 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
       };
     });
   };
-
+  
   const validateAllEntries = (data) => {
     const newErrors = {};
     
@@ -751,6 +857,20 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
                         </select>
                       </div>
                       
+                      <div className={styles.formGroup}>
+                        <label>Internship Program:</label>
+                        <select
+                          name="internshipProgram"
+                          value={editForm.internshipProgram || defaultProgram}
+                          onChange={handleEditChange}
+                        >
+                          {internshipPrograms.map(program => (
+                            <option key={program.id} value={program.description}>
+                              {program.description}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                       <div className={styles.formGroup}>
                         <label>Internship Program:</label>
                         <select
