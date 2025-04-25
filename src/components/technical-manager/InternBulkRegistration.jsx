@@ -34,6 +34,26 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
     setFile(event.target.files[0]);
   };
 
+  // Format date to dd/mm/yyyy
+  const formatDate = (date) => {
+    if (!date) return "";
+    
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+  };
+
+  // Format Excel date to dd/mm/yyyy
+  const formatExcelDate = (excelDate) => {
+    if (typeof excelDate !== 'number') return excelDate;
+    
+    const date = new Date(Math.round((excelDate - 25569) * 86400 * 1000));
+    return formatDate(date);
+  };
+
   const handleUpload = async () => {
     if (!file) {
       showMessage("error", "Please select a file.");
@@ -92,7 +112,7 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
         const processedData = data.map((row, index) => ({
           ...row,
           status: "Pending",
-          id: index + 1
+          id: index + 1  // Just for display purposes, not sent to backend
         }));
 
         setUserTable(processedData);
@@ -116,36 +136,34 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
     try {
       const { user, token } = getUserData();
 
-      // Format dates if they are in Excel date format
+      // Format dates to dd/mm/yyyy and remove id
       const formattedData = userTable.map(intern => {
-        const formattedIntern = { ...intern };
+        // Destructure to remove id and status (not needed for backend)
+        const { id, status, ...internData } = intern;
         
-        // Check if startDate and endDate are in Excel number format and convert
-        if (typeof intern.startDate === 'number') {
-          const startDate = new Date(Math.round((intern.startDate - 25569) * 86400 * 1000));
-          formattedIntern.startDate = startDate.toISOString().split('T')[0];
+        // Format dates to dd/mm/yyyy
+        if (typeof internData.startDate === 'number') {
+          internData.startDate = formatExcelDate(internData.startDate);
         }
         
-        if (typeof intern.endDate === 'number') {
-          const endDate = new Date(Math.round((intern.endDate - 25569) * 86400 * 1000));
-          formattedIntern.endDate = endDate.toISOString().split('T')[0];
+        if (typeof internData.endDate === 'number') {
+          internData.endDate = formatExcelDate(internData.endDate);
         }
 
         // Check if yearOfPassing is in Excel number format and convert
-        if (typeof intern.yearOfPassing === 'number' && intern.yearOfPassing < 9999) {
-          formattedIntern.yearOfPassing = intern.yearOfPassing.toString();
+        if (typeof internData.yearOfPassing === 'number' && internData.yearOfPassing < 9999) {
+          internData.yearOfPassing = internData.yearOfPassing.toString();
         }
         
-        return formattedIntern;
+        return {
+          ...internData,
+        };
       });
 
       const response = await axios.post(REGISTER_INTERN_URL, {
         user,
         token,
-        internList: formattedData.map(({ id, status, ...rest }) => ({
-          ...rest,
-          status: "active" // Default status for new interns
-        }))
+        internList: formattedData
       });
 
       if (response.data && response.data.response === "success") {
@@ -211,7 +229,7 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
         <div className={styles.modalContent}>
           <p className={styles.instructions}>
             Upload an Excel file with intern details. The file should contain all required columns including emailId, firstName, 
-            lastName, password, officeId, internshipProgram, contactNo, address, yearOfPassing, stream, institution, startDate, and endDate.
+            lastName, password, officeId, internshipProgram, contactNo, address, yearOfPassing, stream, institution, startDate (DD/MM/YYYY), and endDate (DD/MM/YYYY).
           </p>
           
           <div className={styles.fileUploadContainer}>
@@ -274,11 +292,11 @@ const InternBulkRegistration = ({ onClose, onUploadSuccess }) => {
                         <td>{intern.internshipProgram}</td>
                         <td>{intern.yearOfPassing}</td>
                         <td>{typeof intern.startDate === 'number' 
-                          ? new Date(Math.round((intern.startDate - 25569) * 86400 * 1000)).toISOString().split('T')[0]
+                          ? formatExcelDate(intern.startDate)
                           : intern.startDate}
                         </td>
                         <td>{typeof intern.endDate === 'number'
-                          ? new Date(Math.round((intern.endDate - 25569) * 86400 * 1000)).toISOString().split('T')[0] 
+                          ? formatExcelDate(intern.endDate) 
                           : intern.endDate}
                         </td>
                       </tr>
