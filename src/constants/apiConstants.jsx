@@ -31,10 +31,11 @@ export const UPDATE_SECTION_SEQUENCE = `${API_BASE_URL}/course/update/section/se
 
 //Intern
 export const REGISTER_INTERN_URL = `${API_BASE_URL}/user/intern/register`;
+
+export const BULK_REGISTER_INTERN_URL = `${API_BASE_URL}/manager/register/internList`;
 export const FIND_INTERN_LIST_URL = `${API_BASE_URL}/manager/findInternList`;
 export const UPDATE_INTERN_STATUS_URL = `${API_BASE_URL}/manager/update/internStatus`;
 export const UPDATE_COMPLETION_STATUS_URL = `${API_BASE_URL}/manager/update/intern/completionStatus`;
-
 export const INTERNSHIP_PROGRAM_LIST = `${API_BASE_URL}/office/internship/findAllPrograms`;
 
 //Technical Manager
