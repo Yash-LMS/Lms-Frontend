@@ -1,227 +1,280 @@
-.modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+/* InternBulkUpload.module.css */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.uploadSection, .downloadSection, .previewSection, .reviewSection {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button {
+  background-color: #8e6cef;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.button:hover {
+  background-color: #7559ce;
+}
+
+.button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.fileInput {
+  margin: 10px 0;
+  padding: 10px;
+  width: 100%;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-style: italic;
+  color: #666;
+}
+
+.tableContainer {
+  overflow-x: auto;
+  margin: 20px 0;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.dataTable th, .dataTable td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.dataTable th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.dataTable tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+.errorRow {
+  background-color: #ffe6e6;
+}
+
+.errorRow:hover {
+  background-color: #ffcccc;
+}
+
+.errorText {
+  color: #d32f2f;
+  font-size: 12px;
+  margin: 5px 0;
+}
+
+.errorSummary {
+  background-color: #ffe6e6;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.editButton, .saveButton, .cancelButton, .backButton {
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 5px;
+}
+
+.editButton {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+}
+
+.saveButton {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+}
+
+.cancelButton, .backButton {
+  background-color: #f44336;
+  color: white;
+  border: none;
+}
+
+.actionButtons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.submitButton {
+  background-color: #4caf50;
+}
+
+.editModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.editModalContent {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+.formGroup input,
+.formGroup textarea,
+.formGroup select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.formGroup textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.formRow {
+  display: flex;
+  gap: 15px;
+}
+
+.formRow .formGroup {
+  flex: 1;
+}
+
+.inputError {
+  border-color: #d32f2f;
+  background-color: #fff8f8;
+}
+
+.rowErrors {
+  margin-top: 5px;
+}
+
+.modalButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.successMessage {
+  text-align: center;
+  padding: 30px;
+  background-color: #e8f5e9;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.successMessage p {
+  font-size: 18px;
+  color: #2e7d32;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .formRow {
+    flex-direction: column;
+    gap: 0;
   }
   
-  .modal {
-    background-color: white;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 900px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    animation: slideIn 0.3s ease-out;
+  .actionButtons {
+    flex-direction: column;
   }
   
-  @keyframes slideIn {
-    from {
-      transform: translateY(-50px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-  
-  .modalHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 24px;
-    border-bottom: 1px solid #eaeaea;
-  }
-  
-  .modalHeader h2 {
-    margin: 0;
-    font-size: 20px;
-    color: #333;
-  }
-  
-  .closeButton {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #666;
-    transition: color 0.2s;
-  }
-  
-  .closeButton:hover {
-    color: #333;
-  }
-  
-  .modalContent {
-    padding: 20px 24px;
-  }
-  
-  .instructions {
-    margin-bottom: 20px;
-    color: #555;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-  
-  .fileUploadContainer {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-  
-  .fileInputWrapper {
-    display: flex;
-    flex-grow: 1;
-    gap: 12px;
-  }
-  
-  .fileInput {
-    flex-grow: 1;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-  
-  .uploadButton, .templateButton, .submitButton, .cancelButton {
-    padding: 10px 16px;
-    border: none;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-  }
-  
-  .uploadButton {
-    background-color: #8e6cef;
-    color: white;
-  }
-  
-  .uploadButton:hover {
-    background-color: #7559ce;
-  }
-  
-  .templateButton {
-    background-color: #f5f5f5;
-    color: #333;
-    border: 1px solid #ddd;
-  }
-  
-  .templateButton:hover {
-    background-color: #e9e9e9;
-  }
-  
-  .tableContainer {
-    margin-bottom: 24px;
-    border: 1px solid #eaeaea;
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  
-  .table {
+  .button, .backButton, .submitButton {
     width: 100%;
-    border-collapse: collapse;
+    margin-bottom: 10px;
   }
   
-  .table th, .table td {
-    padding: 12px 16px;
-    text-align: left;
-    border-bottom: 1px solid #eaeaea;
+  .editModalContent {
+    width: 95%;
+    padding: 15px;
   }
-  
-  .table th {
-    background-color: #f9f9f9;
-    font-weight: 600;
-    color: #333;
-  }
-  
-  .table tr:last-child td {
-    border-bottom: none;
-  }
-  
-  .table tr:hover {
-    background-color: #f5f8ff;
-  }
-  
-  .modalActions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-  }
-  
-  .cancelButton {
-    background-color: #f5f5f5;
-    color: #333;
-    border: 1px solid #ddd;
-  }
-  
-  .cancelButton:hover {
-    background-color: #e9e9e9;
-  }
-  
-  .submitButton {
-    background-color: #4caf50;
-    color: white;
-  }
-  
-  .submitButton:hover {
-    background-color: #43a047;
-  }
-  
-  .successMessage, .errorMessage {
-    padding: 12px 16px;
-    margin: 16px 24px 0;
-    border-radius: 4px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-  }
-  
-  .successMessage {
-    background-color: #e6f7e6;
-    color: #2e7d32;
-    border-left: 4px solid #2e7d32;
-  }
-  
-  .errorMessage {
-    background-color: #ffebee;
-    color: #c62828;
-    border-left: 4px solid #c62828;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .modal {
-      width: 95%;
-      max-height: 95vh;
-    }
-    
-    .fileInputWrapper {
-      flex-direction: column;
-    }
-    
-    .fileUploadContainer {
-      flex-direction: column;
-    }
-    
-    .tableContainer {
-      overflow-x: auto;
-    }
-  }
-  
-  /* Disabled button styles */
-  .uploadButton:disabled, .templateButton:disabled,
-  .submitButton:disabled, .cancelButton:disabled {
-    background-color: #cccccc;
-    color: #666666;
-    cursor: not-allowed;
-  }
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 80%;
+  max-width: 1100px;
+  overflow-y: auto;
+  max-height: 550px;
+}
+
+.closeButton {
+  display: flex;
+  float: right;
+  border: none;
+}
