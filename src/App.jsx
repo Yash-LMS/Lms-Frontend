@@ -39,6 +39,7 @@ import Allotments from "./components/technical-manager/Allotments";
 import AllCourseProgressTracker from "./components/technical-manager/AllCourseProgress";
 import CertificateValidation from "./components/certificate/CertificateValidation";
 import AddQuestionLibrary from "./components/test/AddQuestionLibrary";
+import TraineeResults from "./components/instructor/TraineeResults";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -208,6 +209,16 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/instructor/view/result"
+            element={
+              <ProtectedRoute>
+                <TraineeResults />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/course/progress"
             element={

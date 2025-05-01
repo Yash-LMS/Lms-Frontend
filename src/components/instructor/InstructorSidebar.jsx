@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./InstructorSidebar.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faListCheck, faFolderOpen,faRectangleList } from "@fortawesome/free-solid-svg-icons";
+import { faListCheck, faFolderOpen,faRectangleList, faClipboardList } from "@fortawesome/free-solid-svg-icons";
 
 const InstructorSidebar = ({ activeTab }) => {
     const navigate = useNavigate();
@@ -54,6 +54,17 @@ const InstructorSidebar = ({ activeTab }) => {
               Question Library
             </a>
           </li>
+
+                    <li className={`${styles.navItem} ${activeTab === "results" ? styles.active : ""}`}>
+                      <a
+                        href="#testResults"
+                        onClick={(e) => handleNavigation('/instructor/view/result', 'results', e)}
+                      >
+                        <FontAwesomeIcon icon={faClipboardList} />
+                        <span className={styles.navText}>Results</span>
+                      </a>
+                    </li>
+
         </ul>
       </nav>
     </aside>
