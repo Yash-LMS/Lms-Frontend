@@ -38,8 +38,9 @@
   
   .filterGroup {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     min-width: 200px;
+    gap: 1rem;
   }
   
   .filterLabel {

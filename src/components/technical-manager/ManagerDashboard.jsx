@@ -6,6 +6,7 @@ import {
   findCoursesCount,
   findTestsCount,
   findEmployeesCount,
+  findInternsCount,
 } from "../../features/manager/managerActions";
 import styles from "./ManagerDashboard.module.css";
 import Sidebar from "./Sidebar";
@@ -26,6 +27,7 @@ const ManagerDashboard = () => {
     courseCount,
     testCount,
     employeeCount,
+    internCount,
   } = useSelector((state) => state.manager);
 
   const controlsSectionRef = React.useRef(null);
@@ -83,6 +85,7 @@ const ManagerDashboard = () => {
       dispatch(findCoursesCount({ user, token }));
       dispatch(findTestsCount({ user, token }));
       dispatch(findEmployeesCount({ user, token }));
+      dispatch(findInternsCount({ user, token }));
     }
   };
 
@@ -689,6 +692,14 @@ const ManagerDashboard = () => {
           >
             <div className={styles.statValue}>{employeeCount || 0}</div>
             <div className={styles.statLabel}>Total Employees</div>
+          </div>
+          <div
+            className={styles.statCard}
+            onClick={() => navigate("/manager/intern")}
+            style={{ cursor: "pointer" }}
+          >
+            <div className={styles.statValue}>{internCount || 0}</div>
+            <div className={styles.statLabel}>Total Interns</div>
           </div>
         </div>
 
