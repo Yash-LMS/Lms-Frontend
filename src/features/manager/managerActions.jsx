@@ -8,7 +8,8 @@ import {
   FIND_DASHBOARD_INFORMATION_URL,
   TEST_COUNT_URL,
   EMPLOYEE_COUNT_URL,
-  COURSE_COUNT_URL
+  COURSE_COUNT_URL,
+  INTERN_COUNT_URL
 } from "../../constants/apiConstants";
 
 export const findCoursesByStatus = createAsyncThunk(
@@ -287,6 +288,21 @@ export const findEmployeesCount = createAsyncThunk(
   async ({ user, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(EMPLOYEE_COUNT_URL, {
+        user,
+        token
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const findInternsCount = createAsyncThunk(
+  "manager/findInternsCount",
+  async ({ user, token }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(INTERN_COUNT_URL, {
         user,
         token
       });

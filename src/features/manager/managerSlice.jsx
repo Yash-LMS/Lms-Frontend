@@ -15,7 +15,8 @@ import {
     findDashboardInformation,
     findCoursesCount,
     findTestsCount,
-    findEmployeesCount
+    findEmployeesCount,
+    findInternsCount
 } from './managerActions';
 
 const managerSlice = createSlice({
@@ -28,6 +29,7 @@ const managerSlice = createSlice({
         courseCount: [],
         testCount: [],
         employeeCount: [],
+        internCount: [],
         dashboardInfo: null,
         loading: false,
         error: null,
@@ -298,12 +300,12 @@ const managerSlice = createSlice({
                 if (action.payload.response === 'success') {
                     state.testCount = action.payload.payload || [];
                 } else {
-                    state.error = action.payload.message || 'Failed to fetch courses';
+                    state.error = action.payload.message || 'Failed to fetch tests';
                 }
             })
             .addCase(findTestsCount.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload?.message || 'Failed to fetch courses';
+                state.error = action.payload?.message || 'Failed to fetch tests';
             })
             .addCase(findEmployeesCount.pending, (state) => {
                 state.loading = true;
@@ -314,12 +316,29 @@ const managerSlice = createSlice({
                 if (action.payload.response === 'success') {
                     state.employeeCount = action.payload.payload || [];
                 } else {
-                    state.error = action.payload.message || 'Failed to fetch courses';
+                    state.error = action.payload.message || 'Failed to fetch employee';
                 }
             })
             .addCase(findEmployeesCount.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload?.message || 'Failed to fetch courses';
+                state.error = action.payload?.message || 'Failed to fetch employee';
+            })
+            .addCase(findInternsCount.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(findInternsCount.fulfilled, (state, action) => {
+                state.loading = false;
+                if (action.payload.response === 'success') {
+                    console.log(action.payload.payload)
+                    state.internCount = action.payload.payload || [];
+                } else {
+                    state.error = action.payload.message || 'Failed to fetch intern';
+                }
+            })
+            .addCase(findInternsCount.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || 'Failed to fetch intern';
             });
            
     },

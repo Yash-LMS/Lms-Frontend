@@ -6,6 +6,7 @@ import {
   UPDATE_INTERN_STATUS_URL,
   FIND_INTERN_IMAGE_URL,
   UPDATE_COMPLETION_STATUS_URL,
+  UPDATE_INTERN_FEEDBACK_URL,
 } from "../../constants/apiConstants";
 import Sidebar from "./Sidebar";
 import InternBulkRegistration from "./InternBulkRegistration";
@@ -15,6 +16,7 @@ const InternManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedCompletionStatus, setSelectedCompletionStatus] = useState("all");
   const [showRemarkModal, setShowRemarkModal] = useState(false);
   const [remark, setRemark] = useState("");
   const [selectedIntern, setSelectedIntern] = useState(null);
@@ -23,6 +25,9 @@ const InternManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showBulkRegistrationModal, setShowBulkRegistrationModal] = useState(false);
   const [internImages, setInternImages] = useState({});
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [selectedNewCompletionStatus, setSelectedNewCompletionStatus] = useState("");
 
   const statusOptions = [
     { value: "active", label: "Active" },
@@ -50,7 +55,7 @@ const InternManagement = () => {
 
   useEffect(() => {
     fetchInterns();
-  }, [selectedStatus]);
+  }, [selectedStatus, selectedCompletionStatus]);
 
   // Clean up blob URLs when component unmounts
   useEffect(() => {
@@ -67,25 +72,42 @@ const InternManagement = () => {
     try {
       const { user, token } = getUserData();
 
-      const response = await axios.post(FIND_INTERN_LIST_URL, {
+      // Prepare the request payload
+      const payload = {
         user,
         token,
-        status: selectedStatus,
-      });
+        status: selectedStatus
+      };
+      
+      // Only add completionStatus to payload if not "all"
+      if (selectedCompletionStatus !== "all") {
+        payload.completionStatus = selectedCompletionStatus;
+      }
+
+      const response = await axios.post(FIND_INTERN_LIST_URL, payload);
 
       if (response.data && response.data.response === "success") {
-        const internList = response.data.payload || [];
-        setInterns(internList);
+        let result = response.data.payload || [];
+        
+        // If the API doesn't support filtering by completionStatus, we'll filter on the client side
+        if (selectedCompletionStatus !== "all") {
+          result = result.filter(intern => 
+            (intern.completionStatus || "ongoing") === selectedCompletionStatus
+          );
+        }
+        
+        setInterns(result);
         setError(null);
         
         // Fetch intern images after loading the intern data
-        if (internList.length > 0) {
-          fetchInternImages(internList);
+        if (result.length > 0) {
+          fetchInternImages(result);
         }
       } else {
         setInterns([]);
       }
     } catch (error) {
+      console.error("Error fetching interns:", error);
       setInterns([]);
       setError("Failed to fetch interns data");
     } finally {
@@ -171,6 +193,19 @@ const InternManagement = () => {
   };
 
   const handleCompletionStatusChange = async (intern, newCompletionStatus) => {
+    // If changing to released, show feedback modal first
+    if (newCompletionStatus === "released") {
+      setSelectedIntern(intern);
+      setSelectedNewCompletionStatus(newCompletionStatus);
+      setFeedback("");
+      setShowFeedbackModal(true);
+    } else {
+      // For other status changes, proceed directly
+      updateCompletionStatus(intern, newCompletionStatus);
+    }
+  };
+
+  const updateCompletionStatus = async (intern, newCompletionStatus) => {
     try {
       const { user, token } = getUserData();
 
@@ -192,6 +227,53 @@ const InternManagement = () => {
       }
     } catch (error) {
       console.error("Error updating internship completion status", error);
+    }
+  };
+
+  // New function to handle feedback submission
+  const handleSubmitFeedback = async () => {
+    if (!selectedIntern || !feedback.trim()) {
+      return;
+    }
+
+    try {
+      const { user, token } = getUserData();
+
+      // First submit the feedback
+      const feedbackResponse = await axios.post(UPDATE_INTERN_FEEDBACK_URL, {
+        user,
+        token,
+        emailId: selectedIntern.emailId,
+        feedback: feedback,
+      });
+
+      if (feedbackResponse.data && feedbackResponse.data.response === "success") {
+        // Then update the completion status
+        const statusResponse = await axios.post(UPDATE_COMPLETION_STATUS_URL, {
+          user,
+          token,
+          emailId: selectedIntern.emailId,
+          completionStatus: selectedNewCompletionStatus,
+        });
+
+        if (statusResponse.data && statusResponse.data.response === "success") {
+          setInterns(
+            interns.map((i) =>
+              i.emailId === selectedIntern.emailId
+                ? { ...i, completionStatus: selectedNewCompletionStatus }
+                : i
+            )
+          );
+          
+          // Close the modal and reset states
+          setShowFeedbackModal(false);
+          setSelectedIntern(null);
+          setSelectedNewCompletionStatus("");
+          setFeedback("");
+        }
+      }
+    } catch (error) {
+      console.error("Error submitting feedback or updating status", error);
     }
   };
 
@@ -245,35 +327,43 @@ const InternManagement = () => {
     setSearchTerm("");
   };
 
-  const filteredInterns =
-    searchTerm.trim() === ""
-      ? interns
-      : interns.filter(
-          (intern) =>
-            intern.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            intern.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            intern.emailId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            intern.institution
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            intern.internshipProgram
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())
-        );
+  const filteredInterns = interns.filter(intern => {
+    // Apply the search filter
+    return searchTerm.trim() === "" || 
+      intern.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      intern.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      intern.emailId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      intern.institution.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      intern.internshipProgram.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const handleFilterChange = (e) => {
     setSelectedStatus(e.target.value);
     setError(null);
   };
 
+  const handleCompletionFilterChange = (e) => {
+    setSelectedCompletionStatus(e.target.value);
+    setError(null);
+  };
+
   const getNoDataMessage = () => {
     if (searchTerm) {
       return "No results found. Try a different search term.";
-    } else if (selectedStatus !== "all") {
-      return `No interns found with status "${
-        statusOptions.find((option) => option.value === selectedStatus)
-          ?.label || selectedStatus
-      }". Try a different filter.`;
+    } else if (selectedStatus !== "all" || selectedCompletionStatus !== "all") {
+      let message = "No interns found with ";
+      
+      if (selectedStatus !== "all") {
+        message += `status "${statusOptions.find((option) => option.value === selectedStatus)?.label || selectedStatus}"`;
+      }
+      
+      if (selectedCompletionStatus !== "all") {
+        if (selectedStatus !== "all") message += " and ";
+        message += `completion status "${completionStatusOptions.find((option) => option.value === selectedCompletionStatus)?.label || selectedCompletionStatus}"`;
+      }
+      
+      message += ". Try a different filter.";
+      return message;
     } else {
       return "No interns found.";
     }
@@ -360,6 +450,19 @@ const InternManagement = () => {
             >
               <option value="all">All Status</option>
               {statusOptions.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedCompletionStatus}
+              onChange={handleCompletionFilterChange}
+              className={styles.select}
+            >
+              <option value="all">All Completion Status</option>
+              {completionStatusOptions.map((status) => (
                 <option key={status.value} value={status.value}>
                   {status.label}
                 </option>
@@ -546,6 +649,47 @@ const InternManagement = () => {
                 onClick={handleSubmitStatusChange}
               >
                 Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Feedback Modal */}
+      {showFeedbackModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <h2 className={styles.modalTitle}>
+              Provide Feedback Before Release
+            </h2>
+            <p className={styles.modalDescription}>
+              Please provide feedback for {selectedIntern?.firstName}{" "}
+              {selectedIntern?.lastName} before changing their status to Released.
+            </p>
+            <div className={styles.formGroup}>
+              <label htmlFor="feedback">Feedback:</label>
+              <textarea
+                id="feedback"
+                className={styles.remarkTextarea}
+                placeholder="Enter your feedback for the intern..."
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                rows={6}
+              />
+            </div>
+            <div className={styles.modalButtons}>
+              <button
+                className={styles.cancelButton}
+                onClick={() => setShowFeedbackModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.submitButton}
+                onClick={handleSubmitFeedback}
+                disabled={!feedback.trim()}
+              >
+                Submit Feedback & Release
               </button>
             </div>
           </div>

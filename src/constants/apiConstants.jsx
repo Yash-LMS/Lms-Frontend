@@ -38,6 +38,7 @@ export const FIND_INTERN_IMAGE_URL = `${API_BASE_URL}/manager/intern/image`;
 export const UPDATE_INTERN_STATUS_URL = `${API_BASE_URL}/manager/update/internStatus`;
 export const UPDATE_COMPLETION_STATUS_URL = `${API_BASE_URL}/manager/update/intern/completionStatus`;
 export const INTERNSHIP_PROGRAM_LIST = `${API_BASE_URL}/office/internship/findAllPrograms`;
+export const UPDATE_INTERN_FEEDBACK_URL = `${API_BASE_URL}/manager/update/internFeedback`;
 
 //Technical Manager
 export const FIND_COURSE_BY_STATUS_URL = `${API_BASE_URL}/manager/findCourseByStatus`;
@@ -72,6 +73,7 @@ export const SHOW_DETAIL_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/p
 export const COURSE_COUNT_URL = `${API_BASE_URL}/manager/totalCourses`;
 export const TEST_COUNT_URL = `${API_BASE_URL}/manager/totalTests`;
 export const EMPLOYEE_COUNT_URL = `${API_BASE_URL}/manager/totalEmployees`;
+export const INTERN_COUNT_URL = `${API_BASE_URL}/manager/totalInterns`;
 export const FETCH_CATEGORIES_URL = `${API_BASE_URL}/manager/getCategories`;
 export const UPDATE_CATEGORY_URL = `${API_BASE_URL}/manager/updateCategory`;
 
