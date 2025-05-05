@@ -31,9 +31,11 @@ const EmployeeManagementPage = () => {
   };
 
   // Employee list from Redux state
-  const { users, loading: reduxLoading, employeeCount } = useSelector(
-    (state) => state.manager
-  );
+  const {
+    users,
+    loading: reduxLoading,
+    employeeCount,
+  } = useSelector((state) => state.manager);
 
   // State for filters
   const [roleFilter, setRoleFilter] = useState("all");
@@ -210,12 +212,12 @@ const EmployeeManagementPage = () => {
           if (user.employeeType === "intern") {
             return false;
           }
-          
+
           // Then apply search term filtering
           if (!searchTerm) {
             return true;
           }
-          
+
           const searchTermLower = searchTerm.toLowerCase();
           const name =
             user.name || `${user.firstName || ""} ${user.lastName || ""}`;
@@ -229,36 +231,16 @@ const EmployeeManagementPage = () => {
           );
         })
       : [];
-      
+
   // Calculate employee count excluding interns
-  const regularEmployeeCount = users && users.length > 0 
-    ? users.filter(user => user.employeeType !== "intern").length 
-    : 0;
+  const regularEmployeeCount =
+    users && users.length > 0
+      ? users.filter((user) => user.employeeType !== "intern").length
+      : 0;
 
   const isLoading = reduxLoading || loading;
 
   const [activeTab, setActiveTab] = useState("employee");
-
-  // Navigation functions
-  const navigateTo = (path) => {
-    navigate(path);
-    switch (path) {
-      case "/manager-dashboard":
-        setActiveTab("dashboard");
-        break;
-      case "/manager/requests":
-        setActiveTab("requests");
-        break;
-      case "/manager/allotment":
-        setActiveTab("allot");
-        break;
-      case "/manager/employee":
-        setActiveTab("employee");
-        break;
-      default:
-        break;
-    }
-  };
 
   // Define Excel headers for employee management
   const excelHeaders = {
@@ -277,11 +259,9 @@ const EmployeeManagementPage = () => {
       <div className={styles.card}>
         <div className={styles.pageHeader}>
           <h1>Employee Management</h1>
-          <div className={styles.dashboardStats}>
-            <div className={styles.statCard}>
-              <div className={styles.statValue}>{regularEmployeeCount || 0}</div>
-              <div className={styles.statLabel}>Total Employees</div>
-            </div>
+          <div className={styles.statCard}>
+            <div className={styles.statLabel}>Total Employees :</div>
+            <div className={styles.statValue}>{regularEmployeeCount || 0}</div>
           </div>
           <div className={styles.searchField}>
             <input

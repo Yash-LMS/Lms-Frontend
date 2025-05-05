@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import axios from "axios";
 import styles from "./InternManagement.module.css";
 import {
@@ -8,26 +9,32 @@ import {
   UPDATE_COMPLETION_STATUS_URL,
   UPDATE_INTERN_FEEDBACK_URL,
 } from "../../constants/apiConstants";
+import { findInternsCount } from "../../features/manager/managerActions";
 import Sidebar from "./Sidebar";
 import InternBulkRegistration from "./InternBulkRegistration";
+import ExportToExcel from "../../assets/ExportToExcel";
 
 const InternManagement = () => {
   const [interns, setInterns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("all");
-  const [selectedCompletionStatus, setSelectedCompletionStatus] = useState("all");
+  const [selectedCompletionStatus, setSelectedCompletionStatus] =
+    useState("all");
   const [showRemarkModal, setShowRemarkModal] = useState(false);
   const [remark, setRemark] = useState("");
   const [selectedIntern, setSelectedIntern] = useState(null);
   const [selectedNewStatus, setSelectedNewStatus] = useState("");
   const [activeTab, setActiveTab] = useState("intern");
   const [searchTerm, setSearchTerm] = useState("");
-  const [showBulkRegistrationModal, setShowBulkRegistrationModal] = useState(false);
+  const [showBulkRegistrationModal, setShowBulkRegistrationModal] =
+    useState(false);
   const [internImages, setInternImages] = useState({});
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedback, setFeedback] = useState("");
-  const [selectedNewCompletionStatus, setSelectedNewCompletionStatus] = useState("");
+  const [selectedNewCompletionStatus, setSelectedNewCompletionStatus] =
+    useState("");
+  const { internCount } = useSelector((state) => state.manager);
 
   const statusOptions = [
     { value: "active", label: "Active" },
@@ -55,17 +62,25 @@ const InternManagement = () => {
 
   useEffect(() => {
     fetchInterns();
+    fetchCounts();
   }, [selectedStatus, selectedCompletionStatus]);
 
   // Clean up blob URLs when component unmounts
   useEffect(() => {
     return () => {
       // Revoke all blob URLs to prevent memory leaks
-      Object.values(internImages).forEach(url => {
+      Object.values(internImages).forEach((url) => {
         if (url) URL.revokeObjectURL(url);
       });
     };
   }, [internImages]);
+
+  const fetchCounts = async () => {
+    const { user, token } = getUserData();
+    if (user && token) {
+      dispatch(findInternsCount({ user, token }));
+    }
+  };
 
   const fetchInterns = async () => {
     setLoading(true);
@@ -76,9 +91,9 @@ const InternManagement = () => {
       const payload = {
         user,
         token,
-        status: selectedStatus
+        status: selectedStatus,
       };
-      
+
       // Only add completionStatus to payload if not "all"
       if (selectedCompletionStatus !== "all") {
         payload.completionStatus = selectedCompletionStatus;
@@ -88,17 +103,19 @@ const InternManagement = () => {
 
       if (response.data && response.data.response === "success") {
         let result = response.data.payload || [];
-        
+
         // If the API doesn't support filtering by completionStatus, we'll filter on the client side
         if (selectedCompletionStatus !== "all") {
-          result = result.filter(intern => 
-            (intern.completionStatus || "ongoing") === selectedCompletionStatus
+          result = result.filter(
+            (intern) =>
+              (intern.completionStatus || "ongoing") ===
+              selectedCompletionStatus
           );
         }
-        
+
         setInterns(result);
         setError(null);
-        
+
         // Fetch intern images after loading the intern data
         if (result.length > 0) {
           fetchInternImages(result);
@@ -118,20 +135,22 @@ const InternManagement = () => {
   // Fetch all intern images in a batch
   const fetchInternImages = async (internList) => {
     const { token } = getUserData();
-    
+
     try {
       const imagePromises = internList.map(async (intern) => {
         try {
           const response = await axios.get(
-            `${FIND_INTERN_IMAGE_URL}?emailId=${encodeURIComponent(intern.emailId)}`,
+            `${FIND_INTERN_IMAGE_URL}?emailId=${encodeURIComponent(
+              intern.emailId
+            )}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-              responseType: 'blob', // Tell axios to expect binary data
+              responseType: "blob", // Tell axios to expect binary data
             }
           );
-          
+
           // Create a blob URL from the response data
           const imageUrl = URL.createObjectURL(response.data);
           return { emailId: intern.emailId, imageUrl };
@@ -140,15 +159,15 @@ const InternManagement = () => {
           return { emailId: intern.emailId, imageUrl: null };
         }
       });
-      
+
       const imagesResult = await Promise.all(imagePromises);
-      
+
       // Convert array to object with emailId as keys
       const imagesMap = imagesResult.reduce((acc, curr) => {
         acc[curr.emailId] = curr.imageUrl;
         return acc;
       }, {});
-      
+
       setInternImages(imagesMap);
     } catch (error) {
       console.error("Error fetching intern images:", error);
@@ -247,7 +266,10 @@ const InternManagement = () => {
         feedback: feedback,
       });
 
-      if (feedbackResponse.data && feedbackResponse.data.response === "success") {
+      if (
+        feedbackResponse.data &&
+        feedbackResponse.data.response === "success"
+      ) {
         // Then update the completion status
         const statusResponse = await axios.post(UPDATE_COMPLETION_STATUS_URL, {
           user,
@@ -264,7 +286,7 @@ const InternManagement = () => {
                 : i
             )
           );
-          
+
           // Close the modal and reset states
           setShowFeedbackModal(false);
           setSelectedIntern(null);
@@ -327,15 +349,33 @@ const InternManagement = () => {
     setSearchTerm("");
   };
 
-  const filteredInterns = interns.filter(intern => {
+  const filteredInterns = interns.filter((intern) => {
     // Apply the search filter
-    return searchTerm.trim() === "" || 
+    return (
+      searchTerm.trim() === "" ||
       intern.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       intern.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       intern.emailId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       intern.institution.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      intern.internshipProgram.toLowerCase().includes(searchTerm.toLowerCase());
+      intern.internshipProgram.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   });
+
+  const excelHeaders = {
+    firstName: "First Name",
+    lastName: "Last Name",
+    emailId: "Email ID",
+    address: "Address",
+    institution: "Institution",
+    stream: "Stream",
+    yearOfPassing: "Year Of Passing",
+    internshipProgram: "Program",
+    startDate: "Start Date",
+    endDate: "End Date",
+    duration: "Duration (in months)",
+    status: "Account Status",
+    completionStatus: "Completion Status"
+  };
 
   const handleFilterChange = (e) => {
     setSelectedStatus(e.target.value);
@@ -352,16 +392,23 @@ const InternManagement = () => {
       return "No results found. Try a different search term.";
     } else if (selectedStatus !== "all" || selectedCompletionStatus !== "all") {
       let message = "No interns found with ";
-      
+
       if (selectedStatus !== "all") {
-        message += `status "${statusOptions.find((option) => option.value === selectedStatus)?.label || selectedStatus}"`;
+        message += `status "${
+          statusOptions.find((option) => option.value === selectedStatus)
+            ?.label || selectedStatus
+        }"`;
       }
-      
+
       if (selectedCompletionStatus !== "all") {
         if (selectedStatus !== "all") message += " and ";
-        message += `completion status "${completionStatusOptions.find((option) => option.value === selectedCompletionStatus)?.label || selectedCompletionStatus}"`;
+        message += `completion status "${
+          completionStatusOptions.find(
+            (option) => option.value === selectedCompletionStatus
+          )?.label || selectedCompletionStatus
+        }"`;
       }
-      
+
       message += ". Try a different filter.";
       return message;
     } else {
@@ -414,6 +461,10 @@ const InternManagement = () => {
       <div className={styles.card}>
         <div className={styles.pageHeader}>
           <h1>Intern Management</h1>
+          <div className={styles.statCard}>
+            <div className={styles.statLabel}>Total Interns :</div>
+            <div className={styles.statValue}>{internCount || 0}</div>
+          </div>
           <div className={styles.headerActions}>
             <div className={styles.searchField}>
               <input
@@ -478,6 +529,18 @@ const InternManagement = () => {
           </div>
         )}
 
+        <div className={styles.exportExcel}>
+          <ExportToExcel
+            data={filteredInterns}
+            headers={excelHeaders}
+            fileName="Intern-Management-Results"
+            sheetName="Interns"
+            buttonStyle={{
+              marginBottom: "20px",
+            }}
+          />
+        </div>
+
         <div className={styles.cardContent}>
           {loading ? (
             <div className={styles.loading}>Loading interns...</div>
@@ -516,7 +579,7 @@ const InternManagement = () => {
                             />
                           ) : (
                             <img
-                              src="/placeholder-profile.png" 
+                              src="/placeholder-profile.png"
                               alt={`${intern.firstName}'s profile`}
                               className={`${styles.profileImage} ${styles.placeholderImage}`}
                             />
@@ -664,7 +727,8 @@ const InternManagement = () => {
             </h2>
             <p className={styles.modalDescription}>
               Please provide feedback for {selectedIntern?.firstName}{" "}
-              {selectedIntern?.lastName} before changing their status to Released.
+              {selectedIntern?.lastName} before changing their status to
+              Released.
             </p>
             <div className={styles.formGroup}>
               <label htmlFor="feedback">Feedback:</label>

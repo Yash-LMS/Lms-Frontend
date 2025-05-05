@@ -337,21 +337,16 @@
   }
 }
 
-.dashboardStats {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-  gap: 1.5rem;
-}
-
 .statCard {
-  flex: 1;
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 0.5rem;
   text-align: center;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  align-items: center;
+  display: flex;
+  gap: 0.8rem;
 }
 
 .statCard:hover {
@@ -363,7 +358,6 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 0.5rem;
 }
 
 .statLabel {
