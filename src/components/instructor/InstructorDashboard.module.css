@@ -136,8 +136,10 @@
 /* Course List Styles */
 .courseList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .courseCard {
@@ -149,15 +151,14 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative; 
   overflow: visible;
-  margin-left: 50px;
-  
+  margin-left: 22px; 
   display: flex;
   flex-direction: column;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
-  width: 100%;
-  max-width: 350px;
+  width: 85%; /* Full width of its grid area */
+  max-width: 85%; /* Allow it to fill available space */
 }
 
 .courseCard:hover {
@@ -167,11 +168,12 @@
 
 .courseImage {
   width: 100%;
-  height: 180px; /* Fixed height container */
+  height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f5f5f5; /* Light background for small images */
+  background-color: #f5f5f5;
+  border-radius: 8px 8px 0 0;
   overflow: hidden;
 }
 
@@ -257,7 +259,8 @@
 .cardActions {
   display: flex;
   gap: 0.75rem;
-  margin-top: 1rem;
+  margin-top: auto; 
+  padding-top: 1rem;
 }
 
 .editButton,
@@ -480,17 +483,22 @@
 /* Responsive Design */
 @media (max-width: 1200px) {
   .courseList {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  
+  .mainContent {
+    padding: 2rem;
   }
 }
 
 @media (max-width: 992px) {
   .adminDashboard {
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 180px 1fr;
   }
 
   .dashboardSidebar {
-    width: 200px;
+    width: 180px;
   }
 
   .headerRight {
@@ -500,6 +508,10 @@
 
   .searchInput {
     min-width: 200px;
+  }
+
+  .courseList {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
 }
 
@@ -548,7 +560,7 @@
   }
 
   .courseList {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   }
 
   .mobileMenuToggle {
@@ -586,6 +598,14 @@
 
   .modalContent {
     width: 95%;
+  }
+
+  .courseList {
+    grid-template-columns: 1fr; /* Single column on very small screens */
+  }
+  
+  .courseCard {
+    max-width: 100%;
   }
 }
 

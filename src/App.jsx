@@ -18,6 +18,7 @@ import ManagerDashboard from "./components/technical-manager/ManagerDashboard";
 import CourseRequests from "./components/technical-manager/CourseRequests";
 import CourseView from "./components/technical-manager/CourseView";
 import CourseAllotment from "./components/technical-manager/CourseAllotment";
+import TraineeTestResult from "./components/instructor/TraineeTestResults";
 import CourseBulkAllotment from "./components/technical-manager/CourseBulkAllotment";
 import EmployeeManagement from "./components/technical-manager/EmployeeManagement";
 import InternManagement from "./components/technical-manager/InternManagement";
@@ -222,6 +223,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <AddQuestionLibrary />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/instructor/test/result"
+            element={
+              <ProtectedRoute>
+                <TraineeTestResult />
               </ProtectedRoute>
             }
           />

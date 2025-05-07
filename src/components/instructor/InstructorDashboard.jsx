@@ -41,6 +41,7 @@ const InstructorDashboard = () => {
     }
   };
 
+  // Fixed useEffect to avoid infinite loop by using an empty dependency array
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -51,7 +52,7 @@ const InstructorDashboard = () => {
     };
 
     fetchCourses();
-  }, [dispatch]);
+  }, []); // Empty dependency array so it only runs once when mounted
 
   const handleAddDetails = (course) => {
     setSelectedCourse(course);
