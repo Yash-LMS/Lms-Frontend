@@ -26,9 +26,10 @@ export const DELETE_SECTION_URL = `${API_BASE_URL}/course/section/delete`;
 export const FILE_PREVIEW_URL = `${API_BASE_URL}/file/view`;
 export const COURSE_IMAGE_VIEW_URL = `${API_BASE_URL}/course/image`;
 export const TEST_INSTRUCTOR_URL = `${API_BASE_URL}/test/findTests`;
+export const TRAINEE_RESULT_BY_INSTRUCTOR = `${API_BASE_URL}/test/viewTraineeResults`;
 export const UPDATE_SECTION_SEQUENCE = `${API_BASE_URL}/course/update/section/sequence`;
 export const INSTRUCTOR_TRAINEE_RESULT_URL = `${API_BASE_URL}/test/viewTraineeResults`;
-
+export const FIND_DETAILED_TRAINEE_RESULT_URL = `${API_BASE_URL}/test/detail/result`;
 
 //Intern
 export const REGISTER_INTERN_URL = `${API_BASE_URL}/user/intern/register`;
