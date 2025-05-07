@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createTest, viewTest, addQuestions, viewTestQuestions, viewManagerTestQuestions } from "./testActions";
+import { createTest, viewTest, addQuestions, viewTestQuestions, viewManagerTestQuestions, viewTraineeResults } from "./testActions";
 
 const testSlice = createSlice({
   name: "tests",
@@ -8,6 +8,7 @@ const testSlice = createSlice({
     loading: false,
     error: null,
     questions: [], 
+    traineeResults: [],
   },
   reducers: {
     clearError: (state) => {
@@ -106,7 +107,24 @@ const testSlice = createSlice({
       .addCase(viewManagerTestQuestions.rejected , (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+      .addCase(viewTraineeResults.fulfilled, (state, action) => {
+        state.loading = false;
+        if (action.payload.response === 'success') {
+          state.traineeResults = action.payload.payload || []; 
+          console.log('Result:', state.traineeResults)
+        } else {
+          state.error = action.payload.message || 'Failed to fetch questions';
+        }
+      })
+      .addCase(viewTraineeResults.rejected , (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(viewTraineeResults.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
   },
 });
 

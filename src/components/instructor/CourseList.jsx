@@ -105,6 +105,14 @@ const CourseList = ({
     );
   }
 
+   if (!courses || courses.length === 0) {
+      return (
+        <div className={styles.noCourses}>
+          No Courses found. Create a new course to get started.
+        </div>
+      );
+    }
+
   const handlePreviewClick = (courseId) => {
     navigate(`/course/preview/${courseId}`);
   };

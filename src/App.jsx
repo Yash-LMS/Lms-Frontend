@@ -236,7 +236,7 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
-
+    
           <Route
             path="/course/preview/:courseId"
             element={

@@ -371,7 +371,7 @@ const AllResults = () => {
                       <td>{formatDate(result.submissionDate)}</td>
                       <td>{result.submissionTime}</td>
                       <td>
-                          <button onClick={() => handleViewResults(result.allotmentId)}>
+                          <button onClick={() => handleViewResults(result.allotmentId)} className={styles.viewBtn }>
                           View Result
                           </button>
                          </td>

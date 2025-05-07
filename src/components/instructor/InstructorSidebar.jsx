@@ -54,16 +54,19 @@ const InstructorSidebar = ({ activeTab }) => {
               Question Library
             </a>
           </li>
-
-                    <li className={`${styles.navItem} ${activeTab === "results" ? styles.active : ""}`}>
-                      <a
-                        href="#testResults"
-                        onClick={(e) => handleNavigation('/instructor/view/result', 'results', e)}
-                      >
-                        <FontAwesomeIcon icon={faClipboardList} />
-                        <span className={styles.navText}>Results</span>
-                      </a>
-                    </li>
+          <li
+            className={`${styles.navItem} ${
+              activeTab === "result" ? styles.active : ""
+            }`}
+          >
+            <a
+              href="#result"
+              onClick={(e) => handleNavigation('/instructor/view/result', 'result', e)}
+            >
+              <FontAwesomeIcon icon={faClipboardList} />
+              Test Result
+            </a>
+          </li>
 
         </ul>
       </nav>

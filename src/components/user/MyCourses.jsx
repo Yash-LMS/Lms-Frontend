@@ -251,7 +251,7 @@ const MyCourses = () => {
       {!loading &&
         !error &&
         (!allottedCourses || allottedCourses.length === 0) && (
-          <div className={styles.error}>
+          <div className={styles.noData}>
             <p>
               No courses have been allotted to you yet. Please check back later.
             </p>

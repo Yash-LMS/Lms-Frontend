@@ -403,9 +403,7 @@ const InternRegistration = () => {
   const noInternshipProgramsAvailable = (!internshipPrograms || internshipPrograms.length === 0);
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Intern Registration</h1>
-      
+    <div className={styles.container}>      
       {errorMessage && (
         <div className={`${styles.message} ${styles.error}`}>
           {errorMessage}
@@ -420,6 +418,7 @@ const InternRegistration = () => {
       )}
       
       <form className={styles.form} onSubmit={handleSubmit}>
+      <h1 className={styles.title}>Intern Registration</h1>
         <div className={styles.imageUploadContainer}>
           <div 
             className={styles.imageUpload} 

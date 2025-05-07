@@ -313,6 +313,13 @@
     border-radius: 0.375rem;
     margin-bottom: 1rem;
   }
+
+  .noData {
+    text-align: center;
+    padding: 2rem;
+    color: #718096;
+    font-style: italic;
+  }
   
   /* Modal styles */
 .modalOverlay {
