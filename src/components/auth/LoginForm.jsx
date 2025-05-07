@@ -23,9 +23,9 @@ const LoginForm = ({ setLoginStatus }) => {
         });
     };
 
-    const validateEmail = (email) => {
-        return email.endsWith('@yash.com');
-    };
+    // const validateEmail = (email) => {
+    //     return email.endsWith('@yash.com');
+    // };
 
     const handleForgotPassword = () => {
         navigate('/forgot-password');
@@ -49,12 +49,12 @@ const LoginForm = ({ setLoginStatus }) => {
         setLoginError(''); // Reset login error
         setLoadRender(true);
 
-        // Validate email
-        if (!validateEmail(formData.emailId)) {
-            setLoginError('Email must end with @yash.com');
-            setLoadRender(false);
-            return;
-        }
+        // // Validate email
+        // if (!validateEmail(formData.emailId)) {
+        //     setLoginError('Email must end with @yash.com');
+        //     setLoadRender(false);
+        //     return;
+        // }
 
         try {
             const response = await axios.get(LOGIN_URL, {

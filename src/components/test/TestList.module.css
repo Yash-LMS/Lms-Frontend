@@ -15,12 +15,16 @@
   --hold-color: #6c757d;
 }
 
+/* Improved test list container */
 .testList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  margin: 0 auto;
 }
 
+/* Fixed test card to be responsive */
 .testCard {
   background-color: var(--background-card);
   border-radius: 12px;
@@ -30,8 +34,9 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   overflow: visible;
-  width: 400px;
-  margin-left: 40px;
+  width: 85%; 
+  max-width: 85%; /* Ensure it doesn't overflow */
+  margin-left: 25px;
 }
 
 .testCard:hover {
@@ -41,44 +46,44 @@
 
 /* Ribbon-style test tag */
 .testTag {
-    position: absolute;
-    top: 6px;
-    right: -19px;
-    background-color: #ff5722;
-    color: white;
-    padding: 2px 0;
-    font-weight: bold;
-    font-size: 12px;
-    width: 74px;
-    text-align: center;
-    transform: rotate(45deg);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-    letter-spacing: 0.5px;
-  }
+  position: absolute;
+  top: 6px;
+  right: -19px;
+  background-color: #ff5722;
+  color: white;
+  padding: 2px 0;
+  font-weight: bold;
+  font-size: 12px;
+  width: 74px;
+  text-align: center;
+  transform: rotate(45deg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  letter-spacing: 0.5px;
+}
   
-  /* Corner flaps that fold behind the card */
-  .testTag:before,
-  .testTag:after {
-    content: "";
-    position: absolute;
-    width: 6px;
-    height: 12px;
-    z-index: -1;
-    background-color: #d7481d; /* Darker shade of the ribbon color */
-  }
+/* Corner flaps that fold behind the card */
+.testTag:before,
+.testTag:after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 12px;
+  z-index: -1;
+  background-color: #d7481d; /* Darker shade of the ribbon color */
+}
   
-  .testTag:before {
-    bottom: -4px;
-    left: -4px;
-    transform: skewY(-60deg);
-  }
+.testTag:before {
+  bottom: -4px;
+  left: -4px;
+  transform: skewY(-60deg);
+}
   
-  .testTag:after {
-    bottom: -4px;
-    right: -4px;
-    transform: skewY(60deg);
-  }
+.testTag:after {
+  bottom: -4px;
+  right: -4px;
+  transform: skewY(60deg);
+}
 
 .testHeader {
   display: flex;
@@ -142,10 +147,12 @@
   font-weight: 500;
 }
 
+/* Improved action buttons to be more responsive */
 .testActions {
   display: flex;
   gap: 0.75rem;
   margin-top: 1rem;
+  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
 }
 
 .editButton,
@@ -158,6 +165,7 @@
   transition: all 0.2s;
   flex: 1;
   text-align: center;
+  min-width: 80px; /* Ensure buttons don't get too small */
 }
 
 .editButton {
@@ -201,16 +209,33 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* Responsive adjustments */
+/* Enhanced responsive adjustments */
+@media (max-width: 1400px) {
+  .testList {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
 @media (max-width: 1200px) {
   .testList {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .testList {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  
+  .testCard {
+    padding: 1.25rem;
   }
 }
 
 @media (max-width: 768px) {
   .testList {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   }
 
   .testHeader {
@@ -221,11 +246,20 @@
   .statusBadge {
     align-self: flex-start;
   }
+  
+  .testCard {
+    padding: 1rem;
+  }
 }
 
 @media (max-width: 576px) {
+  .testList {
+    grid-template-columns: 1fr; /* Single column for very small screens */
+  }
+  
   .testActions {
     flex-direction: column;
+    gap: 0.5rem;
   }
 
   .editButton,
@@ -249,22 +283,25 @@
   margin-left: 10px;
 }
 
-
+/* Improved question buttons containers for better responsiveness */
 .questionButtonsContainer {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 20px;
   flex: 1;
+  width: 100%;
 }
 
 .questionActionButtons {
   display: flex;
   gap: 17px;
+  flex-wrap: wrap; /* Allow buttons to wrap */
 }
 
 .questionImportButtons {
   display: flex;
   gap: 15px;
+  flex-wrap: wrap; /* Allow buttons to wrap */
 }
 
 .importButton {
@@ -277,20 +314,24 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  width: 100%;
   text-align: center;
+  flex: 1; /* Allow equal sizing */
+  min-width: 100px; /* Ensure minimum width */
 }
 
 .importButton:hover {
   background-color: #e0d6ff;
 }
 
+/* Responsive pagination */
 .paginationControls {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 20px;
   padding: 10px 0;
+  flex-wrap: wrap; /* Ensure it wraps on very small screens */
+  gap: 10px;
 }
 
 .paginationButton {
@@ -299,7 +340,7 @@
   border: none;
   border-radius: 4px;
   padding: 8px 16px;
-  margin: 0 10px;
+  margin: 0 5px;
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.3s;
@@ -316,7 +357,35 @@
 
 .pageIndicator {
   font-size: 14px;
-  margin: 0 15px;
+  margin: 0 10px;
   font-weight: 500;
 }
 
+/* Ensure responsive layout for buttons at very small sizes */
+@media (max-width: 480px) {
+  .questionActionButtons,
+  .questionImportButtons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .importButton {
+    width: 100%;
+  }
+  
+  .uploadButton {
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+  }
+  
+  .paginationControls {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .paginationButton {
+    width: 100%;
+    margin: 5px 0;
+  }
+}
