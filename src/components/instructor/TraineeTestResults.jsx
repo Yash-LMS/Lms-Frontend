@@ -387,7 +387,7 @@ const TraineeTestResult = () => {
               ) : error ? (
                 <tr>
                   <td colSpan="16" className={styles.noRecords}>
-                    Error loading results: {error.message || "Unknown error"}
+                    No records available
                   </td>
                 </tr>
               ) : filteredResults.length > 0 ? (
