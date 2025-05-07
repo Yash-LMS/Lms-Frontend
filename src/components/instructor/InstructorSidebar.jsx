@@ -61,7 +61,7 @@ const InstructorSidebar = ({ activeTab }) => {
           >
             <a
               href="#result"
-              onClick={(e) => handleNavigation('/instructor/test/result', 'result', e)}
+              onClick={(e) => handleNavigation('/instructor/view/result', 'result', e)}
             >
               <FontAwesomeIcon icon={faClipboardList} />
               Test Result
