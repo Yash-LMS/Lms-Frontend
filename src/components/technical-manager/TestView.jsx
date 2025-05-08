@@ -52,7 +52,7 @@ const TestPreview = () => {
         console.error("Error fetching test questions:", err);
         // Handle unauthorized access
         alert("You are not authorized to view this test.");
-        navigate('/instructor/test');
+        navigate('/manager/test/requests');
       }
     };
 
