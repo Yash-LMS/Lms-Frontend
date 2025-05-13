@@ -331,6 +331,17 @@ const TraineeResults = () => {
         : null,
       color: state.isSelected ? "white" : "black",
     }),
+    // Add menu style to set a higher z-index
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999, // High z-index to ensure the dropdown appears above other elements
+      width: "100%", // Ensures the menu is the same width as the control
+    }),
+    // Optionally adjust menuPortal for cases where the menu needs to break out of parent containers
+    menuPortal: (provided) => ({
+      ...provided,
+      zIndex: 9999,
+    }),
   };
 
   const handleViewResults = (allotmentId) => {
@@ -347,7 +358,7 @@ const TraineeResults = () => {
   return (
     <div className={styles.container}>
       {/* Sidebar component with fixed width */}
-      <div className={styles.sidebarWrapper}>
+      <div>
         <Sidebar activeTab={activeTab} />
       </div>
 
@@ -361,7 +372,6 @@ const TraineeResults = () => {
         <div className={styles.traineeSelectContainer}>
           <label className={styles.selectLabel}>Select Trainee:</label>
           <Select
-            className={styles.traineeSelect}
             value={selectedTrainee}
             onChange={handleTraineeChange}
             options={traineeOptions}
@@ -369,6 +379,7 @@ const TraineeResults = () => {
             isClearable
             isSearchable
             styles={customSelectStyles}
+            menuPortalTarget={document.body}
             isLoading={isLoading && traineeList.length === 0}
           />
         </div>

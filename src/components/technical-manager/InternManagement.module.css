@@ -200,7 +200,7 @@
   /* Clear button */
   .clearSearchButton {
     position: absolute;
-    right: 12px;
+    right: -44px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
