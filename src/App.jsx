@@ -40,6 +40,7 @@ import AllCourseProgressTracker from "./components/technical-manager/AllCoursePr
 import CertificateValidation from "./components/certificate/CertificateValidation";
 import AddQuestionLibrary from "./components/test/AddQuestionLibrary";
 import TraineeResults from "./components/instructor/TraineeResults";
+import QuestionEdit from "./components/test/QuestionEdit";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -236,6 +237,15 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+         <Route
+            path="/instructor/course/editLibrary"
+            element={
+              <ProtectedRoute>
+                <QuestionEdit />
+              </ProtectedRoute>
+            }
+          />   
     
           <Route
             path="/course/preview/:courseId"

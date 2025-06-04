@@ -56,6 +56,19 @@ const InstructorSidebar = ({ activeTab }) => {
           </li>
           <li
             className={`${styles.navItem} ${
+              activeTab === "editLibrary" ? styles.active : ""
+            }`}
+          >
+            <a
+              href="#editLibrary"
+              onClick={(e) => handleNavigation('/instructor/course/editLibrary', 'editLibrary', e)}
+            >
+              <FontAwesomeIcon icon={faClipboardList} />
+              Edit Question Library
+            </a>
+          </li>
+          <li
+            className={`${styles.navItem} ${
               activeTab === "result" ? styles.active : ""
             }`}
           >

@@ -228,6 +228,43 @@ const QuestionCategoryImport = ({
     });
   };
 
+  // Handle checkbox click specifically - without affecting the card click behavior
+  const handleCheckboxClick = (e, questionIndex) => {
+    e.stopPropagation(); // Prevent event bubbling (card click)
+    toggleQuestionSelection(questionIndex);
+  };
+
+  // Select all questions function
+  const selectAllQuestions = () => {
+    const allQuestions = {};
+    
+    // Only select questions that are not in edit mode
+    questions.forEach((_, index) => {
+      if (!editMode[index]) {
+        allQuestions[index] = true;
+      }
+    });
+    
+    setSelectedQuestions(allQuestions);
+  };
+
+  // Deselect all questions function
+  const deselectAllQuestions = () => {
+    setSelectedQuestions({});
+  };
+
+  // Toggle all questions selection
+  const toggleSelectAll = () => {
+    const selectedCount = Object.keys(selectedQuestions).length;
+    const selectableCount = questions.length - Object.keys(editMode).length;
+    
+    if (selectedCount === selectableCount) {
+      deselectAllQuestions();
+    } else {
+      selectAllQuestions();
+    }
+  };
+
   // Toggle edit mode for a question
   const toggleEditMode = (questionIndex) => {
     setEditMode(prev => ({
@@ -577,8 +614,6 @@ const QuestionCategoryImport = ({
                   <option value="hard">Hard</option>
                 </select>
                 
-            
-                
                 <button 
                   onClick={() => removeItem(index)}
                   className={styles.removeButton}
@@ -611,6 +646,13 @@ const QuestionCategoryImport = ({
               <div className={styles.questionsHeader}>
                 <h3>Questions ({questions.length})</h3>
                 <div className={styles.selectionInfo}>
+                  <button 
+                    onClick={toggleSelectAll}
+                    className={styles.selectAllButton}
+                    disabled={loading || questions.length === 0}
+                  >
+                    {selectedCount === questions.length - Object.keys(editMode).length ? 'Deselect All' : 'Select All'}
+                  </button>
                   <span>{selectedCount} questions selected</span>
                   <button 
                     onClick={handleImportQuestions}
@@ -652,7 +694,7 @@ const QuestionCategoryImport = ({
                             <input 
                               type="checkbox" 
                               checked={!!selectedQuestions[index]} 
-                              onChange={() => {}} // Handled by the div click
+                              onChange={(e) => handleCheckboxClick(e, index)}
                               onClick={(e) => e.stopPropagation()}
                             />
                           </div>
