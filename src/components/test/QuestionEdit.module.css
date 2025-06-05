@@ -1,4 +1,3 @@
-
 .pageContainer {
     min-height: 100vh;
     background-color: #f5f7f9;
@@ -235,37 +234,6 @@
     align-items: center;
     margin-bottom: 12px;
     flex-wrap: wrap;
-    gap: 10px;
-  }
-  
-  .correctCheckbox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #1e7f2c;
-    font-weight: 600;
-    cursor: pointer;
-    background-color: #e8f5e9;
-    padding: 4px 8px;
-    border-radius: 20px;
-    border: 1px solid #1e7f2c;
-  }
-  
-  .correctCheckbox input {
-    width: 18px;
-    height: 18px;
-    accent-color: #1e7f2c;
-    cursor: pointer;
-  }
-  
-  .optionLabel {
-    font-weight: 600;
-    color: #1c1d1f;
-    font-size: 14px;
-    background-color: #e0e0e0;
-    padding: 4px 8px;
-    border-radius: 20px;
   }
   
   .removeOptionButton {
@@ -296,13 +264,14 @@
   }
   
   .optionInput {
-    width: 90%;
+    width: 100%;
     padding: 12px;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     font-size: 14px;
     background-color: white;
     transition: border-color 0.2s;
+    box-sizing: border-box;
   }
   
   .optionInput:focus {
@@ -373,42 +342,62 @@
     overflow-y: auto;
   }
   
+  .questionsSection {
+    margin-bottom: 20px;
+  }
+  
   .questionsSection h3 {
-    margin-bottom: 15px;
+    margin: 0 0 15px 0;
     color: #1c1d1f;
     font-size: 18px;
     font-weight: 600;
   }
   
-  .questionBadge {
+  /* Question bubbles container - FIXED */
+  .questionBubblesContainer {
     display: flex;
-    flex-direction: column;
-    padding: 12px;
-    margin-bottom: 10px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+  
+  /* Question badge styling - CLEANED UP */
+  .questionBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #e5e7eb;
+    border-radius: 50%;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     background: white;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6a6f73;
+    flex-shrink: 0;
   }
   
   .questionBadge:hover {
     border-color: #8e6cef;
     background-color: #f9f5ff;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(142, 108, 239, 0.2);
   }
   
   .questionBadge.activeQuestion {
     border-color: #8e6cef;
-    background-color: #f0e6ff;
-    font-weight: 600;
+    background-color: #8e6cef;
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(142, 108, 239, 0.3);
   }
   
+  /* Hide question preview text since we're using bubbles */
   .questionPreview {
-    font-size: 12px;
-    color: #6a6f73;
-    margin-top: 5px;
-    line-height: 1.3;
+    display: none;
   }
   
   .loading, .error, .noQuestions {
@@ -439,17 +428,29 @@
   
   /* Responsive Design */
   @media (max-width: 768px) {
+    .pageContainer {
+      padding: 15px;
+    }
+    
     .mainContent {
       flex-direction: column;
+      gap: 15px;
     }
     
     .sidePanel {
       width: 100%;
+      order: 2;
+    }
+    
+    .questionSection {
+      padding: 20px;
+      order: 1;
     }
     
     .testInfo {
       flex-direction: column;
       align-items: flex-start;
+      gap: 10px;
     }
     
     .questionHeader {
@@ -474,4 +475,29 @@
       align-items: flex-start;
       gap: 10px;
     }
+    
+    /* Adjust bubble size for mobile */
+    .questionBadge {
+      width: 35px;
+      height: 35px;
+      font-size: 13px;
+    }
+    
+    .questionBubblesContainer {
+      gap: 6px;
+    }
+  }
+  
+  /* Additional fixes for better layout */
+  .fieldGroup:last-child {
+    margin-bottom: 0;
+  }
+  
+  .optionEdit:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* Ensure proper spacing in side panel */
+  .sidePanel > *:last-child {
+    margin-bottom: 0;
   }

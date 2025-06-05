@@ -119,7 +119,6 @@ const QuestionEdit = () => {
     fetchQuestions();
   }, [navigate]);
 
-
   // Handle loading and error states
   if (loading) {
     return <div className={styles.loading}>Loading questions...</div>;
@@ -454,8 +453,6 @@ const QuestionEdit = () => {
       if (response.data && response.data.response === 'success') {
         alert('Question updated successfully!');
         
-      
-  
         // Update the current question to reflect the latest data
         const updatedQuestion = questions[currentQuestion - 1];
         setEditedQuestion(updatedQuestion);
@@ -574,7 +571,12 @@ const QuestionEdit = () => {
               </div>
               
               {currentQuestionData.options && currentQuestionData.options.map((option, index) => (
-                <div key={option.id} className={styles.optionEdit}>
+                <div 
+                  key={option.id} 
+                  className={`${styles.optionEdit} ${
+                    isInstructor && isCorrectOption(currentQuestionData, option.id) ? styles.correctOption : ''
+                  }`}
+                >
                   <div className={styles.optionHeader}>
                     <label className={styles.correctCheckbox}>
                       {currentQuestionData.questionType === 'single_choice' ? (
@@ -591,9 +593,8 @@ const QuestionEdit = () => {
                           onChange={() => handleCorrectOptionToggle(option.id)}
                         />
                       )}
-                      Correct {isCorrectOption(currentQuestionData, option.id) ? '✓' : ''}
+                     
                     </label>
-                    <span className={styles.optionLabel}>Option {index + 1}:</span>
                     <button 
                       className={styles.removeOptionButton}
                       onClick={() => handleDeleteOption(option.id)}
@@ -604,11 +605,14 @@ const QuestionEdit = () => {
                   </div>
                   <input
                     type="text"
-                    className={`${styles.optionInput} ${isCorrectOption(currentQuestionData, option.id) ? styles.correctOption : ''}`}
+                    className={styles.optionInput}
                     value={option.text}
                     onChange={(e) => handleOptionTextChange(option.id, e.target.value)}
                     placeholder={`Enter option ${index + 1}...`}
                   />
+                  {isInstructor && isCorrectOption(currentQuestionData, option.id) && (
+                    <span className={styles.correctOptionMarker}></span>
+                  )}
                 </div>
               ))}
             </div>
@@ -632,26 +636,23 @@ const QuestionEdit = () => {
           </div>
 
           <div className={styles.sidePanel}>
-  <div className={styles.questionsSection}>
-    <h3>Questions</h3>
-    {questions.map((question, index) => (
-      <div 
-        key={question.questionId || index} 
-        className={`${styles.questionBadge} ${
-          index + 1 === currentQuestion ? styles.activeQuestion : ''
-        }`}
-        onClick={() => handleQuestionSelect(index)}
-      >
-        <span>{index + 1}</span>
-        {question.description && (
-          <div className={styles.questionPreview}>
-            {question.description.replace(/<[^>]*>/g, '').substring(0, 30)}...
+            <div className={styles.questionsSection}>
+              <h3>Questions</h3>
+              <div className={styles.questionBubblesContainer}>
+                {questions.map((_, index) => (
+                  <div 
+                    key={index} 
+                    className={`${styles.questionBadge} ${
+                      index + 1 === currentQuestion ? styles.activeQuestion : ''
+                    }`}
+                    onClick={() => handleQuestionSelect(index)}
+                  >
+                    {index + 1}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        )}
-      </div>
-    ))}
-  </div>
-</div>
         </div>
       </div>
     </div>
