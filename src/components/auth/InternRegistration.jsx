@@ -628,7 +628,6 @@ const InternRegistration = () => {
               name="startDate"
               value={formData.startDate}
               onChange={handleChange}
-              min={new Date().toISOString().split('T')[0]} // Cannot select past dates
               className={errors.startDate ? styles.inputError : ''}
             />
             {errors.startDate && <span className={styles.error}>{errors.startDate}</span>}
@@ -642,7 +641,7 @@ const InternRegistration = () => {
               name="endDate"
               value={formData.endDate}
               onChange={handleChange}
-              min={formData.startDate || new Date().toISOString().split('T')[0]} // Cannot be before start date
+              min={formData.startDate} // End date should still be after start date
               className={errors.endDate ? styles.inputError : ''}
             />
             {errors.endDate && <span className={styles.error}>{errors.endDate}</span>}
