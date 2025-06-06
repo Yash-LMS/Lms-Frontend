@@ -15,6 +15,12 @@ const AllCourseProgressTracker = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // New date filter states
+  const [allotmentDateFrom, setAllotmentDateFrom] = useState('');
+  const [allotmentDateTo, setAllotmentDateTo] = useState('');
+  const [completionDateFrom, setCompletionDateFrom] = useState('');
+  const [completionDateTo, setCompletionDateTo] = useState('');
 
   const getUserData = () => {
     try {
@@ -78,13 +84,43 @@ const AllCourseProgressTracker = () => {
     setSelectedStudent(null);
   };
 
+  // Clear all filters function
+  const clearFilters = () => {
+    setSearchTerm('');
+    setStatusFilter('all');
+    setAllotmentDateFrom('');
+    setAllotmentDateTo('');
+    setCompletionDateFrom('');
+    setCompletionDateTo('');
+  };
+
+  // Helper function to check if a date is within range
+  const isDateInRange = (dateString, fromDate, toDate) => {
+    if (!dateString) return !fromDate && !toDate; // If no date provided, only match if no filter is set
+    
+    const date = new Date(dateString);
+    const from = fromDate ? new Date(fromDate) : null;
+    const to = toDate ? new Date(toDate) : null;
+    
+    if (from && to) {
+      return date >= from && date <= to;
+    } else if (from) {
+      return date >= from;
+    } else if (to) {
+      return date <= to;
+    }
+    return true;
+  };
+
   const excelHeaders = {
     traineeName: "Trainee Name",
     emailId: "Email ID",
     courseName: "Course Name",
     instructorName: "Instructor Name",
+    courseAllotmentDate: "Allotment Date",
     completionPercentage: "Completion %",
     courseCompletionStatus: "Completion Status",
+    courseCompletionDate: "Completion Date",
     certificateStatus: "Certificate Status",
   };
 
@@ -100,8 +136,29 @@ const AllCourseProgressTracker = () => {
 
     const matchesStatus = statusFilter === 'all' || student.courseCompletionStatus === statusFilter;
 
-    return matchesSearch && matchesStatus;
+    const matchesAllotmentDate = isDateInRange(
+      student.allotmentDate, 
+      allotmentDateFrom, 
+      allotmentDateTo
+    );
+
+    const matchesCompletionDate = isDateInRange(
+      student.completionDate, 
+      completionDateFrom, 
+      completionDateTo
+    );
+
+    return matchesSearch && matchesStatus && matchesAllotmentDate && matchesCompletionDate;
   });
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   return (
     <div className={styles.container}>
@@ -128,6 +185,55 @@ const AllCourseProgressTracker = () => {
         </div>
       </div>
 
+      
+        {/* New Date Filters Section */}
+        <div className={styles.dateFilters}>
+          <div className={styles.dateFilterGroup}>
+            <label className={styles.dateLabel}>Allotment Date:</label>
+            <input
+              type="date"
+              className={styles.dateInput}
+              placeholder="From"
+              value={allotmentDateFrom}
+              onChange={(e) => setAllotmentDateFrom(e.target.value)}
+            />
+            <span className={styles.dateSeparator}>to</span>
+            <input
+              type="date"
+              className={styles.dateInput}
+              placeholder="To"
+              value={allotmentDateTo}
+              onChange={(e) => setAllotmentDateTo(e.target.value)}
+            />
+          </div>
+          
+          <div className={styles.dateFilterGroup}>
+            <label className={styles.dateLabel}>Completion Date:</label>
+            <input
+              type="date"
+              className={styles.dateInput}
+              placeholder="From"
+              value={completionDateFrom}
+              onChange={(e) => setCompletionDateFrom(e.target.value)}
+            />
+            <span className={styles.dateSeparator}>to</span>
+            <input
+              type="date"
+              className={styles.dateInput}
+              placeholder="To"
+              value={completionDateTo}
+              onChange={(e) => setCompletionDateTo(e.target.value)}
+            />
+          </div>
+          
+          <button 
+            className={styles.clearFiltersButton}
+            onClick={clearFilters}
+          >
+            Clear Filters
+          </button>
+        </div>
+
       <div className={styles.headerActions}>
         <ExportToExcel
           data={filteredStudents} 
@@ -136,6 +242,9 @@ const AllCourseProgressTracker = () => {
           sheetName="Course Progress"
           buttonStyle={{ marginBottom: "20px" }}
         />
+        <div className={styles.resultsCount}>
+          Showing {filteredStudents.length} of {studentsData.length} records
+        </div>
       </div>
 
       <div className={styles.tableContainer}>
@@ -151,8 +260,10 @@ const AllCourseProgressTracker = () => {
                 <th>Email</th>
                 <th>Course Name</th>
                 <th>Instructor Name</th>
+                <th>Allotment Date</th>
                 <th>Completion %</th>
                 <th>Completion Status</th>
+                <th>Completion Date</th>
                 <th>Certificate Status</th>
                 <th>Action</th>
               </tr>
@@ -160,7 +271,7 @@ const AllCourseProgressTracker = () => {
             <tbody>
               {studentsData.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className={styles.noResults}>No records available</td>
+                  <td colSpan="10" className={styles.noResults}>No records available</td>
                 </tr>
               ) : filteredStudents.length > 0 ? (
                 filteredStudents.map(student => (
@@ -169,6 +280,7 @@ const AllCourseProgressTracker = () => {
                     <td>{student.emailId || 'N/A'}</td>
                     <td>{student.courseName || 'N/A'}</td>
                     <td>{student.instructorName || 'N/A'}</td>
+                    <td>{formatDate(student.allotmentDate)}</td>
                     <td>
                       <div className={styles.progressBarContainer}>
                         <div 
@@ -185,6 +297,7 @@ const AllCourseProgressTracker = () => {
                         {(student.courseCompletionStatus || 'not_started').toUpperCase()}
                       </span>
                     </td>
+                    <td>{formatDate(student.completionDate)}</td>
                     <td>
                       {(student.certificateStatus ? student.certificateStatus.replace(/_/g, ' ') : 'Not Available').toUpperCase()}
                     </td>
@@ -200,7 +313,7 @@ const AllCourseProgressTracker = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className={styles.noResults}>No results match your search</td>
+                  <td colSpan="10" className={styles.noResults}>No results match your search criteria</td>
                 </tr>
               )}
             </tbody>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import styles from "./InternManagement.module.css";
 import {
@@ -15,6 +15,7 @@ import InternBulkRegistration from "./InternBulkRegistration";
 import ExportToExcel from "../../assets/ExportToExcel";
 
 const InternManagement = () => {
+  const dispatch = useDispatch();
   const [interns, setInterns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,6 +35,12 @@ const InternManagement = () => {
   const [feedback, setFeedback] = useState("");
   const [selectedNewCompletionStatus, setSelectedNewCompletionStatus] =
     useState("");
+  
+  // New state for date filtering
+  const [startDateFilter, setStartDateFilter] = useState("");
+  const [endDateFilter, setEndDateFilter] = useState("");
+  const [showDateFilters, setShowDateFilters] = useState(false);
+  
   const { internCount } = useSelector((state) => state.manager);
 
   const statusOptions = [
@@ -349,17 +356,50 @@ const InternManagement = () => {
     setSearchTerm("");
   };
 
+  // Enhanced filtering function with date filters
   const filteredInterns = interns.filter((intern) => {
     // Apply the search filter
-    return (
+    const matchesSearch =
       searchTerm.trim() === "" ||
       intern.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       intern.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       intern.emailId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       intern.institution.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      intern.internshipProgram.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+      intern.internshipProgram.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Apply date filters
+    let matchesDateFilter = true;
+    
+    if (startDateFilter || endDateFilter) {
+      const internStartDate = new Date(intern.startDate);
+      const internEndDate = new Date(intern.endDate);
+      
+      if (startDateFilter) {
+        const filterStartDate = new Date(startDateFilter);
+        // Check if intern's start date is on or after the filter start date
+        matchesDateFilter = matchesDateFilter && internStartDate >= filterStartDate;
+      }
+      
+      if (endDateFilter) {
+        const filterEndDate = new Date(endDateFilter);
+        // Check if intern's end date is on or before the filter end date
+        matchesDateFilter = matchesDateFilter && internEndDate <= filterEndDate;
+      }
+    }
+
+    return matchesSearch && matchesDateFilter;
   });
+
+  // New function to clear date filters
+  const clearDateFilters = () => {
+    setStartDateFilter("");
+    setEndDateFilter("");
+  };
+
+  // New function to check if date filters are active
+  const hasActiveDateFilters = () => {
+    return startDateFilter || endDateFilter;
+  };
 
   const excelHeaders = {
     firstName: "First Name",
@@ -390,26 +430,39 @@ const InternManagement = () => {
   const getNoDataMessage = () => {
     if (searchTerm) {
       return "No results found. Try a different search term.";
-    } else if (selectedStatus !== "all" || selectedCompletionStatus !== "all") {
+    } else if (selectedStatus !== "all" || selectedCompletionStatus !== "all" || hasActiveDateFilters()) {
       let message = "No interns found with ";
+      let filters = [];
 
       if (selectedStatus !== "all") {
-        message += `status "${
+        filters.push(`status "${
           statusOptions.find((option) => option.value === selectedStatus)
             ?.label || selectedStatus
-        }"`;
+        }"`);
       }
 
       if (selectedCompletionStatus !== "all") {
-        if (selectedStatus !== "all") message += " and ";
-        message += `completion status "${
+        filters.push(`completion status "${
           completionStatusOptions.find(
             (option) => option.value === selectedCompletionStatus
           )?.label || selectedCompletionStatus
-        }"`;
+        }"`);
       }
 
-      message += ". Try a different filter.";
+      if (hasActiveDateFilters()) {
+        let dateFilterText = "date range";
+        if (startDateFilter && endDateFilter) {
+          dateFilterText = `dates between ${formatDate(startDateFilter)} and ${formatDate(endDateFilter)}`;
+        } else if (startDateFilter) {
+          dateFilterText = `start date from ${formatDate(startDateFilter)}`;
+        } else if (endDateFilter) {
+          dateFilterText = `end date until ${formatDate(endDateFilter)}`;
+        }
+        filters.push(dateFilterText);
+      }
+
+      message += filters.join(" and ");
+      message += ". Try different filters.";
       return message;
     } else {
       return "No interns found.";
@@ -519,13 +572,89 @@ const InternManagement = () => {
                 </option>
               ))}
             </select>
+
+            {/* Date Filter Toggle Button */}
+            <button
+              className={`${styles.dateFilterToggle} ${showDateFilters ? styles.active : ''}`}
+              onClick={() => setShowDateFilters(!showDateFilters)}
+            >
+              Date Filter {hasActiveDateFilters() ? '●' : ''}
+            </button>
+
+            {/* Clear all filters button */}
+            {(selectedStatus !== "all" || selectedCompletionStatus !== "all" || hasActiveDateFilters()) && (
+              <button
+                className={styles.clearFiltersButton}
+                onClick={() => {
+                  setSelectedStatus("all");
+                  setSelectedCompletionStatus("all");
+                  clearDateFilters();
+                  setShowDateFilters(false);
+                }}
+              >
+                Clear All Filters
+              </button>
+            )}
           </div>
         </div>
 
-        {searchTerm && (
+        
+        {/* Date Filter Section */}
+        {showDateFilters && (
+            <div className={styles.dateFilterSection}>
+              <div className={styles.dateFilterGroup}>
+                <div className={styles.dateInputGroup}>
+                  <label htmlFor="startDateFilter">Start Date From:</label>
+                  <input
+                    type="date"
+                    id="startDateFilter"
+                    value={startDateFilter}
+                    onChange={(e) => setStartDateFilter(e.target.value)}
+                    className={styles.dateInput}
+                  />
+                </div>
+                <div className={styles.dateInputGroup}>
+                  <label htmlFor="endDateFilter">End Date Until:</label>
+                  <input
+                    type="date"
+                    id="endDateFilter"
+                    value={endDateFilter}
+                    onChange={(e) => setEndDateFilter(e.target.value)}
+                    className={styles.dateInput}
+                  />
+                </div>
+                {hasActiveDateFilters() && (
+                  <button
+                    className={styles.clearDateFiltersButton}
+                    onClick={clearDateFilters}
+                  >
+                    Clear Date Filters
+                  </button>
+                )}
+              </div>
+              {hasActiveDateFilters() && (
+                <div className={styles.activeDateFilters}>
+                  <span>Active date filters: </span>
+                  {startDateFilter && (
+                    <span className={styles.filterTag}>
+                      Start from: {formatDate(startDateFilter)}
+                    </span>
+                  )}
+                  {endDateFilter && (
+                    <span className={styles.filterTag}>
+                      End until: {formatDate(endDateFilter)}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+        {(searchTerm || hasActiveDateFilters()) && (
           <div className={styles.searchResultCount}>
-            Found <span>{filteredInterns.length}</span> results for "
-            {searchTerm}"
+            Found <span>{filteredInterns.length}</span> results
+            {searchTerm && ` for "${searchTerm}"`}
+            {hasActiveDateFilters() && ` with date filters`}
           </div>
         )}
 
