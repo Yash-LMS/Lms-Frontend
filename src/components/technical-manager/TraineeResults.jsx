@@ -25,6 +25,12 @@ const TraineeResults = () => {
   const[showDetailedResult,setShowDetailedResult]=useState(false);
   const[selectedTestId,setSelectedTestId]=useState(null);
 
+  // Add date filter states
+  const [dateFilter, setDateFilter] = useState({
+    startDate: "",
+    endDate: ""
+  });
+
   // Add sort state
   const [sortConfig, setSortConfig] = useState({
     key: null,
@@ -128,7 +134,7 @@ const TraineeResults = () => {
 
   useEffect(() => {
     filterResults();
-  }, [searchTerm, filterBy, results, sortConfig]);
+  }, [searchTerm, filterBy, results, sortConfig, dateFilter]);
 
   // Request sort handler
   const requestSort = (key) => {
@@ -164,6 +170,28 @@ const TraineeResults = () => {
             value.toString().toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
+    }
+
+    // Date filter functionality
+    if (dateFilter.startDate || dateFilter.endDate) {
+      filtered = filtered.filter((result) => {
+        const submissionDate = new Date(result.submissionDate);
+        const startDate = dateFilter.startDate ? new Date(dateFilter.startDate) : null;
+        const endDate = dateFilter.endDate ? new Date(dateFilter.endDate) : null;
+
+        // Set time to beginning/end of day for proper comparison
+        if (startDate) startDate.setHours(0, 0, 0, 0);
+        if (endDate) endDate.setHours(23, 59, 59, 999);
+
+        if (startDate && endDate) {
+          return submissionDate >= startDate && submissionDate <= endDate;
+        } else if (startDate) {
+          return submissionDate >= startDate;
+        } else if (endDate) {
+          return submissionDate <= endDate;
+        }
+        return true;
+      });
     }
 
     // Apply filters based on selection
@@ -245,6 +273,21 @@ const TraineeResults = () => {
     setFilterBy(e.target.value);
   };
 
+  const handleDateFilterChange = (e) => {
+    const { name, value } = e.target;
+    setDateFilter(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const clearDateFilter = () => {
+    setDateFilter({
+      startDate: "",
+      endDate: ""
+    });
+  };
+
   const handleTraineeChange = (selectedOption) => {
     setSelectedTrainee(selectedOption);
     setSelectedEmailId(selectedOption?.value);
@@ -252,6 +295,7 @@ const TraineeResults = () => {
     setSearchTerm("");
     setFilterBy("all");
     setSortConfig({ key: null, direction: "ascending" }); // Reset sorting
+    setDateFilter({ startDate: "", endDate: "" }); // Reset date filter
   };
 
   const calculatePassPercentage = (score, totalMarks) => {
@@ -290,6 +334,8 @@ const TraineeResults = () => {
     incorrectAnswers: "Incorrect Answers",
     questionSkipped: "Skipped Questions",
     totalQuestion: "Total Questions",
+    submissionDate: "Submission Date",
+    submissionTime: "Submission Time",
   };
 
   const exportData = filteredResults.map((result) => {
@@ -416,6 +462,39 @@ const TraineeResults = () => {
                 </select>
               </div>
 
+              {/* Date Filter Section */}
+              <div className={styles.dateFilterGroup}>
+                <label className={styles.filterLabel}>Filter by Date:</label>
+                <div className={styles.dateInputContainer}>
+                  <input
+                    type="date"
+                    name="startDate"
+                    value={dateFilter.startDate}
+                    onChange={handleDateFilterChange}
+                    className={styles.dateInput}
+                    placeholder="Start Date"
+                  />
+                  <span className={styles.dateSeparator}>to</span>
+                  <input
+                    type="date"
+                    name="endDate"
+                    value={dateFilter.endDate}
+                    onChange={handleDateFilterChange}
+                    className={styles.dateInput}
+                    placeholder="End Date"
+                  />
+                  {(dateFilter.startDate || dateFilter.endDate) && (
+                    <button
+                      onClick={clearDateFilter}
+                      className={styles.clearDateFilter}
+                      title="Clear date filter"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <div className={styles.headerActions}>
                 <ExportToExcel
                   data={exportData}
@@ -534,7 +613,7 @@ const TraineeResults = () => {
                 <tbody>
                   {isLoading ? (
                     <tr>
-                      <td colSpan="13" className={styles.noRecords}>
+                      <td colSpan="16" className={styles.noRecords}>
                         Loading results...
                       </td>
                     </tr>
@@ -588,7 +667,7 @@ const TraineeResults = () => {
                     })
                   ) : (
                     <tr>
-                      <td colSpan="13" className={styles.noRecords}>
+                      <td colSpan="16" className={styles.noRecords}>
                         No records found
                       </td>
                     </tr>

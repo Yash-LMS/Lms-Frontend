@@ -19,7 +19,7 @@ const InternManagement = () => {
   const [interns, setInterns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("not_active");
   const [selectedCompletionStatus, setSelectedCompletionStatus] =
     useState("all");
   const [showRemarkModal, setShowRemarkModal] = useState(false);

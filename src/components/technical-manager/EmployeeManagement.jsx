@@ -16,6 +16,7 @@ const EmployeeManagementPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [totalEmployeeCount, setTotalEmployeeCount] = useState(0);
 
   // Function to get user data from sessionStorage
   const getUserData = () => {
@@ -39,7 +40,7 @@ const EmployeeManagementPage = () => {
 
   // State for filters
   const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("not_active");
 
   const roles = ["instructor", "technical_manager", "user"];
 
@@ -50,7 +51,12 @@ const EmployeeManagementPage = () => {
     { value: "blocked", label: "Blocked" },
   ];
 
-  // Fetch user list on component mount and when filters change
+  // Fetch total employee count once on component mount
+  useEffect(() => {
+    fetchTotalEmployeeCount();
+  }, []);
+
+  // Fetch user list when filters change
   useEffect(() => {
     const { user, token } = getUserData();
     if (user && token) {
@@ -78,14 +84,33 @@ const EmployeeManagementPage = () => {
           setLoading(false);
         });
     }
-    fetchCounts();
   }, [dispatch, roleFilter, statusFilter]);
 
-  // New function to fetch count
-  const fetchCounts = async () => {
+  // New function to fetch total employee count (without filters)
+  const fetchTotalEmployeeCount = async () => {
     const { user, token } = getUserData();
     if (user && token) {
-      dispatch(findEmployeesCount({ user, token }));
+      try {
+        // Fetch all employees without filters to get the total count
+        const allEmployeesPayload = {
+          user,
+          token,
+          role: "all",
+          status: "all",
+        };
+        
+        const response = await dispatch(findEmployeeList(allEmployeesPayload)).unwrap();
+        
+        // Calculate total count excluding interns
+        const totalCount = response && response.length > 0
+          ? response.filter((emp) => emp.employeeType !== "intern").length
+          : 0;
+        
+        setTotalEmployeeCount(totalCount);
+      } catch (error) {
+        console.error("Error fetching total employee count:", error);
+        setTotalEmployeeCount(0);
+      }
     }
   };
 
@@ -232,12 +257,6 @@ const EmployeeManagementPage = () => {
         })
       : [];
 
-  // Calculate employee count excluding interns
-  const regularEmployeeCount =
-    users && users.length > 0
-      ? users.filter((user) => user.employeeType !== "intern").length
-      : 0;
-
   const isLoading = reduxLoading || loading;
 
   const [activeTab, setActiveTab] = useState("employee");
@@ -261,7 +280,7 @@ const EmployeeManagementPage = () => {
           <h1>Employee Management</h1>
           <div className={styles.statCard}>
             <div className={styles.statLabel}>Total Employees :</div>
-            <div className={styles.statValue}>{regularEmployeeCount || 0}</div>
+            <div className={styles.statValue}>{totalEmployeeCount}</div>
           </div>
           <div className={styles.searchField}>
             <input
