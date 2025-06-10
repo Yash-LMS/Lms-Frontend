@@ -1,4 +1,3 @@
-/* InternManagement.module.css */
 .container {
     padding: 24px 32px;
     margin-left: 250px;
@@ -200,7 +199,7 @@
   /* Clear button */
   .clearSearchButton {
     position: absolute;
-    right: 12px;
+    right: -44px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
@@ -511,3 +510,118 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
+
+  .dateFilterToggle {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+   }
+   
+   .dateFilterToggle:hover {
+    background: #f5f5f5;
+    border-color: #6c5ce7;
+   }
+   
+   .dateFilterToggle.active {
+    background: #8e6cef;
+    color: white;
+    border-color: #8e6cef;
+   }
+   
+   .clearFiltersButton {
+    padding: 8px 12px;
+    border: 1px solid #dc3545;
+    border-radius: 4px;
+    background: #fff;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+   }
+   
+   .clearFiltersButton:hover {
+    background: #dc3545;
+    color: white;
+   }
+   
+   .dateFilterSection {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #f8f9fa;
+    width: fit-content;
+   }
+   
+   .dateFilterGroup {
+    display: flex;
+    gap: 20px;
+    align-items: end;
+    flex-wrap: wrap;
+   }
+   
+   .dateInputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+   }
+   
+   .dateInputGroup label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #555;
+   }
+   
+   .dateInput {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 150px;
+   }
+   
+   .dateInput:focus {
+    outline: none;
+    border-color: #8e6cef;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+   }
+   
+   .clearDateFiltersButton {
+    padding: 6px 12px;
+    border: 1px solid #6c757d;
+    border-radius: 4px;
+    background: #fff;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 12px;
+    height: fit-content;
+   }
+   
+   .clearDateFiltersButton:hover {
+    background: #6c757d;
+    color: white;
+   }
+   
+   .activeDateFilters {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    font-size: 14px;
+    color: #555;
+   }
+   
+   .filterTag {
+    display: inline-block;
+    margin: 0 5px;
+    padding: 2px 8px;
+    background: #e3f2fd;
+    border: 1px solid #e090f9;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #8e6cef;
+   }

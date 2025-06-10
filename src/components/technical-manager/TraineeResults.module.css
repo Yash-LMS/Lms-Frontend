@@ -4,18 +4,10 @@
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-}
-
-/* Sidebar wrapper to ensure fixed width */
-.sidebarWrapper {
-  width: 240px;
-  min-width: 240px;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  background-color: white;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-  z-index: 10;
+  margin-left: 250px; /* Keep margin to account for sidebar width */
+  transition: margin-left 0.3s ease; /* Smooth transition for responsive changes */
+  box-sizing: border-box; /* Ensure padding is included in width calculation */
+  width: calc(100% - 250px); /* Set width accounting for sidebar */
 }
 
 .navItem {

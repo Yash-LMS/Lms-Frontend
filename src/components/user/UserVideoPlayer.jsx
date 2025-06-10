@@ -117,8 +117,8 @@ const UserVideoPlayer = ({ courseId, trackingId, completionStatus, topicId, user
           viewVideo();
         }
         
-        // Mark as completed when user watches at least 90% of the video
-        if (video.currentTime > video.duration * 0.9 && !videoCompleted) {
+        // Mark as completed when user watches at least 100% of the video
+        if (video.currentTime > video.duration && !videoCompleted) {
           setVideoCompleted(true);
           completeVideo();
         }
@@ -126,7 +126,7 @@ const UserVideoPlayer = ({ courseId, trackingId, completionStatus, topicId, user
       
       // Function to handle video ending
       const handleVideoEnded = () => {
-        if (!completionCallbackRef.current && typeof onVideoCompleted === 'function') {
+        if (videoCompleted && !completionCallbackRef.current && typeof onVideoCompleted === "function") {
           completionCallbackRef.current = true;
           onVideoCompleted();
         }
@@ -183,17 +183,6 @@ const UserVideoPlayer = ({ courseId, trackingId, completionStatus, topicId, user
       });
       
       console.log("Complete video response:", response.data);
-      
-      // If video reaches 90% but hasn't ended yet, we still want to trigger the navigation
-      // after a short delay if the user doesn't watch till the end
-      if (!completionCallbackRef.current && typeof onVideoCompleted === 'function') {
-        setTimeout(() => {
-          if (!completionCallbackRef.current) {
-            completionCallbackRef.current = true;
-            onVideoCompleted();
-          }
-        }, 3000); // Wait 3 seconds after completion before auto-navigating
-      }
       
       return response.data;
     } catch (err) {

@@ -8,7 +8,7 @@ import ExportToExcel from "../../assets/ExportToExcel";
 import TestResultPopup from "./TestResultPopup";
 
 
-const AllResults = () => {
+const TraineeResults = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("results");
   const [results, setResults] = useState([]);
@@ -234,7 +234,7 @@ const AllResults = () => {
 
       <div className={styles.contentArea}>
         <div className={styles.header}>
-          <h1 className={styles.headerTitle}>All Test Results</h1>
+          <h1 className={styles.headerTitle}>Test Results</h1>
         </div>
 
         <div className={styles.filters}>
@@ -371,7 +371,7 @@ const AllResults = () => {
                       <td>{formatDate(result.submissionDate)}</td>
                       <td>{result.submissionTime}</td>
                       <td>
-                          <button onClick={() => handleViewResults(result.allotmentId)}>
+                          <button onClick={() => handleViewResults(result.allotmentId)} className={styles.viewBtn}>
                           View Result
                           </button>
                          </td>
@@ -400,4 +400,4 @@ const AllResults = () => {
   );
 };
 
-export default AllResults;
+export default TraineeResults;

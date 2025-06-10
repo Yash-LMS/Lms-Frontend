@@ -466,11 +466,7 @@ const ViewTraineeTestAllotment = () => {
         </button>
       )}
 
-      <div
-        className={`${styles.sidebarContainer} ${
-          showSidebar ? styles.active : ""
-        }`}
-      >
+      <div>
         <Sidebar activeTab={activeTab} />
       </div>
 

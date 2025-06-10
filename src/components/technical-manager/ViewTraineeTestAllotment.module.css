@@ -272,7 +272,7 @@ button[class*="delete"]:hover {
   background-color: #e8394a;
 }
 
-/* Sidebar container with proper z-index */
+/* Sidebar container with proper z-index
 .sidebarContainer {
   position: fixed;
   left: 0;
@@ -282,8 +282,8 @@ button[class*="delete"]:hover {
   background-color: #f8f9fa;
   z-index: 100;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  overflow-y: auto; /* Allow scrolling for sidebar content */
-}
+  overflow-y: auto; /* Allow scrolling for sidebar content 
+} */
 
 /* Responsive adjustments */
 @media (max-width: 768px) {

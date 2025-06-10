@@ -168,7 +168,7 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
         if (row[j]) {
           options.push({
             id: `option${j - 4}`,
-            text: row[j],
+            text: String(row[j] || ""), // Ensure text is always a string
             isCorrect: false
           });
         }
@@ -202,7 +202,7 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
       
       parsedQuestions.push({
         id: i,
-        description: row[2] || "",
+        description: String(row[2] || ""), // Ensure description is always a string
         category: selectedCategory,
         subcategory: selectedSubcategory,
         difficultyLevel: level || "medium",
@@ -290,7 +290,7 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
     const optionIndex = question.options.findIndex(opt => opt.id === optionId);
     
     if (optionIndex !== -1) {
-      question.options[optionIndex].text = text;
+      question.options[optionIndex].text = String(text || ""); // Ensure text is always a string
       setQuestions(updatedQuestions);
     }
   };
@@ -353,7 +353,11 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
                      question.category &&
                      question.options.length >= 2 &&
                      question.options.some(opt => opt.isCorrect) &&
-                     !question.options.some(opt => !opt.text.trim());
+                     !question.options.some(opt => {
+                       // Safe check for text property
+                       const text = opt.text;
+                       return !text || (typeof text === 'string' && !text.trim()) || (typeof text !== 'string' && !String(text).trim());
+                     });
       
       if (!isValid) hasErrors = true;
       return { ...question, isValid };
@@ -606,7 +610,7 @@ const BulkUploadQuestionLibrary = ({ isOpen, onClose, onUploadSuccess }) => {
                           </span>
                           <input
                             type="text"
-                            value={option.text}
+                            value={option.text || ""} // Safe fallback
                             onChange={(e) => handleOptionTextChange(index, option.id, e.target.value)}
                             className={styles.optionInput}
                           />

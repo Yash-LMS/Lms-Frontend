@@ -31,6 +31,7 @@ const QuestionRandomModal = ({
   const [successMessage, setSuccessMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [editMode, setEditMode] = useState({}); // Track which questions are in edit mode
+  const [allSelected, setAllSelected] = useState(false); // Track "Select All" state
 
   // Enhanced Quill editor modules and formats
   const modules = {
@@ -76,9 +77,20 @@ const QuestionRandomModal = ({
       setError(null);
       setSelectedQuestions({});
       setEditMode({});
+      setAllSelected(false);
       fetchCategories();
     }
   }, [isOpen]);
+
+  // Effect to track "all selected" state
+  useEffect(() => {
+    if (questions.length > 0) {
+      const selectedCount = Object.keys(selectedQuestions).length;
+      setAllSelected(selectedCount === questions.length);
+    } else {
+      setAllSelected(false);
+    }
+  }, [selectedQuestions, questions.length]);
 
   const fetchCategories = async () => {
     try {
@@ -203,6 +215,7 @@ const QuestionRandomModal = ({
         // Reset selected questions
         setSelectedQuestions({});
         setEditMode({});
+        setAllSelected(false);
       } else {
         setError(response.data.message || 'Failed to fetch questions');
       }
@@ -227,6 +240,29 @@ const QuestionRandomModal = ({
       }
       return newSelections;
     });
+  };
+
+  // Handle checkbox click specifically
+  const handleCheckboxClick = (e, questionIndex) => {
+    e.stopPropagation(); // Prevent event from bubbling up to the card
+    toggleQuestionSelection(questionIndex);
+  };
+
+  // Handle "Select All" functionality
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      // Deselect all questions
+      setSelectedQuestions({});
+    } else {
+      // Select all questions that are not in edit mode
+      const newSelections = {};
+      questions.forEach((_, index) => {
+        if (!editMode[index]) {
+          newSelections[index] = true;
+        }
+      });
+      setSelectedQuestions(newSelections);
+    }
   };
 
   // Toggle edit mode for a question
@@ -619,6 +655,12 @@ const QuestionRandomModal = ({
               <div className={styles.questionsHeader}>
                 <h3>Questions ({questions.length})</h3>
                 <div className={styles.selectionInfo}>
+                  <button 
+                    onClick={toggleSelectAll}
+                    className={styles.selectAllButton}
+                  >
+                    {allSelected ? 'Deselect All' : 'Select All'}
+                  </button>
                   <span>{selectedCount} questions selected</span>
                   <button 
                     onClick={handleImportQuestions}
@@ -660,8 +702,8 @@ const QuestionRandomModal = ({
                             <input 
                               type="checkbox" 
                               checked={!!selectedQuestions[index]} 
-                              onChange={() => {}} // Handled by the div click
-                              onClick={(e) => e.stopPropagation()}
+                              onChange={() => {}} 
+                              onClick={(e) => handleCheckboxClick(e, index)}
                             />
                           </div>
                         )}

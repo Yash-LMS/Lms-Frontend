@@ -107,6 +107,8 @@ export const VIEW_TEST_URL = `${API_BASE_URL}/test/instructor/view/test`;
 export const ADD_QUESTION_URL = `${API_BASE_URL}/test/addQuestions`;
 export const PREVIEW_TEST_URL = `${API_BASE_URL}/test/view/question`;
 export const PREVIEW_TEST_MANAGER_URL = `${API_BASE_URL}/manager/view/question`;
+export const FIND_QUESTION_BY_USER_URL = `${API_BASE_URL}/library/findQuestionByUser`;
+export const UPDATE_QUESTION_URL = `${API_BASE_URL}/library/updateQuestion`;
 
 
 // Question Library

@@ -1,285 +1,285 @@
 .modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    overflow-y: auto;
-  }
-  
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.modalContent {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f8f9fa;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  margin-left: 16px;
+}
+
+.closeButton:hover {
+  color: #000;
+}
+
+.modalBody {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.selectionArea {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.selectionArea h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.selectionRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.select {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: #fff;
+}
+
+.select:disabled {
+  background-color: #f0f0f0;
+  color: #888;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.previewButton {
+  padding: 10px 24px;
+  background-color: #8e6cef;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.previewButton:hover {
+  background-color: #7559ce;
+}
+
+.previewButton:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #d32f2f;
+  background-color: #ffebee;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.previewHeader h3 {
+  margin: 0;
+}
+
+.backButton {
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.backButton:hover {
+  background-color: #e0e0e0;
+}
+
+.noQuestions {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.questionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.questionCard {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.questionHeader {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f5f7ff;
+  border-bottom: 1px solid #e0e0e0;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.questionNumber {
+  font-weight: bold;
+  color: #4a6cfa;
+}
+
+.questionType, .difficulty, .marks {
+  font-size: 0.9rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background-color: #e9ecff;
+  color: #4a6cfa;
+}
+
+.difficulty {
+  background-color: #f0f0f0;
+  color: #555;
+}
+
+.marks {
+  background-color: #f5e6ff;
+  color: #8e44ad;
+}
+
+.questionContent {
+  padding: 16px;
+}
+
+.questionText {
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  position: relative;
+  gap: 12px;
+}
+
+.correctOption {
+  border-color: #4caf50;
+  background-color: #f1f8e9;
+}
+
+.optionKey {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  font-size: 0.8rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.correctOption .optionKey {
+  background-color: #4caf50;
+  color: white;
+}
+
+.optionValue {
+  flex: 1;
+}
+
+.correctBadge {
+  background-color: #4caf50;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
   .modalContent {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    width: 90%;
-    max-width: 900px;
-    max-height: 90vh;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .modalHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 24px;
-    border-bottom: 1px solid #e0e0e0;
-    background-color: #f8f9fa;
-  }
-  
-  .modalTitle {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #333;
-  }
-  
-  .closeButton {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #666;
-    padding: 0;
-    margin-left: 16px;
-  }
-  
-  .closeButton:hover {
-    color: #000;
-  }
-  
-  .modalBody {
-    padding: 24px;
-    flex: 1;
-    overflow-y: auto;
-  }
-  
-  .selectionArea {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .selectionArea h3 {
-    margin-top: 0;
-    color: #333;
+    width: 95%;
+    max-height: 95vh;
   }
   
   .selectionRow {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
+    flex-direction: column;
   }
   
   .select {
-    flex: 1;
-    min-width: 200px;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
-    background-color: #fff;
+    width: 100%;
   }
-  
-  .select:disabled {
-    background-color: #f0f0f0;
-    color: #888;
-  }
-  
-  .buttonGroup {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
-  
-  .previewButton {
-    padding: 10px 24px;
-    background-color: #8e6cef;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.3s;
-  }
-  
-  .previewButton:hover {
-    background-color: #7559ce;
-  }
-  
-  .previewButton:disabled {
-    background-color: #a0a0a0;
-    cursor: not-allowed;
-  }
-  
-  .error {
-    color: #d32f2f;
-    background-color: #ffebee;
-    padding: 10px;
-    border-radius: 4px;
-    margin-top: 16px;
-    text-align: center;
-  }
-  
-  .previewHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-  
-  .previewHeader h3 {
-    margin: 0;
-  }
-  
-  .backButton {
-    padding: 8px 16px;
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.3s;
-  }
-  
-  .backButton:hover {
-    background-color: #e0e0e0;
-  }
-  
-  .noQuestions {
-    text-align: center;
-    padding: 40px;
-    color: #666;
-    font-size: 1.1rem;
-  }
-  
-  .questionsContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
-  
-  .questionCard {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  }
-  
-  .questionHeader {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    background-color: #f5f7ff;
-    border-bottom: 1px solid #e0e0e0;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  
-  .questionNumber {
-    font-weight: bold;
-    color: #4a6cfa;
-  }
-  
-  .questionType, .difficulty, .marks {
-    font-size: 0.9rem;
-    padding: 4px 10px;
-    border-radius: 20px;
-    background-color: #e9ecff;
-    color: #4a6cfa;
-  }
-  
-  .difficulty {
-    background-color: #f0f0f0;
-    color: #555;
-  }
-  
-  .marks {
-    background-color: #f5e6ff;
-    color: #8e44ad;
-  }
-  
-  .questionContent {
-    padding: 16px;
-  }
-  
-  .questionText {
-    margin-bottom: 16px;
-    line-height: 1.5;
-  }
-  
-  .options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .option {
-    display: flex;
-    align-items: flex-start;
-    padding: 10px 12px;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    background-color: #f9f9f9;
-    position: relative;
-    gap: 12px;
-  }
-  
-  .correctOption {
-    border-color: #4caf50;
-    background-color: #f1f8e9;
-  }
-  
-  .optionKey {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-color: #e0e0e0;
-    font-size: 0.8rem;
-    font-weight: bold;
-    flex-shrink: 0;
-  }
-  
-  .correctOption .optionKey {
-    background-color: #4caf50;
-    color: white;
-  }
-  
-  .optionValue {
-    flex: 1;
-  }
-  
-  .correctBadge {
-    background-color: #4caf50;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    margin-left: auto;
-  }
-  
-  @media (max-width: 768px) {
-    .modalContent {
-      width: 95%;
-      max-height: 95vh;
-    }
-    
-    .selectionRow {
-      flex-direction: column;
-    }
-    
-    .select {
-      width: 100%;
-    }
-  }
+}

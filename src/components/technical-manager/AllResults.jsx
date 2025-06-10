@@ -228,7 +228,7 @@ const AllResults = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.sidebarWrapper}>
+      <div>
         <Sidebar activeTab={activeTab} />
       </div>
 

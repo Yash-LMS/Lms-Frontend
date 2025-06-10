@@ -236,7 +236,7 @@ const TestRequests = () => {
                             <button
                               className={styles.btnPreview}
                               onClick={() =>
-                                handlePreviewClick(course.courseId || course.id)
+                                handlePreviewClick(test.testId || test.id)
                               }
                             >
                               Preview

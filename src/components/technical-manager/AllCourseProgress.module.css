@@ -273,3 +273,113 @@
     padding-top: 60px;
   }
 }
+
+.dateFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  width: fit-content;
+}
+
+.dateFilterGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dateLabel {
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.dateInput {
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  min-width: 140px;
+  background-color: white;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.dateSeparator {
+  color: #6c757d;
+  font-weight: 500;
+  margin: 0 4px;
+}
+
+.clearFiltersButton {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.15s ease-in-out;
+  margin-left: auto;
+}
+
+.clearFiltersButton:hover {
+  background-color: #5a6268;
+}
+
+.resultsCount {
+  font-size: 14px;
+  color: #6c757d;
+  font-weight: 500;
+  align-self: center;
+}
+
+.headerActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  .dateFilters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .dateFilterGroup {
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .dateInput {
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  .clearFiltersButton {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+  
+  .headerActions {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+}
