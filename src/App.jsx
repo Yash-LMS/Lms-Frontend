@@ -515,7 +515,7 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
         <div className={styles.navbarLinks}>
           <button
             onClick={handleCertificateVerification}
-            className={styles.logoutBtn}
+            className={styles.navLinks}
           >
             <FontAwesomeIcon icon={faCircleCheck} />
             <span>Verify Certificate</span>

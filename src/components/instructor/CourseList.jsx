@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import styles from "./InstructorDashboard.module.css";
 import { COURSE_IMAGE_VIEW_URL } from "../../constants/apiConstants";
 import Image from "../Image/DefaultCourse.png";
@@ -40,58 +41,59 @@ const CourseList = ({
     }
   };
 
+  // Function to fetch image for a single course using axios
+  const fetchCourseImage = useCallback(async (courseId) => {
+    // Check if image is already fetched or being fetched
+    if (courseImages[courseId]) {
+      return;
+    }
+
+    try {
+      const response = await axios.get(COURSE_IMAGE_VIEW_URL, {
+        params: {
+          courseId: courseId
+        },
+        responseType: 'blob' // Important: specify blob response type for image data
+      });
+
+      // Create a blob URL for the image
+      const imageUrl = URL.createObjectURL(response.data);
+
+      setCourseImages((prevImages) => ({
+        ...prevImages,
+        [courseId]: imageUrl,
+      }));
+    } catch (error) {
+      console.error(`Error fetching image for course ${courseId}:`, error);
+      setCourseImages((prevImages) => ({
+        ...prevImages,
+        [courseId]: defaultImageUrl,
+      }));
+    }
+  }, [courseImages, defaultImageUrl]);
+
   useEffect(() => {
-    // Function to fetch image for a single course
-    const fetchCourseImage = async (courseId) => {
-      try {
-        const response = await fetch(
-          `${COURSE_IMAGE_VIEW_URL}?courseId=${courseId}`,
-          {
-            method: "GET",
-          }
-        );
-
-        if (response.ok) {
-          // Create a blob URL for the image
-          const blob = await response.blob();
-          const imageUrl = URL.createObjectURL(blob);
-
-          setCourseImages((prevImages) => ({
-            ...prevImages,
-            [courseId]: imageUrl,
-          }));
-        } else {
-          // If image not found, use default
-          setCourseImages((prevImages) => ({
-            ...prevImages,
-            [courseId]: defaultImageUrl,
-          }));
-        }
-      } catch (error) {
-        console.error(`Error fetching image for course ${courseId}:`, error);
-        setCourseImages((prevImages) => ({
-          ...prevImages,
-          [courseId]: defaultImageUrl,
-        }));
-      }
-    };
-
     // Fetch images for all current courses (only for the visible ones)
     if (currentCourses && currentCourses.length > 0) {
       currentCourses.forEach((course) => {
-        fetchCourseImage(course.courseId);
+        // Only fetch if we don't already have the image
+        if (!courseImages[course.courseId]) {
+          fetchCourseImage(course.courseId);
+        }
       });
     }
+  }, [currentCourses, currentPage, fetchCourseImage, courseImages]);
 
-    // Cleanup function to revoke object URLs when component unmounts
+  // Cleanup effect for revoking object URLs
+  useEffect(() => {
     return () => {
       Object.values(courseImages).forEach((url) => {
-        if (url && !url.includes(defaultImageUrl)) {
+        if (url && typeof url === 'string' && url.startsWith('blob:')) {
           URL.revokeObjectURL(url);
         }
       });
     };
-  }, [currentCourses, currentPage]);
+  }, [courseImages]);
 
   if (loading) {
     return <p>Loading courses...</p>;
