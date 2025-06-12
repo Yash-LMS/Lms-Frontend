@@ -16,7 +16,7 @@ const EmployeeManagementPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [totalEmployeeCount, setTotalEmployeeCount] = useState(0);
+  const { employeeCount } = useSelector((state) => state.manager);
 
   // Function to get user data from sessionStorage
   const getUserData = () => {
@@ -32,11 +32,9 @@ const EmployeeManagementPage = () => {
   };
 
   // Employee list from Redux state
-  const {
-    users,
-    loading: reduxLoading,
-    employeeCount,
-  } = useSelector((state) => state.manager);
+  const { users, loading: reduxLoading } = useSelector(
+    (state) => state.manager
+  );
 
   // State for filters
   const [roleFilter, setRoleFilter] = useState("all");
@@ -51,12 +49,7 @@ const EmployeeManagementPage = () => {
     { value: "blocked", label: "Blocked" },
   ];
 
-  // Fetch total employee count once on component mount
-  useEffect(() => {
-    fetchTotalEmployeeCount();
-  }, []);
-
-  // Fetch user list when filters change
+  // Fetch user list on component mount and when filters change
   useEffect(() => {
     const { user, token } = getUserData();
     if (user && token) {
@@ -84,33 +77,14 @@ const EmployeeManagementPage = () => {
           setLoading(false);
         });
     }
+    fetchCounts();
   }, [dispatch, roleFilter, statusFilter]);
 
-  // New function to fetch total employee count (without filters)
-  const fetchTotalEmployeeCount = async () => {
+  // New function to fetch count
+  const fetchCounts = async () => {
     const { user, token } = getUserData();
     if (user && token) {
-      try {
-        // Fetch all employees without filters to get the total count
-        const allEmployeesPayload = {
-          user,
-          token,
-          role: "all",
-          status: "all",
-        };
-        
-        const response = await dispatch(findEmployeeList(allEmployeesPayload)).unwrap();
-        
-        // Calculate total count excluding interns
-        const totalCount = response && response.length > 0
-          ? response.filter((emp) => emp.employeeType !== "intern").length
-          : 0;
-        
-        setTotalEmployeeCount(totalCount);
-      } catch (error) {
-        console.error("Error fetching total employee count:", error);
-        setTotalEmployeeCount(0);
-      }
+      dispatch(findEmployeesCount({ user, token }));
     }
   };
 
@@ -280,7 +254,7 @@ const EmployeeManagementPage = () => {
           <h1>Employee Management</h1>
           <div className={styles.statCard}>
             <div className={styles.statLabel}>Total Employees :</div>
-            <div className={styles.statValue}>{totalEmployeeCount}</div>
+            <div className={styles.statValue}>{employeeCount || 0}</div>
           </div>
           <div className={styles.searchField}>
             <input
@@ -304,7 +278,7 @@ const EmployeeManagementPage = () => {
 
         <div className={styles.filterContainer}>
           <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Filter by Role</label>
+            <label className={styles.filterLabel}>Filter by Role:</label>
             <select
               className={styles.select}
               value={roleFilter}
@@ -317,10 +291,8 @@ const EmployeeManagementPage = () => {
                 </option>
               ))}
             </select>
-          </div>
 
-          <div className={styles.filterGroup}>
-            <label className={styles.filterLabel}>Filter by Status</label>
+            <label className={styles.filterLabel}>Filter by Status:</label>
             <select
               className={styles.select}
               value={statusFilter}
@@ -333,14 +305,25 @@ const EmployeeManagementPage = () => {
                 </option>
               ))}
             </select>
+
+            {/* Clear all filters button */}
+            {(roleFilter !== "all" || statusFilter !== "all") && (
+              <button
+                className={styles.clearFiltersButton}
+                onClick={() => {
+                  setRoleFilter("all");
+                  setStatusFilter("all");
+                }}
+              >
+                Clear All Filters
+              </button>
+            )}
           </div>
         </div>
 
-        {searchTerm && (
-          <div className={styles.searchResultCount}>
-            Found <span>{filteredUsers.length}</span> results for "{searchTerm}"
-          </div>
-        )}
+        <div className={styles.searchResultCount}>
+          Found <span>{filteredUsers.length}</span> results
+        </div>
 
         <div className={styles.headerActions}>
           <ExportToExcel

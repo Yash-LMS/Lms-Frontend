@@ -547,6 +547,7 @@ const InternManagement = () => {
 
         <div className={styles.filterContainer}>
           <div className={styles.filterGroup}>
+            <label className={styles.filterLabel}>Filter by Status:</label>
             <select
               value={selectedStatus}
               onChange={handleFilterChange}
@@ -560,6 +561,7 @@ const InternManagement = () => {
               ))}
             </select>
 
+            <label className={styles.filterLabel}>Filter by Completion Status:</label>
             <select
               value={selectedCompletionStatus}
               onChange={handleCompletionFilterChange}
@@ -650,13 +652,9 @@ const InternManagement = () => {
             </div>
           )}
 
-        {(searchTerm || hasActiveDateFilters()) && (
           <div className={styles.searchResultCount}>
             Found <span>{filteredInterns.length}</span> results
-            {searchTerm && ` for "${searchTerm}"`}
-            {hasActiveDateFilters() && ` with date filters`}
           </div>
-        )}
 
         <div className={styles.exportExcel}>
           <ExportToExcel

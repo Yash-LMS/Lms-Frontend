@@ -16,11 +16,10 @@ const AllCourseProgressTracker = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // New date filter states
-  const [allotmentDateFrom, setAllotmentDateFrom] = useState('');
-  const [allotmentDateTo, setAllotmentDateTo] = useState('');
-  const [completionDateFrom, setCompletionDateFrom] = useState('');
-  const [completionDateTo, setCompletionDateTo] = useState('');
+  // Updated date filter states
+  const [dateFilterType, setDateFilterType] = useState('none'); // 'none', 'allotment', 'completion'
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const getUserData = () => {
     try {
@@ -68,6 +67,12 @@ const AllCourseProgressTracker = () => {
     { value: 'completed', label: 'Completed' }
   ];
 
+  const dateFilterOptions = [
+    { value: 'none', label: 'No Date Filter' },
+    { value: 'allotment', label: 'Filter by Allotment Date' },
+    { value: 'completion', label: 'Filter by Completion Date' }
+  ];
+
   const getProgressColor = (progress) => {
     if (progress < 25) return styles.redProgress;
     if (progress < 75) return styles.yellowProgress;
@@ -84,14 +89,21 @@ const AllCourseProgressTracker = () => {
     setSelectedStudent(null);
   };
 
+  // Handle date filter type change
+  const handleDateFilterTypeChange = (newType) => {
+    setDateFilterType(newType);
+    // Clear date inputs when changing filter type
+    setDateFrom('');
+    setDateTo('');
+  };
+
   // Clear all filters function
   const clearFilters = () => {
     setSearchTerm('');
     setStatusFilter('all');
-    setAllotmentDateFrom('');
-    setAllotmentDateTo('');
-    setCompletionDateFrom('');
-    setCompletionDateTo('');
+    setDateFilterType('none');
+    setDateFrom('');
+    setDateTo('');
   };
 
   // Helper function to check if a date is within range
@@ -136,19 +148,16 @@ const AllCourseProgressTracker = () => {
 
     const matchesStatus = statusFilter === 'all' || student.courseCompletionStatus === statusFilter;
 
-    const matchesAllotmentDate = isDateInRange(
-      student.allotmentDate, 
-      allotmentDateFrom, 
-      allotmentDateTo
-    );
+    // Apply date filter based on selected type
+    let matchesDateFilter = true;
+    if (dateFilterType === 'allotment') {
+      matchesDateFilter = isDateInRange(student.allotmentDate, dateFrom, dateTo);
+    } else if (dateFilterType === 'completion') {
+      matchesDateFilter = isDateInRange(student.completionDate, dateFrom, dateTo);
+    }
+    // If dateFilterType is 'none', matchesDateFilter remains true
 
-    const matchesCompletionDate = isDateInRange(
-      student.completionDate, 
-      completionDateFrom, 
-      completionDateTo
-    );
-
-    return matchesSearch && matchesStatus && matchesAllotmentDate && matchesCompletionDate;
+    return matchesSearch && matchesStatus && matchesDateFilter;
   });
 
   const formatDate = (dateString) => {
@@ -185,54 +194,51 @@ const AllCourseProgressTracker = () => {
         </div>
       </div>
 
-      
-        {/* New Date Filters Section */}
-        <div className={styles.dateFilters}>
-          <div className={styles.dateFilterGroup}>
-            <label className={styles.dateLabel}>Allotment Date:</label>
-            <input
-              type="date"
-              className={styles.dateInput}
-              placeholder="From"
-              value={allotmentDateFrom}
-              onChange={(e) => setAllotmentDateFrom(e.target.value)}
-            />
-            <span className={styles.dateSeparator}>to</span>
-            <input
-              type="date"
-              className={styles.dateInput}
-              placeholder="To"
-              value={allotmentDateTo}
-              onChange={(e) => setAllotmentDateTo(e.target.value)}
-            />
-          </div>
-          
-          <div className={styles.dateFilterGroup}>
-            <label className={styles.dateLabel}>Completion Date:</label>
-            <input
-              type="date"
-              className={styles.dateInput}
-              placeholder="From"
-              value={completionDateFrom}
-              onChange={(e) => setCompletionDateFrom(e.target.value)}
-            />
-            <span className={styles.dateSeparator}>to</span>
-            <input
-              type="date"
-              className={styles.dateInput}
-              placeholder="To"
-              value={completionDateTo}
-              onChange={(e) => setCompletionDateTo(e.target.value)}
-            />
-          </div>
-          
-          <button 
-            className={styles.clearFiltersButton}
-            onClick={clearFilters}
+      {/* Updated Date Filters Section */}
+      <div className={styles.dateFilters}>
+        <div className={styles.dateFilterGroup}>
+          <label className={styles.dateLabel}>Date Filter Type:</label>
+          <select 
+            className={styles.filterDropdown}
+            value={dateFilterType}
+            onChange={(e) => handleDateFilterTypeChange(e.target.value)}
           >
-            Clear Filters
-          </button>
+            {dateFilterOptions.map(option => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
         </div>
+        
+        {dateFilterType !== 'none' && (
+          <div className={styles.dateFilterGroup}>
+            <label className={styles.dateLabel}>
+              {dateFilterType === 'allotment' ? 'Allotment Date Range:' : 'Completion Date Range:'}
+            </label>
+            <input
+              type="date"
+              className={styles.dateInput}
+              placeholder="From"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+            />
+            <span className={styles.dateSeparator}>to</span>
+            <input
+              type="date"
+              className={styles.dateInput}
+              placeholder="To"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+            />
+          </div>
+        )}
+        
+        <button 
+          className={styles.clearFiltersButton}
+          onClick={clearFilters}
+        >
+          Clear Filters
+        </button>
+      </div>
 
       <div className={styles.headerActions}>
         <ExportToExcel
@@ -244,6 +250,11 @@ const AllCourseProgressTracker = () => {
         />
         <div className={styles.resultsCount}>
           Showing {filteredStudents.length} of {studentsData.length} records
+          {dateFilterType !== 'none' && (
+            <span className={styles.filterInfo}>
+              {' '}(Filtered by {dateFilterType === 'allotment' ? 'Allotment' : 'Completion'} Date)
+            </span>
+          )}
         </div>
       </div>
 

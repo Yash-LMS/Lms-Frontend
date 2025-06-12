@@ -81,6 +81,20 @@ const InstructorSidebar = ({ activeTab }) => {
             </a>
           </li>
 
+          <li
+            className={`${styles.navItem} ${
+              activeTab === "batch" ? styles.active : ""
+            }`}
+          >
+            <a
+              href="#batch"
+              onClick={(e) => handleNavigation('/instructor/view/batch', 'batch', e)}
+            >
+              <FontAwesomeIcon icon={faClipboardList} />
+              Batches
+            </a>
+          </li>
+
         </ul>
       </nav>
     </aside>

@@ -30,6 +30,10 @@ export const TRAINEE_RESULT_BY_INSTRUCTOR = `${API_BASE_URL}/test/viewTraineeRes
 export const UPDATE_SECTION_SEQUENCE = `${API_BASE_URL}/course/update/section/sequence`;
 export const INSTRUCTOR_TRAINEE_RESULT_URL = `${API_BASE_URL}/test/viewTraineeResults`;
 export const FIND_DETAILED_TRAINEE_RESULT_URL = `${API_BASE_URL}/test/detail/result`;
+export const CREATE_BATCH_URL = `${API_BASE_URL}/batch/create`;
+export const VIEW_BATCH_URL = `${API_BASE_URL}/batch/viewBatch`;
+export const ADD_TEST_TO_BATCH_URL = `${API_BASE_URL}/batch/addTest`;
+export const ADD_CANDIDATE_TO_BATCH_URL = `${API_BASE_URL}/batch/addCandidate`;
 
 //Intern
 export const REGISTER_INTERN_URL = `${API_BASE_URL}/user/intern/register`;

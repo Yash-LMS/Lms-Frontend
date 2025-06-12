@@ -41,6 +41,7 @@ import CertificateValidation from "./components/certificate/CertificateValidatio
 import AddQuestionLibrary from "./components/test/AddQuestionLibrary";
 import TraineeResults from "./components/instructor/TraineeResults";
 import QuestionEdit from "./components/test/QuestionEdit";
+import BatchManagement from "./components/instructor/BatchManagement";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -238,15 +239,15 @@ const AppContent = () => {
             }
           />
 
-         <Route
+          <Route
             path="/instructor/course/editLibrary"
             element={
               <ProtectedRoute>
                 <QuestionEdit />
               </ProtectedRoute>
             }
-          />   
-    
+          />
+
           <Route
             path="/course/preview/:courseId"
             element={
@@ -427,6 +428,15 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <ViewTraineeTestAllotment />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/instructor/view/batch"
+            element={
+              <ProtectedRoute>
+                <BatchManagement />
               </ProtectedRoute>
             }
           />
