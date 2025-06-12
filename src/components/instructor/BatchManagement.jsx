@@ -19,10 +19,8 @@ const BatchManagement = () => {
   const [batches, setBatches] = useState([]);
   const [activeTab, setActiveTab] = useState("batches");
   const [showAddBatch, setShowAddBatch] = useState(false);
-  const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [selectedBatch, setSelectedBatch] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -54,11 +52,9 @@ const BatchManagement = () => {
     setError(null);
 
     try {
-      // Create the request payload matching the backend ApiResponseModelBatch structure
       const requestData = {
-        user: user, // Send user object as is
-        token: token, // Send token as string
-        batch: null // Not needed for view operation
+        user: user,
+        token: token,
       };
 
       console.log("Fetching batches with data:", JSON.stringify(requestData, null, 2));
@@ -79,15 +75,10 @@ const BatchManagement = () => {
       }
     } catch (err) {
       console.error("Error fetching batches:", err);
-      console.error("Error response:", err.response?.data);
-      
       setError(err.response?.data?.message || "An error occurred while fetching batches");
       
-      // Handle unauthorized access
       if (err.response?.status === 401) {
         alert("Unauthorized access. Please log in again.");
-        // Optionally redirect to login
-        // navigate('/login');
       }
     } finally {
       setLoading(false);
@@ -98,24 +89,28 @@ const BatchManagement = () => {
     fetchBatches();
   }, []);
 
-  const handleAddQuestions = (batch) => {
-    setSelectedBatch(batch);
-    setShowQuestionModal(true);
-    console.log("Adding questions to batch:", batch);
+  // Handlers for batch actions
+  const handleAddTest = (batch) => {
+    console.log("Adding test to batch:", batch);
+    // Navigate to add test page or open modal
+    // navigate(`/add-test/${batch.batchId}`);
   };
 
-  const handleEditBatch = (batch) => {
-    setSelectedBatch(batch);
-    console.log("Editing batch:", batch);
+  const handleAddCourse = (batch) => {
+    console.log("Adding course to batch:", batch);
+    // Navigate to add course page or open modal
+    // navigate(`/add-course/${batch.batchId}`);
+  };
+
+  const handleAddCandidate = (batch) => {
+    console.log("Adding candidate to batch:", batch);
+    // Navigate to add candidate page or open modal
+    // navigate(`/add-candidate/${batch.batchId}`);
   };
 
   // Create batch using axios
   const handleSubmitNewBatch = async (batchNameData) => {
-    const { user, token, role } = getUserData();
-    console.log("User data:", user);
-    console.log("Token:", token);
-    console.log("Role:", role);
-    console.log("Received batchNameData:", batchNameData);
+    const { user, token } = getUserData();
 
     if (!user || !token) {
       alert("User session data is missing. Please log in again.");
@@ -139,12 +134,11 @@ const BatchManagement = () => {
     setLoading(true);
     setError(null);
 
-    // Create the request payload matching the backend ApiResponseModelBatch structure
     const batchData = {
-      user: user, // Send user object as is
-      token: token, // Send token as string
+      user: user,
+      token: token,
       batch: {
-        batchName: actualBatchName // Ensure only the string value is sent
+        batchName: actualBatchName
       }
     };
 
@@ -172,36 +166,28 @@ const BatchManagement = () => {
       }
     } catch (err) {
       console.error("Failed to add batch:", err);
-      console.error("Error response:", err.response?.data);
-      
       const errorMessage = err.response?.data?.message || err.message || "An error occurred while creating the batch";
       alert(errorMessage);
       
-      // Handle unauthorized access
       if (err.response?.status === 401) {
         alert("Unauthorized access. Please log in again.");
-        // Optionally redirect to login
-        // navigate('/login');
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Improved filter function to match batchStatus from BatchList
+  // Filter function
   const getFilteredBatches = () => {
     if (!batches || !Array.isArray(batches)) return [];
 
     return batches.filter((batch) => {
-      // Robust null and undefined checks
       if (!batch || !batch.batchName) return false;
 
-      // Case-insensitive search term matching
       const matchesSearch = batch.batchName
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
-      // Improved status filtering with ALL option and case-insensitive comparison
       const matchesStatus =
         statusFilter === "all" ||
         (batch.batchStatus &&
@@ -211,20 +197,16 @@ const BatchManagement = () => {
     });
   };
 
-  // Get filtered batches
   const filteredBatches = getFilteredBatches();
 
-  // Handle search input change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  // Handle status filter change
   const handleStatusFilterChange = (e) => {
     setStatusFilter(e.target.value);
   };
 
-  // Retry function for error handling
   const handleRetry = () => {
     fetchBatches();
   };
@@ -233,7 +215,6 @@ const BatchManagement = () => {
     <div className={styles.adminDashboard}>
       <InstructorSidebar activeTab={activeTab} />
 
-      {/* Main Content Area */}
       <main className={styles.mainContent}>
         <header className={styles.contentHeader}>
           <div className={styles.headerLeft}>
@@ -269,7 +250,6 @@ const BatchManagement = () => {
           </div>
         </header>
 
-        {/* Error Display */}
         {error && (
           <div className={styles.errorContainer}>
             <p className={styles.errorMessage}>{error}</p>
@@ -279,7 +259,6 @@ const BatchManagement = () => {
           </div>
         )}
 
-        {/* Display search results info when filtering */}
         {(searchTerm || statusFilter !== "all") && (
           <div className={styles.searchResultsInfo}>
             <p>
@@ -303,23 +282,22 @@ const BatchManagement = () => {
           </div>
         )}
 
-        {/* Batch List Component */}
+        {/* Fixed: Pass correct prop name and all required handlers */}
         <BatchList
-          tests={filteredBatches}
+          batches={filteredBatches}
           loading={loading}
           error={error}
-          onAddQuestions={handleAddQuestions}
-          onEditTest={handleEditBatch}
+          onAddTest={handleAddTest}
+          onAddCourse={handleAddCourse}
+          onAddCandidate={handleAddCandidate}
         />
 
-        {/* Add Batch Modal Component */}
         <AddBatchModal
           isOpen={showAddBatch}
           onClose={() => setShowAddBatch(false)}
           onSubmit={handleSubmitNewBatch}
         />
 
-        {/* Success Modal */}
         {showSuccessModal && (
           <SuccessModal
             message={successMessage}

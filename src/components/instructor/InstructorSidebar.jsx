@@ -69,12 +69,12 @@ const InstructorSidebar = ({ activeTab }) => {
           </li>
           <li
             className={`${styles.navItem} ${
-              activeTab === "result" ? styles.active : ""
+              activeTab === "results" ? styles.active : ""
             }`}
           >
             <a
-              href="#result"
-              onClick={(e) => handleNavigation('/instructor/view/result', 'result', e)}
+              href="#results"
+              onClick={(e) => handleNavigation('/instructor/view/result', 'results', e)}
             >
               <FontAwesomeIcon icon={faClipboardList} />
               Test Result
@@ -83,12 +83,12 @@ const InstructorSidebar = ({ activeTab }) => {
 
           <li
             className={`${styles.navItem} ${
-              activeTab === "batch" ? styles.active : ""
+              activeTab === "batches" ? styles.active : ""
             }`}
           >
             <a
-              href="#batch"
-              onClick={(e) => handleNavigation('/instructor/view/batch', 'batch', e)}
+              href="#batches"
+              onClick={(e) => handleNavigation('/instructor/view/batch', 'batches', e)}
             >
               <FontAwesomeIcon icon={faClipboardList} />
               Batches

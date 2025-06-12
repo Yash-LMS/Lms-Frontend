@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./InstructorDashboard.module.css";
-import Image from "../Image/DefaultCourse.png";
+import styles from "./BatchList.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faUserPlus, faFileText, faBookOpen } from "@fortawesome/free-solid-svg-icons";
+import { faFileText, faBookOpen, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 
 const BatchList = ({
   batches,
@@ -14,7 +13,6 @@ const BatchList = ({
   onAddCandidate,
 }) => {
   const navigate = useNavigate();
-  const defaultImageUrl = Image;
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,37 +38,36 @@ const BatchList = ({
   };
 
   if (loading) {
-    return <p>Loading batches...</p>;
+    return (
+      <div className={styles.loadingContainer}>
+        <p>Loading batches...</p>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <p className={styles.errorMessage}>
-        {error.message || "An error occurred."}
-      </p>
+      <div className={styles.errorContainer}>
+        <p className={styles.errorMessage}>
+          {typeof error === 'string' ? error : error.message || "An error occurred."}
+        </p>
+      </div>
     );
   }
 
-   if (!batches || batches.length === 0) {
-      return (
-        <div className={styles.noCourses}>
-          No Batches found. Create a new batch to get started.
-        </div>
-      );
-    }
+  if (!batches || batches.length === 0) {
+    return (
+      <div className={styles.noCourses}>
+        No Batches found. Create a new batch to get started.
+      </div>
+    );
+  }
   
   return (
     <div className={styles.courseListContainer}>
       <div className={styles.courseList}>
         {currentBatches.map((batch) => (
           <div key={batch.batchId} className={styles.courseCard}>
-            <div className={styles.courseImage}>
-              <img
-                src={defaultImageUrl}
-                alt={`${batch.batchName} thumbnail`}
-                className={styles.thumbnail}
-              />
-            </div>
             <div className={styles.courseTag}>BATCH</div>
             <div className={styles.courseHeader}>
               <h3>{batch.batchName}</h3>
@@ -81,16 +78,6 @@ const BatchList = ({
               >
                 {batch.batchStatus || 'PENDING'}
               </span>
-            </div>
-            <div className={styles.testDetails}>
-              <div className={styles.courseInfo}>
-                <span className={styles.detailLabel}>Status:</span>
-                <span> {(batch.batchStatus ?? "PENDING").toUpperCase()} </span>
-              </div>
-              <div className={styles.courseInfo}>
-                <span className={styles.detailLabel}>Batch ID:</span>
-                <span> {batch.batchId} </span>
-              </div>
             </div>
             <div className={styles.cardActions}>
               <button
@@ -119,7 +106,7 @@ const BatchList = ({
         ))}
       </div>
       
-      {batches && batches.length > 0 && (
+      {batches && batches.length > cardsPerPage && (
         <div className={styles.paginationControls}>
           <button 
             className={styles.paginationButton} 
