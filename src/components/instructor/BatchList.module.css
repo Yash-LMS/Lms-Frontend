@@ -79,36 +79,15 @@
     font-weight: 500;
     white-space: nowrap;
   }
-  
-  .draft {
-    background-color: #fff8e5;
-    color: var(--warning-color);
-  }
-  
-  .inprogress {
-    background-color: #e1f5fe;
-    color: var(--info-color);
-  }
-  
-  .completed {
-    background-color: #ecf7ed;
-    color: var(--success-color);
-  }
-  
+
   .approved {
     background-color: #ecf7ed;
     color: var(--success-color);
   }
   
-  .not_approved,
-  .rejected {
-    background-color: #ffebee;
-    color: var(--error-color);
-  }
-  
   .pending {
-    background-color: #e1f5fe;
-    color: var(--info-color);
+    background-color: #fff8e5;
+    color: var(--warning-color);
   }
   
   .hold {
@@ -116,6 +95,12 @@
     color: var(--hold-color);
   }
   
+  .not_approved,
+  .rejected {
+    background-color: #ffebee;
+    color: var(--error-color);
+  }
+
   /* Course Info */
   .courseInfo {
     display: flex;

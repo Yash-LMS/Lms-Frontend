@@ -32,8 +32,13 @@ export const INSTRUCTOR_TRAINEE_RESULT_URL = `${API_BASE_URL}/test/viewTraineeRe
 export const FIND_DETAILED_TRAINEE_RESULT_URL = `${API_BASE_URL}/test/detail/result`;
 export const CREATE_BATCH_URL = `${API_BASE_URL}/batch/create`;
 export const VIEW_BATCH_URL = `${API_BASE_URL}/batch/viewBatch`;
+export const ADD_COURSE_TO_BATCH_URL = `${API_BASE_URL}/batch/addCourse`;
 export const ADD_TEST_TO_BATCH_URL = `${API_BASE_URL}/batch/addTest`;
 export const ADD_CANDIDATE_TO_BATCH_URL = `${API_BASE_URL}/batch/addCandidate`;
+export const FIND_COURSE_FOR_BATCH_URL = `${API_BASE_URL}/batch/findCourseAllotment`;
+export const VERIFY_CANDIDATE_TO_BATCH_URL = `${API_BASE_URL}/batch/verifyEmployeeStatus`;
+export const FIND_TEST_FOR_BATCH_URL = `${API_BASE_URL}/batch/findTests`;
+export const FIND_EMPLOYEE_LIST_FOR_BATCH_URL = `${API_BASE_URL}/batch/findEmployeeList`;
 
 //Intern
 export const REGISTER_INTERN_URL = `${API_BASE_URL}/user/intern/register`;

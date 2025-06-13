@@ -5,7 +5,6 @@ import courseReducer from '../features/course/courseSlice';
 import managerReducer from '../features/manager/managerSlice';
 import employeeReducer from '../features/user/userSlice';
 import testReducer from '../features/test/testSlice';
-import { batch } from 'react-redux';import batchReducer from '../features/batch/batchSlice';
 
 const store = configureStore({
     reducer: {
@@ -15,7 +14,6 @@ const store = configureStore({
         manager: managerReducer,
         employee: employeeReducer,
         tests: testReducer,
-        batches: batchReducer,
     },
 });
 

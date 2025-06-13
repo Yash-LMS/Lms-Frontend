@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./InstructorSidebar.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faListCheck, faFolderOpen,faRectangleList, faClipboardList, faPen } from "@fortawesome/free-solid-svg-icons";
+import { faListCheck, faFolderOpen,faRectangleList, faClipboardList, faPen, faUsers } from "@fortawesome/free-solid-svg-icons";
 
 const InstructorSidebar = ({ activeTab }) => {
     const navigate = useNavigate();
@@ -90,7 +90,7 @@ const InstructorSidebar = ({ activeTab }) => {
               href="#batches"
               onClick={(e) => handleNavigation('/instructor/view/batch', 'batches', e)}
             >
-              <FontAwesomeIcon icon={faClipboardList} />
+              <FontAwesomeIcon icon={faUsers} />
               Batches
             </a>
           </li>

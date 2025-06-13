@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styles from "./BatchManagement.module.css";
-import AddBatchModal from "./AddBatchModal";
 import BatchList from "./BatchList";
 import SuccessModal from "../../assets/SuccessModal";
 import { useNavigate } from "react-router-dom";
@@ -282,7 +281,6 @@ const BatchManagement = () => {
           </div>
         )}
 
-        {/* Fixed: Pass correct prop name and all required handlers */}
         <BatchList
           batches={filteredBatches}
           loading={loading}
@@ -290,12 +288,6 @@ const BatchManagement = () => {
           onAddTest={handleAddTest}
           onAddCourse={handleAddCourse}
           onAddCandidate={handleAddCandidate}
-        />
-
-        <AddBatchModal
-          isOpen={showAddBatch}
-          onClose={() => setShowAddBatch(false)}
-          onSubmit={handleSubmitNewBatch}
         />
 
         {showSuccessModal && (

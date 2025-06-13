@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, X, Users, FileSpreadsheet, Check, AlertCircle, Loader, Download } from 'lucide-react';
+import Select from 'react-select';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
 import styles from './AddCandidateToBatch.module.css';
-import { ADD_CANDIDATE_TO_BATCH_URL, VERIFY_CANDIDATE_TO_BATCH_URL, FIND_EMPLOYEE_LIST_URL } from '../../constants/apiConstants';
+import { ADD_CANDIDATE_TO_BATCH_URL, VERIFY_CANDIDATE_TO_BATCH_URL, FIND_EMPLOYEE_LIST_FOR_BATCH_URL } from '../../constants/apiConstants';
 
 const AddCandidateToBatch = ({ 
+  isOpen,
   onClose, 
   batchId,
+  batchName,
+  onCandidateAdded
 }) => {
   const [activeTab, setActiveTab] = useState('upload');
   const [selectedFile, setSelectedFile] = useState(null);
@@ -20,9 +24,25 @@ const AddCandidateToBatch = ({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
 
+  // Auto-dismiss messages after 3 seconds
+  useEffect(() => {
+    if (success && !submitting && !verifying) {
+      const timer = setTimeout(() => {
+        setSuccess('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, submitting, verifying]);
 
+  useEffect(() => {
+    if (error && !submitting && !verifying) {
+      const timer = setTimeout(() => {
+        setError('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, submitting, verifying]);
 
   // Fetch employee list when component mounts or tab changes
   useEffect(() => {
@@ -35,16 +55,17 @@ const AddCandidateToBatch = ({
     setLoading(true);
     setError('');
     try {
-       const { user, token } = getUserData();
-      const response = await axios.post(FIND_EMPLOYEE_LIST_URL, {
+      const { user, token } = getUserData();
+      const response = await axios.post(FIND_EMPLOYEE_LIST_FOR_BATCH_URL, {
         user,
         token
       });
       
-      if (response.data.statusResponse === 'success') {
-        setEmployeeList(response.data.data || []);
+      // Updated to handle the new payload structure
+      if (response.data.response === 'success') {
+        setEmployeeList(response.data.payload || []);
       } else {
-        setError(response.data.message || 'Failed to fetch employee list');
+        setError('Failed to fetch employee list');
       }
     } catch (err) {
       console.error('Error fetching employee list:', err);
@@ -54,7 +75,7 @@ const AddCandidateToBatch = ({
     }
   };
 
-    const getUserData = () => {
+  const getUserData = () => {
     try {
       return {
         user: JSON.parse(sessionStorage.getItem("user")),
@@ -127,29 +148,33 @@ const AddCandidateToBatch = ({
     XLSX.writeFile(workbook, 'candidate_upload_template.xlsx');
   };
 
-  const handleEmployeeSelection = (employee) => {
-    setSelectedEmployees(prev => {
-      const isSelected = prev.some(emp => emp.emailId === employee.emailId);
-      if (isSelected) {
-        return prev.filter(emp => emp.emailId !== employee.emailId);
-      } else {
-        return [...prev, employee];
-      }
-    });
+  // Convert employee list to react-select format
+  const employeeOptions = employeeList.map(employee => ({
+    value: employee.emailId,
+    label: `${employee.name} (${employee.emailId})`,
+    employee: employee
+  }));
+
+  const handleEmployeeSelectChange = (selectedOptions) => {
+    const employees = selectedOptions ? selectedOptions.map(option => option.employee) : [];
+    setSelectedEmployees(employees);
+  };
+
+  const removeSelectedEmployee = (emailId) => {
+    setSelectedEmployees(prev => prev.filter(emp => emp.emailId !== emailId));
   };
 
   const verifyCandidateStatus = async (emailId) => {
     try {
-
-       const { user, token } = getUserData();
+      const { user, token } = getUserData();
       const response = await axios.post(VERIFY_CANDIDATE_TO_BATCH_URL, {
         user,
         token,
         emailId
       });
       
-      if (response.data.statusResponse === 'success') {
-        return response.data.data.status;
+      if (response.data.response === 'success') {
+        return response.data.payload.status;
       }
       return 'not_found';
     } catch (err) {
@@ -161,6 +186,7 @@ const AddCandidateToBatch = ({
   const verifyAllCandidates = async () => {
     setVerifying(true);
     setError('');
+    setSuccess(''); // Clear previous success message
     
     const candidates = activeTab === 'upload' ? uploadedCandidates : selectedEmployees.map(emp => emp.emailId);
     
@@ -195,6 +221,7 @@ const AddCandidateToBatch = ({
 
     setSubmitting(true);
     setError('');
+    setSuccess(''); // Clear previous success message
     
     try {
       const { user, token } = getUserData();
@@ -206,15 +233,20 @@ const AddCandidateToBatch = ({
         candidateEmailList: approvedCandidates
       });
       
-      if (response.data.statusResponse === 'success') {
+      if (response.data.response === 'success') {
         setSuccess(`Successfully added ${approvedCandidates.length} candidates to batch`);
+        
+        // Call the callback if provided
+        if (onCandidateAdded) {
+          onCandidateAdded(response.data);
+        }
     
         // Close modal after a short delay
         setTimeout(() => {
           handleClose();
         }, 2000);
       } else {
-        setError(response.data.message || 'Failed to add candidates to batch');
+        setError('Failed to add candidates to batch');
       }
     } catch (err) {
       console.error('Error adding candidates to batch:', err);
@@ -232,7 +264,6 @@ const AddCandidateToBatch = ({
     setCandidateStatus({});
     setError('');
     setSuccess('');
-    setSearchTerm('');
     onClose();
   };
 
@@ -266,10 +297,39 @@ const AddCandidateToBatch = ({
     }
   };
 
-  const filteredEmployees = employeeList.filter(emp => 
-    emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.emailId.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const customSelectStyles = {
+    control: (provided) => ({
+      ...provided,
+      minHeight: '40px',
+      border: '1px solid #ddd',
+      boxShadow: 'none',
+      '&:hover': {
+        border: '1px solid #8e6cef'
+      }
+    }),
+    multiValue: (provided) => ({
+      ...provided,
+      backgroundColor: '#8e6cef',
+      color: 'white'
+    }),
+    multiValueLabel: (provided) => ({
+      ...provided,
+      color: 'white'
+    }),
+    multiValueRemove: (provided) => ({
+      ...provided,
+      color: 'white',
+      '&:hover': {
+        backgroundColor: '#8e6cef',
+        color: 'white'
+      }
+    }),
+    // Fix dropdown menu positioning
+    menuPortal: (provided) => ({
+      ...provided,
+      zIndex: 9999
+    })
+  };
 
   if (!isOpen) return null;
 
@@ -371,62 +431,74 @@ const AddCandidateToBatch = ({
 
           {activeTab === 'select' && (
             <div className={styles['add-candidate-batch__select-section']}>
-              <div className={styles['add-candidate-batch__search']}>
-                <input
-                  type="text"
-                  placeholder="Search employees..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className={styles['add-candidate-batch__search-input']}
-                  disabled={submitting}
-                />
+              <div className={styles['add-candidate-batch__select-container']}>
+                <label className={styles['add-candidate-batch__select-label']}>
+                  Select Employees:
+                </label>
+                {loading ? (
+                  <div className={styles['add-candidate-batch__loading']}>
+                    <Loader className={styles['add-candidate-batch__spinner']} />
+                    Loading employees...
+                  </div>
+                ) : (
+                  <Select
+                    isMulti
+                    options={employeeOptions}
+                    value={selectedEmployees.map(emp => ({
+                      value: emp.emailId,
+                      label: `${emp.name} (${emp.emailId})`,
+                      employee: emp
+                    }))}
+                    onChange={handleEmployeeSelectChange}
+                    placeholder="Search and select employees..."
+                    isDisabled={submitting}
+                    styles={customSelectStyles}
+                    className={styles['add-candidate-batch__react-select']}
+                    classNamePrefix="react-select"
+                    menuPortalTarget={document.body}
+                    menuPosition="fixed"
+                  />
+                )}
               </div>
               
               {selectedEmployees.length > 0 && (
-                <div className={styles['add-candidate-batch__selected-count']}>
-                  Selected: {selectedEmployees.length} employees
-                </div>
-              )}
-              
-              {loading ? (
-                <div className={styles['add-candidate-batch__loading']}>
-                  <Loader className={styles['add-candidate-batch__spinner']} />
-                  Loading employees...
-                </div>
-              ) : (
-                <div className={styles['add-candidate-batch__employee-list']}>
-                  {filteredEmployees.length === 0 ? (
-                    <div className={styles['add-candidate-batch__no-employees']}>
-                      No employees found
-                    </div>
-                  ) : (
-                    filteredEmployees.map((employee) => (
+                <div className={styles['add-candidate-batch__selected-employees']}>
+                  <div className={styles['add-candidate-batch__selected-header']}>
+                    <h4>Selected Employees ({selectedEmployees.length})</h4>
+                  </div>
+                  <div className={styles['add-candidate-batch__selected-list']}>
+                    {selectedEmployees.map((employee) => (
                       <div 
                         key={employee.emailId} 
-                        className={`${styles['add-candidate-batch__employee-item']} ${
-                          selectedEmployees.some(emp => emp.emailId === employee.emailId) 
-                            ? styles['add-candidate-batch__employee-item--selected'] 
-                            : ''
-                        }`}
-                        onClick={() => !submitting && handleEmployeeSelection(employee)}
+                        className={styles['add-candidate-batch__selected-item']}
                       >
                         <div className={styles['add-candidate-batch__employee-info']}>
                           <div className={styles['add-candidate-batch__employee-name']}>{employee.name}</div>
                           <div className={styles['add-candidate-batch__employee-email']}>{employee.emailId}</div>
                         </div>
-                        <div className={styles['add-candidate-batch__employee-status']}>
-                          {candidateStatus[employee.emailId] && (
-                            <>
-                              {getStatusIcon(candidateStatus[employee.emailId])}
-                              <span className={styles['add-candidate-batch__status-text']}>
-                                {getStatusText(candidateStatus[employee.emailId])}
-                              </span>
-                            </>
-                          )}
+                        <div className={styles['add-candidate-batch__employee-actions']}>
+                          <div className={styles['add-candidate-batch__employee-status']}>
+                            {candidateStatus[employee.emailId] && (
+                              <>
+                                {getStatusIcon(candidateStatus[employee.emailId])}
+                                <span className={styles['add-candidate-batch__status-text']}>
+                                  {getStatusText(candidateStatus[employee.emailId])}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => removeSelectedEmployee(employee.emailId)}
+                            className={styles['add-candidate-batch__remove-btn']}
+                            disabled={submitting}
+                            title="Remove employee"
+                          >
+                            <X size={16} />
+                          </button>
                         </div>
                       </div>
-                    ))
-                  )}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
