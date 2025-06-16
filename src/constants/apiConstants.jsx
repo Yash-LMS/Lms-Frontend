@@ -95,7 +95,7 @@ export const APPROVE_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/appr
 export const REJECT_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/reject`;
 
 export const FIND_CANDIDATE_URL = `${API_BASE_URL}/manager/trp/findCandidates`;
-export const GENERATE_TRP_URL = `${API_BASE_URL}/manager/trp/findCandidates`;
+export const GENERATE_TRP_URL = `${API_BASE_URL}/manager/trp/generate`;
 
 
 
