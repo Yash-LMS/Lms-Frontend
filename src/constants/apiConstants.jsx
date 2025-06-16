@@ -40,6 +40,7 @@ export const VERIFY_CANDIDATE_TO_BATCH_URL = `${API_BASE_URL}/batch/verifyEmploy
 export const FIND_TEST_FOR_BATCH_URL = `${API_BASE_URL}/batch/findTests`;
 export const FIND_EMPLOYEE_LIST_FOR_BATCH_URL = `${API_BASE_URL}/batch/findEmployeeList`;
 
+
 //Intern
 export const REGISTER_INTERN_URL = `${API_BASE_URL}/user/intern/register`;
 
