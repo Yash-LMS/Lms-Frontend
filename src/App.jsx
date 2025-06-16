@@ -42,6 +42,7 @@ import AddQuestionLibrary from "./components/test/AddQuestionLibrary";
 import TraineeResults from "./components/instructor/TraineeResults";
 import QuestionEdit from "./components/test/QuestionEdit";
 import BatchManagement from "./components/instructor/BatchManagement";
+import BatchRequests from "./components/technical-manager/BatchRequests";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -437,6 +438,15 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <BatchManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/manager/batch/requests"
+            element={
+              <ProtectedRoute>
+                <BatchRequests />
               </ProtectedRoute>
             }
           />

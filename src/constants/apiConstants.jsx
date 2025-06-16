@@ -89,6 +89,10 @@ export const INTERN_COUNT_URL = `${API_BASE_URL}/manager/totalInterns`;
 export const FETCH_CATEGORIES_URL = `${API_BASE_URL}/manager/getCategories`;
 export const UPDATE_CATEGORY_URL = `${API_BASE_URL}/manager/updateCategory`;
 
+export const FIND_BATCHES_URL = `${API_BASE_URL}/manager/batch/viewBatchByStatus`;
+export const APPROVE_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/approve`;
+export const REJECT_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/reject`;
+
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styles from "./BatchManagement.module.css";
 import BatchList from "./BatchList";
+import AddBatchModal from "./AddBatchModal";
 import SuccessModal from "../../assets/SuccessModal";
 import { useNavigate } from "react-router-dom";
 import InstructorSidebar from "../instructor/InstructorSidebar";
@@ -87,25 +88,6 @@ const BatchManagement = () => {
   useEffect(() => {
     fetchBatches();
   }, []);
-
-  // Handlers for batch actions
-  const handleAddTest = (batch) => {
-    console.log("Adding test to batch:", batch);
-    // Navigate to add test page or open modal
-    // navigate(`/add-test/${batch.batchId}`);
-  };
-
-  const handleAddCourse = (batch) => {
-    console.log("Adding course to batch:", batch);
-    // Navigate to add course page or open modal
-    // navigate(`/add-course/${batch.batchId}`);
-  };
-
-  const handleAddCandidate = (batch) => {
-    console.log("Adding candidate to batch:", batch);
-    // Navigate to add candidate page or open modal
-    // navigate(`/add-candidate/${batch.batchId}`);
-  };
 
   // Create batch using axios
   const handleSubmitNewBatch = async (batchNameData) => {
@@ -281,6 +263,13 @@ const BatchManagement = () => {
           </div>
         )}
 
+         {/* Add Batch Modal Component */}
+         <AddBatchModal
+          isOpen={showAddBatch}
+          onClose={() => setShowAddBatch(false)}
+          onSubmit={handleSubmitNewBatch}
+        />
+
         <BatchList
           batches={filteredBatches}
           loading={loading}
@@ -301,4 +290,4 @@ const BatchManagement = () => {
   );
 };
 
-export default BatchManagement;
+export default BatchManagement;     

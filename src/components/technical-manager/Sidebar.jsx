@@ -106,6 +106,19 @@ const Sidebar = ({ activeTab }) => {
               )}
             </a>
           </li>
+          <li className={`${styles.navItem} ${activeTab === "batchRequests" ? styles.active : ""}`}>
+            <a
+              href="#batchRequests"
+              onClick={(e) => handleNavigation('/manager/batch/requests', 'batchRequests', e)}
+              className={styles.navButton}
+            >
+              <FontAwesomeIcon icon={faBell} />
+              <span className={styles.navText}>Batch Requests</span>
+              {testBadgeCount > 0 && (
+                <span className={styles.badge}>{testBadgeCount}</span>
+              )}
+            </a>
+          </li>
           <li className={`${styles.navItem} ${activeTab === "allot" ? styles.active : ""}`}>
             <a
               href="#allotment"
