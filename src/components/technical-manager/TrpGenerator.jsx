@@ -108,98 +108,74 @@ const TrpGenerator = () => {
   };
 
   // Generate TRP report
- const generateTrpReport = async () => {
-  if (selectedCandidates.length === 0) {
-    setError('Please select at least one candidate');
-    return;
-  }
-
-  setLoading(true);
-  setError('');
-  
-  try {
-    const { user, token } = getUserData();
-    const officeId = user?.officeId;
-    
-    // Ensure testIds are properly extracted as integers
-    const testIds = selectedTests.map(test => {
-      // Handle both direct testId and nested object scenarios
-      return typeof test === 'object' ? parseInt(test.testId) : parseInt(test);
-    }).filter(id => !isNaN(id)); // Remove any NaN values
-    
-    const candidateEmails = selectedCandidates.map(candidate => {
-      // Handle both direct emailId and nested object scenarios
-      return typeof candidate === 'object' ? candidate.emailId : candidate;
-    }).filter(email => email); // Remove any undefined/null values
-
-    // Validate we have valid data
-    if (testIds.length === 0) {
-      setError('No valid test IDs found');
-      return;
-    }
-    
-    if (candidateEmails.length === 0) {
-      setError('No valid candidate emails found');
+  const generateTrpReport = async () => {
+    if (selectedCandidates.length === 0) {
+      setError('Please select at least one candidate');
       return;
     }
 
-    console.log('Sending data:', { testIds, candidateEmails }); // Debug log
+    setLoading(true);
+    setError('');
+    
+    try {
+      const { user, token } = getUserData();
+      const officeId = user?.officeId;
+      
+      const testIds = selectedTests.map(test => test.testId);
+      const candidateEmails = selectedCandidates.map(candidate => candidate.emailId);
 
-    const response = await axios.post(GENERATE_TRP_URL, {
-      user: user,
-      token: token,
-      officeId: officeId,
-      testList: testIds,
-      candidateList: candidateEmails
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      responseType: 'blob' // Important for file downloads
-    });
+      const response = await axios.post(GENERATE_TRP_URL, {
+        user: user,
+        token: token,
+        officeId: officeId,
+        testList: testIds,
+        candidateList: candidateEmails
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        responseType: 'blob' // Important for file downloads
+      });
 
-    // Handle file download
-    const blob = new Blob([response.data], { 
-      type: response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
-    });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    
-    // Extract filename from response headers
-    const contentDisposition = response.headers['content-disposition'];
-    const filename = contentDisposition 
-      ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
-      : `TRP_Report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.xlsx`;
-    
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-    
-    // Reset form after successful generation
-    setSelectedTests([]);
-    setSelectedCandidates([]);
-    setAvailableTests([]);
-    setAvailableCandidates([]);
-    setCurrentStep(1);
-    
-    // Optionally refetch tests for next use
-    await fetchTests();
-    
-  } catch (err) {
-    console.error('Error generating TRP report:', err);
-    if (err.response?.status === 400) {
-      setError('Invalid data format. Please check your selections.');
-    } else {
+      // Handle file download
+      const blob = new Blob([response.data], { 
+        type: response.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Extract filename from response headers
+      const contentDisposition = response.headers['content-disposition'];
+      const filename = contentDisposition 
+        ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
+        : `TRP_Report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.xlsx`;
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      // Reset form after successful generation
+      setSelectedTests([]);
+      setSelectedCandidates([]);
+      setAvailableTests([]);
+      setAvailableCandidates([]);
+      setCurrentStep(1);
+      
+      // Optionally refetch tests for next use
+      await fetchTests();
+      
+    } catch (err) {
+      console.error('Error generating TRP report:', err);
       setError(err.response?.data?.message || 'Error generating report: ' + err.message);
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
   // Handle test selection
   const handleTestSelection = (test) => {
     const isSelected = selectedTests.some(t => t.testId === test.testId);
