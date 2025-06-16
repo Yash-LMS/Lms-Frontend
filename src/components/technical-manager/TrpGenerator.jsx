@@ -49,8 +49,8 @@ const TrpGenerator = () => {
         }
       });
       
-      if (response.data.status === 'SUCCESS') {
-        setAvailableTests(response.data.data || []);
+      if (response.data.response === 'success') {
+        setAvailableTests(response.data.payload || []);
       } else {
         setError(response.data.message || 'Failed to fetch tests');
       }
@@ -93,8 +93,8 @@ const TrpGenerator = () => {
         }
       });
       
-      if (response.data.status === 'SUCCESS') {
-        setAvailableCandidates(response.data.data || []);
+      if (response.data.response === 'success') {
+        setAvailableCandidates(response.data.payload || []);
         setCurrentStep(2);
       } else {
         setError(response.data.message || 'Failed to fetch candidates');
