@@ -30,6 +30,16 @@ export const TRAINEE_RESULT_BY_INSTRUCTOR = `${API_BASE_URL}/test/viewTraineeRes
 export const UPDATE_SECTION_SEQUENCE = `${API_BASE_URL}/course/update/section/sequence`;
 export const INSTRUCTOR_TRAINEE_RESULT_URL = `${API_BASE_URL}/test/viewTraineeResults`;
 export const FIND_DETAILED_TRAINEE_RESULT_URL = `${API_BASE_URL}/test/detail/result`;
+export const CREATE_BATCH_URL = `${API_BASE_URL}/batch/create`;
+export const VIEW_BATCH_URL = `${API_BASE_URL}/batch/viewBatch`;
+export const ADD_COURSE_TO_BATCH_URL = `${API_BASE_URL}/batch/addCourse`;
+export const ADD_TEST_TO_BATCH_URL = `${API_BASE_URL}/batch/addTest`;
+export const ADD_CANDIDATE_TO_BATCH_URL = `${API_BASE_URL}/batch/addCandidate`;
+export const FIND_COURSE_FOR_BATCH_URL = `${API_BASE_URL}/batch/findCourseAllotment`;
+export const VERIFY_CANDIDATE_TO_BATCH_URL = `${API_BASE_URL}/batch/verifyEmployeeStatus`;
+export const FIND_TEST_FOR_BATCH_URL = `${API_BASE_URL}/batch/findTests`;
+export const FIND_EMPLOYEE_LIST_FOR_BATCH_URL = `${API_BASE_URL}/batch/findEmployeeList`;
+
 
 //Intern
 export const REGISTER_INTERN_URL = `${API_BASE_URL}/user/intern/register`;
@@ -69,6 +79,7 @@ export const USER_TRACKING_DETAIL_URL = `${API_BASE_URL}/manager/traineeCourseTr
 export const ADD_OFFICE_URL = `${API_BASE_URL}/manager/addOffice`;
 export const CREATE_QUESTION_CATEGORY_URL = `${API_BASE_URL}/manager/createCategory`;
 export const FIND_TRAINEE_RESULT_URL = `${API_BASE_URL}/manager/test/detail/result`;
+export const EXTEND_TEST_END_DATE_URL = `${API_BASE_URL}/manager/test/extendDueDate`;
 
 export const SHOW_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/permission/showResult`;
 export const SHOW_DETAIL_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/permission/showDetailResult`;
@@ -79,6 +90,12 @@ export const INTERN_COUNT_URL = `${API_BASE_URL}/manager/totalInterns`;
 export const FETCH_CATEGORIES_URL = `${API_BASE_URL}/manager/getCategories`;
 export const UPDATE_CATEGORY_URL = `${API_BASE_URL}/manager/updateCategory`;
 
+export const FIND_BATCHES_URL = `${API_BASE_URL}/manager/batch/viewBatchByStatus`;
+export const APPROVE_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/approve`;
+export const REJECT_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/reject`;
+
+export const FIND_CANDIDATE_URL = `${API_BASE_URL}/manager/trp/findCandidates`;
+export const GENERATE_TRP_URL = `${API_BASE_URL}/manager/trp/generate`;
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;

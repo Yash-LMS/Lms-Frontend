@@ -25,7 +25,6 @@ const TestManagement = () => {
   const [selectedTest, setSelectedTest] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
 
   const testStatusOptions = ["ALL", "APPROVED", "PENDING", "REJECTED"];
 

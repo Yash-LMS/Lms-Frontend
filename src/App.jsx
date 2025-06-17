@@ -41,6 +41,8 @@ import CertificateValidation from "./components/certificate/CertificateValidatio
 import AddQuestionLibrary from "./components/test/AddQuestionLibrary";
 import TraineeResults from "./components/instructor/TraineeResults";
 import QuestionEdit from "./components/test/QuestionEdit";
+import BatchManagement from "./components/instructor/BatchManagement";
+import BatchRequests from "./components/technical-manager/BatchRequests";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -50,6 +52,7 @@ import {
   faCircleCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import InternRegistration from "./components/auth/InternRegistration";
+import TrpGenerator from "./components/technical-manager/TrpGenerator";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -238,15 +241,15 @@ const AppContent = () => {
             }
           />
 
-         <Route
+          <Route
             path="/instructor/course/editLibrary"
             element={
               <ProtectedRoute>
                 <QuestionEdit />
               </ProtectedRoute>
             }
-          />   
-    
+          />
+
           <Route
             path="/course/preview/:courseId"
             element={
@@ -304,6 +307,16 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+      <Route
+            path="/manager/trp"
+            element={
+              <ProtectedRoute>
+                <TrpGenerator />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/manager/allotment"
             element={
@@ -430,6 +443,24 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/instructor/view/batch"
+            element={
+              <ProtectedRoute>
+                <BatchManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/manager/batch/requests"
+            element={
+              <ProtectedRoute>
+                <BatchRequests />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
     </div>
@@ -515,7 +546,7 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
         <div className={styles.navbarLinks}>
           <button
             onClick={handleCertificateVerification}
-            className={styles.logoutBtn}
+            className={styles.navLinks}
           >
             <FontAwesomeIcon icon={faCircleCheck} />
             <span>Verify Certificate</span>

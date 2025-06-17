@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ReactQuill from 'react-quill'; // Import ReactQuill
 import 'react-quill/dist/quill.snow.css'; // Import Quill styles
+import SuccessModal from '../../assets/SuccessModal'; 
 import styles from './QuestionEdit.module.css';
 import { FIND_QUESTION_BY_USER_URL, UPDATE_QUESTION_URL } from '../../constants/apiConstants';
 
@@ -28,6 +29,10 @@ const QuestionEdit = () => {
   const [error, setError] = useState(null);
   const [editedQuestion, setEditedQuestion] = useState(null);
   const [saving, setSaving] = useState(false);
+  
+  // State for SuccessModal
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Enhanced Quill editor modules and formats
   const modules = {
@@ -55,6 +60,44 @@ const QuestionEdit = () => {
   // Get user role to determine if instructor
   const { role } = getUserData();
   const isInstructor = role === 'instructor';
+
+  // Helper function to format text content for ReactQuill
+  const formatTextForQuill = (text) => {
+    if (!text) return '';
+    
+    // If it's already HTML, return as is
+    if (text.includes('<') && text.includes('>')) {
+      return text;
+    }
+    
+    // Convert plain text to HTML with proper formatting
+    return text
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .map(line => `<p>${line}</p>`)
+      .join('');
+  };
+
+  // Helper function to clean text for saving
+  const cleanTextForSaving = (htmlContent) => {
+    if (!htmlContent) return '';
+    
+    // Create a temporary div to parse HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    
+    // Get plain text but preserve line breaks
+    let plainText = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // If the original content had HTML formatting, preserve it
+    if (htmlContent.includes('<p>') || htmlContent.includes('<br>') || 
+        htmlContent.includes('<strong>') || htmlContent.includes('<em>')) {
+      return htmlContent;
+    }
+    
+    return plainText;
+  };
 
   // Fetch questions when component mounts
   const fetchQuestions = async () => {
@@ -95,6 +138,8 @@ const QuestionEdit = () => {
   
           return {
             ...question,
+            // Format the description for proper display in ReactQuill
+            description: formatTextForQuill(question.description),
             options,
           };
         });
@@ -119,6 +164,13 @@ const QuestionEdit = () => {
     fetchQuestions();
   }, [navigate]);
 
+  // Update editedQuestion when currentQuestion changes
+  useEffect(() => {
+    if (questions.length > 0 && questions[currentQuestion - 1]) {
+      setEditedQuestion({ ...questions[currentQuestion - 1] });
+    }
+  }, [currentQuestion, questions]);
+
   // Handle loading and error states
   if (loading) {
     return <div className={styles.loading}>Loading questions...</div>;
@@ -135,23 +187,18 @@ const QuestionEdit = () => {
 
   const handlePrevQuestion = () => {
     if (currentQuestion > 1) {
-      const newIndex = currentQuestion - 2;
       setCurrentQuestion(currentQuestion - 1);
-      setEditedQuestion({ ...questions[newIndex] });
     }
   };
 
   const handleNextQuestion = () => {
     if (currentQuestion < questions.length) {
-      const newIndex = currentQuestion;
       setCurrentQuestion(currentQuestion + 1);
-      setEditedQuestion({ ...questions[newIndex] });
     }
   };
 
   const handleQuestionSelect = (index) => {
     setCurrentQuestion(index + 1);
-    setEditedQuestion({ ...questions[index] });
   };
 
   // Navigate back to dashboard
@@ -424,6 +471,18 @@ const QuestionEdit = () => {
     return correctOptions.includes(optionId);
   };
 
+  // Show success modal
+  const showSuccess = (message) => {
+    setSuccessMessage(message);
+    setShowSuccessModal(true);
+  };
+
+  // Hide success modal
+  const hideSuccessModal = () => {
+    setShowSuccessModal(false);
+    setSuccessMessage('');
+  };
+
   // Save question 
   const handleSaveQuestion = async () => {
     const { user, token } = getUserData();
@@ -439,6 +498,9 @@ const QuestionEdit = () => {
       // Prepare question data by removing the options array (keep original format)
       const { options, ...questionToSave } = editedQuestion;
   
+      // Clean the description for saving
+      questionToSave.description = cleanTextForSaving(questionToSave.description);
+  
       // Convert correctOption format back to comma-separated if it's slash-separated
       if (questionToSave.correctOption && questionToSave.correctOption.includes('/')) {
         questionToSave.correctOption = questionToSave.correctOption.replace(/\//g, ',');
@@ -451,11 +513,11 @@ const QuestionEdit = () => {
       });
   
       if (response.data && response.data.response === 'success') {
-        alert('Question updated successfully!');
+        // Show success modal instead of alert
+        showSuccess('Question updated successfully!');
         
-        // Update the current question to reflect the latest data
-        const updatedQuestion = questions[currentQuestion - 1];
-        setEditedQuestion(updatedQuestion);
+        // Refresh questions to get the latest data
+        await fetchQuestions();
       } else {
         alert(response.data?.message || 'Failed to update question');
       }
@@ -464,7 +526,6 @@ const QuestionEdit = () => {
       alert('Error updating question. Please try again.');
     } finally {
       setSaving(false);
-      await fetchQuestions();
     }
   };
 
@@ -518,6 +579,7 @@ const QuestionEdit = () => {
                     modules={modules}
                     formats={formats}
                     placeholder="Enter your question here"
+                    style={{ minHeight: '150px' }}
                   />
                 </div>
               </div>
@@ -655,6 +717,14 @@ const QuestionEdit = () => {
           </div>
         </div>
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <SuccessModal
+          message={successMessage}
+          onClose={hideSuccessModal}
+        />
+      )}
     </div>
   );
 };

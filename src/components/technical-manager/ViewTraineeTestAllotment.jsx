@@ -8,6 +8,7 @@ import {
   VIEW_TRAINEE_ALLOTED_TEST_URL,
   SHOW_RESULT_PERMISSION_URL,
   SHOW_DETAIL_RESULT_PERMISSION_URL,
+  EXTEND_TEST_END_DATE_URL, // Add this to your apiConstants
 } from "../../constants/apiConstants";
 import Sidebar from "./Sidebar";
 
@@ -29,6 +30,17 @@ const ViewTraineeTestAllotment = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [masterShowScores, setMasterShowScores] = useState("disabled");
   const [masterShowDetailedScores, setMasterShowDetailedScores] = useState("disabled");
+
+  // New states for date extension functionality
+  const [showExtendModal, setShowExtendModal] = useState(false);
+  const [selectedAllotment, setSelectedAllotment] = useState(null);
+  const [newEndDate, setNewEndDate] = useState("");
+  const [extendReason, setExtendReason] = useState("");
+  const [extending, setExtending] = useState(false);
+  
+  // New states for modal messages
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalMessageType, setModalMessageType] = useState(""); // "success" or "error"
 
   const [exportData, setExportData] = useState([]);
   const [exportHeaders, setExportHeaders] = useState({});
@@ -248,6 +260,13 @@ const ViewTraineeTestAllotment = () => {
     return `${day}-${month}-${year}`;
   };
 
+  // Convert date to YYYY-MM-DD format for input field
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  };
+
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
   };
@@ -281,6 +300,102 @@ const ViewTraineeTestAllotment = () => {
         {status}
       </span>
     );
+  };
+
+  // New function to handle extend date button click
+  const handleExtendDateClick = (allotment) => {
+    setSelectedAllotment(allotment);
+    setNewEndDate(formatDateForInput(allotment.endDate));
+    setExtendReason("");
+    setModalMessage("");
+    setModalMessageType("");
+    setShowExtendModal(true);
+  };
+
+  // New function to handle date extension submission
+  const handleExtendDate = async () => {
+    // Clear previous messages
+    setModalMessage("");
+    setModalMessageType("");
+
+    if (!newEndDate) {
+      setModalMessage("Please provide new end date for extension.");
+      setModalMessageType("error");
+      return;
+    }
+
+    const currentEndDate = new Date(selectedAllotment.endDate);
+    const selectedNewDate = new Date(newEndDate);
+    
+    if (selectedNewDate <= currentEndDate) {
+      setModalMessage("New end date must be after the current end date.");
+      setModalMessageType("error");
+      return;
+    }
+
+    try {
+      setExtending(true);
+      const { user, token } = getUserData();
+      
+      const response = await axios.post(EXTEND_TEST_END_DATE_URL, {
+        user,
+        token,
+        testAllotmentId: selectedAllotment.allotmentId,
+        endDate: newEndDate,
+      });
+
+      if (response.data.response === "success") {
+        // Update the local state to reflect the change
+        const updatedResults = filteredResults.map(result => {
+          if (result.allotmentId === selectedAllotment.allotmentId) {
+            return { ...result, endDate: newEndDate };
+          }
+          return result;
+        });
+        
+        setFilteredResults(updatedResults);
+        
+        // Also update displayed results if they're being filtered
+        if (searchTerm) {
+          const updatedDisplayed = displayedResults.map(result => {
+            if (result.allotmentId === selectedAllotment.allotmentId) {
+              return { ...result, endDate: newEndDate };
+            }
+            return result;
+          });
+          setDisplayedResults(updatedDisplayed);
+        } else {
+          setDisplayedResults(updatedResults);
+        }
+
+        setModalMessage("End date extended successfully!");
+        setModalMessageType("success");
+        
+        // Auto-close modal after 2 seconds on success
+        setTimeout(() => {
+          handleCloseExtendModal();
+        }, 2000);
+      } else {
+        setModalMessage(response.data.message || "Failed to extend end date");
+        setModalMessageType("error");
+      }
+    } catch (error) {
+      console.error("Error extending end date:", error);
+      setModalMessage("Error extending end date. Please try again.");
+      setModalMessageType("error");
+    } finally {
+      setExtending(false);
+    }
+  };
+
+  // Function to close the extend modal
+  const handleCloseExtendModal = () => {
+    setShowExtendModal(false);
+    setSelectedAllotment(null);
+    setNewEndDate("");
+    setExtendReason("");
+    setModalMessage("");
+    setModalMessageType("");
   };
 
   // Toggle permission handlers
@@ -685,6 +800,7 @@ const ViewTraineeTestAllotment = () => {
                                 <span className={styles.slider}></span>
                               </label>
                             </th>
+                            <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -724,6 +840,16 @@ const ViewTraineeTestAllotment = () => {
                                   <span className={styles.slider}></span>
                                 </label>
                               </td>
+                              <td>
+                                <button
+                                  className={styles.extendButton}
+                                  onClick={() => handleExtendDateClick(result)}
+                                  disabled={extending}
+                                  title="Extend End Date"
+                                >
+                                  Extend
+                                </button>
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -746,11 +872,12 @@ const ViewTraineeTestAllotment = () => {
                             <th>Status</th>
                             <th>Show Scores</th>
                             <th>Show Detailed</th>
+                            <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr>
-                            <td colSpan="12" className={styles.noRecordsCell}>
+                            <td colSpan="13" className={styles.noRecordsCell}>
                               No records available
                             </td>
                           </tr>
@@ -763,6 +890,78 @@ const ViewTraineeTestAllotment = () => {
             </>
           )}
         </div>
+
+        {/* Extend Date Modal */}
+        {showExtendModal && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+              <div className={styles.modalHeader}>
+                <h3>Extend End Date</h3>
+                <button 
+                  className={styles.closeButton}
+                  onClick={handleCloseExtendModal}
+                  disabled={extending}
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className={styles.modalBody}>
+                {/* Message Display in Modal */}
+                {modalMessage && (
+                  <div 
+                    className={modalMessageType === "success" ? styles.successMessage : styles.errorMessage}
+                  >
+                    {modalMessage}
+                  </div>
+                )}
+
+                <div className={styles.modalRow}>
+                  <strong>Trainee:</strong> {selectedAllotment?.name}
+                </div>
+                <div className={styles.modalRow}>
+                  <strong>Test:</strong> {selectedAllotment?.testName}
+                </div>
+                <div className={styles.modalRow}>
+                  <strong>Current End Date:</strong> {formatDate(selectedAllotment?.endDate)}
+                </div>
+                
+                <div className={styles.inputGroup}>
+                  <label htmlFor="newEndDate" className={styles.inputLabel}>
+                    New End Date: <span className={styles.required}>*</span>
+                  </label>
+                  <input
+                    id="newEndDate"
+                    type="date"
+                    value={newEndDate}
+                    onChange={(e) => setNewEndDate(e.target.value)}
+                    className={styles.dateInput}
+                    min={formatDateForInput(new Date(Date.now() + 24 * 60 * 60 * 1000))} // Tomorrow
+                    disabled={extending}
+                  />
+                </div>
+
+              </div>
+              
+              <div className={styles.modalFooter}>
+                <button
+                  className={styles.cancelButton}
+                  onClick={handleCloseExtendModal}
+                  disabled={extending}
+                >
+                  Cancel
+                </button>
+                <button
+                  className={styles.confirmButton}
+                  onClick={handleExtendDate}
+                  disabled={extending || !newEndDate}
+                >
+                  {extending ? "Extending..." : "Extend Date"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

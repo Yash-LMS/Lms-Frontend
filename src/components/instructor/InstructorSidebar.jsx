@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./InstructorSidebar.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faListCheck, faFolderOpen,faRectangleList, faClipboardList, faPen } from "@fortawesome/free-solid-svg-icons";
+import { faListCheck, faFolderOpen,faRectangleList, faClipboardList, faPen, faUsers } from "@fortawesome/free-solid-svg-icons";
 
 const InstructorSidebar = ({ activeTab }) => {
     const navigate = useNavigate();
@@ -69,15 +69,29 @@ const InstructorSidebar = ({ activeTab }) => {
           </li>
           <li
             className={`${styles.navItem} ${
-              activeTab === "result" ? styles.active : ""
+              activeTab === "results" ? styles.active : ""
             }`}
           >
             <a
-              href="#result"
-              onClick={(e) => handleNavigation('/instructor/view/result', 'result', e)}
+              href="#results"
+              onClick={(e) => handleNavigation('/instructor/view/result', 'results', e)}
             >
               <FontAwesomeIcon icon={faClipboardList} />
               Test Result
+            </a>
+          </li>
+
+          <li
+            className={`${styles.navItem} ${
+              activeTab === "batches" ? styles.active : ""
+            }`}
+          >
+            <a
+              href="#batches"
+              onClick={(e) => handleNavigation('/instructor/view/batch', 'batches', e)}
+            >
+              <FontAwesomeIcon icon={faUsers} />
+              Batches
             </a>
           </li>
 

@@ -183,13 +183,23 @@ const TestAllotment = () => {
         })),
       };
 
-      await axios.post(`${ALLOT_TEST_URL}`, requestData, {
+      const response = await axios.post(`${ALLOT_TEST_URL}`, requestData, {
         headers: { "Content-Type": "application/json" },
       });
 
-      setPopupStatus("Success! Tests have been allotted.");
-      setRows([{ emailId: "", testId: "", startDate: "", endDate: "" }]);
-      setShowPopup(true);
+      if (
+        response.data &&
+        (response.data.response === "success")
+      ) {
+        setPopupStatus("Success! Tests have been allotted.");
+        setRows([{ emailId: "", testId: "", startDate: "", endDate: "" }]);
+        setShowPopup(true);
+      } else {
+        // Handle failed response
+        setPopupStatus("Failed to allot tests. Please try again.");
+        setShowPopup(true);
+        console.error("Failed to allot test:", response.data);
+      }
     } catch (error) {
       console.error("Error updating tests:", error);
       setPopupStatus("Error updating tests. Please try again.");

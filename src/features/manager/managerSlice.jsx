@@ -16,7 +16,10 @@ import {
     findCoursesCount,
     findTestsCount,
     findEmployeesCount,
-    findInternsCount
+    findInternsCount,
+    findBatches,
+    approveBatch,
+    rejectBatch
 } from './managerActions';
 
 const managerSlice = createSlice({
@@ -25,6 +28,7 @@ const managerSlice = createSlice({
         courses: [],
         users: [],
         tests: [],
+        batches: [],
         allottedCourses: [],
         courseCount: [],
         testCount: [],
@@ -165,6 +169,66 @@ const managerSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload?.message || 'Failed to reject test';
             })
+
+            .addCase(findBatches.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(findBatches.fulfilled, (state, action) => {
+                state.loading = false;
+                if (action.payload.response === 'success') {
+                    state.batches = action.payload.payload || [];
+                } else {
+                    state.error = action.payload.message || 'Failed to fetch courses';
+                }
+            })
+            .addCase(findBatches.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || 'Failed to fetch courses';
+            })
+            
+            // Approve course
+            .addCase(approveBatch.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(approveBatch.fulfilled, (state, action) => {
+                state.loading = false;
+                if (action.payload.response === 'success') {
+                    const updatedBatch = action.payload.payload || {};
+                    state.batches = state.batches.map(batch => 
+                        batch.id === updatedBatch.id ? { ...batch, batchStatus: 'approved' } : batch
+                    );
+                } else {
+                    state.error = action.payload.message || 'Failed to approve course';
+                }
+            })
+            .addCase(approveBatch.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || 'Failed to approve course';
+            })
+            
+            // Reject course
+            .addCase(rejectBatch.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(rejectBatch.fulfilled, (state, action) => {
+                state.loading = false;
+                if (action.payload.response === 'success') {
+                    const updatedBatch = action.payload.payload || {};
+                    state.batches = state.batches.map(batch => 
+                        batch.id === updatedBatch.id ? { ...batch, batchStatus: 'rejected' } : batch
+                    );
+                } else {
+                    state.error = action.payload.message || 'Failed to reject course';
+                }
+            })
+            .addCase(rejectBatch.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || 'Failed to fetch batches';
+            })
+            
             
             // Fetch user list
             .addCase(fetchUserList.pending, (state) => {

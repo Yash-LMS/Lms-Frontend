@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './ResultComponent.module.css';
 import TraineeResults from './TraineeResults';
 import AllResults from './AllResults';
+import TrpGenerator from './TrpGenerator';
 
 const ResultComponent = () => {
   const [activeView, setActiveView] = useState('all');
@@ -31,15 +32,19 @@ const ResultComponent = () => {
         >
           Show Trainee Results
         </button>
+        <button 
+          className={`${styles.actionButton} ${activeView === 'trp' ? styles.activeButton : ''}`}
+          onClick={() => handleViewChange('trp')}
+        >
+          TRP Generator
+        </button>
       </div>
       
       {/* Content area */}
       <div className={styles.contentArea}>
-        {activeView === 'all' ? (
-          <AllResults />
-        ) : (
-          <TraineeResults />
-        )}
+        {activeView === 'all' && <AllResults />}
+        {activeView === 'trainee' && <TraineeResults />}
+        {activeView === 'trp' && <TrpGenerator />}
       </div>
     </div>
   );

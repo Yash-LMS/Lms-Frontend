@@ -19,6 +19,8 @@ const Sidebar = ({ activeTab }) => {
   const navigate = useNavigate();
   const [courseBadgeCount, setCourseBadgeCount] = useState(0); // State for course requests badge count
   const [testBadgeCount, setTestBadgeCount] = useState(0); // State for test requests badge count
+  const [notActiveEmployeeCount, setNotActiveEmployeeCount] = useState(0);
+  const [notActiveInternCount, setNotActiveInternCount] = useState(0);
 
   const handleNavigation = (path, tab, e) => {
     if (e) e.preventDefault();
@@ -55,6 +57,8 @@ const Sidebar = ({ activeTab }) => {
         if (response.data && response.data.payload) {
           setCourseBadgeCount(response.data.payload.courseRequestPending || 0); // Set course badge count
           setTestBadgeCount(response.data.payload.testRequestPending || 0); // Set test badge count
+          setNotActiveEmployeeCount(response.data.payload.employeeRequestCount || 0); // Set not active count
+          setNotActiveInternCount(response.data.payload.internRequestCount || 0);
         }
       } catch (error) {
         console.error("Error fetching badge information:", error);
@@ -100,6 +104,16 @@ const Sidebar = ({ activeTab }) => {
               {testBadgeCount > 0 && (
                 <span className={styles.badge}>{testBadgeCount}</span>
               )}
+            </a>
+          </li>
+          <li className={`${styles.navItem} ${activeTab === "batchRequests" ? styles.active : ""}`}>
+            <a
+              href="#batchRequests"
+              onClick={(e) => handleNavigation('/manager/batch/requests', 'batchRequests', e)}
+              className={styles.navButton}
+            >
+              <FontAwesomeIcon icon={faBell} />
+              <span className={styles.navText}>Batch Requests</span>
             </a>
           </li>
           <li className={`${styles.navItem} ${activeTab === "allot" ? styles.active : ""}`}>
@@ -149,6 +163,9 @@ const Sidebar = ({ activeTab }) => {
             >
               <FontAwesomeIcon icon={faUsers} />
               <span className={styles.navText}>Employee Management</span>
+              {notActiveEmployeeCount > 0 && (
+                <span className={styles.badge}>{notActiveEmployeeCount}</span>
+              )}
             </a>
           </li>
           <li className={`${styles.navItem} ${activeTab === "intern" ? styles.active : ""}`}>
@@ -158,6 +175,9 @@ const Sidebar = ({ activeTab }) => {
             >
               <FontAwesomeIcon icon={faUsers} />
               <span className={styles.navText}>Intern Management</span>
+              {notActiveInternCount > 0 && (
+                <span className={styles.badge}>{notActiveInternCount}</span>
+              )}
             </a>
           </li>
         </ul>
