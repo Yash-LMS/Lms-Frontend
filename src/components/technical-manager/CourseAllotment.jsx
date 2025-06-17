@@ -119,7 +119,7 @@ const CourseAllotment = () => {
         return;
       }
 
-      await axios.post(
+      const response = await axios.post(
         `${ALLOT_COURSE_URL}`,
         {
           user: userData.user,
@@ -131,10 +131,18 @@ const CourseAllotment = () => {
         }
       );
 
-      // Always show success message and reset rows
-      setPopupStatus("Success! Courses have been allotted.");
-      setRows([{ emailId: "", courseId: "" }]); // Reset rows
-      setShowPopup(true);
+      if (response.data && (response.data.response === "success")) {
+        setPopupStatus("Success! Courses have been allotted.");
+        setRows([{ emailId: "", courseId: "" }]); // Reset rows
+        setShowPopup(true);
+      }
+      else {
+        // Handle failed response
+        setPopupStatus("Failed to allot course. Please try again.");
+        setShowPopup(true);
+        console.error("Failed to allot course:", response.data);
+      }
+      
     } catch (error) {
       console.error("Error updating courses:", error);
       setPopupStatus("Error updating courses. Please try again.");

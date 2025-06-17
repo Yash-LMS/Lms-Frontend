@@ -114,9 +114,6 @@ const Sidebar = ({ activeTab }) => {
             >
               <FontAwesomeIcon icon={faBell} />
               <span className={styles.navText}>Batch Requests</span>
-              {testBadgeCount > 0 && (
-                <span className={styles.badge}>{testBadgeCount}</span>
-              )}
             </a>
           </li>
           <li className={`${styles.navItem} ${activeTab === "allot" ? styles.active : ""}`}>
