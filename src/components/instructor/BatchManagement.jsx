@@ -89,6 +89,25 @@ const BatchManagement = () => {
     fetchBatches();
   }, []);
 
+  // Handlers for batch actions
+  const handleAddTest = (batch) => {
+    console.log("Adding test to batch:", batch);
+    // Navigate to add test page or open modal
+    // navigate(`/add-test/${batch.batchId}`);
+  };
+
+  const handleAddCourse = (batch) => {
+    console.log("Adding course to batch:", batch);
+    // Navigate to add course page or open modal
+    // navigate(`/add-course/${batch.batchId}`);
+  };
+
+  const handleAddCandidate = (batch) => {
+    console.log("Adding candidate to batch:", batch);
+    // Navigate to add candidate page or open modal
+    // navigate(`/add-candidate/${batch.batchId}`);
+  };
+
   // Create batch using axios
   const handleSubmitNewBatch = async (batchNameData) => {
     const { user, token } = getUserData();

@@ -51,6 +51,25 @@ const AddCandidateToBatch = ({
     }
   }, [isOpen, activeTab]);
 
+  // Auto-verify when uploaded candidates change
+  useEffect(() => {
+    if (uploadedCandidates.length > 0) {
+      const candidateEmails = uploadedCandidates.map(candidate => candidate.email);
+      verifyAllCandidates(candidateEmails);
+    }
+  }, [uploadedCandidates]);
+
+  // Auto-verify when selected employees change
+  useEffect(() => {
+    if (selectedEmployees.length > 0) {
+      const employeeEmails = selectedEmployees.map(emp => emp.emailId);
+      verifyAllCandidates(employeeEmails);
+    } else {
+      // Clear status when no employees selected
+      setCandidateStatus({});
+    }
+  }, [selectedEmployees]);
+
   const fetchEmployeeList = async () => {
     setLoading(true);
     setError('');
@@ -124,8 +143,8 @@ const AddCandidateToBatch = ({
           return;
         }
         
-        setUploadedCandidates(emails);
-        setSuccess(`Successfully loaded ${emails.length} candidates from file`);
+        setUploadedCandidates(candidates);
+        setSuccess(`Successfully loaded ${candidates.length} candidates from file`);
       } catch (err) {
         console.error('Error reading Excel file:', err);
         setError('Error reading Excel file. Please ensure it contains "Candidate Email" and "Candidate Name" columns.');
@@ -183,18 +202,11 @@ const AddCandidateToBatch = ({
     }
   };
 
-  const verifyAllCandidates = async () => {
+  const verifyAllCandidates = async (candidates) => {
+    if (candidates.length === 0) return;
+    
     setVerifying(true);
     setError('');
-    setSuccess(''); // Clear previous success message
-    
-    const candidates = activeTab === 'upload' ? uploadedCandidates : selectedEmployees.map(emp => emp.emailId);
-    
-    if (candidates.length === 0) {
-      setError('No candidates to verify');
-      setVerifying(false);
-      return;
-    }
     
     const statusMap = {};
     
@@ -207,11 +219,17 @@ const AddCandidateToBatch = ({
     setVerifying(false);
     
     const approvedCount = Object.values(statusMap).filter(status => status === 'approved').length;
-    setSuccess(`Verification complete. ${approvedCount} candidates are approved for batch assignment.`);
+    if (approvedCount > 0) {
+      setSuccess(`Verification complete. ${approvedCount} candidates are approved for batch assignment.`);
+    } else {
+      setError('No approved candidates found. Please check candidate eligibility.');
+    }
   };
 
   const handleSubmit = async () => {
-    const candidates = activeTab === 'upload' ? uploadedCandidates : selectedEmployees.map(emp => emp.emailId);
+    const candidates = activeTab === 'upload' 
+      ? uploadedCandidates.map(candidate => candidate.email) 
+      : selectedEmployees.map(emp => emp.emailId);
     const approvedCandidates = candidates.filter(candidate => candidateStatus[candidate] === 'approved');
     
     if (approvedCandidates.length === 0) {
@@ -406,20 +424,36 @@ const AddCandidateToBatch = ({
               
               {uploadedCandidates.length > 0 && (
                 <div className={styles['add-candidate-batch__candidate-list']}>
-                  <h4>Uploaded Candidates ({uploadedCandidates.length})</h4>
+                  <div className={styles['add-candidate-batch__list-header']}>
+                    <h4>Uploaded Candidates ({uploadedCandidates.length})</h4>
+                    {verifying && (
+                      <div className={styles['add-candidate-batch__verifying-indicator']}>
+                        <Loader className={styles['add-candidate-batch__spinner']} />
+                        <span>Verifying status...</span>
+                      </div>
+                    )}
+                  </div>
                   <div className={styles['add-candidate-batch__candidate-items']}>
-                    {uploadedCandidates.map((email, index) => (
+                    {uploadedCandidates.map((candidate, index) => (
                       <div key={index} className={styles['add-candidate-batch__candidate-item']}>
-                        <span className={styles['add-candidate-batch__candidate-email']}>{email}</span>
+                        <div className={styles['add-candidate-batch__candidate-info']}>
+                          <div className={styles['add-candidate-batch__candidate-name']}>{candidate.name || 'N/A'}</div>
+                          <div className={styles['add-candidate-batch__candidate-email']}>{candidate.email}</div>
+                        </div>
                         <div className={styles['add-candidate-batch__candidate-status']}>
-                          {candidateStatus[email] && (
+                          {candidateStatus[candidate.email] ? (
                             <>
-                              {getStatusIcon(candidateStatus[email])}
+                              {getStatusIcon(candidateStatus[candidate.email])}
                               <span className={styles['add-candidate-batch__status-text']}>
-                                {getStatusText(candidateStatus[email])}
+                                {getStatusText(candidateStatus[candidate.email])}
                               </span>
                             </>
-                          )}
+                          ) : verifying ? (
+                            <>
+                              <Loader className={styles['add-candidate-batch__status-icon']} />
+                              <span className={styles['add-candidate-batch__status-text']}>Verifying...</span>
+                            </>
+                          ) : null}
                         </div>
                       </div>
                     ))}
@@ -465,6 +499,12 @@ const AddCandidateToBatch = ({
                 <div className={styles['add-candidate-batch__selected-employees']}>
                   <div className={styles['add-candidate-batch__selected-header']}>
                     <h4>Selected Employees ({selectedEmployees.length})</h4>
+                    {verifying && (
+                      <div className={styles['add-candidate-batch__verifying-indicator']}>
+                        <Loader className={styles['add-candidate-batch__spinner']} />
+                        <span>Verifying status...</span>
+                      </div>
+                    )}
                   </div>
                   <div className={styles['add-candidate-batch__selected-list']}>
                     {selectedEmployees.map((employee) => (
@@ -478,14 +518,19 @@ const AddCandidateToBatch = ({
                         </div>
                         <div className={styles['add-candidate-batch__employee-actions']}>
                           <div className={styles['add-candidate-batch__employee-status']}>
-                            {candidateStatus[employee.emailId] && (
+                            {candidateStatus[employee.emailId] ? (
                               <>
                                 {getStatusIcon(candidateStatus[employee.emailId])}
                                 <span className={styles['add-candidate-batch__status-text']}>
                                   {getStatusText(candidateStatus[employee.emailId])}
                                 </span>
                               </>
-                            )}
+                            ) : verifying ? (
+                              <>
+                                <Loader className={styles['add-candidate-batch__status-icon']} />
+                                <span className={styles['add-candidate-batch__status-text']}>Verifying...</span>
+                              </>
+                            ) : null}
                           </div>
                           <button
                             onClick={() => removeSelectedEmployee(employee.emailId)}
@@ -520,26 +565,6 @@ const AddCandidateToBatch = ({
         )}
 
         <div className={styles['add-candidate-batch__actions']}>
-          <button
-            onClick={verifyAllCandidates}
-            disabled={
-              verifying || 
-              submitting ||
-              (activeTab === 'upload' && uploadedCandidates.length === 0) ||
-              (activeTab === 'select' && selectedEmployees.length === 0)
-            }
-            className={styles['add-candidate-batch__verify-btn']}
-          >
-            {verifying ? (
-              <>
-                <Loader className={styles['add-candidate-batch__spinner']} />
-                Verifying...
-              </>
-            ) : (
-              'Verify Status'
-            )}
-          </button>
-          
           <button
             onClick={handleSubmit}
             disabled={
