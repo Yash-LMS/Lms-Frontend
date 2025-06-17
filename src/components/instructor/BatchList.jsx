@@ -6,10 +6,12 @@ import {
   faFileText,
   faBookOpen,
   faUserPlus,
+  faEye,
 } from "@fortawesome/free-solid-svg-icons";
 import AddBatchCourseModal from "./AddBatchCourseModal";
 import AddCandidateToBatch from "./AddCandidateToBatch";
 import AddBatchTestModal from "./AddBatchTestModal";
+import ViewCandidatesModal from "./ViewCandidatesModal";
 
 const BatchList = ({
   batches,
@@ -37,6 +39,10 @@ const BatchList = ({
   //Modal state for Add Test
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
   const [selectedBatchForTest, setSelectedBatchForTest] = useState(null);
+
+  // Modal state for View Candidates
+  const [isViewCandidatesModalOpen, setIsViewCandidatesModalOpen] = useState(false);
+  const [selectedBatchForView, setSelectedBatchForView] = useState(null);
 
   // Calculate pagination
   const indexOfLastBatch = currentPage * cardsPerPage;
@@ -123,6 +129,17 @@ const BatchList = ({
     // showSuccessNotification("Candidates added to batch successfully!");
   };
 
+  // View Candidates Modal handlers
+  const handleViewCandidates = (batch) => {
+    setSelectedBatchForView(batch);
+    setIsViewCandidatesModalOpen(true);
+  };
+
+  const handleCloseViewCandidatesModal = () => {
+    setIsViewCandidatesModalOpen(false);
+    setSelectedBatchForView(null);
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -189,6 +206,13 @@ const BatchList = ({
                 <FontAwesomeIcon icon={faUserPlus} />
                 <span style={{ marginLeft: "5px" }}>Add Candidate</span>
               </button>
+              <button
+                className={styles.viewButton}
+                onClick={() => handleViewCandidates(batch)}
+              >
+                <FontAwesomeIcon icon={faEye} />
+                <span style={{ marginLeft: "5px" }}>Preview Candidates</span>
+              </button>
             </div>
           </div>
         ))}
@@ -239,6 +263,14 @@ const BatchList = ({
         batchId={selectedBatchForCandidate?.batchId}
         batchName={selectedBatchForCandidate?.batchName}
         onCandidateAdded={handleCandidateAdded}
+      />
+
+      {/* View Candidates Modal */}
+      <ViewCandidatesModal
+        isOpen={isViewCandidatesModalOpen}
+        onClose={handleCloseViewCandidatesModal}
+        batchId={selectedBatchForView?.batchId}
+        batchName={selectedBatchForView?.batchName}
       />
     </div>
   );
