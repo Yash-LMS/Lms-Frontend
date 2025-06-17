@@ -18,6 +18,7 @@ const RegisterForm = () => {
         firstName: "",
         lastName: "",
         mobileNo: "",
+        employeeId: "",
         officeId: "", 
     });
 
@@ -69,6 +70,10 @@ const RegisterForm = () => {
         } else if (name === "officeId") {
             if (!value) {
                 errorMessage = "Please select an office.";
+            }
+        }else if (name === "employeeId") {
+            if (!value) {
+                errorMessage = "Please enter an valid emlpoyeeId .";
             }
         }
 
@@ -131,6 +136,7 @@ const RegisterForm = () => {
                 firstName: "",
                 lastName: "",
                 mobileNo: "",
+                employeeId: "",
                 officeId: "", 
             });
             // Clear errors after successful submission
@@ -219,6 +225,19 @@ const RegisterForm = () => {
                             placeholder="Phone Number"
                         />
                         {formError.mobileNo && <div className={styles.errorMessage}>{formError.mobileNo}</div>}
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label className={styles.label}>Employee Id</label>
+                        <input
+                            type="integer"
+                            name="employeeId"
+                            value={formData.employeeId}
+                            onChange={handleChange}
+                            className={styles.input} 
+                            placeholder="Employee Id"
+                        />
+                        {formError.employeeId && <div className={styles.errorMessage}>{formError.employeeId}</div>}
                     </div>
 
                     <div className={styles.formGroup}>

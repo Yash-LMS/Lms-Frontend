@@ -97,7 +97,6 @@ export const REJECT_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/rejec
 export const FIND_CANDIDATE_URL = `${API_BASE_URL}/manager/trp/findCandidates`;
 export const GENERATE_TRP_URL = `${API_BASE_URL}/manager/trp/generate`;
 
-
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
 export const VIEW_ALLOTED_TEST_URL = `${API_BASE_URL}/user/viewAllotedTest`;

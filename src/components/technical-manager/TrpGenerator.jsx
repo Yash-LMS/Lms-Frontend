@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './TrpGenerator.module.css';
+import Sidebar from './Sidebar';
 import { FIND_TEST_URL, FIND_CANDIDATE_URL, GENERATE_TRP_URL } from '../../constants/apiConstants';
 
 const TrpGenerator = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState("results");
   
   // Step 1: Test selection
   const [availableTests, setAvailableTests] = useState([]);
@@ -31,7 +33,6 @@ const TrpGenerator = () => {
 
   // Fetch available tests
   const fetchTests = async () => {
-    setLoading(true);
     setError('');
     
     try {
@@ -97,11 +98,11 @@ const TrpGenerator = () => {
         setAvailableCandidates(response.data.payload || []);
         setCurrentStep(2);
       } else {
-        setError(response.data.message || 'Failed to fetch candidates');
+        setError('Failed to fetch candidates');
       }
     } catch (err) {
       console.error('Error fetching candidates:', err);
-      setError(err.response?.data?.message || 'Error fetching candidates: ' + err.message);
+      setError('Error fetching candidates: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -203,6 +204,9 @@ const TrpGenerator = () => {
 
   return (
     <div className={styles.container}>
+      <div>
+        <Sidebar activeTab={activeTab} />
+      </div>
       <div className={styles.header}>
         <h1 className={styles.title}>TRP Report Generator</h1>
         <div className={styles.stepIndicator}>
@@ -223,7 +227,6 @@ const TrpGenerator = () => {
 
       {error && (
         <div className={styles.error}>
-          <span className={styles.errorIcon}>⚠️</span>
           {error}
         </div>
       )}
