@@ -194,10 +194,10 @@ const BatchList = ({
               </button>
               <button
                 className={styles.previewButton}
-                onClick={() => handleAddCourse(batch)}
+                onClick={() => handleViewCandidates(batch)}
               >
-                <FontAwesomeIcon icon={faBookOpen} />
-                <span style={{ marginLeft: "5px" }}>Add Course</span>
+                <FontAwesomeIcon icon={faEye} />
+                <span style={{ marginLeft: "5px" }}>Preview Candidates</span>
               </button>
               <button
                 className={styles.editButton}
@@ -207,11 +207,11 @@ const BatchList = ({
                 <span style={{ marginLeft: "5px" }}>Add Candidate</span>
               </button>
               <button
-                className={styles.viewButton}
-                onClick={() => handleViewCandidates(batch)}
+                className={styles.addCourseButton}
+                onClick={() => handleAddCourse(batch)}
               >
-                <FontAwesomeIcon icon={faEye} />
-                <span style={{ marginLeft: "5px" }}>Preview Candidates</span>
+                <FontAwesomeIcon icon={faBookOpen} />
+                <span style={{ marginLeft: "5px" }}>Add Course</span>
               </button>
             </div>
           </div>

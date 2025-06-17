@@ -17,6 +17,8 @@ const TrpGenerator = () => {
   // Step 2: Candidate selection
   const [availableCandidates, setAvailableCandidates] = useState([]);
   const [selectedCandidates, setSelectedCandidates] = useState([]);
+  const [candidateSearchTerm, setCandidateSearchTerm] = useState('');
+  const [filteredCandidates, setFilteredCandidates] = useState([]);
 
   const getUserData = () => {
     try {
@@ -29,6 +31,33 @@ const TrpGenerator = () => {
       console.error("Error parsing user data:", error);
       return { user: null, token: null, role: null };
     }
+  };
+
+  // Filter candidates based on search term
+  const filterCandidates = (candidates, searchTerm) => {
+    if (!searchTerm.trim()) {
+      return candidates;
+    }
+    
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    return candidates.filter(candidate => 
+      candidate.name?.toLowerCase().includes(lowerSearchTerm) ||
+      candidate.emailId?.toLowerCase().includes(lowerSearchTerm) ||
+      candidate.officeId?.toString().toLowerCase().includes(lowerSearchTerm)
+    );
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const searchTerm = e.target.value;
+    setCandidateSearchTerm(searchTerm);
+    setFilteredCandidates(filterCandidates(availableCandidates, searchTerm));
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setCandidateSearchTerm('');
+    setFilteredCandidates(availableCandidates);
   };
 
   // Fetch available tests
@@ -95,7 +124,10 @@ const TrpGenerator = () => {
       });
       
       if (response.data.response === 'success') {
-        setAvailableCandidates(response.data.payload || []);
+        const candidates = response.data.payload || [];
+        setAvailableCandidates(candidates);
+        setFilteredCandidates(candidates);
+        setCandidateSearchTerm(''); // Reset search when fetching new candidates
         setCurrentStep(2);
       } else {
         setError('Failed to fetch candidates');
@@ -164,6 +196,8 @@ const TrpGenerator = () => {
       setSelectedCandidates([]);
       setAvailableTests([]);
       setAvailableCandidates([]);
+      setFilteredCandidates([]);
+      setCandidateSearchTerm('');
       setCurrentStep(1);
       
       // Optionally refetch tests for next use
@@ -195,6 +229,22 @@ const TrpGenerator = () => {
     } else {
       setSelectedCandidates([...selectedCandidates, candidate]);
     }
+  };
+
+  // Select all filtered candidates
+  const selectAllFilteredCandidates = () => {
+    const candidatesToAdd = filteredCandidates.filter(candidate => 
+      !selectedCandidates.some(selected => selected.emailId === candidate.emailId)
+    );
+    setSelectedCandidates([...selectedCandidates, ...candidatesToAdd]);
+  };
+
+  // Deselect all filtered candidates
+  const deselectAllFilteredCandidates = () => {
+    const filteredEmails = filteredCandidates.map(c => c.emailId);
+    setSelectedCandidates(selectedCandidates.filter(candidate => 
+      !filteredEmails.includes(candidate.emailId)
+    ));
   };
 
   // Initialize tests on component mount
@@ -281,27 +331,89 @@ const TrpGenerator = () => {
           <h2 className={styles.stepTitle}>Step 2: Select Candidates</h2>
           <p className={styles.stepDescription}>Choose the candidates for the selected tests.</p>
           
+          {/* Search Section */}
+          <div className={styles.searchSection}>
+            <div className={styles.searchContainer}>
+              <input
+                type="text"
+                placeholder="Search candidates by name, email, or office ID..."
+                value={candidateSearchTerm}
+                onChange={handleSearchChange}
+                className={styles.searchInput}
+              />
+              {candidateSearchTerm && (
+                <button 
+                  onClick={clearSearch}
+                  className={styles.clearSearchButton}
+                  title="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            
+            {/* Search Results Info */}
+            <div className={styles.searchInfo}>
+              <span>
+                Showing {filteredCandidates.length} of {availableCandidates.length} candidates
+                {candidateSearchTerm && ` for "${candidateSearchTerm}"`}
+              </span>
+              
+              {/* Bulk Selection Controls */}
+              {filteredCandidates.length > 0 && (
+                <div className={styles.bulkActions}>
+                  <button 
+                    onClick={selectAllFilteredCandidates}
+                    className={styles.bulkActionButton}
+                  >
+                    Select All
+                  </button>
+                  <button 
+                    onClick={deselectAllFilteredCandidates}
+                    className={styles.bulkActionButton}
+                  >
+                    Deselect All
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* Candidates List */}
           <div className={styles.candidateList}>
-            {availableCandidates.map((candidate) => (
-              <div
-                key={candidate.emailId}
-                className={`${styles.candidateCard} ${
-                  selectedCandidates.some(c => c.emailId === candidate.emailId) ? styles.selected : ''
-                }`}
-                onClick={() => handleCandidateSelection(candidate)}
-              >
-                <div className={styles.checkbox}>
-                  {selectedCandidates.some(c => c.emailId === candidate.emailId) && (
-                    <span className={styles.checkmark}>✓</span>
-                  )}
+            {filteredCandidates.length > 0 ? (
+              filteredCandidates.map((candidate) => (
+                <div
+                  key={candidate.emailId}
+                  className={`${styles.candidateCard} ${
+                    selectedCandidates.some(c => c.emailId === candidate.emailId) ? styles.selected : ''
+                  }`}
+                  onClick={() => handleCandidateSelection(candidate)}
+                >
+                  <div className={styles.checkbox}>
+                    {selectedCandidates.some(c => c.emailId === candidate.emailId) && (
+                      <span className={styles.checkmark}>✓</span>
+                    )}
+                  </div>
+                  <div className={styles.candidateInfo}>
+                    <h3 className={styles.candidateName}>{candidate.name}</h3>
+                    <p className={styles.candidateEmail}>{candidate.emailId}</p>
+                    <p className={styles.candidateOffice}>Office: {candidate.officeId}</p>
+                  </div>
                 </div>
-                <div className={styles.candidateInfo}>
-                  <h3 className={styles.candidateName}>{candidate.name}</h3>
-                  <p className={styles.candidateEmail}>{candidate.emailId}</p>
-                  <p className={styles.candidateOffice}>Office: {candidate.officeId}</p>
-                </div>
+              ))
+            ) : candidateSearchTerm ? (
+              <div className={styles.noResults}>
+                <p>No candidates found matching "{candidateSearchTerm}"</p>
+                <button onClick={clearSearch} className={styles.clearSearchLink}>
+                  Clear search to see all candidates
+                </button>
               </div>
-            ))}
+            ) : (
+              <div className={styles.noResults}>
+                <p>No candidates available for the selected tests.</p>
+              </div>
+            )}
           </div>
 
           {selectedCandidates.length > 0 && (
