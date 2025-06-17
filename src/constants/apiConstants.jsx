@@ -39,6 +39,7 @@ export const FIND_COURSE_FOR_BATCH_URL = `${API_BASE_URL}/batch/findCourseAllotm
 export const VERIFY_CANDIDATE_TO_BATCH_URL = `${API_BASE_URL}/batch/verifyEmployeeStatus`;
 export const FIND_TEST_FOR_BATCH_URL = `${API_BASE_URL}/batch/findTests`;
 export const FIND_EMPLOYEE_LIST_FOR_BATCH_URL = `${API_BASE_URL}/batch/findEmployeeList`;
+export const FIND_CANDIDATE_LIST_FOR_BATCH_URL = `${API_BASE_URL}/batch/candidate/view`;
 
 
 //Intern

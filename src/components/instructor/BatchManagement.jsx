@@ -71,11 +71,11 @@ const BatchManagement = () => {
         setBatches(response.data.payload || []);
         console.log("Batches fetched successfully:", response.data.payload);
       } else {
-        setError(response.data?.message || "Failed to fetch batches");
+        setError("Failed to fetch batches");
       }
     } catch (err) {
       console.error("Error fetching batches:", err);
-      setError(err.response?.data?.message || "An error occurred while fetching batches");
+      setError("An error occurred while fetching batches");
       
       if (err.response?.status === 401) {
         alert("Unauthorized access. Please log in again.");
@@ -249,15 +249,6 @@ const BatchManagement = () => {
             </select>
           </div>
         </header>
-
-        {error && (
-          <div className={styles.errorContainer}>
-            <p className={styles.errorMessage}>{error}</p>
-            <button className={styles.retryBtn} onClick={handleRetry}>
-              Retry
-            </button>
-          </div>
-        )}
 
         {(searchTerm || statusFilter !== "all") && (
           <div className={styles.searchResultsInfo}>
