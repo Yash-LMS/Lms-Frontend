@@ -404,3 +404,32 @@
       width: auto;
     }
   }
+
+  .dateFieldsContainer {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .dateFieldsContainer .formGroup {
+    flex: 1;
+  }
+  
+  .dateInput {
+    width: 93%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .dateInput:focus {
+    outline: none;
+    border-color: #8e6cef;
+    box-shadow: 0 0 0 2px rgba(200, 0, 255, 0.25);
+  }
+  
+  .dateInput:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+  }
