@@ -153,7 +153,7 @@ const BatchManagement = () => {
 
       console.log("Create batch response:", response.data);
 
-      if (response.data && response.data.status === "SUCCESS") {
+      if (response.data && response.data.response === "success") {
         setShowAddBatch(false);
         setSuccessMessage("Batch added successfully!");
         setShowSuccessModal(true);
@@ -162,12 +162,13 @@ const BatchManagement = () => {
         await fetchBatches();
         console.log("Batch created successfully:", response.data);
       } else {
-        alert(response.data?.message || "Failed to create batch");
+        const errorMessage = response.data?.message || "Failed to create batch";
+        setError(errorMessage);
       }
     } catch (err) {
       console.error("Failed to add batch:", err);
       const errorMessage = err.response?.data?.message || err.message || "An error occurred while creating the batch";
-      alert(errorMessage);
+      setError(errorMessage);
       
       if (err.response?.status === 401) {
         alert("Unauthorized access. Please log in again.");

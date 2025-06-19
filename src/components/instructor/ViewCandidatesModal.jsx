@@ -90,7 +90,6 @@ const ViewCandidatesModal = ({ isOpen, onClose, batchId, batchName }) => {
         <div className={styles.modalBody}>
           <div className={styles.batchInfo}>
             <h3>{batchName}</h3>
-            <p>Batch ID: {batchId}</p>
           </div>
 
           {loading && (
