@@ -173,10 +173,30 @@
     background-color: transparent;
     border: 1px solid var(--primary-color);
     color: var(--primary-color);
+    border-radius: 8px;
   }
   
   .previewButton:hover {
     background-color: var(--sidebar-active);
+  }
+
+  .addCourseButton {
+    background-color: #f0e6ff;
+    color: #8e6cef;
+    border: 1px solid #8e6cef;
+    border-radius: 8px;
+    padding: 0.6em 1.2em;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    flex: 1; /* Allow equal sizing */
+    min-width: 100px; /* Ensure minimum width */
+  }
+  
+  .addCourseButton:hover {
+    background-color: #e0d6ff;
   }
   
   /* Ribbon-style tag */

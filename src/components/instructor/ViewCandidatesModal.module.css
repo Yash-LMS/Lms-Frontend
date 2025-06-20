@@ -16,7 +16,7 @@
     background: white;
     border-radius: 12px;
     width: 90%;
-    max-width: 800px;
+    max-width: 900px;
     max-height: 80vh;
     display: flex;
     flex-direction: column;
@@ -172,88 +172,103 @@
     font-weight: 600;
   }
   
-  .candidatesList {
-    display: grid;
-    gap: 16px;
-    max-height: 400px;
+  /* Table Styles */
+  .tableContainer {
+    overflow-x: auto;
     overflow-y: auto;
-    padding-right: 4px;
-  }
-  
-  .candidateCard {
-    background-color: #ffffff;
-    border: 1px solid #e5e7eb;
+    max-height: 400px;
     border-radius: 8px;
-    padding: 16px;
-    transition: all 0.2s ease;
+    border: 1px solid #e5e7eb;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   }
   
-  .candidateCard:hover {
-    border-color: #8e6cef;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    transform: translateY(-1px);
+  .candidatesTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    background-color: white;
   }
   
-  .candidateInfo {
-    width: 100%;
+  .candidatesTable thead {
+    background-color: #f8fafc;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .candidatesTable th {
+    padding: 16px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .candidatesTable th:first-child {
+    width: 80px;
+    text-align: center;
+  }
+  
+  .candidatesTable th:last-child {
+    width: 120px;
+  }
+  
+  .headerIcon {
+    margin-right: 6px;
+    color: #8e6cef;
+    font-size: 0.8rem;
+  }
+  
+  .candidatesTable tbody tr {
+    transition: all 0.2s ease;
+  }
+  
+  .candidatesTable tbody tr:nth-child(even) {
+    background-color: #f9fafb;
+  }
+  
+  .candidatesTable tbody tr:hover {
+    background-color: #f0f9ff;
+    transform: scale(1.01);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .candidatesTable td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #6b7280;
+    vertical-align: middle;
+  }
+  
+  .serialNumber {
+    text-align: center;
+    font-weight: 600;
+    color: #8e6cef;
+    font-size: 0.85rem;
   }
   
   .candidateName {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
     font-weight: 600;
     color: #1f2937;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
   }
   
-  .candidateName svg {
-    margin-right: 8px;
-    color: #8e6cef;
-  }
-  
-  .candidateDetails {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  
-  .candidateDetails p {
-    margin: 0;
-    font-size: 0.9rem;
+  .candidateEmail {
     color: #6b7280;
+    font-size: 0.9rem;
   }
   
-  .candidateDetails strong {
-    color: #374151;
-    font-weight: 600;
-  }
-  
-  .statusBadge {
-    display: inline-block;
+  .candidateId {
+    color: #6b7280;
+    font-size: 0.85rem;
+    font-family: monospace;
+    background-color: #f3f4f6;
     padding: 4px 8px;
     border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    margin-top: 8px;
-    width: fit-content;
-  }
-  
-  .statusBadge.active {
-    background-color: #dcfce7;
-    color: #166534;
-  }
-  
-  .statusBadge.inactive {
-    background-color: #fef2f2;
-    color: #991b1b;
-  }
-  
-  .statusBadge.pending {
-    background-color: #fef3c7;
-    color: #92400e;
+    display: inline-block;
   }
   
   .modalFooter {
@@ -280,23 +295,28 @@
     background-color: #4b5563;
   }
   
-  /* Scrollbar styling for candidate list */
-  .candidatesList::-webkit-scrollbar {
+  /* Scrollbar styling for table container */
+  .tableContainer::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
   }
   
-  .candidatesList::-webkit-scrollbar-track {
+  .tableContainer::-webkit-scrollbar-track {
     background: #f1f5f9;
     border-radius: 3px;
   }
   
-  .candidatesList::-webkit-scrollbar-thumb {
+  .tableContainer::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 3px;
   }
   
-  .candidatesList::-webkit-scrollbar-thumb:hover {
+  .tableContainer::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
+  }
+  
+  .tableContainer::-webkit-scrollbar-corner {
+    background: #f1f5f9;
   }
   
   /* Responsive design */
@@ -319,7 +339,39 @@
       padding: 16px 20px;
     }
     
-    .candidateCard {
-      padding: 12px;
+    .candidatesTable {
+      font-size: 0.8rem;
+    }
+    
+    .candidatesTable th {
+      padding: 12px 8px;
+      font-size: 0.75rem;
+    }
+    
+    .candidatesTable td {
+      padding: 10px 8px;
+    }
+    
+    .candidatesTable th:first-child {
+      width: 60px;
+    }
+    
+    .candidateId {
+      font-size: 0.75rem;
+      padding: 2px 6px;
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .tableContainer {
+      max-height: 300px;
+    }
+    
+    .candidatesTable th:last-child {
+      width: 100px;
+    }
+    
+    .candidateEmail {
+      word-break: break-all;
     }
   }

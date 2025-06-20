@@ -3,7 +3,7 @@ import Select from "react-select";
 import axios from "axios";
 import styles from "./AddBatchTestModal.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faPlus, faMinus } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FIND_TEST_FOR_BATCH_URL , ADD_TEST_TO_BATCH_URL } from "../../constants/apiConstants";
 
 // Utility function
@@ -19,6 +19,22 @@ const getUserData = () => {
   }
 };
 
+// Utility function to format date for input (YYYY-MM-DD)
+const formatDateForInput = (date) => {
+  if (!date) return "";
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+// Utility function to get today's date in YYYY-MM-DD format
+const getTodayDate = () => {
+  const today = new Date();
+  return formatDateForInput(today);
+};
+
 const AddBatchTestModal = ({ 
   isOpen, 
   onClose, 
@@ -32,8 +48,9 @@ const AddBatchTestModal = ({
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   
-  // New state for additional fields
-  const [validity, setValidity] = useState(1);
+  // Updated state for date fields
+  const [startDate, setStartDate] = useState(getTodayDate());
+  const [endDate, setEndDate] = useState("");
   const [showResult, setShowResult] = useState("enabled");
   const [showDetailedReport, setShowDetailedReport] = useState("enabled");
 
@@ -44,8 +61,9 @@ const AddBatchTestModal = ({
       setError("");
       setSuccessMessage("");
       setSelectedTest(null);
-      // Reset new fields to default values
-      setValidity(1);
+      // Reset date fields to default values
+      setStartDate(getTodayDate());
+      setEndDate("");
       setShowResult("enabled");
       setShowDetailedReport("enabled");
     }
@@ -92,11 +110,26 @@ const AddBatchTestModal = ({
     }
   };
 
-  const handleValidityChange = (increment) => {
-    setValidity(prev => {
-      const newValue = prev + increment;
-      return newValue < 1 ? 1 : newValue;
-    });
+  // Validate date range
+  const validateDates = () => {
+    if (!startDate || !endDate) {
+      return "Both start date and end date are required";
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
+
+    if (start < today) {
+      return "Start date cannot be in the past";
+    }
+
+    if (end <= start) {
+      return "End date must be after start date";
+    }
+
+    return null;
   };
 
   const handleSubmit = async (e) => {
@@ -114,8 +147,10 @@ const AddBatchTestModal = ({
       return;
     }
 
-    if (validity < 1) {
-      setError("Validity must be at least 1 day");
+    // Validate dates
+    const dateValidationError = validateDates();
+    if (dateValidationError) {
+      setError(dateValidationError);
       setSuccessMessage("");
       return;
     }
@@ -134,7 +169,8 @@ const AddBatchTestModal = ({
         batchId: selectedBatch.batchId,
         batchTest: {
           ...selectedTest.data,
-          validity: validity,
+          startDate: new Date(startDate).toISOString(),
+          endDate: new Date(endDate).toISOString(),
           showResult: showResult,
           showDetailedReport: showDetailedReport
         }
@@ -158,7 +194,8 @@ const AddBatchTestModal = ({
         
         // Reset form
         setSelectedTest(null);
-        setValidity(1);
+        setStartDate(getTodayDate());
+        setEndDate("");
         setShowResult("enabled");
         setShowDetailedReport("enabled");
         
@@ -200,7 +237,8 @@ const AddBatchTestModal = ({
       setSelectedTest(null);
       setError("");
       setSuccessMessage("");
-      setValidity(1);
+      setStartDate(getTodayDate());
+      setEndDate("");
       setShowResult("enabled");
       setShowDetailedReport("enabled");
     }
@@ -268,38 +306,34 @@ const AddBatchTestModal = ({
               />
             </div>
 
-            {/* Validity Field */}
-            <div className={styles.formGroup}>
-              <label htmlFor="validity">Validity (Days):</label>
-              <div className={styles.counterContainer}>
-                <button
-                  type="button"
-                  className={styles.counterButton}
-                  onClick={() => handleValidityChange(-1)}
-                  disabled={validity <= 1 || submitting}
-                >
-                  <FontAwesomeIcon icon={faMinus} />
-                </button>
+            {/* Date Fields */}
+            <div className={styles.dateFieldsContainer}>
+              <div className={styles.formGroup}>
+                <label htmlFor="start-date">Start Date:</label>
                 <input
-                  id="validity"
-                  type="number"
-                  value={validity}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || 1;
-                    setValidity(value < 1 ? 1 : value);
-                  }}
-                  className={styles.counterInput}
-                  min="1"
+                  id="start-date"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className={styles.dateInput}
+                  min={getTodayDate()}
                   disabled={submitting}
+                  required
                 />
-                <button
-                  type="button"
-                  className={styles.counterButton}
-                  onClick={() => handleValidityChange(1)}
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="end-date">End Date:</label>
+                <input
+                  id="end-date"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className={styles.dateInput}
+                  min={startDate || getTodayDate()}
                   disabled={submitting}
-                >
-                  <FontAwesomeIcon icon={faPlus} />
-                </button>
+                  required
+                />
               </div>
             </div>
 

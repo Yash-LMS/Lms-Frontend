@@ -22,7 +22,6 @@ const ViewCandidatesModal = ({ isOpen, onClose, batchId, batchName }) => {
       return { user: null, token: null };
     }
   };
-  ;
 
   const fetchCandidates = async () => {
     if (!batchId) return;
@@ -91,7 +90,6 @@ const ViewCandidatesModal = ({ isOpen, onClose, batchId, batchName }) => {
         <div className={styles.modalBody}>
           <div className={styles.batchInfo}>
             <h3>{batchName}</h3>
-            <p>Batch ID: {batchId}</p>
           </div>
 
           {loading && (
@@ -126,23 +124,40 @@ const ViewCandidatesModal = ({ isOpen, onClose, batchId, batchName }) => {
                 <h4>Total Candidates: {candidates.length}</h4>
               </div>
               
-              <div className={styles.candidatesList}>
-                {candidates.map((candidate, index) => (
-                  <div key={candidate.candidateId || index} className={styles.candidateCard}>
-                    <div className={styles.candidateInfo}>
-                      <div className={styles.candidateName}>
-                        <FontAwesomeIcon icon={faUser} />
-                        <span>{candidate.name || `Candidate ${index + 1}`}</span>
-                      </div>
-                      
-                      <div className={styles.candidateDetails}>
-                        {candidate.emailId && (
-                          <p><strong>Email:</strong> {candidate.emailId}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className={styles.tableContainer}>
+                <table className={styles.candidatesTable}>
+                  <thead>
+                    <tr>
+                      <th>S.No.</th>
+                      <th>
+                        <FontAwesomeIcon icon={faUser} className={styles.headerIcon} />
+                        Name
+                      </th>
+                      <th>Email</th>
+                      <th>Employee ID</th>
+                      <th>Employee Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {candidates.map((candidate, index) => (
+                      <tr key={candidate.candidateId || index}>
+                        <td className={styles.serialNumber}>{index + 1}</td>
+                        <td className={styles.candidateName}>
+                          {candidate.name || `Candidate ${index + 1}`}
+                        </td>
+                        <td className={styles.candidateEmail}>
+                          {candidate.emailId || 'N/A'}
+                        </td>
+                        <td className={styles.candidateId}>
+                          {candidate.employeeId || 'N/A'}
+                        </td>
+                        <td className={styles.candidateEmail}>
+                          {candidate.employeeType || 'N/A'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
