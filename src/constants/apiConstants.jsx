@@ -66,6 +66,7 @@ export const REJECT_TEST_URL = `${API_BASE_URL}/manager/updateTestStatus/reject`
 export const FIND_TRAINEE_URL = `${API_BASE_URL}/manager/viewTraineeList`;
 export const FIND_COURSE_URL = `${API_BASE_URL}/manager/findCourseAllotment`;
 export const FIND_TEST_URL = `${API_BASE_URL}/manager/findTests`;
+export const FIND_BATCH_URL = `${API_BASE_URL}/manager/findBatch`;
 export const UPDATE_USER_ROLE_AND_STATUS_URL = `${API_BASE_URL}/manager/updateUserRoleAndStatus`;
 export const FIND_EMPLOYEE_LIST_URL = `${API_BASE_URL}/manager/findEmployeeList`;
 export const FIND_EMPLOYEE_INFO_URL = `${API_BASE_URL}/manager/findEmployeeInformation`;
@@ -97,6 +98,7 @@ export const REJECT_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/rejec
 
 export const FIND_CANDIDATE_URL = `${API_BASE_URL}/manager/trp/findCandidates`;
 export const GENERATE_TRP_URL = `${API_BASE_URL}/manager/trp/generate`;
+export const GENERATE_BATCH_TRP_URL = `${API_BASE_URL}/manager/trp/batch/generate`;
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;

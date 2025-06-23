@@ -206,7 +206,7 @@ const AddBatchTestModal = ({
         }, 2000);
       } else {
         // Handle failed response
-        setError("Failed to add test to batch");
+        setError(response.data.message);
         setSuccessMessage("");
         console.error("Failed to add test:", response.data);
       }

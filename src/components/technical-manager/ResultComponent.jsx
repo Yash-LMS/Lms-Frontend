@@ -4,6 +4,7 @@ import styles from './ResultComponent.module.css';
 import TraineeResults from './TraineeResults';
 import AllResults from './AllResults';
 import TrpGenerator from './TrpGenerator';
+import TrpGeneratorBatch from './TrpGeneratorBatch';
 
 const ResultComponent = () => {
   const [activeView, setActiveView] = useState('all');
@@ -36,7 +37,14 @@ const ResultComponent = () => {
           className={`${styles.actionButton} ${activeView === 'trp' ? styles.activeButton : ''}`}
           onClick={() => handleViewChange('trp')}
         >
-          TRP Generator
+          TPR Generator Individual
+        </button>
+
+              <button 
+          className={`${styles.actionButton} ${activeView === 'trp' ? styles.activeButton : ''}`}
+          onClick={() => handleViewChange('trp_batch')}
+        >
+          TPR Generator Batch
         </button>
       </div>
       
@@ -45,6 +53,7 @@ const ResultComponent = () => {
         {activeView === 'all' && <AllResults />}
         {activeView === 'trainee' && <TraineeResults />}
         {activeView === 'trp' && <TrpGenerator />}
+         {activeView === 'trp_batch' && <TrpGeneratorBatch />}
       </div>
     </div>
   );
