@@ -144,8 +144,12 @@ const CourseList = ({
             </div>
             <div className={styles.testDetails}>
               <div className={styles.courseInfo}>
-                <span className={styles.detailLabel}>Total Hours:</span>
+                <span className={styles.detailLabel}>Estimated Hours:</span>
                 <span> {course.totalHours} </span>
+              </div>
+              <div className={styles.courseInfo}>
+                <span className={styles.detailLabel}>Actual Hours:</span>
+                <span> {course.courseLengthInHours} </span>
               </div>
               <div className={styles.courseInfo}>
                 <span className={styles.detailLabel}>Status:</span>

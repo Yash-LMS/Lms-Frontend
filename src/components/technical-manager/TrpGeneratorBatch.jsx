@@ -101,13 +101,13 @@ const TrpGeneratorBatch = () => {
         user: user,
         token: token,
         officeId: officeId,
-        batchId: selectedBatchId, // Fixed typo from 'barchId' to 'batchId'
+        batchId: selectedBatchId,
       }, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        responseType: 'blob' // Important for file downloads
+        responseType: 'blob'
       });
 
       // Handle file download
@@ -161,7 +161,7 @@ const TrpGeneratorBatch = () => {
     }
   };
 
-  // Get batch status display
+  // Get batch status display and CSS class
   const getBatchStatusDisplay = (status) => {
     if (!status) return 'Unknown';
     return status.toString().replace(/_/g, ' ').toLowerCase()
@@ -170,131 +170,145 @@ const TrpGeneratorBatch = () => {
       .join(' ');
   };
 
+  const getBatchStatusClass = (status) => {
+    if (!status) return '';
+    const statusLower = status.toString().toLowerCase();
+    if (statusLower.includes('approved')) return 'approved';
+    if (statusLower.includes('pending')) return 'pending';
+    if (statusLower.includes('rejected')) return 'rejected';
+    return '';
+  };
+
+  // Get selected batch info
+  const getSelectedBatch = () => {
+    return batchList.find(batch => batch.batchId === selectedBatchId);
+  };
+
   // Initialize batches on component mount
   useEffect(() => {
     fetchBatch();
   }, []);
 
-return (
+  return (
     <div className={styles.container}>
-      <div>
-        <Sidebar activeTab={activeTab} />
-      </div>
+      <Sidebar activeTab={activeTab} />
       
       <div className={styles.header}>
-        <h3 className={styles.title}>TRP Report Generator - Batch Mode</h3>
+        <h1 className={styles.title}>TRP Report Generator - Batch Mode</h1>
+        <p className={styles.subtitle}>Generate TRP reports for selected batches</p>
       </div>
 
-      <div className={styles.mainContent}>
-        {error && (
-          <div className={styles.error}>
-            ⚠️ {error}
-          </div>
-        )}
+      {error && (
+        <div className={styles.error}>
+          ⚠️ {error}
+        </div>
+      )}
 
-        <div className={styles.stepContent}>
-          <div className={styles.stepHeader}>
-            <h2 className={styles.stepTitle}>Select Batch</h2>
-            <p className={styles.stepDescription}>Choose a batch to generate the TRP report for all candidates in that batch.</p>
+      <div className={styles.stepContent}>
+        <h2 className={styles.stepTitle}>Select Batch</h2>
+        <p className={styles.stepDescription}>
+          Choose a batch to generate the TRP report for all candidates in that batch.
+        </p>
+        
+        {/* Search Section */}
+        <div className={styles.searchSection}>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Search batches by name or ID..."
+              value={batchSearchTerm}
+              onChange={handleSearchChange}
+              className={styles.searchInput}
+            />
+            {batchSearchTerm && (
+              <button 
+                onClick={clearSearch}
+                className={styles.clearSearchButton}
+                title="Clear search"
+              >
+                ✕
+              </button>
+            )}
           </div>
           
-          {/* Search Section */}
-          <div className={styles.searchSection}>
-            <div className={styles.searchContainer}>
-              <input
-                type="text"
-                placeholder="Search batches by name or ID..."
-                value={batchSearchTerm}
-                onChange={handleSearchChange}
-                className={styles.searchInput}
-              />
-              {batchSearchTerm && (
-                <button 
-                  onClick={clearSearch}
-                  className={styles.clearSearchButton}
-                  title="Clear search"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-            
-            {/* Search Results Info */}
-            <div className={styles.searchInfo}>
-              <span>
-                Showing {filteredBatches.length} of {batchList.length} batches
-                {batchSearchTerm && ` for "${batchSearchTerm}"`}
-              </span>
-            </div>
-          </div>
-
-          {/* Scrollable Batch List */}
-          <div className={styles.batchListContainer}>
-            <div className={styles.batchGrid}>
-              {filteredBatches.length > 0 ? (
-                filteredBatches.map((batch) => (
-                  <div
-                    key={batch.batchId}
-                    className={`${styles.batchCard} ${
-                      selectedBatchId === batch.batchId ? styles.selected : ''
-                    }`}
-                    onClick={() => handleBatchSelection(batch.batchId)}
-                  >
-                    <div className={styles.checkbox}>
-                      {selectedBatchId === batch.batchId && (
-                        <span className={styles.checkmark}>✓</span>
-                      )}
-                    </div>
-                    <div className={styles.batchInfo}>
-                      <h3 className={styles.batchName}>{batch.batchName}</h3>
-                      <p className={styles.batchId}>Batch ID: {batch.batchId}</p>
-                      <p className={styles.batchDate}>Created: {formatDate(batch.createDate)}</p>
-                      <p className={styles.batchStatus}>
-                        Status: <span className={`${styles.statusBadge} ${styles[batch.batchStatus?.toLowerCase()]}`}>
-                          {getBatchStatusDisplay(batch.batchStatus)}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : batchSearchTerm ? (
-                <div className={styles.noResults}>
-                  <p>No batches found matching "{batchSearchTerm}"</p>
-                  <button onClick={clearSearch} className={styles.clearSearchLink}>
-                    Clear search to see all batches
-                  </button>
-                </div>
-              ) : (
-                <div className={styles.noResults}>
-                  <p>No batches available.</p>
-                  <button onClick={fetchBatch} className={styles.refreshButton}>
-                    🔄 Refresh Batches
-                  </button>
-                </div>
-              )}
-            </div>
+          {/* Search Results Info */}
+          <div className={styles.searchInfo}>
+            <span>
+              Showing {filteredBatches.length} of {batchList.length} batches
+              {batchSearchTerm && ` for "${batchSearchTerm}"`}
+            </span>
           </div>
         </div>
 
+        {/* Selected Batch Info */}
+        {selectedBatchId && (
+          <div className={styles.selectedInfo}>
+            <p>
+              Selected: <strong>{getSelectedBatch()?.batchName}</strong> (ID: {selectedBatchId})
+            </p>
+          </div>
+        )}
 
-      </div>
+        {/* Batch Grid */}
+        <div className={styles.batchGrid}>
+          {filteredBatches.length > 0 ? (
+            filteredBatches.map((batch) => (
+              <div
+                key={batch.batchId}
+                className={`${styles.batchCard} ${
+                  selectedBatchId === batch.batchId ? styles.selected : ''
+                }`}
+                onClick={() => handleBatchSelection(batch.batchId)}
+              >
+                <div className={styles.checkbox}>
+                  {selectedBatchId === batch.batchId && (
+                    <span className={styles.checkmark}>✓</span>
+                  )}
+                </div>
+                <div className={styles.batchInfo}>
+                  <h3 className={styles.batchName}>{batch.batchName}</h3>
+                  <p className={styles.batchId}>Batch ID: {batch.batchId}</p>
+                  <p className={styles.batchDate}>Created: {formatDate(batch.createDate)}</p>
+                  <p className={styles.batchStatus}>
+                    Status: <span className={`${styles.statusBadge} ${styles[getBatchStatusClass(batch.batchStatus)]}`}>
+                      {getBatchStatusDisplay(batch.batchStatus)}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            ))
+          ) : batchSearchTerm ? (
+            <div className={styles.noResults}>
+              <p>No batches found matching "{batchSearchTerm}"</p>
+              <button onClick={clearSearch} className={styles.clearSearchLink}>
+                Clear search to see all batches
+              </button>
+            </div>
+          ) : (
+            <div className={styles.noResults}>
+              <p>No batches available.</p>
+              <button onClick={fetchBatch} className={styles.refreshButton}>
+                🔄 Refresh Batches
+              </button>
+            </div>
+          )}
+        </div>
 
-      {/* Fixed Footer with Action Buttons */}
-      <div className={styles.footer}>
+        {/* Action Buttons */}
         <div className={styles.buttonGroup}>
           <button 
             className={styles.secondaryButton}
             onClick={fetchBatch}
             disabled={loading}
           >
-            {loading ? '🔄 Refreshing...' : '🔄 Refresh Batches'}
+            {loading ? 'Refreshing...' : 'Refresh Batches'}
           </button>
           <button 
             className={styles.primaryButton}
             onClick={generateTrpReport}
             disabled={loading || !selectedBatchId}
           >
-            {loading ? '⏳ Generating Report...' : '📊 Generate TRP Report'}
+            {loading ? 'Generating Report...' : 'Generate TRP Report'}
           </button>
         </div>
       </div>
