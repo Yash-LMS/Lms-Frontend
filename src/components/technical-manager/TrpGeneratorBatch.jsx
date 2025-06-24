@@ -122,7 +122,7 @@ const TrpGeneratorBatch = () => {
       const contentDisposition = response.headers['content-disposition'];
       const filename = contentDisposition 
         ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
-        : `TRP_Report_Batch_${selectedBatchId}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.xlsx`;
+        : `TPR_Report_Batch_${selectedBatchId}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.xlsx`;
       
       link.download = filename;
       document.body.appendChild(link);

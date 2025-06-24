@@ -183,7 +183,7 @@ const TrpGenerator = () => {
       const contentDisposition = response.headers['content-disposition'];
       const filename = contentDisposition 
         ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')
-        : `TRP_Report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.xlsx`;
+        : `TPR_Report_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.xlsx`;
       
       link.download = filename;
       document.body.appendChild(link);
@@ -204,7 +204,7 @@ const TrpGenerator = () => {
       await fetchTests();
       
     } catch (err) {
-      console.error('Error generating TRP report:', err);
+      console.error('Error generating TPR report:', err);
       setError(err.response?.data?.message || 'Error generating report: ' + err.message);
     } finally {
       setLoading(false);
