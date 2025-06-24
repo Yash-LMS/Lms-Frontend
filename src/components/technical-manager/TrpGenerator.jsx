@@ -258,7 +258,7 @@ const TrpGenerator = () => {
         <Sidebar activeTab={activeTab} />
       </div>
       <div className={styles.header}>
-        <h1 className={styles.title}>TRP Report Generator</h1>
+        <h1 className={styles.title}>TPR Report Generator</h1>
         <div className={styles.stepIndicator}>
           <div className={`${styles.step} ${currentStep >= 1 ? styles.active : ''}`}>
             <span className={styles.stepNumber}>1</span>
@@ -284,7 +284,7 @@ const TrpGenerator = () => {
       {currentStep === 1 && (
         <div className={styles.stepContent}>
           <h2 className={styles.stepTitle}>Step 1: Select Tests</h2>
-          <p className={styles.stepDescription}>Choose the tests you want to include in the TRP report.</p>
+          <p className={styles.stepDescription}>Choose the tests you want to include in the TPR report.</p>
           
           <div className={styles.testGrid}>
             {availableTests.map((test) => (
@@ -434,7 +434,7 @@ const TrpGenerator = () => {
               onClick={generateTrpReport}
               disabled={loading || selectedCandidates.length === 0}
             >
-              {loading ? 'Generating...' : 'Generate TRP Report'}
+              {loading ? 'Generating...' : 'Generate TPR Report'}
             </button>
           </div>
         </div>

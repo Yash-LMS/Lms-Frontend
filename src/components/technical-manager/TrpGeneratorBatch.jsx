@@ -135,7 +135,7 @@ const TrpGeneratorBatch = () => {
       setBatchSearchTerm('');
       
     } catch (err) {
-      console.error('Error generating TRP report:', err);
+      console.error('Error generating TPR report:', err);
       setError(err.response?.data?.message || 'Error generating report: ' + err.message);
     } finally {
       setLoading(false);
@@ -194,8 +194,8 @@ const TrpGeneratorBatch = () => {
       <Sidebar activeTab={activeTab} />
       
       <div className={styles.header}>
-        <h1 className={styles.title}>TRP Report Generator - Batch Mode</h1>
-        <p className={styles.subtitle}>Generate TRP reports for selected batches</p>
+        <h1 className={styles.title}>TPR Report Generator - Batch Mode</h1>
+        <p className={styles.subtitle}>Generate TPR reports for selected batches</p>
       </div>
 
       {error && (
@@ -207,7 +207,7 @@ const TrpGeneratorBatch = () => {
       <div className={styles.stepContent}>
         <h2 className={styles.stepTitle}>Select Batch</h2>
         <p className={styles.stepDescription}>
-          Choose a batch to generate the TRP report for all candidates in that batch.
+          Choose a batch to generate the TPR report for all candidates in that batch.
         </p>
         
         {/* Search Section */}
@@ -288,7 +288,7 @@ const TrpGeneratorBatch = () => {
             <div className={styles.noResults}>
               <p>No batches available.</p>
               <button onClick={fetchBatch} className={styles.refreshButton}>
-                🔄 Refresh Batches
+                Refresh Batches
               </button>
             </div>
           )}
@@ -308,7 +308,7 @@ const TrpGeneratorBatch = () => {
             onClick={generateTrpReport}
             disabled={loading || !selectedBatchId}
           >
-            {loading ? 'Generating Report...' : 'Generate TRP Report'}
+            {loading ? 'Generating Report...' : 'Generate TPR Report'}
           </button>
         </div>
       </div>
