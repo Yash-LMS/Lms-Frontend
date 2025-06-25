@@ -9,7 +9,6 @@ const TestResultPopup = ({ testAllotmentId, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
   const getUserData = () => {
     try {
       return {
@@ -22,7 +21,6 @@ const TestResultPopup = ({ testAllotmentId, onClose }) => {
       return { user: null, token: null, role: null };
     }
   };
-
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -83,7 +81,10 @@ const TestResultPopup = ({ testAllotmentId, onClose }) => {
         className={`${styles.option} ${option.isCorrect ? styles.correct : ''} ${option.isChosen ? styles.chosen : ''}`}
       >
         <span className={styles.optionLabel}>{getOptionLabel(option.key)}</span>
-        <span className={styles.optionText}>{option.value}</span>
+        <div 
+          className={styles.optionText}
+          dangerouslySetInnerHTML={{ __html: option.value }}
+        />
         {option.isCorrect && <span className={styles.correctMark}>✓</span>}
         {option.isChosen && !option.isCorrect && <span className={styles.incorrectMark}>✗</span>}
       </div>
@@ -110,29 +111,29 @@ const TestResultPopup = ({ testAllotmentId, onClose }) => {
               resultData.map((item, index) => (
                 <div key={index} className={styles.questionCard}>
                   <div className={styles.questionHeader}>
-                    <span className={styles.questionNumber}>Question {item.evaluation.sno}</span>
+                    <span className={styles.questionNumber}>Question {index + 1}</span>
                     <span
-  className={`${styles.status} ${
-    item.evaluation.questionStatus === "not_attempted"
-      ? styles.statusNotAttempted
-      : item.evaluation.answerStatus === "correct"
-      ? styles.statusCorrect
-      : styles.statusIncorrect
-  }`}
->
-  {item.evaluation.questionStatus === "not_attempted"
-    ? "Not Attempted"
-    : item.evaluation.answerStatus === "correct"
-    ? "Correct"
-    : "Incorrect"}
-</span>
-
+                      className={`${styles.status} ${
+                        item.evaluation.questionStatus === "not_attempted"
+                          ? styles.statusNotAttempted
+                          : item.evaluation.answerStatus === "correct"
+                          ? styles.statusCorrect
+                          : styles.statusIncorrect
+                      }`}
+                    >
+                      {item.evaluation.questionStatus === "not_attempted"
+                        ? "Not Attempted"
+                        : item.evaluation.answerStatus === "correct"
+                        ? "Correct"
+                        : "Incorrect"}
+                    </span>
                     <span className={styles.questionMarks}>{item.questionDto.marks} marks</span>
                   </div>
                   
-                  <div className={styles.questionDescription}>
-                    {item.questionDto.description}
-                  </div>
+                  <div 
+                    className={styles.questionDescription}
+                    dangerouslySetInnerHTML={{ __html: item.questionDto.description }}
+                  />
                   
                   <div className={styles.optionsContainer}>
                     {renderOptions(item.questionDto, item.evaluation)}

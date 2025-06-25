@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateTopicFile, addNewTopic, deleteTopic, deleteSection, viewCourseDetails } from "../../features/course/courseActions";
 import styles from "./EditSectionModal.module.css";
 import axios from "axios";
+import { TEST_INSTRUCTOR_URL } from "../../constants/apiConstants";
 
 const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
   const dispatch = useDispatch();
@@ -43,8 +44,7 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
         return;
       }
   
-      const response = await axios.post(
-        "http://localhost:8080/lms/api/test/findTests",
+      const response = await axios.post(`${TEST_INSTRUCTOR_URL}`,
         {
           user: user,
           token: token
