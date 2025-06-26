@@ -344,7 +344,10 @@ const ManagerDashboard = () => {
                         <strong>Instructor:</strong> {item.instructor}
                       </p>
                       <p>
-                        <strong>Total Hours:</strong> {item.totalHours}
+                        <strong>Estimated Hours:</strong> {item.totalHours}
+                      </p>
+                      <p>
+                        <strong>Actual Hours: </strong> {item.courseLengthInHours}
                       </p>
                       <p>
                         <strong>Course Status:</strong>{" "}

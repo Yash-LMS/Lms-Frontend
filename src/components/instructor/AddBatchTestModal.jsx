@@ -117,16 +117,11 @@ const AddBatchTestModal = ({
     }
 
     const start = new Date(startDate);
-    const end = new Date(endDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset time to start of day
 
     if (start < today) {
       return "Start date cannot be in the past";
-    }
-
-    if (end <= start) {
-      return "End date must be after start date";
     }
 
     return null;
