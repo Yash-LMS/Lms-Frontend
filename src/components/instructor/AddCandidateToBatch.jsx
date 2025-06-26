@@ -250,7 +250,7 @@ const AddCandidateToBatch = ({
       });
       
       if (response.data.response === 'success') {
-        setSuccess(`Successfully added ${approvedCandidates.length} candidates to batch`);
+        setSuccess(response.data.message);
         
         // Call the callback if provided
         if (onCandidateAdded) {
@@ -262,7 +262,7 @@ const AddCandidateToBatch = ({
           handleClose();
         }, 2000);
       } else {
-        setError('Failed to add candidates to batch');
+        setError(response.data.message || 'Failed to add candidates to batch');
       }
     } catch (err) {
       console.error('Error adding candidates to batch:', err);
