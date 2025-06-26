@@ -8,6 +8,7 @@ import {
   FIND_INTERN_IMAGE_URL,
   UPDATE_COMPLETION_STATUS_URL,
   UPDATE_INTERN_FEEDBACK_URL,
+  INTERN_FEEDBACK_VIEW_URL,
 } from "../../constants/apiConstants";
 import { findInternsCount } from "../../features/manager/managerActions";
 import Sidebar from "./Sidebar";
@@ -35,13 +36,19 @@ const InternManagement = () => {
   const [feedback, setFeedback] = useState("");
   const [selectedNewCompletionStatus, setSelectedNewCompletionStatus] =
     useState("");
-  
+
   // New state for date filtering
   const [startDateFilter, setStartDateFilter] = useState("");
   const [endDateFilter, setEndDateFilter] = useState("");
   const [showDateFilters, setShowDateFilters] = useState(false);
-  
+
   const { internCount } = useSelector((state) => state.manager);
+
+  const [showViewFeedbackModal, setShowViewFeedbackModal] = useState(false);
+  const [viewFeedbackData, setViewFeedbackData] = useState(null);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [hoveredImage, setHoveredImage] = useState(null);
+  const [imageHoverPosition, setImageHoverPosition] = useState({ x: 0, y: 0 });
 
   const statusOptions = [
     { value: "active", label: "Active" },
@@ -178,6 +185,36 @@ const InternManagement = () => {
       setInternImages(imagesMap);
     } catch (error) {
       console.error("Error fetching intern images:", error);
+    }
+  };
+
+  const handleViewFeedback = async (intern) => {
+    setFeedbackLoading(true);
+    try {
+      const { user, token } = getUserData();
+
+      const response = await axios.post(INTERN_FEEDBACK_VIEW_URL, {
+        user,
+        token,
+        emailId: intern.emailId,
+      });
+
+      console.log(response.data);
+
+      if (response.data && response.data.response === "success") {
+        setViewFeedbackData(response.data.payload);
+        setSelectedIntern(intern);
+
+        setShowViewFeedbackModal(true);
+      } else {
+        setViewFeedbackData(null);
+        alert("No feedback found for this intern.");
+      }
+    } catch (error) {
+      console.error("Error fetching intern feedback:", error);
+      alert("Failed to fetch feedback data");
+    } finally {
+      setFeedbackLoading(false);
     }
   };
 
@@ -369,17 +406,18 @@ const InternManagement = () => {
 
     // Apply date filters
     let matchesDateFilter = true;
-    
+
     if (startDateFilter || endDateFilter) {
       const internStartDate = new Date(intern.startDate);
       const internEndDate = new Date(intern.endDate);
-      
+
       if (startDateFilter) {
         const filterStartDate = new Date(startDateFilter);
         // Check if intern's start date is on or after the filter start date
-        matchesDateFilter = matchesDateFilter && internStartDate >= filterStartDate;
+        matchesDateFilter =
+          matchesDateFilter && internStartDate >= filterStartDate;
       }
-      
+
       if (endDateFilter) {
         const filterEndDate = new Date(endDateFilter);
         // Check if intern's end date is on or before the filter end date
@@ -414,7 +452,7 @@ const InternManagement = () => {
     endDate: "End Date",
     duration: "Duration (in months)",
     status: "Account Status",
-    completionStatus: "Completion Status"
+    completionStatus: "Completion Status",
   };
 
   const handleFilterChange = (e) => {
@@ -430,29 +468,39 @@ const InternManagement = () => {
   const getNoDataMessage = () => {
     if (searchTerm) {
       return "No results found. Try a different search term.";
-    } else if (selectedStatus !== "all" || selectedCompletionStatus !== "all" || hasActiveDateFilters()) {
+    } else if (
+      selectedStatus !== "all" ||
+      selectedCompletionStatus !== "all" ||
+      hasActiveDateFilters()
+    ) {
       let message = "No interns found with ";
       let filters = [];
 
       if (selectedStatus !== "all") {
-        filters.push(`status "${
-          statusOptions.find((option) => option.value === selectedStatus)
-            ?.label || selectedStatus
-        }"`);
+        filters.push(
+          `status "${
+            statusOptions.find((option) => option.value === selectedStatus)
+              ?.label || selectedStatus
+          }"`
+        );
       }
 
       if (selectedCompletionStatus !== "all") {
-        filters.push(`completion status "${
-          completionStatusOptions.find(
-            (option) => option.value === selectedCompletionStatus
-          )?.label || selectedCompletionStatus
-        }"`);
+        filters.push(
+          `completion status "${
+            completionStatusOptions.find(
+              (option) => option.value === selectedCompletionStatus
+            )?.label || selectedCompletionStatus
+          }"`
+        );
       }
 
       if (hasActiveDateFilters()) {
         let dateFilterText = "date range";
         if (startDateFilter && endDateFilter) {
-          dateFilterText = `dates between ${formatDate(startDateFilter)} and ${formatDate(endDateFilter)}`;
+          dateFilterText = `dates between ${formatDate(
+            startDateFilter
+          )} and ${formatDate(endDateFilter)}`;
         } else if (startDateFilter) {
           dateFilterText = `start date from ${formatDate(startDateFilter)}`;
         } else if (endDateFilter) {
@@ -505,6 +553,19 @@ const InternManagement = () => {
   const handleImageError = (e) => {
     e.target.src = "/placeholder-profile.png"; // Replace with your default placeholder image path
     e.target.classList.add(styles.placeholderImage);
+  };
+
+  const handleImageHover = (imageUrl, event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setImageHoverPosition({
+      x: rect.right + 10, // Position to the right of the image
+      y: rect.top,
+    });
+    setHoveredImage(imageUrl);
+  };
+
+  const handleImageLeave = () => {
+    setHoveredImage(null);
   };
 
   return (
@@ -561,7 +622,9 @@ const InternManagement = () => {
               ))}
             </select>
 
-            <label className={styles.filterLabel}>Filter by Completion Status:</label>
+            <label className={styles.filterLabel}>
+              Filter by Completion Status:
+            </label>
             <select
               value={selectedCompletionStatus}
               onChange={handleCompletionFilterChange}
@@ -577,14 +640,18 @@ const InternManagement = () => {
 
             {/* Date Filter Toggle Button */}
             <button
-              className={`${styles.dateFilterToggle} ${showDateFilters ? styles.active : ''}`}
+              className={`${styles.dateFilterToggle} ${
+                showDateFilters ? styles.active : ""
+              }`}
               onClick={() => setShowDateFilters(!showDateFilters)}
             >
-              Date Filter {hasActiveDateFilters() ? '●' : ''}
+              Date Filter {hasActiveDateFilters() ? "●" : ""}
             </button>
 
             {/* Clear all filters button */}
-            {(selectedStatus !== "all" || selectedCompletionStatus !== "all" || hasActiveDateFilters()) && (
+            {(selectedStatus !== "all" ||
+              selectedCompletionStatus !== "all" ||
+              hasActiveDateFilters()) && (
               <button
                 className={styles.clearFiltersButton}
                 onClick={() => {
@@ -600,61 +667,60 @@ const InternManagement = () => {
           </div>
         </div>
 
-        
         {/* Date Filter Section */}
         {showDateFilters && (
-            <div className={styles.dateFilterSection}>
-              <div className={styles.dateFilterGroup}>
-                <div className={styles.dateInputGroup}>
-                  <label htmlFor="startDateFilter">Start Date From:</label>
-                  <input
-                    type="date"
-                    id="startDateFilter"
-                    value={startDateFilter}
-                    onChange={(e) => setStartDateFilter(e.target.value)}
-                    className={styles.dateInput}
-                  />
-                </div>
-                <div className={styles.dateInputGroup}>
-                  <label htmlFor="endDateFilter">End Date Until:</label>
-                  <input
-                    type="date"
-                    id="endDateFilter"
-                    value={endDateFilter}
-                    onChange={(e) => setEndDateFilter(e.target.value)}
-                    className={styles.dateInput}
-                  />
-                </div>
-                {hasActiveDateFilters() && (
-                  <button
-                    className={styles.clearDateFiltersButton}
-                    onClick={clearDateFilters}
-                  >
-                    Clear Date Filters
-                  </button>
-                )}
+          <div className={styles.dateFilterSection}>
+            <div className={styles.dateFilterGroup}>
+              <div className={styles.dateInputGroup}>
+                <label htmlFor="startDateFilter">Start Date From:</label>
+                <input
+                  type="date"
+                  id="startDateFilter"
+                  value={startDateFilter}
+                  onChange={(e) => setStartDateFilter(e.target.value)}
+                  className={styles.dateInput}
+                />
+              </div>
+              <div className={styles.dateInputGroup}>
+                <label htmlFor="endDateFilter">End Date Until:</label>
+                <input
+                  type="date"
+                  id="endDateFilter"
+                  value={endDateFilter}
+                  onChange={(e) => setEndDateFilter(e.target.value)}
+                  className={styles.dateInput}
+                />
               </div>
               {hasActiveDateFilters() && (
-                <div className={styles.activeDateFilters}>
-                  <span>Active date filters: </span>
-                  {startDateFilter && (
-                    <span className={styles.filterTag}>
-                      Start from: {formatDate(startDateFilter)}
-                    </span>
-                  )}
-                  {endDateFilter && (
-                    <span className={styles.filterTag}>
-                      End until: {formatDate(endDateFilter)}
-                    </span>
-                  )}
-                </div>
+                <button
+                  className={styles.clearDateFiltersButton}
+                  onClick={clearDateFilters}
+                >
+                  Clear Date Filters
+                </button>
               )}
             </div>
-          )}
-
-          <div className={styles.searchResultCount}>
-            Found <span>{filteredInterns.length}</span> results
+            {hasActiveDateFilters() && (
+              <div className={styles.activeDateFilters}>
+                <span>Active date filters: </span>
+                {startDateFilter && (
+                  <span className={styles.filterTag}>
+                    Start from: {formatDate(startDateFilter)}
+                  </span>
+                )}
+                {endDateFilter && (
+                  <span className={styles.filterTag}>
+                    End until: {formatDate(endDateFilter)}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
+        )}
+
+        <div className={styles.searchResultCount}>
+          Found <span>{filteredInterns.length}</span> results
+        </div>
 
         <div className={styles.exportExcel}>
           <ExportToExcel
@@ -703,12 +769,23 @@ const InternManagement = () => {
                               alt={`${intern.firstName}'s profile`}
                               className={styles.profileImage}
                               onError={handleImageError}
+                              onMouseEnter={(e) =>
+                                handleImageHover(
+                                  internImages[intern.emailId],
+                                  e
+                                )
+                              }
+                              onMouseLeave={handleImageLeave}
                             />
                           ) : (
                             <img
                               src="/placeholder-profile.png"
                               alt={`${intern.firstName}'s profile`}
                               className={`${styles.profileImage} ${styles.placeholderImage}`}
+                              onMouseEnter={(e) =>
+                                handleImageHover("/placeholder-profile.png", e)
+                              }
+                              onMouseLeave={handleImageLeave}
                             />
                           )}
                         </td>
@@ -788,6 +865,16 @@ const InternManagement = () => {
                                 </option>
                               ))}
                             </select>
+
+                            {/* Add this new button */}
+                            <button
+                              className={styles.feedbackButton}
+                              onClick={() => handleViewFeedback(intern)}
+                              disabled={feedbackLoading}
+                              title="View Feedback"
+                            >
+                              Feedback
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -884,6 +971,65 @@ const InternManagement = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* View Feedback Modal */}
+      {showViewFeedbackModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <h2 className={styles.modalTitle}>
+              Feedback for {selectedIntern?.firstName}{" "}
+              {selectedIntern?.lastName}
+            </h2>
+            <div className={styles.feedbackContent}>
+              {viewFeedbackData ? (
+                <div className={styles.feedbackDisplay}>
+                  <div className={styles.feedbackText}>
+                    {viewFeedbackData || "No feedback available"}
+                  </div>
+                  {viewFeedbackData.createdDate && (
+                    <div className={styles.feedbackDate}>
+                      Date: {formatDate(viewFeedbackData.createdDate)}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className={styles.noFeedback}>
+                  No feedback available for this intern.
+                </div>
+              )}
+            </div>
+            <div className={styles.modalButtons}>
+              <button
+                className={styles.cancelButton}
+                onClick={() => {
+                  setShowViewFeedbackModal(false);
+                  setViewFeedbackData(null);
+                  setSelectedIntern(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Hover Overlay */}
+      {hoveredImage && (
+        <div
+          className={styles.imageHoverOverlay}
+          style={{
+            left: imageHoverPosition.x,
+            top: imageHoverPosition.y,
+          }}
+        >
+          <img
+            src={hoveredImage}
+            alt="Full size profile"
+            className={styles.hoverImage}
+          />
         </div>
       )}
 
