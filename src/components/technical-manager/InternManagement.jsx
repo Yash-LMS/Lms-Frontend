@@ -452,6 +452,8 @@ const InternManagement = () => {
     startDate: "Start Date",
     endDate: "End Date",
     duration: "Duration (in months)",
+    remark: "Remark",
+    feedback: "Feedback",
     status: "Account Status",
     completionStatus: "Completion Status",
   };
