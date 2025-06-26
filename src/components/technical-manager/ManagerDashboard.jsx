@@ -53,6 +53,29 @@ const ManagerDashboard = () => {
   const typeOptions = ["course", "test", "categories"];
   const viewOptions = ["card", "table"];
 
+  // Function to format hours (e.g., 3.2 -> "3 hours 12 minutes")
+  const formatHours = (decimalHours) => {
+    if (!decimalHours || decimalHours === 0) {
+      return "0 minutes";
+    }
+    
+    const hours = Math.floor(decimalHours);
+    const minutes = Math.round((decimalHours - hours) * 60);
+    
+    let result = "";
+    
+    if (hours > 0) {
+      result += `${hours} hour${hours !== 1 ? 's' : ''}`;
+    }
+    
+    if (minutes > 0) {
+      if (result) result += " ";
+      result += `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    }
+    
+    return result || "0 minutes";
+  };
+
   const getUserData = () => {
     try {
       return {
@@ -347,7 +370,7 @@ const ManagerDashboard = () => {
                         <strong>Estimated Hours:</strong> {item.totalHours}
                       </p>
                       <p>
-                        <strong>Actual Hours: </strong> {item.courseLengthInHours}
+                        <strong>Actual Hours: </strong> {formatHours(item.courseLengthInHours)}
                       </p>
                       <p>
                         <strong>Course Status:</strong>{" "}
