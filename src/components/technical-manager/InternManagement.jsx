@@ -756,6 +756,7 @@ const InternManagement = () => {
                     <th>Start Date</th>
                     <th>End Date</th>
                     <th>Duration (in months)</th>
+                    <th>Remark</th>
                     <th>Account Status</th>
                     <th>Completion Status</th>
                     <th>Action</th>
@@ -802,6 +803,7 @@ const InternManagement = () => {
                         <td>{formatDate(intern.startDate)}</td>
                         <td>{formatDate(intern.endDate)}</td>
                         <td>{intern.duration}</td>
+                        <td>{intern.remark}</td>
                         <td>
                           <span
                             className={`${styles.statusBadge} ${
