@@ -395,36 +395,37 @@ const InternManagement = () => {
 
   // Enhanced filtering function with date filters
   const filteredInterns = interns.filter((intern) => {
-    // Apply the search filter
+    // Apply the search filter with null/undefined handling
     const matchesSearch =
+      !searchTerm || // Handle null/undefined searchTerm
       searchTerm.trim() === "" ||
-      intern.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      intern.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      intern.emailId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      intern.institution.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      intern.internshipProgram.toLowerCase().includes(searchTerm.toLowerCase());
-
+      (intern.firstName && intern.firstName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (intern.lastName && intern.lastName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (intern.emailId && intern.emailId.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (intern.institution && intern.institution.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (intern.internshipProgram && intern.internshipProgram.toLowerCase().includes(searchTerm.toLowerCase()));
+  
     // Apply date filters
     let matchesDateFilter = true;
-
+  
     if (startDateFilter || endDateFilter) {
       const internStartDate = new Date(intern.startDate);
       const internEndDate = new Date(intern.endDate);
-
+  
       if (startDateFilter) {
         const filterStartDate = new Date(startDateFilter);
         // Check if intern's start date is on or after the filter start date
         matchesDateFilter =
           matchesDateFilter && internStartDate >= filterStartDate;
       }
-
+  
       if (endDateFilter) {
         const filterEndDate = new Date(endDateFilter);
         // Check if intern's end date is on or before the filter end date
         matchesDateFilter = matchesDateFilter && internEndDate <= filterEndDate;
       }
     }
-
+  
     return matchesSearch && matchesDateFilter;
   });
 
