@@ -82,6 +82,7 @@ export const ADD_OFFICE_URL = `${API_BASE_URL}/manager/addOffice`;
 export const CREATE_QUESTION_CATEGORY_URL = `${API_BASE_URL}/manager/createCategory`;
 export const FIND_TRAINEE_RESULT_URL = `${API_BASE_URL}/manager/test/detail/result`;
 export const EXTEND_TEST_END_DATE_URL = `${API_BASE_URL}/manager/test/extendDueDate`;
+export const INTERN_FEEDBACK_VIEW_URL = `${API_BASE_URL}/manager/view/internFeedback`;
 
 export const SHOW_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/permission/showResult`;
 export const SHOW_DETAIL_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/permission/showDetailResult`;

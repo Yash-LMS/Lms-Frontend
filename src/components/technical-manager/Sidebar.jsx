@@ -19,6 +19,7 @@ const Sidebar = ({ activeTab }) => {
   const navigate = useNavigate();
   const [courseBadgeCount, setCourseBadgeCount] = useState(0); // State for course requests badge count
   const [testBadgeCount, setTestBadgeCount] = useState(0); // State for test requests badge count
+  const [batchBadgeCount, setBatchBadgeCount] = useState(0);
   const [notActiveEmployeeCount, setNotActiveEmployeeCount] = useState(0);
   const [notActiveInternCount, setNotActiveInternCount] = useState(0);
 
@@ -57,6 +58,7 @@ const Sidebar = ({ activeTab }) => {
         if (response.data && response.data.payload) {
           setCourseBadgeCount(response.data.payload.courseRequestPending || 0); // Set course badge count
           setTestBadgeCount(response.data.payload.testRequestPending || 0); // Set test badge count
+          setBatchBadgeCount(response.data.payload.batchRequestPending || 0);
           setNotActiveEmployeeCount(response.data.payload.employeeRequestCount || 0); // Set not active count
           setNotActiveInternCount(response.data.payload.internRequestCount || 0);
         }
@@ -114,6 +116,9 @@ const Sidebar = ({ activeTab }) => {
             >
               <FontAwesomeIcon icon={faBell} />
               <span className={styles.navText}>Batch Requests</span>
+              {batchBadgeCount > 0 && (
+                <span className={styles.badge}>{batchBadgeCount}</span>
+              )}
             </a>
           </li>
           <li className={`${styles.navItem} ${activeTab === "allot" ? styles.active : ""}`}>

@@ -156,9 +156,7 @@ const AddCandidateToBatch = ({
 
   const downloadExcelTemplate = () => {
     const templateData = [
-      { 'Candidate Email': 'john.doe@company.com', 'Candidate Name': 'John Doe' },
-      { 'Candidate Email': 'jane.smith@company.com', 'Candidate Name': 'Jane Smith' },
-      { 'Candidate Email': 'robert.johnson@company.com', 'Candidate Name': 'Robert Johnson' }
+      { 'Candidate Email': '', 'Candidate Name': '' },
     ];
     
     const workbook = XLSX.utils.book_new();

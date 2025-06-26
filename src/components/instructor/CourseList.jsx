@@ -28,6 +28,29 @@ const CourseList = ({
   const currentCourses = courses ? courses.slice(indexOfFirstCourse, indexOfLastCourse) : [];
   const totalPages = courses ? Math.ceil(courses.length / cardsPerPage) : 0;
 
+  // Function to format hours (e.g., 3.2 -> "3 hours 12 minutes")
+  const formatHours = (decimalHours) => {
+    if (!decimalHours || decimalHours === 0) {
+      return "0 minutes";
+    }
+    
+    const hours = Math.floor(decimalHours);
+    const minutes = Math.round((decimalHours - hours) * 60);
+    
+    let result = "";
+    
+    if (hours > 0) {
+      result += `${hours} hour${hours !== 1 ? 's' : ''}`;
+    }
+    
+    if (minutes > 0) {
+      if (result) result += " ";
+      result += `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    }
+    
+    return result || "0 minutes";
+  };
+
   // Pagination handlers
   const nextPage = () => {
     if (currentPage < totalPages) {
@@ -145,11 +168,11 @@ const CourseList = ({
             <div className={styles.testDetails}>
               <div className={styles.courseInfo}>
                 <span className={styles.detailLabel}>Estimated Hours:</span>
-                <span> {course.totalHours} </span>
+                <span> {formatHours(course.totalHours)} </span>
               </div>
               <div className={styles.courseInfo}>
                 <span className={styles.detailLabel}>Actual Hours:</span>
-                <span> {course.courseLengthInHours} </span>
+                <span> {formatHours(course.courseLengthInHours)} </span>
               </div>
               <div className={styles.courseInfo}>
                 <span className={styles.detailLabel}>Status:</span>
