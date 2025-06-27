@@ -370,6 +370,29 @@
   .bulkRegisterButton:active {
     transform: translateY(0);
   }
+
+  .bulkButton {
+    background-color: #8e6cef;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    white-space: nowrap;
+    margin-bottom: 10px;
+    margin-left: 10px;
+  }
+  
+  .bulkButton:hover {
+    background-color: #7559ce;
+    transform: translateY(-1px);
+  }
+  
+  .bulkButton:active {
+    transform: translateY(0);
+  }
   
   /* Responsive styles */
   @media (max-width: 1024px) {

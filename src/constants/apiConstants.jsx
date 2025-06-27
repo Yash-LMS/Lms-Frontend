@@ -101,6 +101,8 @@ export const FIND_CANDIDATE_URL = `${API_BASE_URL}/manager/trp/findCandidates`;
 export const GENERATE_TRP_URL = `${API_BASE_URL}/manager/trp/generate`;
 export const GENERATE_BATCH_TRP_URL = `${API_BASE_URL}/manager/trp/batch/generate`;
 
+export const UPDATE_INTERN_BULK_FEEDBACK = `${API_BASE_URL}/manager/bulk/update/internRemarkAndFeedback`;
+
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
 export const VIEW_ALLOTED_TEST_URL = `${API_BASE_URL}/user/viewAllotedTest`;
