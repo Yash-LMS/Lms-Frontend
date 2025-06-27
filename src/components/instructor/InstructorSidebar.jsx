@@ -88,7 +88,7 @@ const InstructorSidebar = ({ activeTab }) => {
           >
             <a
               href="#batches"
-              onClick={(e) => handleNavigation('/instructor/view/batch', 'batches', e)}
+              onClick={(e) => handleNavigation('/view/batch', 'batches', e)}
             >
               <FontAwesomeIcon icon={faUsers} />
               Batches
