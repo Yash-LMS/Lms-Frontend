@@ -41,9 +41,7 @@ const InternManagement = () => {
   const [startDateFilter, setStartDateFilter] = useState("");
   const [endDateFilter, setEndDateFilter] = useState("");
   const [showDateFilters, setShowDateFilters] = useState(false);
-
   const { internCount } = useSelector((state) => state.manager);
-
   const [showViewFeedbackModal, setShowViewFeedbackModal] = useState(false);
   const [viewFeedbackData, setViewFeedbackData] = useState(null);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
@@ -336,6 +334,8 @@ const InternManagement = () => {
           setSelectedIntern(null);
           setSelectedNewCompletionStatus("");
           setFeedback("");
+          fetchInterns();
+          fetchCounts();
         }
       }
     } catch (error) {
@@ -343,39 +343,44 @@ const InternManagement = () => {
     }
   };
 
-  const handleSubmitStatusChange = async () => {
-    if (!selectedIntern || !selectedNewStatus) return;
+const handleSubmitStatusChange = async () => {
+  if (!selectedIntern || !selectedNewStatus) return;
 
-    try {
-      const { user, token } = getUserData();
+  try {
+    const { user, token } = getUserData();
 
-      const response = await axios.post(UPDATE_INTERN_STATUS_URL, {
-        user,
-        token,
-        emailId: selectedIntern.emailId,
-        remark:
-          remark ||
-          `Status updated from ${selectedIntern.status} to ${selectedNewStatus}`,
-        status: selectedNewStatus,
-      });
+    const response = await axios.post(UPDATE_INTERN_STATUS_URL, {
+      user,
+      token,
+      emailId: selectedIntern.emailId,
+      remark: remark?.trim() || "", // Trim remark and handle null/undefined
+      status: selectedNewStatus,
+      systemStatus: `Status updated from ${selectedIntern.status} to ${selectedNewStatus}`,
+    });
 
-      if (response.data && response.data.response === "success") {
-        setInterns(
-          interns.map((intern) =>
-            intern.emailId === selectedIntern.emailId
-              ? { ...intern, status: selectedNewStatus }
-              : intern
-          )
-        );
-        setShowRemarkModal(false);
-        setSelectedIntern(null);
-        setSelectedNewStatus("");
-        setRemark("");
-      }
-    } catch (error) {
-      console.error("Error updating status with remark", error);
+    if (response.data && response.data.response === "success") {
+      // Update the interns list with new status
+      setInterns(
+        interns.map((intern) =>
+          intern.emailId === selectedIntern.emailId
+            ? { ...intern, status: selectedNewStatus }
+            : intern
+        )
+      );
+    } else {
+      console.error("API returned error:", response.data);
     }
-  };
+  } catch (error) {
+    console.error("Error updating status with remark:", error);
+  } finally {
+    setShowRemarkModal(false);
+    setSelectedIntern(null);
+    setSelectedNewStatus("");
+    setRemark("");
+    fetchInterns();
+    fetchCounts();
+  }
+};
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
