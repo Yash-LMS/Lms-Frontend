@@ -14,6 +14,7 @@ import { findInternsCount } from "../../features/manager/managerActions";
 import Sidebar from "./Sidebar";
 import InternBulkRegistration from "./InternBulkRegistration";
 import ExportToExcel from "../../assets/ExportToExcel";
+import InternRemarkBulkUpload from './InternRemarkBulkUpload';
 
 const InternManagement = () => {
   const dispatch = useDispatch();
@@ -47,7 +48,8 @@ const InternManagement = () => {
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [hoveredImage, setHoveredImage] = useState(null);
   const [imageHoverPosition, setImageHoverPosition] = useState({ x: 0, y: 0 });
-
+  const [showBulkUploadRemarkModal, setShowBulkUploadRemarkModal] = useState(false);
+  
   const statusOptions = [
     { value: "active", label: "Active" },
     { value: "not_active", label: "Not Active" },
@@ -611,6 +613,8 @@ const handleSubmitStatusChange = async () => {
             >
               Bulk Register
             </button>
+
+    
           </div>
         </div>
 
@@ -740,6 +744,13 @@ const handleSubmitStatusChange = async () => {
               marginBottom: "20px",
             }}
           />
+
+                              <button
+              className={styles.bulkButton}
+              onClick={() => setShowBulkUploadRemarkModal(true)}
+            >
+              Bulk Upload Remark and Feedback
+            </button>
         </div>
 
         <div className={styles.cardContent}>
@@ -1049,6 +1060,13 @@ const handleSubmitStatusChange = async () => {
           onUploadSuccess={handleBulkRegistrationSuccess}
         />
       )}
+
+{showBulkUploadRemarkModal && (
+  <InternRemarkBulkUpload
+    onClose={() => setShowBulkUploadRemarkModal(false)}
+    onSuccess={fetchInterns}
+  />
+)}
     </div>
   );
 };
