@@ -6,13 +6,14 @@ import AddBatchModal from "./AddBatchModal";
 import SuccessModal from "../../assets/SuccessModal";
 import { useNavigate } from "react-router-dom";
 import InstructorSidebar from "../instructor/InstructorSidebar";
+import Sidebar from "../technical-manager/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { CREATE_BATCH_URL, VIEW_BATCH_URL } from "../../constants/apiConstants";
 
 const BatchManagement = () => {
   const navigate = useNavigate();
-  
+
   // State management
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,24 +26,33 @@ const BatchManagement = () => {
   const [statusFilter, setStatusFilter] = useState("all");
 
   const batchStatusOptions = ["ALL", "APPROVED", "PENDING", "REJECTED"];
+  const [role, setRole] = useState();
+
+
 
   const getUserData = () => {
     try {
+      const user = JSON.parse(sessionStorage.getItem("user"));
+      const token = sessionStorage.getItem("token");
+      const role = user?.role || null; // Safe access with optional chaining
+      
       return {
-        user: JSON.parse(sessionStorage.getItem("user")),
-        token: sessionStorage.getItem("token"),
-        role: sessionStorage.getItem("role"),
+        user,
+        token,
+        role,
       };
     } catch (error) {
       console.error("Error parsing user data:", error);
       return { user: null, token: null, role: null };
     }
   };
+  
+
 
   // Fetch batches using axios
   const fetchBatches = async () => {
     const { user, token } = getUserData();
-    
+
     if (!user || !token) {
       setError("User session data is missing. Please log in again.");
       return;
@@ -57,12 +67,15 @@ const BatchManagement = () => {
         token: token,
       };
 
-      console.log("Fetching batches with data:", JSON.stringify(requestData, null, 2));
+      console.log(
+        "Fetching batches with data:",
+        JSON.stringify(requestData, null, 2)
+      );
 
       const response = await axios.post(VIEW_BATCH_URL, requestData, {
         headers: {
-          'Content-Type': 'application/json',
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       console.log("View batch response:", response.data);
@@ -76,7 +89,7 @@ const BatchManagement = () => {
     } catch (err) {
       console.error("Error fetching batches:", err);
       setError("An error occurred while fetching batches");
-      
+
       if (err.response?.status === 401) {
         alert("Unauthorized access. Please log in again.");
       }
@@ -86,9 +99,14 @@ const BatchManagement = () => {
   };
 
   useEffect(() => {
-    fetchBatches();
+    const { user, token, role } = getUserData();
+    
+    // Only set role and fetch batches if user data exists
+    if (user && role) {
+      setRole(role);
+      fetchBatches();
+    }
   }, []);
-
   // Handlers for batch actions
   const handleAddTest = (batch) => {
     console.log("Adding test to batch:", batch);
@@ -119,9 +137,13 @@ const BatchManagement = () => {
 
     // Extract the actual batch name from the data
     let actualBatchName;
-    if (typeof batchNameData === 'string') {
+    if (typeof batchNameData === "string") {
       actualBatchName = batchNameData;
-    } else if (batchNameData && batchNameData.batch && batchNameData.batch.batchName) {
+    } else if (
+      batchNameData &&
+      batchNameData.batch &&
+      batchNameData.batch.batchName
+    ) {
       actualBatchName = batchNameData.batch.batchName;
     } else if (batchNameData && batchNameData.batchName) {
       actualBatchName = batchNameData.batchName;
@@ -138,8 +160,8 @@ const BatchManagement = () => {
       user: user,
       token: token,
       batch: {
-        batchName: actualBatchName
-      }
+        batchName: actualBatchName,
+      },
     };
 
     console.log("Sending batch data:", JSON.stringify(batchData, null, 2));
@@ -147,8 +169,8 @@ const BatchManagement = () => {
     try {
       const response = await axios.post(CREATE_BATCH_URL, batchData, {
         headers: {
-          'Content-Type': 'application/json',
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       console.log("Create batch response:", response.data);
@@ -157,7 +179,7 @@ const BatchManagement = () => {
         setShowAddBatch(false);
         setSuccessMessage("Batch added successfully!");
         setShowSuccessModal(true);
-        
+
         // Refresh the batch list
         await fetchBatches();
         console.log("Batch created successfully:", response.data);
@@ -167,9 +189,12 @@ const BatchManagement = () => {
       }
     } catch (err) {
       console.error("Failed to add batch:", err);
-      const errorMessage = err.response?.data?.message || err.message || "An error occurred while creating the batch";
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "An error occurred while creating the batch";
       setError(errorMessage);
-      
+
       if (err.response?.status === 401) {
         alert("Unauthorized access. Please log in again.");
       }
@@ -214,7 +239,11 @@ const BatchManagement = () => {
 
   return (
     <div className={styles.adminDashboard}>
-      <InstructorSidebar activeTab={activeTab} />
+      {role === "technical_manager" ? (
+        <Sidebar activeTab={activeTab} />
+      ) : role === "instructor" ? (
+        <InstructorSidebar activeTab={activeTab} />
+      ) : null}
 
       <main className={styles.mainContent}>
         <header className={styles.contentHeader}>
@@ -226,7 +255,7 @@ const BatchManagement = () => {
               disabled={loading}
             >
               <FontAwesomeIcon icon={faPlus} />
-              <span style={{ marginLeft: '5px' }}>Create New Batch</span>
+              <span style={{ marginLeft: "5px" }}>Create New Batch</span>
             </button>
           </div>
           <div className={styles.headerRight}>
@@ -274,8 +303,8 @@ const BatchManagement = () => {
           </div>
         )}
 
-         {/* Add Batch Modal Component */}
-         <AddBatchModal
+        {/* Add Batch Modal Component */}
+        <AddBatchModal
           isOpen={showAddBatch}
           onClose={() => setShowAddBatch(false)}
           onSubmit={handleSubmitNewBatch}
@@ -301,4 +330,4 @@ const BatchManagement = () => {
   );
 };
 
-export default BatchManagement;     
+export default BatchManagement;

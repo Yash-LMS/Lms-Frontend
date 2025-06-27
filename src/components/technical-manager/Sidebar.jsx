@@ -121,6 +121,17 @@ const Sidebar = ({ activeTab }) => {
               )}
             </a>
           </li>
+
+          <li className={`${styles.navItem} ${activeTab === "batch" ? styles.active : ""}`}>
+            <a
+              href="#batch"
+              onClick={(e) => handleNavigation('/view/batch', 'batch', e)}
+            >
+              <FontAwesomeIcon icon={faUsers} />
+              <span className={styles.navText}>Batches</span>
+            </a>
+          </li>
+
           <li className={`${styles.navItem} ${activeTab === "allot" ? styles.active : ""}`}>
             <a
               href="#allotment"

@@ -445,7 +445,7 @@ const AppContent = () => {
           />
 
           <Route
-            path="/instructor/view/batch"
+            path="/view/batch"
             element={
               <ProtectedRoute>
                 <BatchManagement />
