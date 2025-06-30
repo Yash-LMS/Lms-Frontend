@@ -7,6 +7,7 @@ import {
   START_TEST_URL,
   SUBMIT_TEST_URL,
 } from "../../constants/apiConstants";
+import CameraView from './CameraView';
 
 const TestModule = () => {
   const [testDetails, setTestDetails] = useState(null);
@@ -42,10 +43,11 @@ const TestModule = () => {
   const[showDevToolWarning,setShowDevToolWarning]=useState(false);
   const[showTimeConfirmation,setShowTimeConfirmation]=useState(false);
   
-  const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraStream, setCameraStream] = useState(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState('');
   const [isPermissionBlocked, setIsPermissionBlocked] = useState(false);
+  const videoRef = useRef(null);
 
   useEffect(() => {}, [location.state, navigate]);
 
@@ -359,85 +361,79 @@ const TestModule = () => {
   }, [loading, testDetails, testStarted]);
   
 
-const turnOnCamera = async () => {
-  try {
-    setCameraError('');
-    setIsPermissionBlocked(false);
-    
-    // Check if permissions are already blocked
-    const permissionStatus = await navigator.permissions.query({ name: 'camera' });
-    
-    if (permissionStatus.state === 'denied') {
-      setIsPermissionBlocked(true);
-      setCameraError('Camera permission is blocked. Please enable camera access in your browser settings and refresh the page.');
-      return;
+    const turnOnCamera = async () => {
+    try {
+      setCameraError('');
+      setIsPermissionBlocked(false);
+      
+      const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+      
+      if (permissionStatus.state === 'denied') {
+        setIsPermissionBlocked(true);
+        setCameraError('Camera permission is blocked. Please enable camera access in your browser settings and refresh the page.');
+        return;
+      }
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: 'user' 
+        }, 
+        audio: false 
+      });
+      
+      // Store the stream reference
+      setCameraStream(stream);
+      setIsCameraActive(true);
+      
+    } catch (error) {
+      console.error('Camera access error:', error);
+      
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        setIsPermissionBlocked(true);
+        setCameraError('Camera access was denied. Please click the camera icon in your browser\'s address bar to allow camera access, or check your browser settings.');
+      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        setCameraError('No camera found. Please ensure a camera is connected to your device.');
+      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        setCameraError('Camera is already in use by another application. Please close other applications using the camera and try again.');
+      } else {
+        setCameraError('Unable to access camera. Please check your browser settings and try again.');
+      }
+      
+      setIsCameraActive(false);
+      setCameraStream(null);
     }
-    
-    const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: true, 
-      audio: false 
-    });
-    
-    // Store the stream reference
-    setCameraStream(stream);
-    setIsCameraActive(true);
-    
-  } catch (error) {
-    console.error('Camera access error:', error);
-    
-    if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-      setIsPermissionBlocked(true);
-      setCameraError('Camera access was denied. Please click the camera icon in your browser\'s address bar to allow camera access, or check your browser settings.');
-    } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-      setCameraError('No camera found. Please ensure a camera is connected to your device.');
-    } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-      setCameraError('Camera is already in use by another application. Please close other applications using the camera and try again.');
-    } else {
-      setCameraError('Unable to access camera. Please check your browser settings and try again.');
+  };
+
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+      setIsCameraActive(false);
+      setCameraError('');
     }
-    
-    setIsCameraActive(false);
-  }
-};
+  };
 
-// Function to retry camera access (for blocked permissions)
-const retryCameraAccess = async () => {
-  // Force a new permission request by creating a temporary stream
-  try {
-    setCameraError('');
-    
-    // This will trigger a new permission popup even if previously denied
-    const tempStream = await navigator.mediaDevices.getUserMedia({ 
-      video: { width: 1, height: 1 }, // Minimal video constraint
-      audio: false 
-    });
-    
-    // Stop the temporary stream immediately
-    tempStream.getTracks().forEach(track => track.stop());
-    
-    // Now request the actual stream
-    await turnOnCamera();
-    
-  } catch (error) {
-    console.error('Retry camera access error:', error);
-    
-    if (error.name === 'NotAllowedError') {
-      setCameraError('Camera access is still blocked. Please manually enable camera permission in your browser settings:\n\n1. Click the camera icon in the address bar\n2. Select "Allow" for camera access\n3. Refresh the page and try again');
-      setIsPermissionBlocked(true);
-    } else {
-      setCameraError('Unable to access camera. Please refresh the page and try again.');
+  const startTestInFullScreen = () => {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().then(() => {
+        setIsTestStarted(true);
+      }).catch((err) => {
+        console.error('Error entering fullscreen:', err);
+      });
     }
-  }
-};
+  };
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [cameraStream]);
 
-const stopCamera = () => {
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(track => track.stop());
-    setCameraStream(null);
-    setIsCameraActive(false);
-  }
-};
 
   // Fullscreen event listeners
   useEffect(() => {
@@ -790,6 +786,15 @@ const stopCamera = () => {
               </li>
             </ul>
           </div>
+
+        <CameraView
+          cameraStream={cameraStream}
+          isCameraActive={isCameraActive}
+          cameraError={cameraError}
+          isPermissionBlocked={isPermissionBlocked}
+          onTurnOnCamera={turnOnCamera}
+          onStopCamera={stopCamera}
+        />
 
          {cameraError && (
             <div className={styles.cameraError}>
@@ -1209,6 +1214,15 @@ const stopCamera = () => {
   </div>
 )}
 
+
+      <CameraView
+        cameraStream={cameraStream}
+        isCameraActive={isCameraActive}
+        cameraError={cameraError}
+        isPermissionBlocked={isPermissionBlocked}
+        onTurnOnCamera={turnOnCamera}
+        onStopCamera={stopCamera}
+      />
 
 
     </div>
