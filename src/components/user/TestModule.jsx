@@ -7,6 +7,7 @@ import {
   START_TEST_URL,
   SUBMIT_TEST_URL,
 } from "../../constants/apiConstants";
+import CameraView from './CameraView';
 
 const TestModule = () => {
   const [testDetails, setTestDetails] = useState(null);
@@ -41,6 +42,12 @@ const TestModule = () => {
   const[showShortcutWarning,setShowShortcutWarning]=useState(false);
   const[showDevToolWarning,setShowDevToolWarning]=useState(false);
   const[showTimeConfirmation,setShowTimeConfirmation]=useState(false);
+  
+  const [cameraStream, setCameraStream] = useState(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameraError, setCameraError] = useState('');
+  const [isPermissionBlocked, setIsPermissionBlocked] = useState(false);
+  const videoRef = useRef(null);
 
   useEffect(() => {}, [location.state, navigate]);
 
@@ -354,6 +361,79 @@ const TestModule = () => {
   }, [loading, testDetails, testStarted]);
   
 
+    const turnOnCamera = async () => {
+    try {
+      setCameraError('');
+      setIsPermissionBlocked(false);
+      
+      const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+      
+      if (permissionStatus.state === 'denied') {
+        setIsPermissionBlocked(true);
+        setCameraError('Camera permission is blocked. Please enable camera access in your browser settings and refresh the page.');
+        return;
+      }
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: 'user' 
+        }, 
+        audio: false 
+      });
+      
+      // Store the stream reference
+      setCameraStream(stream);
+      setIsCameraActive(true);
+      
+    } catch (error) {
+      console.error('Camera access error:', error);
+      
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        setIsPermissionBlocked(true);
+        setCameraError('Camera access was denied. Please click the camera icon in your browser\'s address bar to allow camera access, or check your browser settings.');
+      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        setCameraError('No camera found. Please ensure a camera is connected to your device.');
+      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        setCameraError('Camera is already in use by another application. Please close other applications using the camera and try again.');
+      } else {
+        setCameraError('Unable to access camera. Please check your browser settings and try again.');
+      }
+      
+      setIsCameraActive(false);
+      setCameraStream(null);
+    }
+  };
+
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+      setIsCameraActive(false);
+      setCameraError('');
+    }
+  };
+
+  const startTestInFullScreen = () => {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().then(() => {
+        setIsTestStarted(true);
+      }).catch((err) => {
+        console.error('Error entering fullscreen:', err);
+      });
+    }
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [cameraStream]);
+
 
   // Fullscreen event listeners
   useEffect(() => {
@@ -402,6 +482,8 @@ const TestModule = () => {
     };
   }, [loading, testDetails, fullScreenExitCount, testStarted]);
 
+
+
   const requestFullScreen = () => {
     const element = mainContainerRef.current || document.documentElement;
 
@@ -438,6 +520,13 @@ const TestModule = () => {
   };
 
   const startTest = () => {
+
+      if (!isCameraActive) {
+    setCameraError('Please turn on the camera first before starting the test.');
+    return;
+  }
+
+
     setIsTestStarted(true);
     setTestStarted(true);
     fetchTestDetails();
@@ -543,7 +632,8 @@ const TestModule = () => {
   // Modified to match the expected API format
   const handleSubmit = async (description) => {
     try {
-      // Get user data from session storage
+
+      stopCamera();
       const { user, token } = getUserData();
 
       // Format answers according to the TestEvaluationModel structure
@@ -657,7 +747,7 @@ const TestModule = () => {
   if (error) return <div className={styles.error}>{error}</div>;
 
   // If test details loaded but test not started yet, show start screen
-  if (!isTestStarted && testInformation) {
+ if (!isTestStarted && testInformation) {
     return (
       <div className={styles.startScreen} ref={mainContainerRef}>
         <div className={styles.startCard}>
@@ -696,9 +786,47 @@ const TestModule = () => {
               </li>
             </ul>
           </div>
-          <button className={styles.startButton} onClick={startTest}>
-            Start Test in Full Screen
-          </button>
+
+        <CameraView
+          cameraStream={cameraStream}
+          isCameraActive={isCameraActive}
+          cameraError={cameraError}
+          isPermissionBlocked={isPermissionBlocked}
+          onTurnOnCamera={turnOnCamera}
+          onStopCamera={stopCamera}
+        />
+
+         {cameraError && (
+            <div className={styles.cameraError}>
+              {cameraError.split('\n').map((line, index) => (
+                <div key={index}>{line}</div>
+              ))}
+            </div>
+          )}
+
+          {!isCameraActive && (
+  <div className={styles.cameraControls}>
+    <button 
+      className={styles.cameraButton} 
+      onClick={turnOnCamera}
+    >
+      Turn On Camera
+    </button>
+    
+  </div>
+)}
+
+{/* Camera is active - show start button */}
+{isCameraActive && (
+  <button 
+    className={styles.startButton} 
+    onClick={startTest}
+  >
+    Start Test in Full Screen
+  </button>
+)}
+
+
         </div>
       </div>
     );
@@ -1086,6 +1214,15 @@ const TestModule = () => {
   </div>
 )}
 
+
+      <CameraView
+        cameraStream={cameraStream}
+        isCameraActive={isCameraActive}
+        cameraError={cameraError}
+        isPermissionBlocked={isPermissionBlocked}
+        onTurnOnCamera={turnOnCamera}
+        onStopCamera={stopCamera}
+      />
 
 
     </div>
