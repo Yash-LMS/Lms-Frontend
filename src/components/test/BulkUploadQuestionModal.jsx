@@ -78,13 +78,19 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
         const worksheet = workbook.Sheets[sheetName];
         const data = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
         
-        // Remove header row
-        const processedData = data.slice(1).map((row, index) => {
-          // Validate basic structure
-          if (row.length < 12) {
-            throw new Error(`Row ${index + 2} is incomplete`);
-          }
+      const filteredData = data.slice(1).filter((row, index) => {
+        // Check if Sno (first column) exists and is not empty
+        const sno = row[0];
+        return sno !== null && sno !== undefined && sno !== '' && sno.toString().trim() !== '';
+      });
 
+      const processedData = filteredData.map((row, index) => {
+        // Validate basic structure
+        if (row.length < 12) {
+          throw new Error(`Row with Sno ${row[0]} is incomplete`);
+        }
+
+        
           // Prepare options dynamically
           const options = [];
           for (let i = 4; i <= 11; i++) {
