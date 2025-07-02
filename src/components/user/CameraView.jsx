@@ -81,57 +81,70 @@ const CameraView = ({
 
   // Send screenshot to API
   const sendScreenshotToAPI = useCallback(async () => {
-    const now = Date.now();
-    if (now - lastScreenshotTimeRef.current < 30000) {
-      console.log('Skipping screenshot - too soon after last capture');
+  const now = Date.now();
+  if (now - lastScreenshotTimeRef.current < 30000) {
+    console.log('Skipping screenshot - too soon after last capture');
+    return;
+  }
+ 
+  try {
+    const screenshotBlob = await captureScreenshot();
+    if (!screenshotBlob) {
+      console.warn('Failed to capture screenshot');
       return;
     }
-
-    try {
-      const screenshotBlob = await captureScreenshot();
-      if (!screenshotBlob) {
-        console.warn('Failed to capture screenshot');
-        return;
-      }
-      lastScreenshotTimeRef.current = now;
-
-      const userData = getUserData();
-      if (!userData.user || !userData.token) {
-        console.error('User data not available');
-        return;
-      }
-
-      const formData = new FormData();
-      const file = new File([screenshotBlob], `screenshot_${Date.now()}.jpg`, {
-        type: 'image/jpeg'
-      });
-      formData.append('file', file);
-      formData.append('user', JSON.stringify(userData.user));
-      formData.append('token', userData.token);
-      formData.append('testAllotmentId', testAllotmentId);
-
-      const response = await axios.post(`${TEST_SS_CAPTURE}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        timeout: 30000,
-      });
-
-      if (response.status === 200) {
-        console.log('Screenshot sent successfully:', response.data);
-      } else {
-        console.error('Failed to send screenshot:', response.status, response.statusText);
-      }
-    } catch (error) {
-      if (error.response) {
-        console.error('API Error:', error.response.status, error.response.data);
-      } else if (error.request) {
-        console.error('Network Error:', error.message);
-      } else {
-        console.error('Error sending screenshot to API:', error.message);
-      }
+    lastScreenshotTimeRef.current = now;
+ 
+    const userData = getUserData();
+    if (!userData.user || !userData.token) {
+      console.error('User data not available');
+      return;
     }
-  }, [captureScreenshot, testAllotmentId]);
+ 
+    const formData = new FormData();
+    // Create the file for the screenshot
+    const file = new File([screenshotBlob], `screenshot_${Date.now()}.jpg`, {
+      type: 'image/jpeg'
+    });
+    // Create the request data object that matches your backend ApiRequestModelTest
+    const requestData = {
+      user: userData.user,
+      token: userData.token,
+      testAllotmentId: testAllotmentId
+    };
+ 
+    // Append as separate parts to match @RequestPart expectations
+    formData.append('file', file);
+    // Create a JSON blob with proper content type for requestData
+    const requestDataBlob = new Blob([JSON.stringify(requestData)], {
+      type: 'application/json'
+    });
+    formData.append('requestData', requestDataBlob);
+ 
+    const response = await axios.post(`${TEST_SS_CAPTURE}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 30000,
+    });
+ 
+    if (response.data.response === 200) {
+      console.log('Screenshot sent successfully:', response.data);
+    } else {
+      console.error('Failed to send screenshot:', response.status, response.statusText);
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error('API Error:', error.response.status, error.response.data);
+    } else if (error.request) {
+      console.error('Network Error:', error.message);
+    } else {
+      console.error('Error sending screenshot to API:', error.message);
+    }
+  }
+}, [captureScreenshot, testAllotmentId]);
+
+
 
   // Start automatic screenshot capture
   const startScreenshotCapture = useCallback(() => {
@@ -272,6 +285,7 @@ const CameraView = ({
       };
     }
   }, [isVideoLoaded, isCameraActive, cameraStream, checkVideoFeed]);
+
 
   // Start/stop screenshot capture
   useEffect(() => {

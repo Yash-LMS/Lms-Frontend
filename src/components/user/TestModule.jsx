@@ -787,14 +787,18 @@ const TestModule = () => {
             </ul>
           </div>
 
-        <CameraView
-          cameraStream={cameraStream}
-          isCameraActive={isCameraActive}
-          cameraError={cameraError}
-          isPermissionBlocked={isPermissionBlocked}
-          onTurnOnCamera={turnOnCamera}
-          onStopCamera={stopCamera}
-        />
+          {console.log('Camera test',testAllotmentId)}
+
+  <CameraView
+    cameraStream={cameraStream}
+    isCameraActive={isCameraActive}
+    cameraError={cameraError}
+    isPermissionBlocked={isPermissionBlocked}
+    onTurnOnCamera={turnOnCamera}
+    onStopCamera={stopCamera}
+    testAllotmentId={testAllotmentId}
+  />
+
 
          {cameraError && (
             <div className={styles.cameraError}>
@@ -1214,6 +1218,7 @@ const TestModule = () => {
   </div>
 )}
 
+{console.log('Camera test')}
 
       <CameraView
         cameraStream={cameraStream}
@@ -1222,6 +1227,7 @@ const TestModule = () => {
         isPermissionBlocked={isPermissionBlocked}
         onTurnOnCamera={turnOnCamera}
         onStopCamera={stopCamera}
+        testAllotmentId={testAllotmentId}
       />
 
 
