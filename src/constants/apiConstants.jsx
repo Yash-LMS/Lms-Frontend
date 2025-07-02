@@ -124,6 +124,8 @@ export const COMPLETE_VIDEO_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/video
 export const DOC_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/doc/updateStatus`;
 export const VIDEO_SIZE_URL = `${API_BASE_URL}/user/file/video/size`; // in minutes
 
+export const TEST_SS_CAPTURE = `${API_BASE_URL}/user/test/capture`; 
+
 //Test
 export const CREATE_TEST_URL = `${API_BASE_URL}/test/createTest`;
 export const VIEW_TEST_URL = `${API_BASE_URL}/test/instructor/view/test`;
