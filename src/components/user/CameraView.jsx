@@ -18,6 +18,8 @@ const CameraView = ({
   const [feedCheckInterval, setFeedCheckInterval] = useState(null);
   const [screenshotInterval, setScreenshotInterval] = useState(null);
   const retryTimeoutRef = useRef(null);
+  const lastScreenshotTimeRef = useRef(0);
+  const isCapturingRef = useRef(false); // Prevent multiple simultaneous captures
 
   // Function to get user data from session storage
   const getUserData = () => {
@@ -35,18 +37,33 @@ const CameraView = ({
 
   // Function to capture screenshot from video feed
   const captureScreenshot = useCallback(() => {
-    if (!videoRef.current || !cameraStream || !isVideoLoaded) {
-      console.warn('Video not ready for screenshot capture');
+    if (!videoRef.current || !cameraStream || !isVideoLoaded || isCapturingRef.current) {
+      console.warn('Video not ready for screenshot capture or capture in progress');
       return null;
     }
 
     const video = videoRef.current;
+    
+    // Check if video has valid dimensions
+    if (!video.videoWidth || !video.videoHeight) {
+      console.warn('Video dimensions not available');
+      return null;
+    }
+
+    // Check if video is actually playing
+    if (video.paused || video.ended || video.readyState < 2) {
+      console.warn('Video not in playing state');
+      return null;
+    }
+
+    isCapturingRef.current = true;
+    
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
     // Set canvas dimensions to match video
-    canvas.width = video.videoWidth || 320;
-    canvas.height = video.videoHeight || 240;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
     
     try {
       // Draw current video frame to canvas
@@ -55,23 +72,34 @@ const CameraView = ({
       // Convert canvas to blob
       return new Promise((resolve) => {
         canvas.toBlob((blob) => {
+          isCapturingRef.current = false;
           resolve(blob);
         }, 'image/jpeg', 0.8); // JPEG with 80% quality
       });
     } catch (error) {
       console.error('Error capturing screenshot:', error);
+      isCapturingRef.current = false;
       return null;
     }
   }, [cameraStream, isVideoLoaded]);
 
   // Function to send screenshot to API
   const sendScreenshotToAPI = useCallback(async () => {
+    // Prevent too frequent captures
+    const now = Date.now();
+    if (now - lastScreenshotTimeRef.current < 30000) { // Minimum 30 seconds between captures
+      console.log('Skipping screenshot - too soon after last capture');
+      return;
+    }
+    
     try {
       const screenshotBlob = await captureScreenshot();
       if (!screenshotBlob) {
         console.warn('Failed to capture screenshot');
         return;
       }
+
+      lastScreenshotTimeRef.current = now;
 
       const userData = getUserData();
       if (!userData.user || !userData.token) {
@@ -134,7 +162,7 @@ const CameraView = ({
 
     setScreenshotInterval(interval);
     console.log('Started automatic screenshot capture (every 2 minutes)');
-  }, [sendScreenshotToAPI, screenshotInterval]);
+  }, [sendScreenshotToAPI]);
 
   // Function to stop automatic screenshot capture
   const stopScreenshotCapture = useCallback(() => {
@@ -145,11 +173,24 @@ const CameraView = ({
     }
   }, [screenshotInterval]);
 
-  // Function to check if video feed is blank/black
+  // Improved video feed checker - less aggressive
   const checkVideoFeed = useCallback(() => {
-    if (!videoRef.current || !cameraStream) return;
+    if (!videoRef.current || !cameraStream || isCapturingRef.current) return;
 
     const video = videoRef.current;
+    
+    // Check if video is in a good state first
+    if (video.paused || video.ended || video.readyState < 2) {
+      console.log('Video not in playing state, skipping feed check');
+      return;
+    }
+
+    // Don't check during or right after screenshot capture
+    const timeSinceLastCapture = Date.now() - lastScreenshotTimeRef.current;
+    if (timeSinceLastCapture < 5000) { // Skip check for 5 seconds after capture
+      return;
+    }
+
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
@@ -161,13 +202,13 @@ const CameraView = ({
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
       
-      // Check if image is mostly black (blank feed)
+      // Check if image is mostly black (blank feed) - more lenient threshold
       let nonBlackPixels = 0;
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i];
         const g = data[i + 1];
         const b = data[i + 2];
-        if (r > 30 || g > 30 || b > 30) {
+        if (r > 20 || g > 20 || b > 20) { // Lowered threshold
           nonBlackPixels++;
         }
       }
@@ -175,21 +216,41 @@ const CameraView = ({
       const totalPixels = data.length / 4;
       const nonBlackRatio = nonBlackPixels / totalPixels;
       
-      // If less than 5% of pixels are non-black, consider it a blank feed
-      if (nonBlackRatio < 0.05 && isVideoLoaded) {
-        console.warn('Blank video feed detected, attempting to refresh...');
-        refreshVideoFeed();
+      // If less than 2% of pixels are non-black, consider it a blank feed (more lenient)
+      if (nonBlackRatio < 0.02 && isVideoLoaded) {
+        console.warn('Blank video feed detected, but not refreshing to avoid disruption');
+        // Instead of refreshing, just log the issue
+        // Only refresh if the stream is actually broken
+        if (video.readyState === 0 || video.networkState === 3) {
+          console.warn('Video stream appears broken, attempting refresh...');
+          refreshVideoFeed();
+        }
       }
     } catch (error) {
       console.error('Error checking video feed:', error);
     }
   }, [cameraStream, isVideoLoaded]);
 
-  // Function to refresh video feed
+  // More conservative refresh function
   const refreshVideoFeed = useCallback(() => {
     if (!videoRef.current || !cameraStream) return;
 
+    console.log('Refreshing video feed...');
     const video = videoRef.current;
+    
+    // Don't refresh if video is working fine
+    if (video.readyState >= 2 && !video.paused && !video.ended) {
+      console.log('Video appears to be working, skipping refresh');
+      return;
+    }
+    
+    // Stop any ongoing monitoring temporarily
+    if (feedCheckInterval) {
+      clearInterval(feedCheckInterval);
+      setFeedCheckInterval(null);
+    }
+    
+    setIsVideoLoaded(false);
     
     // Clear current source
     video.srcObject = null;
@@ -200,12 +261,13 @@ const CameraView = ({
         videoRef.current.srcObject = cameraStream;
         videoRef.current.play().catch(console.error);
       }
-    }, 100);
-  }, [cameraStream]);
+    }, 500); // Increased delay
+  }, [cameraStream, feedCheckInterval]);
 
-  useEffect(() => {
-    refreshVideoFeed();
-  }, []); 
+  // Remove the unnecessary useEffect that calls refreshVideoFeed immediately
+  // useEffect(() => {
+  //   refreshVideoFeed();
+  // }, []); 
 
   useEffect(() => {
     if (cameraStream && videoRef.current) {
@@ -215,26 +277,36 @@ const CameraView = ({
       video.srcObject = cameraStream;
       
       const handleLoadedMetadata = () => {
+        console.log('Video metadata loaded');
         setIsVideoLoaded(true);
         video.play().catch(console.error);
       };
 
       const handleLoadedData = () => {
+        console.log('Video data loaded');
         setIsVideoLoaded(true);
       };
 
-      const handleError = () => {
-        console.error('Video element error, attempting refresh...');
+      const handleCanPlay = () => {
+        console.log('Video can play');
+        setIsVideoLoaded(true);
+      };
+
+      const handleError = (e) => {
+        console.error('Video element error:', e);
         setIsVideoLoaded(false);
-        // Retry after a short delay
-        retryTimeoutRef.current = setTimeout(() => {
-          refreshVideoFeed();
-        }, 1000);
+        // Only retry if it's a real error, not during normal operation
+        if (video.error) {
+          retryTimeoutRef.current = setTimeout(() => {
+            refreshVideoFeed();
+          }, 2000);
+        }
       };
 
       // Add event listeners
       video.addEventListener('loadedmetadata', handleLoadedMetadata);
       video.addEventListener('loadeddata', handleLoadedData);
+      video.addEventListener('canplay', handleCanPlay);
       video.addEventListener('error', handleError);
       
       // Force play if metadata is already loaded
@@ -242,19 +314,11 @@ const CameraView = ({
         handleLoadedMetadata();
       }
 
-      // Start monitoring feed after video loads
-      const monitoringDelay = setTimeout(() => {
-        if (isVideoLoaded) {
-          const interval = setInterval(checkVideoFeed, 3000); // Check every 3 seconds
-          setFeedCheckInterval(interval);
-        }
-      }, 2000);
-
       return () => {
         video.removeEventListener('loadedmetadata', handleLoadedMetadata);
         video.removeEventListener('loadeddata', handleLoadedData);
+        video.removeEventListener('canplay', handleCanPlay);
         video.removeEventListener('error', handleError);
-        clearTimeout(monitoringDelay);
         if (retryTimeoutRef.current) {
           clearTimeout(retryTimeoutRef.current);
         }
@@ -262,15 +326,30 @@ const CameraView = ({
     } else {
       setIsVideoLoaded(false);
     }
-  }, [cameraStream, checkVideoFeed, refreshVideoFeed, isVideoLoaded]);
+  }, [cameraStream, refreshVideoFeed]);
+
+  // Start feed monitoring separately and less frequently
+  useEffect(() => {
+    if (isVideoLoaded && isCameraActive && cameraStream) {
+      // Start monitoring after video is stable
+      const monitoringDelay = setTimeout(() => {
+        const interval = setInterval(checkVideoFeed, 10000); // Check every 10 seconds instead of 3
+        setFeedCheckInterval(interval);
+      }, 5000); // Wait 5 seconds before starting monitoring
+
+      return () => {
+        clearTimeout(monitoringDelay);
+      };
+    }
+  }, [isVideoLoaded, isCameraActive, cameraStream, checkVideoFeed]);
 
   // Start/stop screenshot capture when video loads/unloads
   useEffect(() => {
     if (isVideoLoaded && isCameraActive && cameraStream) {
-      // Start screenshot capture after a short delay to ensure video is stable
+      // Start screenshot capture after a longer delay to ensure video is stable
       const startDelay = setTimeout(() => {
         startScreenshotCapture();
-      }, 3000); // Wait 3 seconds after video loads
+      }, 5000); // Wait 5 seconds after video loads
 
       return () => {
         clearTimeout(startDelay);
