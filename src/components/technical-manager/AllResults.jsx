@@ -487,12 +487,12 @@ const AllResults = () => {
             onClose={handleCloseDetailResultPopup}
           />
         )}
-
+{console.log(selectedTestId)}
         {showImageModal && (
-          <TestImageView
-            testAllotmentId={selectedTestId}
-            onClose={handleCloseTestImageView}
-          />
+    <TestImageView
+  testAllotmentId={selectedTestId}
+  onClose={handleCloseTestImageView}
+/>
         )}
     </div>
   );
