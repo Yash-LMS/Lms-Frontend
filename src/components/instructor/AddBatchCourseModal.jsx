@@ -112,7 +112,7 @@ const AddBatchCourseModal = ({
       console.log("Add course response:", response.data);
 
       // Check if the response indicates success
-      if (response.data && (response.data.status === "success" || response.data.status === "SUCCESS")) {
+      if (response.data && (response.data.response === "success" || response.data.status === "SUCCESS")) {
         // Call the success callback
         if (onCourseAdded) {
           onCourseAdded(response.data);
