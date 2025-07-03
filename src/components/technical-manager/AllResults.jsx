@@ -221,8 +221,18 @@ const AllResults = () => {
    setShowDetailedResult(true);
   };
 
-  const handleCloseDetailResultPopup = () => {
+   const handleViewImages = (allotmentId) => {
+    setSelectedTestId(allotmentId);
+   setShowImageModal(true);
+  };
+
+   const handleCloseDetailResultPopup  = () => {
     setShowDetailedResult(false);
+    setSelectedTestId(null);
+  };
+
+  const handleCloseTestImageView = () => {
+    setShowImageModal(false);
     setSelectedTestId(null);
   };
 
@@ -452,7 +462,10 @@ const AllResults = () => {
                           <button onClick={() => handleViewResults(result.allotmentId)} className={styles.viewBtn }>
                           View Result
                           </button>
-                         </td>
+                      </td>
+                      <button onClick={() => handleViewImages(result.allotmentId)} className={styles.viewBtn }>
+                          Invigilation
+                      </button>
                     </tr>
                   );
                 })
@@ -472,6 +485,13 @@ const AllResults = () => {
           <TestResultPopup
             testAllotmentId={selectedTestId}
             onClose={handleCloseDetailResultPopup}
+          />
+        )}
+
+        {showImageModal && (
+          <TestImageView
+            testAllotmentId={selectedTestId}
+            onClose={handleCloseTestImageView}
           />
         )}
     </div>
