@@ -49,6 +49,13 @@ const TestModule = () => {
   const [isPermissionBlocked, setIsPermissionBlocked] = useState(false);
   const videoRef = useRef(null);
 
+
+  const [microphoneStream, setMicrophoneStream] = useState(null);
+  const [isMicrophoneActive, setIsMicrophoneActive] = useState(false);
+  const [microphoneError, setMicrophoneError] = useState('');
+  const [isMicrophonePermissionBlocked, setIsMicrophonePermissionBlocked] = useState(false);
+  const audioRef = useRef(null);
+
   useEffect(() => {}, [location.state, navigate]);
 
   const getUserData = () => {
@@ -412,6 +419,48 @@ const TestModule = () => {
       setCameraStream(null);
       setIsCameraActive(false);
       setCameraError('');
+    }
+  };
+
+   const turnOnMicrophone = async () => {
+    try {
+      setMicrophoneError('');
+      setIsMicrophonePermissionBlocked(false);
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: true,
+        video: false 
+      });
+      
+      setMicrophoneStream(stream);
+      setIsMicrophoneActive(true);
+      
+      if (audioRef.current) {
+        audioRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error('Microphone access error:', error);
+      
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        setMicrophoneError('Microphone access denied. Please allow microphone permission.');
+        setIsMicrophonePermissionBlocked(true);
+      } else if (error.name === 'NotFoundError') {
+        setMicrophoneError('No microphone found on this device.');
+      } else {
+        setMicrophoneError('Failed to access microphone. Please try again.');
+      }
+    }
+  };
+
+  const turnOffMicrophone = () => {
+    if (microphoneStream) {
+      microphoneStream.getTracks().forEach(track => track.stop());
+      setMicrophoneStream(null);
+      setIsMicrophoneActive(false);
+      
+      if (audioRef.current) {
+        audioRef.current.srcObject = null;
+      }
     }
   };
 
@@ -808,6 +857,14 @@ const TestModule = () => {
             </div>
           )}
 
+               {microphoneError && (
+          <div className={styles.errorMessage}>
+            {microphoneError}
+          </div>
+        )}
+
+
+
           {!isCameraActive && (
   <div className={styles.cameraControls}>
     <button 
@@ -820,8 +877,14 @@ const TestModule = () => {
   </div>
 )}
 
-{/* Camera is active - show start button */}
-{isCameraActive && (
+    {isCameraActive && !isMicrophoneActive && (
+      <button className={styles.cameraButton} onClick={turnOnMicrophone}>
+        Turn On Mic
+      </button>
+    )}
+
+{/* Camera and microphone is  active - show start button */}
+ {isCameraActive && isMicrophoneActive && (
   <button 
     className={styles.startButton} 
     onClick={startTest}
@@ -829,6 +892,9 @@ const TestModule = () => {
     Start Test in Full Screen
   </button>
 )}
+
+
+
 
 
         </div>
