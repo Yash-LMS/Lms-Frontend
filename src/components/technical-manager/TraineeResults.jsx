@@ -10,6 +10,7 @@ import {
 import Sidebar from "./Sidebar";
 import ExportToExcel from "../../assets/ExportToExcel";
 import TestResultPopup from "./TestResultPopup";
+import TestImageView from "./TestImageView";
 
 const TraineeResults = () => {
   const navigate = useNavigate();
@@ -22,8 +23,9 @@ const TraineeResults = () => {
   const [selectedEmailId, setSelectedEmailId] = useState(null);
   const [traineeList, setTraineeList] = useState([]);
   const [selectedTrainee, setSelectedTrainee] = useState(null);
-  const[showDetailedResult,setShowDetailedResult]=useState(false);
-  const[selectedTestId,setSelectedTestId]=useState(null);
+  const [showDetailedResult,setShowDetailedResult]=useState(false);
+  const [selectedTestId,setSelectedTestId]=useState(null);
+  const [showImageModal,setShowImageModal]=useState(false);
 
   // Add date filter states
   const [dateFilter, setDateFilter] = useState({
@@ -271,6 +273,16 @@ const TraineeResults = () => {
 
   const handleFilterByChange = (e) => {
     setFilterBy(e.target.value);
+  };
+
+     const handleViewImages = (allotmentId) => {
+    setSelectedTestId(allotmentId);
+   setShowImageModal(true);
+  };
+
+    const handleCloseTestImageView = () => {
+    setShowImageModal(false);
+    setSelectedTestId(null);
   };
 
   const handleDateFilterChange = (e) => {
@@ -657,10 +669,15 @@ const TraineeResults = () => {
                             {result.submissionTime}
                           </td>
                           <td>
-  <button onClick={() => handleViewResults(result.allotmentId)}>
-    View Result
-  </button>
-</td>
+                            <div className={styles.buttonContainer}>
+                              <button onClick={() => handleViewResults(result.allotmentId)} className={styles.viewBtn}>
+                                View Result
+                              </button>
+                              <button onClick={() => handleViewImages(result.allotmentId)} className={styles.viewBtn}>
+                                Invigilation
+                              </button>
+                            </div>
+                          </td>
 
                         </tr>
                       );
@@ -690,6 +707,13 @@ const TraineeResults = () => {
             onClose={handleCloseDetailResultPopup}
           />
         )}
+
+               {showImageModal && (
+            <TestImageView
+          testAllotmentId={selectedTestId}
+          onClose={handleCloseTestImageView}
+        />
+                )}
       </div>
     </div>
   );

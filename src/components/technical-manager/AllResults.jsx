@@ -458,14 +458,16 @@ const AllResults = () => {
                       <td>{result.totalQuestion}</td>
                       <td>{formatDate(result.submissionDate)}</td>
                       <td>{result.submissionTime}</td>
-                      <td>
-                          <button onClick={() => handleViewResults(result.allotmentId)} className={styles.viewBtn }>
-                          View Result
-                          </button>
-                      </td>
-                      <button onClick={() => handleViewImages(result.allotmentId)} className={styles.viewBtn }>
-                          Invigilation
-                      </button>
+         <td>
+  <div className={styles.buttonContainer}>
+    <button onClick={() => handleViewResults(result.allotmentId)} className={styles.viewBtn}>
+      View Result
+    </button>
+    <button onClick={() => handleViewImages(result.allotmentId)} className={styles.viewBtn}>
+      Invigilation
+    </button>
+  </div>
+</td>
                     </tr>
                   );
                 })
