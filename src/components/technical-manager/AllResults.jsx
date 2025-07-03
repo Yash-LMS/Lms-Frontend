@@ -6,7 +6,7 @@ import { ALL_TRAINEE_RESULT } from "../../constants/apiConstants";
 import Sidebar from "./Sidebar";
 import ExportToExcel from "../../assets/ExportToExcel";
 import TestResultPopup from "./TestResultPopup";
-
+import TestImageView from "./TestImageView";
 
 const AllResults = () => {
   const navigate = useNavigate();
@@ -19,6 +19,7 @@ const AllResults = () => {
 
   const[showDetailedResult,setShowDetailedResult]=useState(false);
   const[selectedTestId,setSelectedTestId]=useState(null);
+  const[showImageModal,setShowImageModal]=useState(false);
 
   // Add date filter states
   const [dateFilter, setDateFilter] = useState({
