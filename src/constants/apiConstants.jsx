@@ -102,6 +102,8 @@ export const GENERATE_TRP_URL = `${API_BASE_URL}/manager/trp/generate`;
 export const GENERATE_BATCH_TRP_URL = `${API_BASE_URL}/manager/trp/batch/generate`;
 
 export const UPDATE_INTERN_BULK_FEEDBACK = `${API_BASE_URL}/manager/bulk/update/internRemarkAndFeedback`;
+export const TEST_SS_VIEW = `${API_BASE_URL}/manager/test/invigilation/image`; 
+
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
@@ -125,6 +127,8 @@ export const DOC_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/doc/updateStatus
 export const VIDEO_SIZE_URL = `${API_BASE_URL}/user/file/video/size`; // in minutes
 
 export const TEST_SS_CAPTURE = `${API_BASE_URL}/user/test/capture`; 
+
+
 
 //Test
 export const CREATE_TEST_URL = `${API_BASE_URL}/test/createTest`;
