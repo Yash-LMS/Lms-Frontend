@@ -129,7 +129,7 @@ const TestImageView = ({ testAllotmentId, onClose }) => {
         <div className={styles.modalBody}>
           <div className={styles.infoBar}>
             <span><strong>Allotment ID:</strong> {testAllotmentId || 'Not provided'}</span>
-            <button onClick={handleReload} disabled={loading || !testAllotmentId}>
+            <button onClick={handleReload} disabled={loading || !testAllotmentId} className={styles.reloadButton}>
               {loading ? 'Loading...' : 'Reload Images'}
             </button>
           </div>
