@@ -95,6 +95,20 @@ const InstructorSidebar = ({ activeTab }) => {
             </a>
           </li>
 
+           <li
+            className={`${styles.navItem} ${
+              activeTab === "assignment" ? styles.active : ""
+            }`}
+          >
+            <a
+              href="#assignment"
+              onClick={(e) => handleNavigation('/view/assignment', 'assignment', e)}
+            >
+              <FontAwesomeIcon icon={faUsers} />
+              Assignments
+            </a>
+          </li>
+
         </ul>
       </nav>
     </aside>

@@ -2,14 +2,14 @@
 .dashboardSidebar {
     width: 250px;
     background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     height: calc(100vh - 60px);
     position: fixed;
     top: 60px;
     left: 0;
     z-index: 100;
     border-radius: 0;
-    padding: 1.5rem 0;
+    overflow-y: auto;
   }
   
   .sidebarNav ul {
@@ -23,14 +23,14 @@
     margin-bottom: 0.5rem;
   }
   
-  .navItem a {
+   .navItem a {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1.5rem;
+    padding: 0.55rem 1.5rem;
     color: #4a5568;
     text-decoration: none;
     transition: all 0.2s ease;
-    font-size: 16px;
+    font-size: 14px;
     gap: 0.5rem;
   }
   
