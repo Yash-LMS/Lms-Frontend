@@ -109,6 +109,21 @@ const InstructorSidebar = ({ activeTab }) => {
             </a>
           </li>
 
+
+                 <li
+            className={`${styles.navItem} ${
+              activeTab === "assignment" ? styles.active : ""
+            }`}
+          >
+            <a
+              href="#password"
+              onClick={(e) => handleNavigation('/user/update/password', 'password', e)}
+            >
+              <FontAwesomeIcon icon={faUsers} />
+              Update Password
+            </a>
+          </li>
+
         </ul>
       </nav>
     </aside>

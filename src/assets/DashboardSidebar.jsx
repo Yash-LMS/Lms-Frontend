@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import styles from '../components/user/UserDashboard.module.css'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faListCheck, faFolderOpen
+  faListCheck, faFolderOpen,faKey
 } from '@fortawesome/free-solid-svg-icons';
 
 const DashboardSidebar = ({ activeLink }) => {
@@ -23,6 +23,14 @@ const DashboardSidebar = ({ activeLink }) => {
               <span>My Tests</span>
             </Link>
           </li>
+     
+     <li className={`${styles.navItem} ${activeLink === "update-password" ? styles.active : ""}`}>
+  <Link to="/user/update/password">
+    <FontAwesomeIcon icon={faKey} />
+    <span>Update Password</span>
+  </Link>
+</li>
+
           {/* Uncomment and add more links as needed */}
           {/* <li className={styles.navItem}>
             <Link to="/certificates">

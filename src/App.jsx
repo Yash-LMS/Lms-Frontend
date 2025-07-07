@@ -56,6 +56,8 @@ import InternRegistration from "./components/auth/InternRegistration";
 import TrpGenerator from "./components/technical-manager/TrpGenerator";
 import UpdatePassword from "./components/technical-manager/UpdatePassword";
 
+import UserPassword from "./components/user/UpdatePassword";
+
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
   const token = sessionStorage.getItem("token");
@@ -352,6 +354,15 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <UpdatePassword />
+              </ProtectedRoute>
+            }
+          />
+
+             <Route
+            path="/user/update/password"
+            element={
+              <ProtectedRoute>
+                <UserPassword />
               </ProtectedRoute>
             }
           />

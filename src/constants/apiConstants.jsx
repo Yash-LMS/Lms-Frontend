@@ -131,6 +131,7 @@ export const DOC_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/doc/updateStatus
 export const VIDEO_SIZE_URL = `${API_BASE_URL}/user/file/video/size`; // in minutes
 
 export const TEST_SS_CAPTURE = `${API_BASE_URL}/user/test/capture`; 
+export const UPDATE_PASSWORD = `${API_BASE_URL}/user/updatePassword`; 
 
 
 
