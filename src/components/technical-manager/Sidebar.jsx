@@ -196,6 +196,18 @@ const Sidebar = ({ activeTab }) => {
               )}
             </a>
           </li>
+
+         <li className={`${styles.navItem} ${activeTab === "password" ? styles.active : ""}`}>
+            <a
+              href="#password"
+              onClick={(e) => handleNavigation('/manager/update/password', 'password', e)}
+            >
+              <FontAwesomeIcon icon={faUsers} />
+              <span className={styles.navText}>Update Password</span>
+     
+            </a>
+          </li>
+
         </ul>
       </nav>
     </aside>

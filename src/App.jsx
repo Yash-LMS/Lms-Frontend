@@ -54,6 +54,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import InternRegistration from "./components/auth/InternRegistration";
 import TrpGenerator from "./components/technical-manager/TrpGenerator";
+import UpdatePassword from "./components/technical-manager/UpdatePassword";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -335,6 +336,8 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+
           <Route
             path="/manager/intern"
             element={
@@ -343,6 +346,17 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+                 <Route
+            path="/manager/update/password"
+            element={
+              <ProtectedRoute>
+                <UpdatePassword />
+              </ProtectedRoute>
+            }
+          />
+
+
           <Route
             path="/manager/bulkAllotment"
             element={

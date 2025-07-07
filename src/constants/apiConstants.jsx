@@ -106,6 +106,8 @@ export const GENERATE_BATCH_TRP_URL = `${API_BASE_URL}/manager/trp/batch/generat
 export const UPDATE_INTERN_BULK_FEEDBACK = `${API_BASE_URL}/manager/bulk/update/internRemarkAndFeedback`;
 export const TEST_SS_VIEW = `${API_BASE_URL}/manager/test/invigilation/image`; 
 
+export const UPDATE_USER_PASSWORD = `${API_BASE_URL}/manager/user/updatePassword`; 
+
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
