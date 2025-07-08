@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import styles from "./CourseAllotment.module.css";
-import CourseBulkAllotment from "./CourseBulkAllotment";
+import styles from "./AssignmentAllotment.module.css";
 import Sidebar from "./Sidebar";
 
 import {
@@ -16,7 +15,12 @@ const AssignmentAllotment = () => {
   const navigate = useNavigate();
   const [userList, setUserList] = useState([]);
   const [assignmentList, setAssignmentList] = useState([]);
-  const [rows, setRows] = useState([{ emailId: "", assignmentId: "" }]);
+  const [rows, setRows] = useState([{ 
+    emailId: "", 
+    assignmentId: "", 
+    startDate: "", 
+    endDate: "" 
+  }]);
   const [errorRows, setErrorRows] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [popupStatus, setPopupStatus] = useState("");
@@ -82,50 +86,80 @@ const AssignmentAllotment = () => {
   }, []);
 
   useEffect(() => {
-  
     const fetchAssignmentList = async () => {
       try {
-        const {user,token} = getUserData();
+        const {user, token} = getUserData();
         const response = await axios.post(`${VIEW_TRAINEE_ASSIGNMENT_URL}`, {
           user,
           token,
         });
         setAssignmentList(response.data.payload);
       } catch (error) {
-        console.error("Error fetching course list:", error);
+        console.error("Error fetching assignment list:", error);
       }
     };
     fetchAssignmentList();
   }, []);
 
+  // Format date for API (converts to ISO string for backend)
+  const formatDateForAPI = (dateString) => {
+    if (!dateString) return null;
+    return new Date(dateString).toISOString();
+  };
+
+  // Validate date range
+  const validateDateRange = (startDate, endDate) => {
+    if (!startDate || !endDate) return true; // Allow empty dates
+    return new Date(startDate) <= new Date(endDate);
+  };
+
   const handleUpdate = async () => {
     try {
       const userData = getUserData();
 
-      // Check if there are no courses available
+      // Check if there are no assignments available
       if (assignmentList.length === 0) {
         setPopupStatus("Error: No assignment available for allotment.");
         setShowPopup(true);
         return;
       }
 
-      // Remove any rows with empty fields
+      // Remove any rows with empty required fields
       const validRows = rows.filter((row) => row.emailId && row.assignmentId);
 
       if (validRows.length === 0) {
         setPopupStatus(
-          "Please select both employee and course for at least one row."
+          "Please select both employee and assignment for at least one row."
         );
         setShowPopup(true);
         return;
       }
+
+      // Validate date ranges
+      const invalidDateRows = validRows.filter(row => 
+        (row.startDate && row.endDate && !validateDateRange(row.startDate, row.endDate))
+      );
+
+      if (invalidDateRows.length > 0) {
+        setPopupStatus("Error: Start date cannot be later than end date.");
+        setShowPopup(true);
+        return;
+      }
+
+      // Transform data to match backend model
+      const assignmentAllotmentList = validRows.map(row => ({
+        assignmentId: parseInt(row.assignmentId),
+        emailId: row.emailId,
+        startDate: formatDateForAPI(row.startDate),
+        endDate: formatDateForAPI(row.endDate)
+      }));
 
       const response = await axios.post(
         `${ALLOT_ASSIGNMENT_URL}`,
         {
           user: userData.user,
           token: userData.token,
-          allotmentList: validRows,
+          assignmentAllotmentList: assignmentAllotmentList,
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -133,8 +167,8 @@ const AssignmentAllotment = () => {
       );
 
       if (response.data && (response.data.response === "success")) {
-        setPopupStatus("Success! Assignment have been allotted.");
-        setRows([{ emailId: "", assignmentId: "" }]); // Reset rows
+        setPopupStatus("Success! Assignments have been allotted.");
+        setRows([{ emailId: "", assignmentId: "", startDate: "", endDate: "" }]); // Reset rows
         setShowPopup(true);
       }
       else {
@@ -152,7 +186,7 @@ const AssignmentAllotment = () => {
   };
 
   const addRow = () => {
-    setRows([...rows, { emailId: "", assignmentId: "" }]);
+    setRows([...rows, { emailId: "", assignmentId: "", startDate: "", endDate: "" }]);
   };
 
   const deleteRow = (index) => {
@@ -173,7 +207,12 @@ const AssignmentAllotment = () => {
     setShowBulkUploadModal(!showBulkUploadModal);
   };
 
-  // Transform user list and course list into options format for React Select
+  // Get today's date in YYYY-MM-DD format for min date
+  const getTodayDate = () => {
+    return new Date().toISOString().split('T')[0];
+  };
+
+  // Transform user list and assignment list into options format for React Select
   const userOptions = (userList || []).map(user => ({
     value: user.emailId,
     label: user.name
@@ -203,6 +242,8 @@ const AssignmentAllotment = () => {
                     <tr>
                       <th>Employee</th>
                       <th>Assignment</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
                       <th className={styles.actionColumn}>Action</th>
                     </tr>
                   </thead>
@@ -236,12 +277,30 @@ const AssignmentAllotment = () => {
                             onChange={(selectedOption) => 
                               handleRowChange(index, "assignmentId", selectedOption ? selectedOption.value : "")
                             }
-                            placeholder="Select Course"
+                            placeholder="Select Assignment"
                             isClearable
                             isSearchable
                             styles={selectStyles}
                             menuPortalTarget={document.body}
                             className={styles.reactSelect}
+                          />
+                        </td>
+                        <td className={styles.formField}>
+                          <input
+                            type="date"
+                            value={row.startDate}
+                            onChange={(e) => handleRowChange(index, "startDate", e.target.value)}
+                            className={styles.dateInput}
+                            min={getTodayDate()}
+                          />
+                        </td>
+                        <td className={styles.formField}>
+                          <input
+                            type="date"
+                            value={row.endDate}
+                            onChange={(e) => handleRowChange(index, "endDate", e.target.value)}
+                            className={styles.dateInput}
+                            min={row.startDate || getTodayDate()}
                           />
                         </td>
                         <td className={styles.actionColumn}>
@@ -298,16 +357,13 @@ const AssignmentAllotment = () => {
           <div className={styles.modal}>
             <div className={styles.modalContent}>
               <div className={styles.modalHeader}>
-                <h2>Bulk Course Allotment</h2>
+                <h2>Bulk Assignment Allotment</h2>
                 <button
                   onClick={toggleBulkUploadModal}
                   className={styles.modalCloseButton}
                 >
                   ×
                 </button>
-              </div>
-              <div className={styles.modalBody}>
-                <CourseBulkAllotment />
               </div>
             </div>
           </div>

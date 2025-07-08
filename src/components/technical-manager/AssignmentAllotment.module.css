@@ -1,0 +1,533 @@
+/* Main container for the entire dashboard */
+.dashboardContainer {
+  display: flex;
+  min-height: 100vh;
+  max-width: 100vw;
+  background-color: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Sidebar container */
+.sidebarContainer {
+  width: 250px;
+  min-width: 250px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-right: 1px solid #e9ecef;
+  overflow-y: auto;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+/* Main content area */
+.mainContent {
+  flex: 1;
+  padding: 20px 30px;
+  background-color: #ffffff;
+  margin-left: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 0;
+  overflow-x: auto;
+}
+
+/* Page header */
+.pageHeader {
+  margin-bottom: 30px;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 15px;
+}
+
+.pageHeader h1 {
+  color: #9c88ff;
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+/* Table container */
+.tableContainer {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+/* Data table styling */
+.dataTable {
+  width: 100%;
+  min-width: 800px;
+  border-collapse: collapse;
+  font-size: 14px;
+  background-color: #ffffff;
+}
+
+.dataTable thead {
+  background-color: #f8f9fa;
+}
+
+.dataTable th {
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+  font-size: 14px;
+}
+
+.dataTable tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+
+.dataTable tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.dataTable td {
+  padding: 12px;
+  vertical-align: middle;
+}
+
+/* Form fields */
+.formField {
+  width: 100%;
+  min-width: 200px;
+}
+
+/* React Select customization */
+.reactSelect {
+  width: 100%;
+}
+
+.reactSelect .react-select__control {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  min-height: 38px;
+  box-shadow: none;
+  font-size: 14px;
+}
+
+.reactSelect .react-select__control:hover {
+  border-color: #9c88ff;
+}
+
+.reactSelect .react-select__control--is-focused {
+  border-color: #9c88ff;
+  box-shadow: 0 0 0 1px #9c88ff;
+}
+
+.reactSelect .react-select__placeholder {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.reactSelect .react-select__single-value {
+  color: #495057;
+  font-size: 14px;
+}
+
+.reactSelect .react-select__menu {
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+}
+
+.reactSelect .react-select__option {
+  font-size: 14px;
+  padding: 10px 12px;
+}
+
+.reactSelect .react-select__option:hover {
+  background-color: #f8f9fa;
+}
+
+.reactSelect .react-select__option--is-focused {
+  background-color: #e3f2fd;
+}
+
+.reactSelect .react-select__option--is-selected {
+  background-color: #9c88ff;
+}
+
+/* Date input styling */
+.dateInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  height: 38px;
+  box-sizing: border-box;
+  color: #495057;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: #9c88ff;
+  box-shadow: 0 0 0 1px #9c88ff;
+}
+
+.dateInput:hover {
+  border-color: #9c88ff;
+}
+
+/* Action column */
+.actionColumn {
+  width: 120px;
+  text-align: center;
+}
+
+/* Delete button */
+.deleteButton {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.deleteButton:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.deleteButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Button group */
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  margin-top: 20px;
+}
+
+/* Button styles */
+.addButton {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.addButton:hover {
+  background-color: #218838;
+}
+
+.updateButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.updateButton:hover {
+  background-color: #0056b3;
+}
+
+.uploadButton {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.uploadButton:hover {
+  background-color: #545b62;
+}
+
+/* Error styling */
+.errorRow {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.errorMessage {
+  text-align: center;
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 20px 0;
+  font-size: 14px;
+}
+
+/* Popup styling */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.popupContent {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.popupContent p {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  color: #495057;
+  line-height: 1.5;
+}
+
+.closeButton {
+  background-color: #9c88ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: #7c6cdf;
+}
+
+/* Modal styling */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.modalContent {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  border-bottom: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  color: #495057;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modalCloseButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.modalCloseButton:hover {
+  color: #495057;
+}
+
+.modalBody {
+  padding: 20px 30px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .dashboardContainer {
+    overflow-x: auto;
+  }
+  
+  .sidebarContainer {
+    width: 220px;
+    min-width: 220px;
+  }
+  
+  .mainContent {
+    padding: 15px 20px;
+    margin-left: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboardContainer {
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+  
+  .sidebarContainer {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .mainContent {
+    margin-left: 0;
+    margin-top: 0;
+    padding: 15px;
+    border-radius: 0;
+  }
+  
+  .dataTable {
+    font-size: 12px;
+    min-width: 600px;
+  }
+  
+  .dataTable th,
+  .dataTable td {
+    padding: 8px;
+  }
+  
+  .buttonGroup {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .addButton,
+  .updateButton,
+  .uploadButton {
+    width: 100%;
+  }
+  
+  .formField {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tableWrapper {
+    border-radius: 4px;
+  }
+  
+  .dataTable {
+    min-width: 500px;
+  }
+  
+  .dataTable th,
+  .dataTable td {
+    padding: 6px;
+    font-size: 12px;
+  }
+  
+  .formField {
+    min-width: 100px;
+  }
+}
+
+/* Toggle switches styling (if needed for Show Scores/Show Detailed) */
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggleSwitch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggleSwitch input:checked + .toggleSlider {
+  background-color: #9c88ff;
+}
+
+.toggleSwitch input:checked + .toggleSlider:before {
+  transform: translateX(26px);
+}
