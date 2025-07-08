@@ -108,6 +108,9 @@ export const TEST_SS_VIEW = `${API_BASE_URL}/manager/test/invigilation/image`;
 
 export const UPDATE_USER_PASSWORD = `${API_BASE_URL}/manager/user/updatePassword`; 
 
+export const VIEW_TRAINEE_ASSIGNMENT_URL = `${API_BASE_URL}/assignment/allotment/viewAssignmentList`;
+export const ALLOT_ASSIGNMENT_URL = `${API_BASE_URL}/manager/allotAssignmentToTrainee`;
+
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
