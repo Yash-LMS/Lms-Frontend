@@ -199,6 +199,19 @@ const Sidebar = ({ activeTab }) => {
               )}
             </a>
           </li>
+
+                 <li className={`${styles.navItem} ${activeTab === "assignments" ? styles.active : ""}`}>
+            <a
+              href="#assignments"
+              onClick={(e) => handleNavigation('/view/assignment', 'assignments', e)}
+            >
+              <FontAwesomeIcon icon={faUsers} />
+              <span className={styles.navText}>Assignment Management</span>
+        
+            </a>
+          </li>
+
+
           <li className={`${styles.navItem} ${activeTab === "intern" ? styles.active : ""}`}>
             <a
               href="#intern"
