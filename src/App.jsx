@@ -455,7 +455,7 @@ const AppContent = () => {
           />
 
 
-                 <Route
+          <Route
             path="/user/assignment"
             element={
               <ProtectedRoute>

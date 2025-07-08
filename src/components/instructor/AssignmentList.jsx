@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import styles from "./AssignmentList.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -8,7 +9,13 @@ import {
   faCalendarAlt,
   faClipboardList,
   faGraduationCap,
+  faTimes,
+  faDownload,
+  faComment,
+  faCheck,
+  faStar,
 } from "@fortawesome/free-solid-svg-icons";
+import { VIEW_ASSIGNMENT_SUBMISSION_URL, ASSIGNMENT_SUBMISSION_FEEDBACK_URL } from "../../constants/apiConstants";
 
 const AssignmentList = ({ assignments, loading, error, onRetry }) => {
   const navigate = useNavigate();
@@ -16,6 +23,40 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const cardsPerPage = 6;
+
+  // Modal states
+  const [showSubmissionsModal, setShowSubmissionsModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
+  const [submissionsLoading, setSubmissionsLoading] = useState(false);
+  const [submissionsError, setSubmissionsError] = useState(null);
+
+  // Feedback form state
+  const [feedbackForm, setFeedbackForm] = useState({
+    marks: '',
+    feedback: '',
+  });
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+
+  // Get user data function
+  const getUserData = () => {
+    try {
+      const user = JSON.parse(sessionStorage.getItem("user"));
+      const token = sessionStorage.getItem("token");
+      const role = user?.role || null;
+      
+      return {
+        user,
+        token,
+        role,
+      };
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      return { user: null, token: null, role: null };
+    }
+  };
 
   // Calculate pagination
   const indexOfLastAssignment = currentPage * cardsPerPage;
@@ -71,23 +112,128 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
     return assignmentEndDate < today;
   };
 
-  // Assignment action handlers
-  const handleViewAssignment = (assignment) => {
-    console.log("Viewing assignment:", assignment);
-    // Navigate to assignment details page
-    // navigate(`/assignment/${assignment.assignmentId}`);
+  // Fetch submissions for an assignment
+  const fetchSubmissions = async (assignmentId) => {
+    setSubmissionsLoading(true);
+    setSubmissionsError(null);
+    
+    try {
+      const { user, token } = getUserData();
+      
+      if (!user || !token) {
+        throw new Error("User authentication required");
+      }
+
+      const response = await axios.post(VIEW_ASSIGNMENT_SUBMISSION_URL, {
+        user: user,
+        token: token,
+        assignmentId: assignmentId,
+      });
+
+      if (response.data && response.data.response === "success") {
+        setSubmissions(response.data.payload || []);
+      } else {
+        throw new Error(response.data?.message || "Failed to fetch submissions");
+      }
+    } catch (error) {
+      console.error("Error fetching submissions:", error);
+      setSubmissionsError(error.message || "Failed to fetch submissions");
+      setSubmissions([]);
+    } finally {
+      setSubmissionsLoading(false);
+    }
   };
 
-  const handleViewSubmissions = (assignment) => {
-    console.log("Viewing submissions for assignment:", assignment);
-    // Navigate to submissions page
-    // navigate(`/assignment/${assignment.assignmentId}/submissions`);
+  // Handle view submissions
+  const handleViewSubmissions = async (assignment) => {
+    setSelectedAssignment(assignment);
+    setShowSubmissionsModal(true);
+    await fetchSubmissions(assignment.assignmentId);
   };
 
-  const handleGradeAssignment = (assignment) => {
-    console.log("Grading assignment:", assignment);
-    // Navigate to grading page
-    // navigate(`/assignment/${assignment.assignmentId}/grade`);
+  // Handle feedback submission
+  const handleSubmitFeedback = async () => {
+    if (!selectedSubmission || !feedbackForm.marks || !feedbackForm.feedback) {
+      alert("Please provide both marks and feedback");
+      return;
+    }
+
+    setFeedbackSubmitting(true);
+    
+    try {
+      const { user, token } = getUserData();
+      
+      if (!user || !token) {
+        throw new Error("User authentication required");
+      }
+
+      const response = await axios.post(ASSIGNMENT_SUBMISSION_FEEDBACK_URL, {
+        user: user,
+        token: token,
+        allotmentId: selectedSubmission.allotmentId,
+        marks: parseFloat(feedbackForm.marks),
+        feedback: feedbackForm.feedback,
+      });
+
+      if (response.data && response.data.status === "success") {
+        alert("Feedback submitted successfully!");
+        setShowFeedbackModal(false);
+        setFeedbackForm({ marks: '', feedback: '' });
+        setSelectedSubmission(null);
+        // Refresh submissions
+        await fetchSubmissions(selectedAssignment.assignmentId);
+      } else {
+        throw new Error(response.data?.message || "Failed to submit feedback");
+      }
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      alert(error.message || "Failed to submit feedback");
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  };
+
+  // Handle feedback modal open
+  const handleOpenFeedback = (submission) => {
+    setSelectedSubmission(submission);
+    setFeedbackForm({
+      marks: submission.marks || '',
+      feedback: submission.feedBack || '',
+    });
+    setShowFeedbackModal(true);
+  };
+
+  // Handle file download
+  const handleDownloadFile = (filePath, fileName) => {
+    if (filePath) {
+      // Create a download link for the file
+      const link = document.createElement('a');
+      link.href = filePath;
+      link.download = fileName || 'assignment_file';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  // Extract filename from filepath
+  const getFileNameFromPath = (filePath) => {
+    if (!filePath) return 'assignment_file';
+    return filePath.split('\\').pop() || filePath.split('/').pop() || 'assignment_file';
+  };
+
+  // Close modals
+  const closeSubmissionsModal = () => {
+    setShowSubmissionsModal(false);
+    setSelectedAssignment(null);
+    setSubmissions([]);
+    setSubmissionsError(null);
+  };
+
+  const closeFeedbackModal = () => {
+    setShowFeedbackModal(false);
+    setSelectedSubmission(null);
+    setFeedbackForm({ marks: '', feedback: '' });
   };
 
   if (loading) {
@@ -125,12 +271,12 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
     <div className={styles.courseListContainer}>
       <div className={styles.courseList}>
         {currentAssignments.map((assignment) => (
-          <div className={styles.courseCard}>
+          <div key={assignment.assignmentId} className={styles.courseCard}>
             <div className={styles.courseTag}>ASSIGNMENT</div>
             <div className={styles.courseHeader}>
-                <h3>{assignment.title}</h3>
+              <h3>{assignment.title}</h3>
               <span
-                className={`${styles.statusBadge} ${getStatusColor(assignment.status || assignment.assignmentStatus)}`}
+                className={`${styles.statusBadge} ${getStatusColor(assignment.approvalStatus)}`}
               >
                 {(assignment.approvalStatus).toUpperCase()}
               </span>
@@ -140,10 +286,10 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
               <div className={styles.assignmentMeta}>              
                 <div className={styles.metaItem}>
                   <p className={styles.description}>
-                {assignment.description?.length > 100
-                  ? `${assignment.description.substring(0, 100)}...`
-                  : assignment.description || 'No description available'}
-              </p>
+                    {assignment.description?.length > 100
+                      ? `${assignment.description.substring(0, 100)}...`
+                      : assignment.description || 'No description available'}
+                  </p>
                 </div>
                 <div className={styles.metaItem}>
                   <span>Total Marks: {assignment.totalMarks || 0}</span>
@@ -154,18 +300,10 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
             <div className={styles.cardActions}>
               <button
                 className={styles.previewButton}
-                onClick={() => handleViewAssignment(assignment)}
+                onClick={() => handleViewSubmissions(assignment)}
               >
                 <FontAwesomeIcon icon={faEye} />
                 <span style={{ marginLeft: "5px" }}>View Submissions</span>
-              </button>
-              
-              <button
-                className={styles.addButton}
-                onClick={() => handleViewSubmissions(assignment)}
-              >
-                <FontAwesomeIcon icon={faClipboardList} />
-                <span style={{ marginLeft: "5px" }}>Submissions</span>
               </button>
             </div>
           </div>
@@ -191,6 +329,189 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
           >
             Next
           </button>
+        </div>
+      )}
+
+      {/* Submissions Modal */}
+      {showSubmissionsModal && (
+        <div className="modalOverlay">
+          <div className="modalContent">
+            <div className="modalHeader">
+              <h3>Assignment Submissions - {selectedAssignment?.title}</h3>
+              <button className="closeButton" onClick={closeSubmissionsModal}>
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+            
+            <div className="modalBody">
+              {submissionsLoading && (
+                <div className="loadingContainer">
+                  <p>Loading submissions...</p>
+                </div>
+              )}
+              
+              {submissionsError && (
+                <div className="errorContainer">
+                  <p className="errorMessage">{submissionsError}</p>
+                </div>
+              )}
+              
+              {!submissionsLoading && !submissionsError && submissions.length === 0 && (
+                <div className="noSubmissions">
+                  <p>No submissions found for this assignment.</p>
+                </div>
+              )}
+              
+              {!submissionsLoading && !submissionsError && submissions.length > 0 && (
+                <div className="submissionsTable">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Allotment ID</th>
+                        <th>Allotment Date</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Submission Date</th>
+                        <th>Status</th>
+                        <th>Marks</th>
+                        <th>Evaluation Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {submissions.map((submission) => (
+                        <tr key={submission.allotmentId}>
+                          <td>{submission.allotmentId}</td>
+                          <td>{formatDate(submission.allotmentDate)}</td>
+                          <td>{formatDate(submission.startDate)}</td>
+                          <td>{formatDate(submission.endDate)}</td>
+                          <td>{formatDate(submission.submissionDate)}</td>
+                          <td>
+                            <span className={`${styles.statusBadge} ${submission.status === 'submitted' ? styles.approved : styles.pending}`}>
+                              {submission.status?.toUpperCase() || 'PENDING'}
+                            </span>
+                          </td>
+                          <td>
+                            {submission.marks !== null && submission.marks !== undefined ? (
+                              <span className={styles.marksDisplay}>
+                                {submission.marks} / {submission.totalMarks}
+                              </span>
+                            ) : (
+                              <span className={styles.notGraded}>Not Graded</span>
+                            )}
+                          </td>
+                          <td>
+                            <span className={`${styles.statusBadge} ${submission.evaluationStatus ? styles.approved : styles.pending}`}>
+                              {submission.evaluationStatus || 'PENDING'}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="actionButtons">
+                              {submission.filePath && (
+                                <button
+                                  className="downloadButton"
+                                  onClick={() => handleDownloadFile(submission.filePath, getFileNameFromPath(submission.filePath))}
+                                  title="Download Submission"
+                                >
+                                  <FontAwesomeIcon icon={faDownload} />
+                                </button>
+                              )}
+                              <button
+                                className="feedbackButton"
+                                onClick={() => handleOpenFeedback(submission)}
+                                title="Provide Feedback"
+                              >
+                                <FontAwesomeIcon icon={faComment} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Modal */}
+      {showFeedbackModal && (
+        <div className="modalOverlay">
+          <div className="modalContent">
+            <div className="modalHeader">
+              <h3>Provide Feedback</h3>
+              <button className="closeButton" onClick={closeFeedbackModal}>
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+            
+            <div className="modalBody">
+              {selectedSubmission && (
+                <div className={styles.submissionInfo}>
+                  <p><strong>Allotment ID:</strong> {selectedSubmission.allotmentId}</p>
+                  <p><strong>Assignment:</strong> {selectedAssignment?.title}</p>
+                  <p><strong>Submission Status:</strong> {selectedSubmission.status}</p>
+                  <p><strong>File:</strong> {getFileNameFromPath(selectedSubmission.filePath)}</p>
+                </div>
+              )}
+
+              <div className="feedbackForm">
+                <div className="formGroup">
+                  <label htmlFor="marks">
+                    Marks (out of {selectedSubmission?.totalMarks || 0}):
+                  </label>
+                  <input
+                    type="number"
+                    id="marks"
+                    min="0"
+                    max={selectedSubmission?.totalMarks || 100}
+                    value={feedbackForm.marks}
+                    onChange={(e) => setFeedbackForm({ ...feedbackForm, marks: e.target.value })}
+                    placeholder="Enter marks"
+                  />
+                </div>
+                
+                <div className="formGroup">
+                  <label htmlFor="feedback">Feedback:</label>
+                  <textarea
+                    id="feedback"
+                    value={feedbackForm.feedback}
+                    onChange={(e) => setFeedbackForm({ ...feedbackForm, feedback: e.target.value })}
+                    placeholder="Provide detailed feedback..."
+                  />
+                </div>
+                
+                <div className="formActions">
+                  <button
+                    className="cancelButton"
+                    onClick={closeFeedbackModal}
+                    disabled={feedbackSubmitting}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="submitButton"
+                    onClick={handleSubmitFeedback}
+                    disabled={feedbackSubmitting || !feedbackForm.marks || !feedbackForm.feedback}
+                  >
+                    {feedbackSubmitting ? (
+                      <>
+                        <FontAwesomeIcon icon={faStar} className={styles.spinning} />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <FontAwesomeIcon icon={faCheck} />
+                        Submit Feedback
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

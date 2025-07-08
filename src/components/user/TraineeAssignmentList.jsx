@@ -11,7 +11,7 @@ const TraineeAssignmentList = () => {
   const [error, setError] = useState(null);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [showUploadPopup, setShowUploadPopup] = useState(false);
-  const [activeFilter, setActiveFilter] = useState('all'); // New state for filter
+  const [activeFilter, setActiveFilter] = useState('all');
   const [dashboardCounts, setDashboardCounts] = useState({
     pending: 0,
     submitted: 0,
@@ -19,9 +19,18 @@ const TraineeAssignmentList = () => {
     total: 0
   });
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6); // Show 6 items per page (adjustable)
+
   useEffect(() => {
     fetchAssignments();
   }, []);
+
+  // Reset to first page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeFilter]);
 
   const getUserData = () => {
     try {
@@ -129,10 +138,31 @@ const TraineeAssignmentList = () => {
     setActiveFilter(filter);
   };
 
+  // Pagination logic
+  const filteredAssignments = getFilteredAssignments();
+  const totalPages = Math.ceil(filteredAssignments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentAssignments = filteredAssignments.slice(startIndex, endIndex);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
   if (loading) return <div className={styles.loading}>Loading assignments...</div>;
   if (error) return <div className={styles.error}>Error: {error}</div>;
-
-  const filteredAssignments = getFilteredAssignments();
 
   return (
     <div className={styles.container}>
@@ -176,7 +206,7 @@ const TraineeAssignmentList = () => {
 
       {/* Assignment List */}
       <div className={styles.assignmentList}>
-        {filteredAssignments.length === 0 ? (
+        {currentAssignments.length === 0 ? (
           <div className={styles.noAssignments}>
             {activeFilter === 'all' 
               ? 'No assignments found' 
@@ -184,7 +214,7 @@ const TraineeAssignmentList = () => {
             }
           </div>
         ) : (
-          filteredAssignments.map((assignment) => (
+          currentAssignments.map((assignment) => (
             <div key={assignment.allotmentId} className={styles.assignmentCard}>
               <div className={styles.assignmentHeader}>
                 <h3 className={styles.assignmentTitle}>{assignment.title}</h3>
@@ -226,6 +256,31 @@ const TraineeAssignmentList = () => {
           ))
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {filteredAssignments.length > 0 && totalPages > 1 && (
+        <div className={styles.paginationControls}>
+          <button
+            className={styles.paginationButton}
+            onClick={handlePrevious}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          
+          <div className={styles.pageIndicator}>
+            Page {currentPage} of {totalPages}
+          </div>
+          
+          <button
+            className={styles.paginationButton}
+            onClick={handleNext}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {/* Upload Popup */}
       {showUploadPopup && selectedAssignment && (

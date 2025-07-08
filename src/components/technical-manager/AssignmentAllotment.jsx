@@ -32,10 +32,10 @@ const AssignmentAllotment = () => {
     control: (provided) => ({
       ...provided,
       minHeight: '38px',
-      border: '1px solid #ccc',
+      border: '1px solid #e0e0e0',
       boxShadow: 'none',
       '&:hover': {
-        border: '1px solid #888',
+        border: '1px solid #7b64c3',
       },
     }),
     menu: (provided) => ({
@@ -53,6 +53,14 @@ const AssignmentAllotment = () => {
     menuList: (provided) => ({
       ...provided,
       maxHeight: '200px'
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? '#7b64c3' : state.isFocused ? '#e3f2fd' : 'white',
+      color: state.isSelected ? 'white' : '#495057',
+      '&:hover': {
+        backgroundColor: '#f8f9fa',
+      }
     })
   };
 
@@ -228,146 +236,151 @@ const AssignmentAllotment = () => {
       {/* Sidebar Navigation */}
       <Sidebar activeTab={activeTab} />
 
-      <div className={styles.mainContent}>
-        <header className={styles.pageHeader}>
-          <h1>Assignment Allotment</h1>
-        </header>
+      <div className={styles.dashboardContent}>
+        <div className={styles.mainContent}>
+          <header className={styles.pageHeader}>
+            <h1>Assignment Allotment</h1>
+          </header>
 
-        <div className={styles.tableContainer}>
-          {assignmentList && assignmentList.length > 0 ? (
-            <>
-              <div className={styles.tableWrapper}>
-                <table className={styles.dataTable}>
-                  <thead>
-                    <tr>
-                      <th>Employee</th>
-                      <th>Assignment</th>
-                      <th>Start Date</th>
-                      <th>End Date</th>
-                      <th className={styles.actionColumn}>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((row, index) => (
-                      <tr
-                        key={index}
-                        className={
-                          errorRows.includes(index) ? styles.errorRow : ""
-                        }
-                      >
-                        <td className={styles.formField}>
-                          <Select
-                            options={userOptions}
-                            value={userOptions.find(option => option.value === row.emailId) || null}
-                            onChange={(selectedOption) => 
-                              handleRowChange(index, "emailId", selectedOption ? selectedOption.value : "")
-                            }
-                            placeholder="Select Employee"
-                            isClearable
-                            isSearchable
-                            styles={selectStyles}
-                            menuPortalTarget={document.body}
-                            className={styles.reactSelect}
-                          />
-                        </td>
-                        <td className={styles.formField}>
-                          <Select
-                            options={assignmentOptions}
-                            value={assignmentOptions.find(option => option.value === row.assignmentId) || null}
-                            onChange={(selectedOption) => 
-                              handleRowChange(index, "assignmentId", selectedOption ? selectedOption.value : "")
-                            }
-                            placeholder="Select Assignment"
-                            isClearable
-                            isSearchable
-                            styles={selectStyles}
-                            menuPortalTarget={document.body}
-                            className={styles.reactSelect}
-                          />
-                        </td>
-                        <td className={styles.formField}>
-                          <input
-                            type="date"
-                            value={row.startDate}
-                            onChange={(e) => handleRowChange(index, "startDate", e.target.value)}
-                            className={styles.dateInput}
-                            min={getTodayDate()}
-                          />
-                        </td>
-                        <td className={styles.formField}>
-                          <input
-                            type="date"
-                            value={row.endDate}
-                            onChange={(e) => handleRowChange(index, "endDate", e.target.value)}
-                            className={styles.dateInput}
-                            min={row.startDate || getTodayDate()}
-                          />
-                        </td>
-                        <td className={styles.actionColumn}>
-                          <button
-                            onClick={() => deleteRow(index)}
-                            className={styles.deleteButton}
-                            disabled={rows.length === 1}
-                          >
-                            Delete
-                          </button>
-                        </td>
+          <div className={styles.cardLayout}>
+            {assignmentList && assignmentList.length > 0 ? (
+              <>
+                <div className={styles.tableScrollContainer}>
+                  <table className={styles.dataTable}>
+                    <thead>
+                      <tr>
+                        <th>Employee</th>
+                        <th>Assignment</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th className={styles.actionColumn}>Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {rows.map((row, index) => (
+                        <tr
+                          key={index}
+                          className={
+                            errorRows.includes(index) ? styles.errorRow : ""
+                          }
+                        >
+                          <td className={styles.formField}>
+                            <Select
+                              options={userOptions}
+                              value={userOptions.find(option => option.value === row.emailId) || null}
+                              onChange={(selectedOption) => 
+                                handleRowChange(index, "emailId", selectedOption ? selectedOption.value : "")
+                              }
+                              placeholder="Select Employee"
+                              isClearable
+                              isSearchable
+                              styles={selectStyles}
+                              menuPortalTarget={document.body}
+                              className={styles.reactSelect}
+                            />
+                          </td>
+                          <td className={styles.formField}>
+                            <Select
+                              options={assignmentOptions}
+                              value={assignmentOptions.find(option => option.value === row.assignmentId) || null}
+                              onChange={(selectedOption) => 
+                                handleRowChange(index, "assignmentId", selectedOption ? selectedOption.value : "")
+                              }
+                              placeholder="Select Assignment"
+                              isClearable
+                              isSearchable
+                              styles={selectStyles}
+                              menuPortalTarget={document.body}
+                              className={styles.reactSelect}
+                            />
+                          </td>
+                          <td className={styles.formField}>
+                            <input
+                              type="date"
+                              value={row.startDate}
+                              onChange={(e) => handleRowChange(index, "startDate", e.target.value)}
+                              className={styles.dateInput}
+                              min={getTodayDate()}
+                            />
+                          </td>
+                          <td className={styles.formField}>
+                            <input
+                              type="date"
+                              value={row.endDate}
+                              onChange={(e) => handleRowChange(index, "endDate", e.target.value)}
+                              className={styles.dateInput}
+                              min={row.startDate || getTodayDate()}
+                            />
+                          </td>
+                          <td className={styles.actionColumn}>
+                            <button
+                              onClick={() => deleteRow(index)}
+                              className={styles.deleteButton}
+                              disabled={rows.length === 1}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
-              <div className={styles.buttonGroup}>
-                <button onClick={addRow} className={styles.addButton}>
-                  Add
-                </button>
-                <button onClick={handleUpdate} className={styles.updateButton}>
-                  Save Changes
-                </button>
-                <button
-                  onClick={toggleBulkUploadModal}
-                  className={styles.uploadButton}
-                >
-                  Bulk Upload
+                <div className={styles.buttonGroup}>
+                  <button onClick={addRow} className={styles.addButton}>
+                    Add
+                  </button>
+                  <button onClick={handleUpdate} className={styles.updateButton}>
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={toggleBulkUploadModal}
+                    className={styles.uploadButton}
+                  >
+                    Bulk Upload
+                  </button>
+                </div>
+              </>
+            ) : (
+              <p className={styles.errorMessage}>
+                No approved assignment available for allotment.
+              </p>
+            )}
+          </div>
+
+          {/* Notification Popup */}
+          {showPopup && (
+            <div className={styles.popup}>
+              <div className={styles.popupContent}>
+                <p>{popupStatus}</p>
+                <button onClick={closePopup} className={styles.closeButton}>
+                  Close
                 </button>
               </div>
-            </>
-          ) : (
-            <p className={styles.errorMessage}>
-              No approved assignment available for allotment.
-            </p>
+            </div>
+          )}
+
+          {/* Bulk Upload Modal */}
+          {showBulkUploadModal && (
+            <div className={styles.modal}>
+              <div className={styles.modalContent}>
+                <div className={styles.modalHeader}>
+                  <h2>Bulk Assignment Allotment</h2>
+                  <button
+                    onClick={toggleBulkUploadModal}
+                    className={styles.modalCloseButton}
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className={styles.modalBody}>
+                  {/* Modal content goes here */}
+                </div>
+              </div>
+            </div>
           )}
         </div>
-
-        {/* Notification Popup */}
-        {showPopup && (
-          <div className={styles.popup}>
-            <div className={styles.popupContent}>
-              <p>{popupStatus}</p>
-              <button onClick={closePopup} className={styles.closeButton}>
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Bulk Upload Modal */}
-        {showBulkUploadModal && (
-          <div className={styles.modal}>
-            <div className={styles.modalContent}>
-              <div className={styles.modalHeader}>
-                <h2>Bulk Assignment Allotment</h2>
-                <button
-                  onClick={toggleBulkUploadModal}
-                  className={styles.modalCloseButton}
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

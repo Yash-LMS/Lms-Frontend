@@ -97,12 +97,12 @@ const InstructorSidebar = ({ activeTab }) => {
 
            <li
             className={`${styles.navItem} ${
-              activeTab === "assignment" ? styles.active : ""
+              activeTab === "assignments" ? styles.active : ""
             }`}
           >
             <a
-              href="#assignment"
-              onClick={(e) => handleNavigation('/view/assignment', 'assignment', e)}
+              href="#assignments"
+              onClick={(e) => handleNavigation('/view/assignment', 'assignments', e)}
             >
               <FontAwesomeIcon icon={faUsers} />
               Assignments
@@ -112,7 +112,7 @@ const InstructorSidebar = ({ activeTab }) => {
 
                  <li
             className={`${styles.navItem} ${
-              activeTab === "assignment" ? styles.active : ""
+              activeTab === "password" ? styles.active : ""
             }`}
           >
             <a
