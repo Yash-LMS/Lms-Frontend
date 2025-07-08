@@ -58,6 +58,7 @@ import TrpGenerator from "./components/technical-manager/TrpGenerator";
 import UpdatePassword from "./components/technical-manager/UpdatePassword";
 
 import UserPassword from "./components/user/UpdatePassword";
+import TraineeAssignmentList from "./components/user/TraineeAssignmentList";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -449,6 +450,16 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <ResultPage />
+              </ProtectedRoute>
+            }
+          />
+
+
+                 <Route
+            path="/user/assignment"
+            element={
+              <ProtectedRoute>
+                <TraineeAssignmentList />
               </ProtectedRoute>
             }
           />

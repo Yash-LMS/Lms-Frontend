@@ -140,6 +140,9 @@ export const VIDEO_SIZE_URL = `${API_BASE_URL}/user/file/video/size`; // in minu
 export const TEST_SS_CAPTURE = `${API_BASE_URL}/user/test/capture`; 
 export const UPDATE_PASSWORD = `${API_BASE_URL}/user/updatePassword`; 
 
+export const SUBMIT_ASSIGNMENT_URL = `${API_BASE_URL}/user/assignment/submit`; 
+export const VIEW_ASSIGNMENT_TRAINEE_URL = `${API_BASE_URL}/user/assignment/view`;
+
 
 
 //Test

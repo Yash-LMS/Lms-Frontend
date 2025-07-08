@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import styles from '../components/user/UserDashboard.module.css'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faListCheck, faFolderOpen,faKey
+  faListCheck, faFolderOpen,faKey, faClipboardList
 } from '@fortawesome/free-solid-svg-icons';
 
 const DashboardSidebar = ({ activeLink }) => {
@@ -21,6 +21,13 @@ const DashboardSidebar = ({ activeLink }) => {
             <Link to="/my-test">
               <FontAwesomeIcon icon={faListCheck} />
               <span>My Tests</span>
+            </Link>
+          </li>
+
+                <li className={`${styles.navItem} ${activeLink === "assignment" ? styles.active : ""}`}>
+            <Link to="/user/assignment">
+              <FontAwesomeIcon icon={faClipboardList} />
+              <span>My Assignment</span>
             </Link>
           </li>
      
