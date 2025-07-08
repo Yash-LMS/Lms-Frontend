@@ -232,6 +232,7 @@ const TraineeAssignmentList = () => {
         <AssignmentUploadPopup
           allotmentId={selectedAssignment.allotmentId}
           onClose={handleClosePopup}
+          onSuccess={fetchAssignments}
         />
       )}
     </div>

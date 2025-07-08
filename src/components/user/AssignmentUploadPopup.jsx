@@ -3,7 +3,7 @@ import axios from 'axios';
 import styles from './AssignmentUploadPopup.module.css';
 import { SUBMIT_ASSIGNMENT_URL } from '../../constants/apiConstants';
 
-const AssignmentUploadPopup = ({ allotmentId, onClose }) => {
+const AssignmentUploadPopup = ({ allotmentId, onClose,onSuccess }) => {
   const [file, setFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -144,6 +144,7 @@ const AssignmentUploadPopup = ({ allotmentId, onClose }) => {
         setUploadProgress(100);
         setTimeRemaining(null);
         onClose();
+        onSuccess();
       } else {
         setError(response.data.message || 'Upload failed');
         setTimeRemaining(null);
@@ -154,6 +155,7 @@ const AssignmentUploadPopup = ({ allotmentId, onClose }) => {
       setTimeRemaining(null);
     } finally {
       setIsUploading(false);
+      onSuccess();
     }
   };
 
