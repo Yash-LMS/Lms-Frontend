@@ -175,30 +175,35 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
         feedback: feedbackForm.feedback,
       });
 
-      if (response.data && response.data.status === "success") {
-        alert("Feedback submitted successfully!");
+      if (response.data && response.data.response === "success") {
+       
+        
         setShowFeedbackModal(false);
         setFeedbackForm({ marks: '', feedback: '' });
         setSelectedSubmission(null);
-        // Refresh submissions
-        await fetchSubmissions(selectedAssignment.assignmentId);
+        
+        // Refresh submissions list
+        if (selectedAssignment) {
+          await fetchSubmissions(selectedAssignment.assignmentId);
+        }
       } else {
         throw new Error(response.data?.message || "Failed to submit feedback");
       }
     } catch (error) {
       console.error("Error submitting feedback:", error);
-      alert(error.message || "Failed to submit feedback");
+    
     } finally {
       setFeedbackSubmitting(false);
     }
   };
 
-  // Handle feedback modal open
+  // Handle feedback modal open - Reset form fields
   const handleOpenFeedback = (submission) => {
     setSelectedSubmission(submission);
+    // Reset form fields instead of using previous values
     setFeedbackForm({
-      marks: submission.marks || '',
-      feedback: submission.feedBack || '',
+      marks: '',
+      feedback: '',
     });
     setShowFeedbackModal(true);
   };
@@ -503,6 +508,12 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
                 <p><strong>Assignment:</strong> {selectedAssignment?.title}</p>
                 <p><strong>Submission Status:</strong> {selectedSubmission.status}</p>
                 <p><strong>File:</strong> {getFileNameFromPath(selectedSubmission.filePath)}</p>
+                {selectedSubmission.marks !== null && selectedSubmission.marks !== undefined && (
+                  <p><strong>Current Marks:</strong> {selectedSubmission.marks} / {selectedSubmission.totalMarks}</p>
+                )}
+                {selectedSubmission.feedBack && (
+                  <p><strong>Previous Feedback:</strong> {selectedSubmission.feedBack}</p>
+                )}
               </div>
             )}
 
