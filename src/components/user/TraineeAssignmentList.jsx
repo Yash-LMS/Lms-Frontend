@@ -235,6 +235,7 @@ const TraineeAssignmentList = () => {
           onSuccess={fetchAssignments}
         />
       )}
+      
     </div>
   );
 };
