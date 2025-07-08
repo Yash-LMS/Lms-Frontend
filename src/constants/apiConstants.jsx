@@ -117,6 +117,9 @@ export const UPDATE_USER_PASSWORD = `${API_BASE_URL}/manager/user/updatePassword
 export const VIEW_TRAINEE_ASSIGNMENT_URL = `${API_BASE_URL}/assignment/allotment/viewAssignmentList`;
 export const ALLOT_ASSIGNMENT_URL = `${API_BASE_URL}/manager/allotAssignmentToTrainee`;
 
+export const DOWNLOAD_ASSIGNMENT_FILES = `${API_BASE_URL}/assignment/file/download`;
+
+
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;

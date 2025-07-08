@@ -15,7 +15,7 @@ import {
   faCheck,
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
-import { VIEW_ASSIGNMENT_SUBMISSION_URL, ASSIGNMENT_SUBMISSION_FEEDBACK_URL } from "../../constants/apiConstants";
+import { VIEW_ASSIGNMENT_SUBMISSION_URL, ASSIGNMENT_SUBMISSION_FEEDBACK_URL,DOWNLOAD_ASSIGNMENT_FILES } from "../../constants/apiConstants";
 
 const AssignmentList = ({ assignments, loading, error, onRetry }) => {
   const navigate = useNavigate();
@@ -104,6 +104,8 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
     }
   };
 
+
+  
   // Check if assignment is overdue
   const isOverdue = (endDate) => {
     if (!endDate) return false;
@@ -209,17 +211,62 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
   };
 
   // Handle file download
-  const handleDownloadFile = (filePath, fileName) => {
-    if (filePath) {
-      // Create a download link for the file
+
+const handleDownloadFile = async (allotmentId) => {
+    try {
+      const { user, token } = getUserData();
+
+      const response = await axios.post(
+        `${DOWNLOAD_ASSIGNMENT_FILES}`, // your API endpoint
+        { allotmentId, user, token }, // request body
+        {
+          responseType: 'blob', // important to receive file as blob
+        }
+      );
+
+      // Extract filename from content-disposition header if present
+      const disposition = response.headers['content-disposition'];
+      let filename = 'downloaded-file';
+      if (disposition && disposition.indexOf('filename=') !== -1) {
+        const filenameMatch = disposition.match(/filename="?([^"]+)"?/);
+        if (filenameMatch.length > 1) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Get the content type from response headers
+      const contentType = response.headers['content-type'] || 'application/octet-stream';
+
+      // Create a blob URL with the correct content type and trigger download
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
       const link = document.createElement('a');
-      link.href = filePath;
-      link.download = fileName || 'assignment_file';
+      link.href = url;
+      link.setAttribute('download', filename);
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      // Handle errors here (e.g. unauthorized, file not found)
+      if (error.response && error.response.data) {
+        // Try to parse error JSON from blob
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const errorMsg = JSON.parse(reader.result);
+            alert(errorMsg.message || 'Error downloading file');
+          } catch {
+            alert('Error downloading file');
+          }
+        };
+        reader.readAsText(error.response.data);
+      } else {
+        alert('Error downloading file');
+      }
     }
   };
+  
 
   // Extract filename from filepath
   const getFileNameFromPath = (filePath) => {
@@ -461,22 +508,25 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
                         </td>
                         <td>
                           <div className={styles.actionButtons}>
-                            {submission.filePath && (
+                            {submission.fileStatus === "IN_FILE" && (
                               <button
                                 className={styles.downloadButton}
-                                onClick={() => handleDownloadFile(submission.filePath, getFileNameFromPath(submission.filePath))}
+                                onClick={() => handleDownloadFile(submission.allotmentId)}
                                 title="Download Submission"
                               >
                                 <FontAwesomeIcon icon={faDownload} />
                               </button>
                             )}
-                            <button
-                              className={styles.feedbackButton}
-                              onClick={() => handleOpenFeedback(submission)}
-                              title="Provide Feedback"
-                            >
-                              <FontAwesomeIcon icon={faComment} />
-                            </button>
+
+                            {submission.evaluationStatus === 'pending' && (
+                              <button
+                                className={styles.feedbackButton}
+                                onClick={() => handleOpenFeedback(submission)}
+                                title="Provide Feedback"
+                              >
+                                <FontAwesomeIcon icon={faComment} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
