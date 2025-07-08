@@ -3,6 +3,7 @@ import styles from './InstructorDashboard.module.css';
 
 const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
+    title: '',
     description: '',
     startDate: '',
     endDate: '',
@@ -32,6 +33,10 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
   const validateForm = () => {
     const newErrors = {};
 
+    if (!formData.title.trim()) {
+      newErrors.title = 'Assignment title is required';
+    }
+
     if (!formData.description.trim()) {
       newErrors.description = 'Assignment description is required';
     }
@@ -59,16 +64,6 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
       }
     }
 
-    // Check if start date is not in the past
-    if (formData.startDate) {
-      const startDate = new Date(formData.startDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // Reset time to beginning of day
-      if (startDate < today) {
-        newErrors.startDate = 'Start date cannot be in the past';
-      }
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -81,9 +76,10 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
     }
 
     const assignmentData = {
+      title: formData.title.trim(),
       description: formData.description.trim(),
-      startDate: formData.startDate,
-      endDate: formData.endDate,
+      startDate: formData.startDate, // Keep as string, will be converted in parent component
+      endDate: formData.endDate, // Keep as string, will be converted in parent component
       totalMarks: parseInt(formData.totalMarks)
     };
     
@@ -93,6 +89,7 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
     
     // Reset form
     setFormData({
+      title: '',
       description: '',
       startDate: '',
       endDate: '',
@@ -103,6 +100,7 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
 
   const handleClose = () => {
     setFormData({
+      title: '',
       description: '',
       startDate: '',
       endDate: '',
@@ -127,6 +125,21 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
         
         <form className={styles.courseForm} onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
+            <label htmlFor="title">Assignment Title *</label>
+            <input 
+              type="text" 
+              id="title" 
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              placeholder="Enter assignment title"
+              className={`${styles.formInput} ${errors.title ? styles.errorInput : ''}`}
+              required
+            />
+            {errors.title && <span className={styles.errorText}>{errors.title}</span>}
+          </div>
+
+          <div className={styles.formGroup}>
             <label htmlFor="description">Description *</label>
             <textarea 
               id="description" 
@@ -142,36 +155,6 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="startDate">Start Date *</label>
-            <input 
-              type="date" 
-              id="startDate" 
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleInputChange}
-              className={`${styles.formInput} ${errors.startDate ? styles.errorInput : ''}`}
-              min={new Date().toISOString().split('T')[0]} // Prevent past dates
-              required
-            />
-            {errors.startDate && <span className={styles.errorText}>{errors.startDate}</span>}
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="endDate">End Date *</label>
-            <input 
-              type="date" 
-              id="endDate" 
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleInputChange}
-              className={`${styles.formInput} ${errors.endDate ? styles.errorInput : ''}`}
-              min={formData.startDate || new Date().toISOString().split('T')[0]} // End date should be after start date
-              required
-            />
-            {errors.endDate && <span className={styles.errorText}>{errors.endDate}</span>}
-          </div>
-
-          <div className={styles.formGroup}>
             <label htmlFor="totalMarks">Total Marks *</label>
             <input 
               type="number" 
@@ -182,7 +165,6 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
               placeholder="Enter total marks"
               className={`${styles.formInput} ${errors.totalMarks ? styles.errorInput : ''}`}
               min="1"
-              max="1000"
               required
             />
             {errors.totalMarks && <span className={styles.errorText}>{errors.totalMarks}</span>}

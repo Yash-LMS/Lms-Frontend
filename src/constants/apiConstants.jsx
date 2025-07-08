@@ -99,6 +99,10 @@ export const FIND_BATCHES_URL = `${API_BASE_URL}/manager/batch/viewBatchByStatus
 export const APPROVE_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/approve`;
 export const REJECT_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/reject`;
 
+export const FIND_ASSIGNMENT_URL = `${API_BASE_URL}/manager/findAssignmentByStatus`;
+export const APPROVE_ASSIGNMENT_URL = `${API_BASE_URL}/manager/updateAssignmentStatus/approve`;
+export const REJECT_ASSIGNMENT_URL = `${API_BASE_URL}/manager/updateAssignmentStatus/reject`;
+
 export const FIND_CANDIDATE_URL = `${API_BASE_URL}/manager/trp/findCandidates`;
 export const GENERATE_TRP_URL = `${API_BASE_URL}/manager/trp/generate`;
 export const GENERATE_BATCH_TRP_URL = `${API_BASE_URL}/manager/trp/batch/generate`;

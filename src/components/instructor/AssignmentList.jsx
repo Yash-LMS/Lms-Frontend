@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./BatchList.module.css";
+import styles from "./AssignmentList.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEdit,
@@ -78,12 +78,6 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
     // navigate(`/assignment/${assignment.assignmentId}`);
   };
 
-  const handleEditAssignment = (assignment) => {
-    console.log("Editing assignment:", assignment);
-    // Navigate to edit assignment page
-    // navigate(`/assignment/edit/${assignment.assignmentId}`);
-  };
-
   const handleViewSubmissions = (assignment) => {
     console.log("Viewing submissions for assignment:", assignment);
     // Navigate to submissions page
@@ -131,39 +125,27 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
     <div className={styles.courseListContainer}>
       <div className={styles.courseList}>
         {currentAssignments.map((assignment) => (
-          <div key={assignment.assignmentId || assignment.id} className={styles.courseCard}>
+          <div className={styles.courseCard}>
             <div className={styles.courseTag}>ASSIGNMENT</div>
             <div className={styles.courseHeader}>
+                <h3>{assignment.title}</h3>
               <span
                 className={`${styles.statusBadge} ${getStatusColor(assignment.status || assignment.assignmentStatus)}`}
               >
-                {(assignment.status || assignment.assignmentStatus || "PENDING").toUpperCase()}
+                {(assignment.approvalStatus).toUpperCase()}
               </span>
             </div>
             
             <div className={styles.assignmentDetails}>
-              <p className={styles.description}>
+              <div className={styles.assignmentMeta}>              
+                <div className={styles.metaItem}>
+                  <p className={styles.description}>
                 {assignment.description?.length > 100
                   ? `${assignment.description.substring(0, 100)}...`
                   : assignment.description || 'No description available'}
               </p>
-              
-              <div className={styles.assignmentMeta}>
-                <div className={styles.metaItem}>
-                  <FontAwesomeIcon icon={faCalendarAlt} />
-                  <span>Start: {formatDate(assignment.startDate)}</span>
                 </div>
                 <div className={styles.metaItem}>
-                  <FontAwesomeIcon icon={faCalendarAlt} />
-                  <span>
-                    End: {formatDate(assignment.endDate)}
-                    {isOverdue(assignment.endDate) && (
-                      <span className={styles.overdueText}> (Overdue)</span>
-                    )}
-                  </span>
-                </div>
-                <div className={styles.metaItem}>
-                  <FontAwesomeIcon icon={faClipboardList} />
                   <span>Total Marks: {assignment.totalMarks || 0}</span>
                 </div>
               </div>
@@ -175,15 +157,7 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
                 onClick={() => handleViewAssignment(assignment)}
               >
                 <FontAwesomeIcon icon={faEye} />
-                <span style={{ marginLeft: "5px" }}>View</span>
-              </button>
-              
-              <button
-                className={styles.editButton}
-                onClick={() => handleEditAssignment(assignment)}
-              >
-                <FontAwesomeIcon icon={faEdit} />
-                <span style={{ marginLeft: "5px" }}>Edit</span>
+                <span style={{ marginLeft: "5px" }}>View Submissions</span>
               </button>
               
               <button
@@ -192,14 +166,6 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
               >
                 <FontAwesomeIcon icon={faClipboardList} />
                 <span style={{ marginLeft: "5px" }}>Submissions</span>
-              </button>
-              
-              <button
-                className={styles.addCourseButton}
-                onClick={() => handleGradeAssignment(assignment)}
-              >
-                <FontAwesomeIcon icon={faGraduationCap} />
-                <span style={{ marginLeft: "5px" }}>Grade</span>
               </button>
             </div>
           </div>

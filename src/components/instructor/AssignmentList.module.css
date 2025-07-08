@@ -1,0 +1,422 @@
+/* CSS Variables */
+:root {
+    --primary-color: #8e6cef;
+    --primary-hover: #7559ce;
+    --secondary-color: #1c1d1f;
+    --text-primary: #1c1d1f;
+    --text-secondary: #6a6f73;
+    --border-color: #e5e7eb;
+    --background-main: #f5f7f9;
+    --background-card: #ffffff;
+    --sidebar-active: #f0e6ff;
+    --success-color: #1e7f2c;
+    --warning-color: #8b6f1c;
+    --error-color: #dc3545;
+    --info-color: #0d6efd;
+    --hold-color: #6c757d;
+    --overdue-color: #dc3545;
+  }
+  
+  /* Assignment List Container */
+  .courseListContainer {
+    width: 100%;
+  }
+  
+  /* Assignment List Grid */
+  .courseList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  /* Assignment Cards */
+  .courseCard {
+    background-color: var(--background-card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative; 
+    overflow: visible;
+    margin-left: 22px; 
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    width: 85%;
+    max-width: 85%;
+  }
+  
+  .courseCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(142, 108, 239, 0.1);
+  }
+  
+  /* Card Header */
+  .courseHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    margin-top: 12px;
+  }
+  
+  .courseHeader h3 {
+    color: var(--primary-color);
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  /* Assignment Description */
+  .description {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin: 0 0 1rem 0;
+    text-align: left;
+  }
+  
+  /* Status Badges */
+  .statusBadge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    align-self: flex-start;
+    margin-top: 0.5rem;
+  }
+
+  .approved {
+    background-color: #ecf7ed;
+    color: var(--success-color);
+  }
+  
+  .pending {
+    background-color: #fff8e5;
+    color: var(--warning-color);
+  }
+  
+  .hold {
+    background-color: #f5f5f5;
+    color: var(--hold-color);
+  }
+  
+  .not_approved,
+  .rejected {
+    background-color: #ffebee;
+    color: var(--error-color);
+  }
+
+  /* Assignment Details */
+  .assignmentDetails {
+    margin-bottom: 1rem;
+  }
+  
+  .assignmentMeta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .metaItem {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  
+  .metaItem span {
+    font-weight: 500;
+  }
+  
+  .overdueText {
+    color: var(--overdue-color);
+    font-weight: 600;
+    margin-left: 0.25rem;
+  }
+  
+  /* Card Actions */
+  .cardActions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: auto; 
+    padding-top: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  /* Buttons */
+  .addButton {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 0.6em 1.2em;
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.25s, background-color 0.25s;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+  
+  .addButton:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .editButton,
+  .previewButton {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    flex: 1;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .editButton {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+  }
+  
+  .editButton:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  .previewButton {
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: 8px;
+  }
+  
+  .previewButton:hover {
+    background-color: var(--sidebar-active);
+  }
+
+  .addCourseButton {
+    background-color: #f0e6ff;
+    color: #8e6cef;
+    border: 1px solid #8e6cef;
+    border-radius: 8px;
+    padding: 0.6em 1.2em;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    flex: 1;
+    min-width: 100px;
+  }
+  
+  .addCourseButton:hover {
+    background-color: #e0d6ff;
+  }
+  
+  /* Assignment Ribbon Tag */
+  .courseTag {
+    position: absolute;
+    top: 6px;
+    right: -19px;
+    background-color: #ff5722;
+    color: white;
+    padding: 2px 0;
+    font-weight: bold;
+    font-size: 9px;
+    width: 74px;
+    text-align: center;
+    transform: rotate(45deg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    letter-spacing: 0.5px;
+  }
+  
+  .courseTag:before,
+  .courseTag:after {
+    content: "";
+    position: absolute;
+    width: 6px;
+    height: 12px;
+    z-index: -1;
+    background-color: #d7481d;
+  }
+  
+  .courseTag:before {
+    bottom: -4px;
+    left: -4px;
+    transform: skewY(-60deg);
+  }
+  
+  .courseTag:after {
+    bottom: -4px;
+    right: -4px;
+    transform: skewY(60deg);
+  }
+  
+  /* Pagination */
+  .paginationControls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px 0;
+  }
+  
+  .paginationButton {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    margin: 0 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+  }
+  
+  .paginationButton:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  .paginationButton:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .pageIndicator {
+    font-size: 14px;
+    margin: 0 15px;
+    font-weight: 500;
+  }
+  
+  /* Empty States */
+  .noCourses {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    background-color: var(--background-card);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+  }
+  
+  .errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background-color: var(--background-card);
+    border-radius: 8px;
+  }
+  
+  .errorMessage {
+    color: var(--error-color);
+    background-color: #ffebee;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--error-color);
+    margin-bottom: 1rem;
+  }
+  
+  .retryButton {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .retryButton:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .courseList {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .courseList {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .courseList {
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    }
+  
+    .courseHeader {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  
+    .cardActions {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  
+    .addButton,
+    .editButton,
+    .previewButton {
+      flex: none;
+      width: 100%;
+    }
+    
+    .assignmentMeta {
+      gap: 0.25rem;
+    }
+    
+    .metaItem {
+      font-size: 0.85rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .courseList {
+      grid-template-columns: 1fr;
+    }
+    
+    .courseCard {
+      max-width: 100%;
+      margin-left: 0;
+      width: 100%;
+    }
+    
+    .description {
+      font-size: 0.9rem;
+    }
+    
+    .courseTag {
+      font-size: 10px;
+      width: 70px;
+    }
+  }

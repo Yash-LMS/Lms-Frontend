@@ -44,6 +44,7 @@ import QuestionEdit from "./components/test/QuestionEdit";
 import BatchManagement from "./components/instructor/BatchManagement";
 import BatchRequests from "./components/technical-manager/BatchRequests";
 import AssignmentManagement from "./components/instructor/Assignmentmanagement";
+import AssignmentRequests from "./components/technical-manager/AssignmentRequests";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -484,6 +485,15 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <BatchRequests />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/manager/assignment/requests"
+            element={
+              <ProtectedRoute>
+                <AssignmentRequests />
               </ProtectedRoute>
             }
           />

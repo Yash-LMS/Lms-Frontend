@@ -20,6 +20,7 @@ const Sidebar = ({ activeTab }) => {
   const [courseBadgeCount, setCourseBadgeCount] = useState(0); // State for course requests badge count
   const [testBadgeCount, setTestBadgeCount] = useState(0); // State for test requests badge count
   const [batchBadgeCount, setBatchBadgeCount] = useState(0);
+  const [assignmentBadgeCount, setAssignmentBadgeCount] = useState(0);
   const [notActiveEmployeeCount, setNotActiveEmployeeCount] = useState(0);
   const [notActiveInternCount, setNotActiveInternCount] = useState(0);
 
@@ -59,6 +60,7 @@ const Sidebar = ({ activeTab }) => {
           setCourseBadgeCount(response.data.payload.courseRequestPending || 0); // Set course badge count
           setTestBadgeCount(response.data.payload.testRequestPending || 0); // Set test badge count
           setBatchBadgeCount(response.data.payload.batchRequestPending || 0);
+          setAssignmentBadgeCount(response.data.payload.assignmentRequestPending || 0);
           setNotActiveEmployeeCount(response.data.payload.employeeRequestCount || 0); // Set not active count
           setNotActiveInternCount(response.data.payload.internRequestCount || 0);
         }
@@ -118,6 +120,19 @@ const Sidebar = ({ activeTab }) => {
               <span className={styles.navText}>Batch Requests</span>
               {batchBadgeCount > 0 && (
                 <span className={styles.badge}>{batchBadgeCount}</span>
+              )}
+            </a>
+          </li>
+          <li className={`${styles.navItem} ${activeTab === "assignmentRequests" ? styles.active : ""}`}>
+            <a
+              href="#assignmentRequests"
+              onClick={(e) => handleNavigation('/manager/assignment/requests', 'assignmentRequests', e)}
+              className={styles.navButton}
+            >
+              <FontAwesomeIcon icon={faBell} />
+              <span className={styles.navText}>Assignment Requests</span>
+              {assignmentBadgeCount > 0 && (
+                <span className={styles.badge}>{assignmentBadgeCount}</span>
               )}
             </a>
           </li>
