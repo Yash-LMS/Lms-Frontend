@@ -267,255 +267,304 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
     );
   }
 
-  return (
-    <div className={styles.courseListContainer}>
-      <div className={styles.courseList}>
-        {currentAssignments.map((assignment) => (
-          <div key={assignment.assignmentId} className={styles.courseCard}>
-            <div className={styles.courseTag}>ASSIGNMENT</div>
-            <div className={styles.courseHeader}>
-              <h3>{assignment.title}</h3>
-              <span
-                className={`${styles.statusBadge} ${getStatusColor(assignment.approvalStatus)}`}
-              >
-                {(assignment.approvalStatus).toUpperCase()}
-              </span>
-            </div>
-            
-            <div className={styles.assignmentDetails}>
-              <div className={styles.assignmentMeta}>              
-                <div className={styles.metaItem}>
-                  <p className={styles.description}>
-                    {assignment.description?.length > 100
-                      ? `${assignment.description.substring(0, 100)}...`
-                      : assignment.description || 'No description available'}
-                  </p>
-                </div>
-                <div className={styles.metaItem}>
-                  <span>Total Marks: {assignment.totalMarks || 0}</span>
-                </div>
+ return (
+  <div className={styles.courseListContainer}>
+    <div className={styles.courseList}>
+      {currentAssignments.map((assignment) => (
+        <div key={assignment.assignmentId} className={styles.courseCard}>
+          <div className={styles.courseTag}>ASSIGNMENT</div>
+          <div className={styles.courseHeader}>
+            <h3>{assignment.title}</h3>
+            <span
+              className={`${styles.statusBadge} ${getStatusColor(assignment.approvalStatus)}`}
+            >
+              {(assignment.approvalStatus).toUpperCase()}
+            </span>
+          </div>
+          
+          <div className={styles.assignmentDetails}>
+            <div className={styles.assignmentMeta}>              
+              <div className={styles.metaItem}>
+                <p className={styles.description}>
+                  {assignment.description?.length > 100
+                    ? `${assignment.description.substring(0, 100)}...`
+                    : assignment.description || 'No description available'}
+                </p>
+              </div>
+              <div className={styles.metaItem}>
+                <span>Total Marks: {assignment.totalMarks || 0}</span>
               </div>
             </div>
-
-            <div className={styles.cardActions}>
-              <button
-                className={styles.previewButton}
-                onClick={() => handleViewSubmissions(assignment)}
-              >
-                <FontAwesomeIcon icon={faEye} />
-                <span style={{ marginLeft: "5px" }}>View Submissions</span>
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {assignments && assignments.length > cardsPerPage && (
-        <div className={styles.paginationControls}>
-          <button
-            className={styles.paginationButton}
-            onClick={prevPage}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          <span className={styles.pageIndicator}>
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            className={styles.paginationButton}
-            onClick={nextPage}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
-        </div>
-      )}
-
-      {/* Submissions Modal */}
-      {showSubmissionsModal && (
-        <div className="modalOverlay">
-          <div className="modalContent">
-            <div className="modalHeader">
-              <h3>Assignment Submissions - {selectedAssignment?.title}</h3>
-              <button className="closeButton" onClick={closeSubmissionsModal}>
-                <FontAwesomeIcon icon={faTimes} />
-              </button>
-            </div>
             
-            <div className="modalBody">
-              {submissionsLoading && (
-                <div className="loadingContainer">
-                  <p>Loading submissions...</p>
-                </div>
-              )}
-              
-              {submissionsError && (
-                <div className="errorContainer">
-                  <p className="errorMessage">{submissionsError}</p>
-                </div>
-              )}
-              
-              {!submissionsLoading && !submissionsError && submissions.length === 0 && (
-                <div className="noSubmissions">
-                  <p>No submissions found for this assignment.</p>
-                </div>
-              )}
-              
-              {!submissionsLoading && !submissionsError && submissions.length > 0 && (
-                <div className="submissionsTable">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Allotment ID</th>
-                        <th>Allotment Date</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Submission Date</th>
-                        <th>Status</th>
-                        <th>Marks</th>
-                        <th>Evaluation Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {submissions.map((submission) => (
-                        <tr key={submission.allotmentId}>
-                          <td>{submission.allotmentId}</td>
-                          <td>{formatDate(submission.allotmentDate)}</td>
-                          <td>{formatDate(submission.startDate)}</td>
-                          <td>{formatDate(submission.endDate)}</td>
-                          <td>{formatDate(submission.submissionDate)}</td>
-                          <td>
-                            <span className={`${styles.statusBadge} ${submission.status === 'submitted' ? styles.approved : styles.pending}`}>
-                              {submission.status?.toUpperCase() || 'PENDING'}
-                            </span>
-                          </td>
-                          <td>
-                            {submission.marks !== null && submission.marks !== undefined ? (
-                              <span className={styles.marksDisplay}>
-                                {submission.marks} / {submission.totalMarks}
-                              </span>
-                            ) : (
-                              <span className={styles.notGraded}>Not Graded</span>
-                            )}
-                          </td>
-                          <td>
-                            <span className={`${styles.statusBadge} ${submission.evaluationStatus ? styles.approved : styles.pending}`}>
-                              {submission.evaluationStatus || 'PENDING'}
-                            </span>
-                          </td>
-                          <td>
-                            <div className="actionButtons">
-                              {submission.filePath && (
-                                <button
-                                  className="downloadButton"
-                                  onClick={() => handleDownloadFile(submission.filePath, getFileNameFromPath(submission.filePath))}
-                                  title="Download Submission"
-                                >
-                                  <FontAwesomeIcon icon={faDownload} />
-                                </button>
-                              )}
-                              <button
-                                className="feedbackButton"
-                                onClick={() => handleOpenFeedback(submission)}
-                                title="Provide Feedback"
-                              >
-                                <FontAwesomeIcon icon={faComment} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Feedback Modal */}
-      {showFeedbackModal && (
-        <div className="modalOverlay">
-          <div className="modalContent">
-            <div className="modalHeader">
-              <h3>Provide Feedback</h3>
-              <button className="closeButton" onClick={closeFeedbackModal}>
-                <FontAwesomeIcon icon={faTimes} />
-              </button>
-            </div>
-            
-            <div className="modalBody">
-              {selectedSubmission && (
-                <div className={styles.submissionInfo}>
-                  <p><strong>Allotment ID:</strong> {selectedSubmission.allotmentId}</p>
-                  <p><strong>Assignment:</strong> {selectedAssignment?.title}</p>
-                  <p><strong>Submission Status:</strong> {selectedSubmission.status}</p>
-                  <p><strong>File:</strong> {getFileNameFromPath(selectedSubmission.filePath)}</p>
-                </div>
-              )}
-
-              <div className="feedbackForm">
-                <div className="formGroup">
-                  <label htmlFor="marks">
-                    Marks (out of {selectedSubmission?.totalMarks || 0}):
-                  </label>
-                  <input
-                    type="number"
-                    id="marks"
-                    min="0"
-                    max={selectedSubmission?.totalMarks || 100}
-                    value={feedbackForm.marks}
-                    onChange={(e) => setFeedbackForm({ ...feedbackForm, marks: e.target.value })}
-                    placeholder="Enter marks"
-                  />
+            {/* Count Display Section */}
+            <div className={styles.countSection}>
+              <div className={styles.countGrid}>
+                <div className={styles.countColumn}>
+                  <div className={styles.countColumnHeader}>
+                    <span className={styles.columnTitle}>Submissions</span>
+                  </div>
+                  <div className={styles.countItems}>
+                    <div className={styles.countItem}>
+                      <div className={styles.countLabel}>Submitted</div>
+                      <div className={styles.countValue}>{assignment.submittedCount || 0}</div>
+                    </div>
+                    <div className={styles.countItem}>
+                      <div className={styles.countLabel}>Pending</div>
+                      <div className={styles.countValue}>{assignment.pendingCount || 0}</div>
+                    </div>
+                    <div className={styles.countItem}>
+                      <div className={styles.countLabel}>Expired</div>
+                      <div className={styles.countValue}>{assignment.expiredCount || 0}</div>
+                    </div>
+                  </div>
                 </div>
                 
-                <div className="formGroup">
-                  <label htmlFor="feedback">Feedback:</label>
-                  <textarea
-                    id="feedback"
-                    value={feedbackForm.feedback}
-                    onChange={(e) => setFeedbackForm({ ...feedbackForm, feedback: e.target.value })}
-                    placeholder="Provide detailed feedback..."
-                  />
+                <div className={styles.countColumn}>
+                  <div className={styles.countColumnHeader}>
+                    <span className={styles.columnTitle}>Evaluations</span>
+                  </div>
+                  <div className={styles.countItems}>
+                    <div className={styles.countItem}>
+                      <div className={styles.countLabel}>Evaluated</div>
+                      <div className={styles.countValue}>{assignment.evaluationCount || 0}</div>
+                    </div>
+                    <div className={styles.countItem}>
+                      <div className={styles.countLabel}>Pending</div>
+                      <div className={styles.countValue}>{assignment.pendingEvaluationCount || 0}</div>
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="formActions">
-                  <button
-                    className="cancelButton"
-                    onClick={closeFeedbackModal}
-                    disabled={feedbackSubmitting}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="submitButton"
-                    onClick={handleSubmitFeedback}
-                    disabled={feedbackSubmitting || !feedbackForm.marks || !feedbackForm.feedback}
-                  >
-                    {feedbackSubmitting ? (
-                      <>
-                        <FontAwesomeIcon icon={faStar} className={styles.spinning} />
-                        Submitting...
-                      </>
-                    ) : (
-                      <>
-                        <FontAwesomeIcon icon={faCheck} />
-                        Submit Feedback
-                      </>
-                    )}
-                  </button>
+              </div>
+              
+              {/* Total Allotment Row */}
+              <div className={styles.totalAllotmentRow}>
+                <div className={styles.totalAllotmentItem}>
+                  <span className={styles.totalAllotmentLabel}>Total Allotments:</span>
+                  <span className={styles.totalAllotmentValue}>{assignment.totalAllotment || 0}</span>
                 </div>
               </div>
             </div>
           </div>
+
+          <div className={styles.cardActions}>
+            <button
+              className={styles.previewButton}
+              onClick={() => handleViewSubmissions(assignment)}
+            >
+              <FontAwesomeIcon icon={faEye} />
+              <span style={{ marginLeft: "5px" }}>View Submissions</span>
+            </button>
+          </div>
         </div>
-      )}
+      ))}
     </div>
-  );
+
+    {assignments && assignments.length > cardsPerPage && (
+      <div className={styles.paginationControls}>
+        <button
+          className={styles.paginationButton}
+          onClick={prevPage}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        <span className={styles.pageIndicator}>
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          className={styles.paginationButton}
+          onClick={nextPage}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+      </div>
+    )}
+
+    {/* Submissions Modal */}
+    {showSubmissionsModal && (
+      <div className={styles.modalOverlay}>
+        <div className={styles.modalContent}>
+          <div className={styles.modalHeader}>
+            <h3>Assignment Submissions - {selectedAssignment?.title}</h3>
+            <button className={styles.closeButton} onClick={closeSubmissionsModal}>
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+          </div>
+          
+          <div className={styles.modalBody}>
+            {submissionsLoading && (
+              <div className={styles.loadingContainer}>
+                <p>Loading submissions...</p>
+              </div>
+            )}
+            
+            {submissionsError && (
+              <div className={styles.errorContainer}>
+                <p className={styles.errorMessage}>{submissionsError}</p>
+              </div>
+            )}
+            
+            {!submissionsLoading && !submissionsError && submissions.length === 0 && (
+              <div className={styles.noSubmissions}>
+                <p>No submissions found for this assignment.</p>
+              </div>
+            )}
+            
+            {!submissionsLoading && !submissionsError && submissions.length > 0 && (
+              <div className={styles.submissionsTable}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Allotment ID</th>
+                      <th>Allotment Date</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
+                      <th>Submission Date</th>
+                      <th>Status</th>
+                      <th>Marks</th>
+                      <th>Evaluation Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {submissions.map((submission) => (
+                      <tr key={submission.allotmentId}>
+                        <td>{submission.allotmentId}</td>
+                        <td>{formatDate(submission.allotmentDate)}</td>
+                        <td>{formatDate(submission.startDate)}</td>
+                        <td>{formatDate(submission.endDate)}</td>
+                        <td>{formatDate(submission.submissionDate)}</td>
+                        <td>
+                          <span className={`${styles.statusBadge} ${submission.status === 'submitted' ? styles.approved : styles.pending}`}>
+                            {submission.status?.toUpperCase() || 'PENDING'}
+                          </span>
+                        </td>
+                        <td>
+                          {submission.marks !== null && submission.marks !== undefined ? (
+                            <span className={styles.marksDisplay}>
+                              {submission.marks} / {submission.totalMarks}
+                            </span>
+                          ) : (
+                            <span className={styles.notGraded}>Not Graded</span>
+                          )}
+                        </td>
+                        <td>
+                          <span className={`${styles.statusBadge} ${submission.evaluationStatus === 'evaluated' ? styles.approved : styles.pending}`}>
+                            {submission.evaluationStatus?.toUpperCase() || 'PENDING'}
+                          </span>
+                        </td>
+                        <td>
+                          <div className={styles.actionButtons}>
+                            {submission.filePath && (
+                              <button
+                                className={styles.downloadButton}
+                                onClick={() => handleDownloadFile(submission.filePath, getFileNameFromPath(submission.filePath))}
+                                title="Download Submission"
+                              >
+                                <FontAwesomeIcon icon={faDownload} />
+                              </button>
+                            )}
+                            <button
+                              className={styles.feedbackButton}
+                              onClick={() => handleOpenFeedback(submission)}
+                              title="Provide Feedback"
+                            >
+                              <FontAwesomeIcon icon={faComment} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Feedback Modal */}
+    {showFeedbackModal && (
+      <div className={styles.modalOverlay}>
+        <div className={styles.modalContent}>
+          <div className={styles.modalHeader}>
+            <h3>Provide Feedback</h3>
+            <button className={styles.closeButton} onClick={closeFeedbackModal}>
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+          </div>
+          
+          <div className={styles.modalBody}>
+            {selectedSubmission && (
+              <div className={styles.submissionInfo}>
+                <p><strong>Allotment ID:</strong> {selectedSubmission.allotmentId}</p>
+                <p><strong>Assignment:</strong> {selectedAssignment?.title}</p>
+                <p><strong>Submission Status:</strong> {selectedSubmission.status}</p>
+                <p><strong>File:</strong> {getFileNameFromPath(selectedSubmission.filePath)}</p>
+              </div>
+            )}
+
+            <div className={styles.feedbackForm}>
+              <div className={styles.formGroup}>
+                <label htmlFor="marks">
+                  Marks (out of {selectedSubmission?.totalMarks || 0}):
+                </label>
+                <input
+                  type="number"
+                  id="marks"
+                  min="0"
+                  max={selectedSubmission?.totalMarks || 100}
+                  value={feedbackForm.marks}
+                  onChange={(e) => setFeedbackForm({ ...feedbackForm, marks: e.target.value })}
+                  placeholder="Enter marks"
+                />
+              </div>
+              
+              <div className={styles.formGroup}>
+                <label htmlFor="feedback">Feedback:</label>
+                <textarea
+                  id="feedback"
+                  value={feedbackForm.feedback}
+                  onChange={(e) => setFeedbackForm({ ...feedbackForm, feedback: e.target.value })}
+                  placeholder="Provide detailed feedback..."
+                />
+              </div>
+              
+              <div className={styles.formActions}>
+                <button
+                  className={styles.cancelButton}
+                  onClick={closeFeedbackModal}
+                  disabled={feedbackSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  className={styles.submitButton}
+                  onClick={handleSubmitFeedback}
+                  disabled={feedbackSubmitting || !feedbackForm.marks || !feedbackForm.feedback}
+                >
+                  {feedbackSubmitting ? (
+                    <>
+                      <FontAwesomeIcon icon={faStar} className={styles.spinning} />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <FontAwesomeIcon icon={faCheck} />
+                      Submit Feedback
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+);
 };
 
 export default AssignmentList;

@@ -5,8 +5,6 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    startDate: '',
-    endDate: '',
     totalMarks: ''
   });
 
@@ -41,27 +39,10 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
       newErrors.description = 'Assignment description is required';
     }
 
-    if (!formData.startDate) {
-      newErrors.startDate = 'Start date is required';
-    }
-
-    if (!formData.endDate) {
-      newErrors.endDate = 'End date is required';
-    }
-
     if (!formData.totalMarks) {
       newErrors.totalMarks = 'Total marks is required';
     } else if (isNaN(formData.totalMarks) || parseInt(formData.totalMarks) <= 0) {
       newErrors.totalMarks = 'Total marks must be a positive number';
-    }
-
-    // Check if end date is after start date
-    if (formData.startDate && formData.endDate) {
-      const startDate = new Date(formData.startDate);
-      const endDate = new Date(formData.endDate);
-      if (endDate <= startDate) {
-        newErrors.endDate = 'End date must be after start date';
-      }
     }
 
     setErrors(newErrors);
@@ -78,8 +59,6 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
     const assignmentData = {
       title: formData.title.trim(),
       description: formData.description.trim(),
-      startDate: formData.startDate, // Keep as string, will be converted in parent component
-      endDate: formData.endDate, // Keep as string, will be converted in parent component
       totalMarks: parseInt(formData.totalMarks)
     };
     
@@ -91,8 +70,6 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
     setFormData({
       title: '',
       description: '',
-      startDate: '',
-      endDate: '',
       totalMarks: ''
     });
     setErrors({});
@@ -102,8 +79,6 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
     setFormData({
       title: '',
       description: '',
-      startDate: '',
-      endDate: '',
       totalMarks: ''
     });
     setErrors({});

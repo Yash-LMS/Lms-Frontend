@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import styles from "./BatchManagement.module.css";
+import styles from "./AssignmentManagement.module.css";
 import AssignmentList from "./AssignmentList";
 import AddAssignmentModal from "./AddAssignmentModal";
 import SuccessModal from "../../assets/SuccessModal";
@@ -116,17 +116,12 @@ const AssignmentManagement = () => {
     setLoading(true);
     setError(null);
 
-    // Format dates to match backend expectations (convert to Date objects or proper format)
-    const formattedAssignmentData = {
-      ...assignmentData,
-      startDate: new Date(assignmentData.startDate).toISOString(),
-      endDate: new Date(assignmentData.endDate).toISOString(),
-    };
+   
 
     const requestData = {
       user: user,
       token: token,
-      assignment: formattedAssignmentData,
+      assignment: assignmentData,
     };
 
     try {
