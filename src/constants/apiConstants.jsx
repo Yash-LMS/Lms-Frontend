@@ -120,6 +120,7 @@ export const ALLOT_ASSIGNMENT_URL = `${API_BASE_URL}/manager/allotAssignmentToTr
 export const DOWNLOAD_ASSIGNMENT_FILES = `${API_BASE_URL}/assignment/file/download`;
 
 
+export const ALLOT_ASSIGNMENT_BATCH_URL = `${API_BASE_URL}/batch/addAssignmentToBatch`;
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;

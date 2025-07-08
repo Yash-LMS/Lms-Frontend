@@ -12,6 +12,7 @@ import AddBatchCourseModal from "./AddBatchCourseModal";
 import AddCandidateToBatch from "./AddCandidateToBatch";
 import AddBatchTestModal from "./AddBatchTestModal";
 import ViewCandidatesModal from "./ViewCandidatesModal";
+import AddBatchAssignmentModal from "./AddBatchAssignmentModal";
 
 const BatchList = ({
   batches,
@@ -36,6 +37,10 @@ const BatchList = ({
   const [selectedBatchForCandidate, setSelectedBatchForCandidate] =
     useState(null);
 
+
+const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+const [selectedBatchForAssignment, setSelectedBatchForAssignment] = useState(null);
+  
   //Modal state for Add Test
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
   const [selectedBatchForTest, setSelectedBatchForTest] = useState(null);
@@ -93,6 +98,16 @@ const BatchList = ({
   const handleCloseTestModal = () => {
     setIsTestModalOpen(false);
     setSelectedBatchForTest(null);
+  };
+
+
+    const handleAddAssignment = (batch) => {
+    setSelectedBatchForAssignment(batch);
+    setIsBatchModalOpen(true);
+  };
+   const handleCloseBatchModal = () => {
+    setIsBatchModalOpen(false);
+    setSelectedBatchForAssignment(null);
   };
 
   const handleTestAdded = (response) => {
@@ -192,6 +207,16 @@ const BatchList = ({
                 <FontAwesomeIcon icon={faFileText} />
                 <span style={{ marginLeft: "5px" }}>Add Test</span>
               </button>
+
+                     <button
+                className={styles.addButton}
+                onClick={() => handleAddAssignment(batch)}
+              >
+                <FontAwesomeIcon icon={faFileText} />
+                <span style={{ marginLeft: "5px" }}>Add Assignment</span>
+              </button>
+
+
               <button
                 className={styles.previewButton}
                 onClick={() => handleViewCandidates(batch)}
@@ -272,6 +297,17 @@ const BatchList = ({
         batchId={selectedBatchForView?.batchId}
         batchName={selectedBatchForView?.batchName}
       />
+
+          <AddBatchAssignmentModal
+        isOpen={isBatchModalOpen}
+        onClose={handleCloseBatchModal}
+        selectedBatch={selectedBatchForAssignment}
+      />
+
+      
+
+
+
     </div>
   );
 };
