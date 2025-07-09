@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "./InstructorDashboard.module.css";
-import { COURSE_IMAGE_VIEW_URL } from "../../constants/apiConstants";
+import { COURSE_IMAGE_VIEW_URL, RESEND_COURSE_APPROVAL } from "../../constants/apiConstants";
 import Image from "../Image/DefaultCourse.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faEye, faPen } from "@fortawesome/free-solid-svg-icons";
@@ -21,73 +21,110 @@ const CourseList = ({
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const cardsPerPage = 6;
-  
+
+  // For re-appeal feedback and loading
+  const [reappealLoading, setReappealLoading] = useState({});
+  const [reappealMsg, setReappealMsg] = useState({});
+
   // Calculate pagination
   const indexOfLastCourse = currentPage * cardsPerPage;
   const indexOfFirstCourse = indexOfLastCourse - cardsPerPage;
   const currentCourses = courses ? courses.slice(indexOfFirstCourse, indexOfLastCourse) : [];
   const totalPages = courses ? Math.ceil(courses.length / cardsPerPage) : 0;
 
+  const getUserData = () => {
+    try {
+      return {
+        user: JSON.parse(sessionStorage.getItem('user')),
+        token: sessionStorage.getItem('token'),
+        role: sessionStorage.getItem('role')
+      };
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      return { user: null, token: null, role: null };
+    }
+  };
+
+  // API call for re-appeal
+  const resendCourseForApproval = async (courseId) => {
+    const { user, token } = getUserData();
+    if (!user || !token) {
+      throw new Error('User or token not found in session storage');
+    }
+    const apiRequestModelCourse = { user, token, courseId };
+    try {
+      const response = await axios.post(`${RESEND_COURSE_APPROVAL}`, apiRequestModelCourse);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Handler for Re-appeal button click
+  const handleReappeal = async (courseId) => {
+    setReappealLoading((prev) => ({ ...prev, [courseId]: true }));
+    setReappealMsg((prev) => ({ ...prev, [courseId]: null }));
+    try {
+      const data = await resendCourseForApproval(courseId);
+      if (data && data.response === 'success') {
+        setReappealMsg((prev) => ({
+          ...prev,
+          [courseId]: { type: "success", text: data.message || "Re-appeal sent successfully!" }
+        }));
+      } else {
+        setReappealMsg((prev) => ({
+          ...prev,
+          [courseId]: { type: "error", text: data.message || "Failed to send re-appeal." }
+        }));
+      }
+    } catch (error) {
+      setReappealMsg((prev) => ({
+        ...prev,
+        [courseId]: { type: "error", text: "Failed to send re-appeal. Please try again." }
+      }));
+    } finally {
+      setReappealLoading((prev) => ({ ...prev, [courseId]: false }));
+    }
+  };
+
   // Function to format hours (e.g., 3.2 -> "3 hours 12 minutes")
   const formatHours = (decimalHours) => {
     if (!decimalHours || decimalHours === 0) {
       return "0 minutes";
     }
-    
     const hours = Math.floor(decimalHours);
     const minutes = Math.round((decimalHours - hours) * 60);
-    
     let result = "";
-    
-    if (hours > 0) {
-      result += `${hours} hour${hours !== 1 ? 's' : ''}`;
-    }
-    
+    if (hours > 0) result += `${hours} hour${hours !== 1 ? 's' : ''}`;
     if (minutes > 0) {
       if (result) result += " ";
       result += `${minutes} minute${minutes !== 1 ? 's' : ''}`;
     }
-    
     return result || "0 minutes";
   };
 
   // Pagination handlers
   const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
-
   const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
   // Function to fetch image for a single course using axios
   const fetchCourseImage = useCallback(async (courseId) => {
-    // Check if image is already fetched or being fetched
-    if (courseImages[courseId]) {
-      return;
-    }
-
+    if (courseImages[courseId]) return;
     try {
       const response = await axios.get(COURSE_IMAGE_VIEW_URL, {
-        params: {
-          courseId: courseId
-        },
-        responseType: 'blob' // Important: specify blob response type for image data
+        params: { courseId },
+        responseType: 'blob'
       });
-
-      // Create a blob URL for the image
       const imageUrl = URL.createObjectURL(response.data);
-
       setCourseImages((prevImages) => ({
         ...prevImages,
         [courseId]: imageUrl,
       }));
     } catch (error) {
-      console.error(`Error fetching image for course ${courseId}:`, error);
       setCourseImages((prevImages) => ({
         ...prevImages,
         [courseId]: defaultImageUrl,
@@ -96,10 +133,8 @@ const CourseList = ({
   }, [courseImages, defaultImageUrl]);
 
   useEffect(() => {
-    // Fetch images for all current courses (only for the visible ones)
     if (currentCourses && currentCourses.length > 0) {
       currentCourses.forEach((course) => {
-        // Only fetch if we don't already have the image
         if (!courseImages[course.courseId]) {
           fetchCourseImage(course.courseId);
         }
@@ -130,18 +165,18 @@ const CourseList = ({
     );
   }
 
-   if (!courses || courses.length === 0) {
-      return (
-        <div className={styles.noCourses}>
-          No Courses found. Create a new course to get started.
-        </div>
-      );
-    }
+  if (!courses || courses.length === 0) {
+    return (
+      <div className={styles.noCourses}>
+        No Courses found. Create a new course to get started.
+      </div>
+    );
+  }
 
   const handlePreviewClick = (courseId) => {
     navigate(`/course/preview/${courseId}`);
   };
-  
+
   return (
     <div className={styles.courseListContainer}>
       <div className={styles.courseList}>
@@ -159,7 +194,7 @@ const CourseList = ({
               <h3>{course.courseName}</h3>
               <span
                 className={`${styles.statusBadge} ${
-                  styles[course.courseCompletionStatus.toLowerCase()]
+                  styles[course.courseCompletionStatus?.toLowerCase()]
                 }`}
               >
                 {course.courseCompletionStatus}
@@ -201,16 +236,42 @@ const CourseList = ({
                 <FontAwesomeIcon icon={faPlus} />
                 <span style={{ marginLeft: "5px" }}>Add Sections</span>
               </button>
+
+              {/* Re-appeal button */}
+              {course.courseStatus === "rejected" && (
+                <button
+                  className={styles.reappealButton}
+                  disabled={reappealLoading[course.courseId]}
+                  onClick={() => handleReappeal(course.courseId)}
+                  style={{ marginLeft: "5px" }}
+                >
+                  {reappealLoading[course.courseId] ? "Re-appealing..." : "Re-appeal"}
+                </button>
+              )}
             </div>
+            {/* Inline message for re-appeal */}
+            {reappealMsg[course.courseId] && (
+              <div
+                className={
+                  reappealMsg[course.courseId].type === "success"
+                    ? styles.successMsg
+                    : styles.errorMsg
+                }
+                style={{ marginTop: "6px", fontSize: "0.95em" }}
+              >
+                {reappealMsg[course.courseId].text}
+              </div>
+            )}
           </div>
         ))}
       </div>
-      
+
+      {/* Pagination controls */}
       {courses && courses.length > 0 && (
         <div className={styles.paginationControls}>
-          <button 
-            className={styles.paginationButton} 
-            onClick={prevPage} 
+          <button
+            className={styles.paginationButton}
+            onClick={prevPage}
             disabled={currentPage === 1}
           >
             Previous
@@ -218,9 +279,9 @@ const CourseList = ({
           <span className={styles.pageIndicator}>
             Page {currentPage} of {totalPages}
           </span>
-          <button 
-            className={styles.paginationButton} 
-            onClick={nextPage} 
+          <button
+            className={styles.paginationButton}
+            onClick={nextPage}
             disabled={currentPage === totalPages}
           >
             Next

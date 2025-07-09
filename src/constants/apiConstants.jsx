@@ -44,6 +44,8 @@ export const CREATE_ASSIGNMENT_URL = `${API_BASE_URL}/assignment/create`;
 export const VIEW_ASSIGNMENT_URL = `${API_BASE_URL}/assignment/user/viewAssignmentListByUser`;
 export const ASSIGNMENT_SUBMISSION_FEEDBACK_URL = `${API_BASE_URL}/assignment/instructor/evaluate/assignment`;
 export const VIEW_ASSIGNMENT_SUBMISSION_URL = `${API_BASE_URL}/assignment/instructor/submissionList`;
+export const RESEND_COURSE_APPROVAL = `${API_BASE_URL}/course/approval/resend`;
+
 
 
 //Intern
