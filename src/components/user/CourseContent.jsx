@@ -7,6 +7,7 @@ import { VIEW_USER_COURSE_DETAIL_URL } from "../../constants/apiConstants";
 import ResultPopup from "./ResultPopup";
 import UserVideoPlayer from "./UserVideoPlayer";
 import UserFilePreview from "./UserFilePreview";
+import AssignmentUploadInternalPopup from "./AssignmentUploadInternalPopup";
 
 const CourseContent = () => {
   const [contentOpen, setContentOpen] = useState(true);
@@ -259,6 +260,18 @@ const CourseContent = () => {
             }
           />
         );
+
+            case "assignment":
+        return (
+          <AssignmentUploadInternalPopup
+            allotmentId={activeTopic.courseTrackingDto.assignmentAllotmentId}
+            trackingId={activeTopic.courseTrackingDto.trackingId}
+            courseTrackingStatus={
+              activeTopic.courseTrackingDto.topicCompletionStatus
+            }
+          />
+        );
+
       case "test":
         if (showTest) {
           navigate("/user/internal/test", {

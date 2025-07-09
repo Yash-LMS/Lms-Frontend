@@ -87,7 +87,10 @@ const courseSlice = createSlice({
             if (!state.selectedCourse.sections) {
               state.selectedCourse.sections = [];
             }
+            console.log("Section");
+            console.log(cleanedSection);
             state.selectedCourse.sections.push(cleanedSection);
+
           }
         }
       })

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addNewSection, viewCourse } from "../../features/course/courseActions";
 import styles from "./CourseDetails.module.css";
-import { TEST_INSTRUCTOR_URL } from "../../constants/apiConstants";
+import { TEST_INSTRUCTOR_URL, VIEW_TRAINEE_ASSIGNMENT_URL } from "../../constants/apiConstants";
 import axios from "axios";
 
 const CourseDetailsForm = ({ course, onCancel }) => {
@@ -16,6 +16,7 @@ const CourseDetailsForm = ({ course, onCancel }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [savingSectionIndex, setSavingSectionIndex] = useState(null); // Track which section is being saved
   const [testList, setTestList] = useState([]);
+    const [assignmentList, setAssignmentList] = useState([]);
 
   // Get user data with role from user object
   const getUserData = () => {
@@ -58,8 +59,34 @@ const CourseDetailsForm = ({ course, onCancel }) => {
     }
   };
 
+    const fetchAssignmentList = async () => {
+    try {
+      const userData = getUserData();
+      if (!userData.user || !userData.token) {
+        console.error("Missing user data or token");
+        return;
+      }
+
+      const response = await axios.post(`${VIEW_TRAINEE_ASSIGNMENT_URL}`, {
+        user: userData.user,
+        token: userData.token,
+      });
+
+      if ((response.data.response = "success")) {
+        setAssignmentList(response.data.payload);
+      } else {
+        setAssignmentList([]);
+      }
+    } catch (error) {
+      console.error("Error fetching assignmen list:", error);
+      setTestList([]);
+    }
+  };
+
+
   useEffect(() => {
     fetchTestList();
+    fetchAssignmentList();
   }, []);
 
   useEffect(() => {
@@ -140,6 +167,7 @@ const CourseDetailsForm = ({ course, onCancel }) => {
                 videoURL: "",
                 docsURL: "",
                 testId: "",
+                assignmentId:"",
                 file: `${newTopicId}`,
               },
             ],
@@ -175,45 +203,68 @@ const CourseDetailsForm = ({ course, onCancel }) => {
       return; // Don't allow editing while saving this section
     }
 
-    setSections(
-      sections.map((section, index) => {
-        if (index === sectionIndex) {
-          return {
-            ...section,
-            topics: section.topics.map((topic, tIndex) => {
-              if (tIndex === topicIndex) {
-                // Special handling for test type
-                if (field === "testId") {
-                  const selectedTest = testList.find(
-                    (test) => String(test.testId) === String(value) // Ensure type consistency
-                  );
-                  console.log("Selected Test:", selectedTest); // Debugging
-                  return {
-                    ...topic,
-                    [field]: value,
-                    topicName: selectedTest ? selectedTest.testName : "", // Set to test name
-                    topicNameCustom: false, // Reset custom name flag
-                  };
-                }
+setSections(
+  sections.map((section, index) => {
+    if (index === sectionIndex) {
+      return {
+        ...section,
+        topics: section.topics.map((topic, tIndex) => {
+          if (tIndex === topicIndex) {
+            // Special handling for test type
+            if (field === "testId") {
+              const selectedTest = testList.find(
+                (test) => String(test.testId) === String(value)
+              );
+              console.log("Selected Test:", selectedTest);
+              return {
+                ...topic,
+                [field]: value,
+                topicName: selectedTest ? selectedTest.testName : "",
+                topicNameCustom: false,
+              };
+            }
 
-                // Allow manual editing of topicName if it's not a test
-                if (field === "topicName" && topic.topicType === "test") {
-                  return {
-                    ...topic,
-                    [field]: value,
-                    topicNameCustom: true, // Mark as manually edited
-                  };
-                }
+            // Special handling for assignment type
+            if (field === "assignmentId") {
+              const selectedAssignment = assignmentList.find(
+                (assignment) => String(assignment.assignmentId) === String(value)
+              );
+              console.log("Selected Assignment:", selectedAssignment);
+              return {
+                ...topic,
+                [field]: value,
+                topicName: selectedAssignment ? selectedAssignment.title : "",
+                topicNameCustom: false,
+              };
+            }
 
-                return { ...topic, [field]: value };
-              }
-              return topic;
-            }),
-          };
-        }
-        return section;
-      })
-    );
+            // Allow manual editing of topicName if it's not a test
+            if (field === "topicName" && topic.topicType === "test") {
+              return {
+                ...topic,
+                [field]: value,
+                topicNameCustom: true,
+              };
+            }
+
+            // Allow manual editing of topicName if it's not an assignment
+            if (field === "topicName" && topic.topicType === "assignment") {
+              return {
+                ...topic,
+                [field]: value,
+                topicNameCustom: true,
+              };
+            }
+
+            return { ...topic, [field]: value };
+          }
+          return topic;
+        }),
+      };
+    }
+    return section;
+  })
+);
   };
 
   const handleFileUpload = (sectionIndex, topicIndex, e) => {
@@ -308,6 +359,7 @@ const CourseDetailsForm = ({ course, onCancel }) => {
         topicType: topic.topicType,
         testId: topic.testId,
         videoURL: topic.videoURL || "",
+        assignmentId:topic.assignmentId || "",
         docsURL: topic.docsURL || "",
       })),
     };
@@ -356,8 +408,9 @@ const CourseDetailsForm = ({ course, onCancel }) => {
         );
       }
 
+      console.log(payload);
       const result = await dispatch(addNewSection(payload));
-
+      console.log(payload);
       if (result.meta.requestStatus === "fulfilled") {
         setSuccessMessage(`Section '${sectionData.title}' added successfully!`);
         setTimeout(() => setSuccessMessage(""), 5000);
@@ -515,6 +568,8 @@ const CourseDetailsForm = ({ course, onCancel }) => {
                         <option value="video">Video</option>
                         <option value="docs">Documentation</option>
                         <option value="test">Test/Quiz</option>
+                        <option value="assignment">Assignment</option>
+                        
                       </select>
 
                       <button
@@ -646,8 +701,51 @@ const CourseDetailsForm = ({ course, onCancel }) => {
                         )}
                       </div>
                     )}
+
+                           {topic.topicType === "assignment" && (
+                      <div className={styles.testInfo}>
+                        <label
+                          htmlFor={`testSelect-${sectionIndex}-${topicIndex}`}
+                        >
+                          Select Assignment:
+                        </label>
+                        <select
+                          id={`testSelect-${sectionIndex}-${topicIndex}`}
+                          value={topic.assignmentId || ""}
+                          onChange={(e) =>
+                            updateTopic(
+                              sectionIndex,
+                              topicIndex,
+                              "assignmentId",
+                              e.target.value
+                            )
+                          }
+                          className={styles.testSelect}
+                        >
+                          <option value="">Select Assignment</option>
+                          {!assignmentList || assignmentList.length === 0 ? (
+                            <option disabled>No tests available</option>
+                          ) : (
+                            assignmentList.map((assignment) => (
+                              <option key={assignment.assignmentId} value={assignment.assignmentId}>
+                                {assignment.title}
+                              </option>
+                            ))
+                          )}
+                        </select>
+                        {(!assignmentList || assignmentList.length === 0) && (
+                          <p className={styles.errorMessage}>
+                            No Assignment are currently available. Please contact
+                            support or create a test first.
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                   </div>
                 ))}
+
+
 
                 {section.topics.length === 0 && (
                   <p className={styles.noTopics}>

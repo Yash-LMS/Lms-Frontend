@@ -149,7 +149,11 @@ export const TEST_SS_CAPTURE = `${API_BASE_URL}/user/test/capture`;
 export const UPDATE_PASSWORD = `${API_BASE_URL}/user/updatePassword`; 
 
 export const SUBMIT_ASSIGNMENT_URL = `${API_BASE_URL}/user/assignment/submit`; 
+export const SUBMIT_INTERNAL_ASSIGNMENT_URL = `${API_BASE_URL}/user/internal/assignment/submit`; 
 export const VIEW_ASSIGNMENT_TRAINEE_URL = `${API_BASE_URL}/user/assignment/view`;
+export const VIEW_INTERNAL_ASSIGNMENT_ALLOTMENT_URL = `${API_BASE_URL}/user/assignment/view/allotmentId`;
+
+export const ASSIGNMENT_UPDATE_STATUS_VIEW_URL = `${API_BASE_URL}/user/file/assignment/view/updateStatus`;
 
 
 
