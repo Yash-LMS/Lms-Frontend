@@ -190,7 +190,7 @@ const MyTests = () => {
 
   return (
     <div className={styles.myTestsContainer}>
-      <DashboardSidebar activeLink="tests" />
+      <DashboardSidebar activeTab="tests" />
 
       <div className={styles.testContent}>
         <header className={styles.pageHeader}>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Eye, EyeOff, Lock, Mail, AlertCircle, CheckCircle } from 'lucide-react';
 import styles from './UpdatePassword.module.css';
 import { UPDATE_USER_PASSWORD } from '../../constants/apiConstants';
+import Sidebar from './Sidebar';
 
 // Utility function to get user data from sessionStorage
 const getUserData = () => {
@@ -128,10 +128,11 @@ const UpdatePassword = () => {
 
   return (
     <div className={styles.container}>
+      <Sidebar activeTab="password" />
       <div className={styles.formWrapper}>
         <div className={styles.header}>
           <div className={styles.iconWrapper}>
-            <Lock className={styles.headerIcon} />
+            <div className={styles.headerIcon}></div>
           </div>
           <h2 className={styles.title}>Update Password</h2>
           <p className={styles.subtitle}>Enter the details to update user password</p>
@@ -139,11 +140,7 @@ const UpdatePassword = () => {
 
         {response && (
           <div className={`${styles.alert} ${response.success ? styles.alertSuccess : styles.alertError}`}>
-            {response.success ? (
-              <CheckCircle className={styles.alertIcon} />
-            ) : (
-              <AlertCircle className={styles.alertIcon} />
-            )}
+            <div className={`${styles.alertIcon} ${response.success ? styles.checkIcon : styles.alertCircleIcon}`}></div>
             <span>{response.message}</span>
           </div>
         )}
@@ -154,7 +151,7 @@ const UpdatePassword = () => {
               Email Address
             </label>
             <div className={styles.inputWrapper}>
-              <Mail className={styles.inputIcon} />
+              <div className={`${styles.inputIcon} ${styles.mailIcon}`}></div>
               <input
                 type="email"
                 id="emailId"
@@ -176,7 +173,7 @@ const UpdatePassword = () => {
               New Password
             </label>
             <div className={styles.inputWrapper}>
-              <Lock className={styles.inputIcon} />
+              <div className={`${styles.inputIcon} ${styles.lockIcon}`}></div>
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
@@ -193,7 +190,7 @@ const UpdatePassword = () => {
                 className={styles.eyeButton}
                 disabled={loading}
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                <div className={`${styles.eyeIcon} ${showPassword ? styles.eyeOffIcon : styles.eyeOnIcon}`}></div>
               </button>
             </div>
             {errors.password && (

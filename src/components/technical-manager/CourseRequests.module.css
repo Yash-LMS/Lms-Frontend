@@ -83,7 +83,7 @@
 /* Header styles */
 .pageHeader {
   display: flex;
-  justify-content: space-between;
+  gap: 7rem;
   align-items: center;
   margin-bottom: 1.5rem;
 }
@@ -127,8 +127,9 @@
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  overflow-x: auto;
   margin-bottom: 2rem;
+  max-width: 90%;
 }
 
 .courseTable {

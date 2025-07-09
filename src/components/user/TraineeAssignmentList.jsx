@@ -166,7 +166,7 @@ const TraineeAssignmentList = () => {
 
   return (
     <div className={styles.container}>
-      <DashboardSidebar activeLink="assignment" />
+      <DashboardSidebar activeTab="assignment" />
 
       <div className={styles.header}>
         <h1>My Assignments</h1>

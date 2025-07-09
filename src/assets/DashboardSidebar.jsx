@@ -6,32 +6,32 @@ import {
   faListCheck, faFolderOpen,faKey, faClipboardList
 } from '@fortawesome/free-solid-svg-icons';
 
-const DashboardSidebar = ({ activeLink }) => {
+const DashboardSidebar = ({ activeTab }) => {
   return (
     <div className={styles.dashboardSidebar}>
       <nav className={styles.sidebarNav}>
         <ul>
-          <li className={`${styles.navItem} ${activeLink === "dashboard" ? styles.active : ""}`}>
+          <li className={`${styles.navItem} ${activeTab === "dashboard" ? styles.active : ""}`}>
             <Link to="/user-dashboard">
               <FontAwesomeIcon icon={faFolderOpen} />
               <span>My Courses</span>
             </Link>
           </li>
-          <li className={`${styles.navItem} ${activeLink === "tests" ? styles.active : ""}`}>
+          <li className={`${styles.navItem} ${activeTab === "tests" ? styles.active : ""}`}>
             <Link to="/my-test">
               <FontAwesomeIcon icon={faListCheck} />
               <span>My Tests</span>
             </Link>
           </li>
 
-                <li className={`${styles.navItem} ${activeLink === "assignment" ? styles.active : ""}`}>
+                <li className={`${styles.navItem} ${activeTab === "assignment" ? styles.active : ""}`}>
             <Link to="/user/assignment">
               <FontAwesomeIcon icon={faClipboardList} />
               <span>My Assignment</span>
             </Link>
           </li>
      
-     <li className={`${styles.navItem} ${activeLink === "update-password" ? styles.active : ""}`}>
+     <li className={`${styles.navItem} ${activeTab === "password" ? styles.active : ""}`}>
   <Link to="/user/update/password">
     <FontAwesomeIcon icon={faKey} />
     <span>Update Password</span>

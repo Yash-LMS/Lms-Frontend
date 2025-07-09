@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Eye, EyeOff, Lock, Mail, AlertCircle, CheckCircle } from 'lucide-react';
 import styles from './UpdatePassword.module.css';
 import { UPDATE_PASSWORD } from '../../constants/apiConstants';
+import DashboardSidebar from '../../assets/DashboardSidebar';
+import InstructorSidebar from '../instructor/InstructorSidebar';
 
 // Utility function to get user data from sessionStorage
 const getUserData = () => {
   try {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const token = sessionStorage.getItem("token");
+    const role = user?.role || null; // Safe access with optional chaining
+    
     return {
-      user: JSON.parse(sessionStorage.getItem("user")),
-      token: sessionStorage.getItem("token"),
-      role: sessionStorage.getItem("role"),
+      user,
+      token,
+      role,
     };
   } catch (error) {
     console.error("Error parsing user data:", error);
@@ -20,7 +25,6 @@ const getUserData = () => {
 
 const UpdatePassword = () => {
   const [formData, setFormData] = useState({
-    emailId: '',
     password: ''
   });
   
@@ -28,15 +32,17 @@ const UpdatePassword = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [response, setResponse] = useState(null);
+  const [role, setRole] = useState(null); // Initialize with null
+  const [activeTab, setActiveTab] = useState("password");
+
+  // Add useEffect to set role when component mounts
+  useEffect(() => {
+    const { role: userRole } = getUserData();
+    setRole(userRole);
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
-    
-    if (!formData.emailId) {
-      newErrors.emailId = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.emailId)) {
-      newErrors.emailId = 'Invalid email format';
-    }
     
     if (!formData.password) {
       newErrors.password = 'Password is required';
@@ -101,7 +107,6 @@ const UpdatePassword = () => {
         
         // Reset form on success
         setFormData({
-          emailId: '',
           password: ''
         });
       } else {
@@ -127,10 +132,15 @@ const UpdatePassword = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.formWrapper}>
+      {role === "instructor" ? (
+        <InstructorSidebar activeTab={activeTab} />
+      ) : role === "user" ? (
+        <DashboardSidebar activeTab={activeTab} />
+      ) : null}
+        <div className={styles.formWrapper}>
         <div className={styles.header}>
           <div className={styles.iconWrapper}>
-            <Lock className={styles.headerIcon} />
+            <div className={styles.headerIcon}></div>
           </div>
           <h2 className={styles.title}>Update Password</h2>
           <p className={styles.subtitle}>Enter the details to update user password</p>
@@ -138,23 +148,18 @@ const UpdatePassword = () => {
 
         {response && (
           <div className={`${styles.alert} ${response.success ? styles.alertSuccess : styles.alertError}`}>
-            {response.success ? (
-              <CheckCircle className={styles.alertIcon} />
-            ) : (
-              <AlertCircle className={styles.alertIcon} />
-            )}
+            <div className={`${styles.alertIcon} ${response.success ? styles.checkIcon : styles.alertCircleIcon}`}></div>
             <span>{response.message}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className={styles.form}>
-  
           <div className={styles.inputGroup}>
             <label htmlFor="password" className={styles.label}>
               New Password
             </label>
             <div className={styles.inputWrapper}>
-              <Lock className={styles.inputIcon} />
+              <div className={`${styles.inputIcon} ${styles.lockIcon}`}></div>
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
@@ -171,7 +176,7 @@ const UpdatePassword = () => {
                 className={styles.eyeButton}
                 disabled={loading}
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                <div className={`${styles.eyeIcon} ${showPassword ? styles.eyeOffIcon : styles.eyeOnIcon}`}></div>
               </button>
             </div>
             {errors.password && (
@@ -191,7 +196,7 @@ const UpdatePassword = () => {
             )}
           </button>
         </form>
-      </div>
+    </div>
     </div>
   );
 };

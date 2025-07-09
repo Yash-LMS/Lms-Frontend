@@ -215,7 +215,7 @@ const MyCourses = () => {
 
   return (
     <div className={styles.myCoursesContainer}>
-      <DashboardSidebar activeLink="dashboard" />
+      <DashboardSidebar activeTab="dashboard" />
       <header className={styles.coursesHeader}>
         <h1>My Courses</h1>
         <div className={styles.coursesFilters}>

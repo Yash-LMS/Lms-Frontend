@@ -215,6 +215,7 @@ const CourseList = ({
               </div>
             </div>
             <div className={styles.cardActions}>
+              <div className={styles.actionButtons}>
               <button
                 className={styles.addButton}
                 onClick={() => onEditCourse(course)}
@@ -248,6 +249,7 @@ const CourseList = ({
                   {reappealLoading[course.courseId] ? "Re-appealing..." : "Re-appeal"}
                 </button>
               )}
+              </div>
             </div>
             {/* Inline message for re-appeal */}
             {reappealMsg[course.courseId] && (

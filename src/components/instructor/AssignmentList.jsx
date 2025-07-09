@@ -470,7 +470,6 @@ const handleDownloadFile = async (allotmentId) => {
                     <tr>
                       <th>Allotment ID</th>
                       <th>Allotment Date</th>
-                      <th>Start Date</th>
                       <th>End Date</th>
                       <th>Submission Date</th>
                       <th>Status</th>
@@ -484,7 +483,6 @@ const handleDownloadFile = async (allotmentId) => {
                       <tr key={submission.allotmentId}>
                         <td>{submission.allotmentId}</td>
                         <td>{formatDate(submission.allotmentDate)}</td>
-                        <td>{formatDate(submission.startDate)}</td>
                         <td>{formatDate(submission.endDate)}</td>
                         <td>{formatDate(submission.submissionDate)}</td>
                         <td>

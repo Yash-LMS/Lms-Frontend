@@ -12,7 +12,9 @@ import {
   faPenToSquare,
   faBarsProgress,
   faBell,
-  faEye
+  faEye,
+  faTasks,
+  faFingerprint
 } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = ({ activeTab }) => {
@@ -147,6 +149,17 @@ const Sidebar = ({ activeTab }) => {
             </a>
           </li>
 
+          <li className={`${styles.navItem} ${activeTab === "assignments" ? styles.active : ""}`}>
+            <a
+              href="#assignments"
+              onClick={(e) => handleNavigation('/view/assignment', 'assignments', e)}
+            >
+              <FontAwesomeIcon icon={faTasks} />
+              <span className={styles.navText}>Assignments</span>
+        
+            </a>
+          </li>
+
           <li className={`${styles.navItem} ${activeTab === "allot" ? styles.active : ""}`}>
             <a
               href="#allotment"
@@ -200,18 +213,6 @@ const Sidebar = ({ activeTab }) => {
             </a>
           </li>
 
-                 <li className={`${styles.navItem} ${activeTab === "assignments" ? styles.active : ""}`}>
-            <a
-              href="#assignments"
-              onClick={(e) => handleNavigation('/view/assignment', 'assignments', e)}
-            >
-              <FontAwesomeIcon icon={faUsers} />
-              <span className={styles.navText}>Assignment Management</span>
-        
-            </a>
-          </li>
-
-
           <li className={`${styles.navItem} ${activeTab === "intern" ? styles.active : ""}`}>
             <a
               href="#intern"
@@ -230,7 +231,7 @@ const Sidebar = ({ activeTab }) => {
               href="#password"
               onClick={(e) => handleNavigation('/manager/update/password', 'password', e)}
             >
-              <FontAwesomeIcon icon={faUsers} />
+              <FontAwesomeIcon icon={faFingerprint} />
               <span className={styles.navText}>Update Password</span>
      
             </a>
