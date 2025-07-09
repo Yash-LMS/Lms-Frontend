@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import styles from './InstructorDashboard.module.css';
+import React, { useState, useRef } from 'react';
+import axios from 'axios';
+import { CREATE_ASSIGNMENT_URL } from "../../constants/apiConstants";
+import styles from './AddAssignmentModal.module.css';
 
-const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
+const AddAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -9,8 +11,45 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
   });
 
   const [errors, setErrors] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  
+
+  // Allowed file types
+  const allowedFileTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'application/zip',
+    'application/x-zip-compressed'
+  ];
+
+  const allowedExtensions = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.zip'];
 
   if (!isOpen) return null;
+
+    const getUserData = () => {
+    try {
+      const user = JSON.parse(sessionStorage.getItem("user"));
+      const token = sessionStorage.getItem("token");
+      return {
+        user,
+        token,
+        role: user?.role || null,
+      };
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      return { user: null, token: null, role: null };
+    }
+  };
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -25,6 +64,87 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
         ...prev,
         [name]: ''
       }));
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    
+    if (file) {
+      // Check file type
+      const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+      const isValidType = allowedFileTypes.includes(file.type) || allowedExtensions.includes(fileExtension);
+      
+      if (!isValidType) {
+        setErrors(prev => ({
+          ...prev,
+          file: 'Only PDF, DOC, DOCX, JPG, PNG, and ZIP files are allowed'
+        }));
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+
+      // Check file size (100MB limit)
+      const maxSize = 100 * 1024 * 1024; // 100MB
+      if (file.size > maxSize) {
+        setErrors(prev => ({
+          ...prev,
+          file: 'File size should not exceed 100MB'
+        }));
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+
+      setSelectedFile(file);
+      setErrors(prev => ({
+        ...prev,
+        file: ''
+      }));
+    }
+  };
+
+  const removeFile = () => {
+    setSelectedFile(null);
+    setUploadProgress(0);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    setErrors(prev => ({
+      ...prev,
+      file: ''
+    }));
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getFileIcon = (fileName) => {
+    const extension = fileName.split('.').pop().toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return '📄';
+      case 'doc':
+      case 'docx':
+        return '📝';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+        return '🖼️';
+      case 'zip':
+        return '🗜️';
+      default:
+        return '📎';
     }
   };
 
@@ -49,39 +169,128 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateForm()) {
       return;
     }
 
+    const { user, token } = getUserData();
+
+    if (!user || !token) {
+      alert("User session data is missing. Please log in again.");
+      return;
+    }
+
+    setLoading(true);
+    setIsUploading(true);
+    setUploadProgress(0);
+
     const assignmentData = {
       title: formData.title.trim(),
       description: formData.description.trim(),
       totalMarks: parseInt(formData.totalMarks)
     };
-    
-    console.log("Assignment data being submitted:", assignmentData);
-    
-    onSubmit(assignmentData);
-    
-    // Reset form
-    setFormData({
-      title: '',
-      description: '',
-      totalMarks: ''
-    });
-    setErrors({});
+
+    const requestData = {
+      user: user,
+      token: token,
+      assignment: assignmentData,
+    };
+
+    try {
+      // Create FormData for multipart request
+      const formDataToSend = new FormData();
+      
+      // Add the JSON data as a blob
+      formDataToSend.append('requestData', new Blob([JSON.stringify(requestData)], {
+        type: 'application/json'
+      }));
+      
+      // Add the file if it exists
+      if (selectedFile) {
+        formDataToSend.append('file', selectedFile);
+      }
+
+      const response = await axios.post(CREATE_ASSIGNMENT_URL, formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percentCompleted);
+          }
+        },
+      });
+
+      console.log("Create assignment response:", response.data);
+
+      if (response.data && (response.data.response === "success")) {
+        // Reset form after successful submission
+        setFormData({
+          title: '',
+          description: '',
+          totalMarks: ''
+        });
+        setSelectedFile(null);
+        setUploadProgress(0);
+        setErrors({});
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+
+          onSuccess();
+
+        console.log("Assignment created successfully:", response.data);
+      } else {
+        const errorMessage = response.data?.message || response.data?.payload || "Failed to create assignment";
+        setErrors(prev => ({
+          ...prev,
+          submit: errorMessage
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to add assignment:", err);
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.payload ||
+        err.message ||
+        "An error occurred while creating the assignment";
+      
+      setErrors(prev => ({
+        ...prev,
+        submit: errorMessage
+      }));
+
+      if (err.response?.status === 401) {
+        alert("Unauthorized access. Please log in again.");
+      }
+    } finally {
+      setLoading(false);
+      setIsUploading(false);
+    }
   };
 
   const handleClose = () => {
+    if (isUploading) {
+      return; // Prevent closing while uploading
+    }
+    
     setFormData({
       title: '',
       description: '',
       totalMarks: ''
     });
+    setSelectedFile(null);
+    setUploadProgress(0);
     setErrors({});
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
     onClose();
   };
 
@@ -93,12 +302,19 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
           <button 
             className={styles.closeButton}
             onClick={handleClose}
+            disabled={isUploading}
           >
             ×
           </button>
         </header>
         
         <form className={styles.courseForm} onSubmit={handleSubmit}>
+          {errors.submit && (
+            <div className={styles.errorMessage}>
+              {errors.submit}
+            </div>
+          )}
+
           <div className={styles.formGroup}>
             <label htmlFor="title">Assignment Title *</label>
             <input 
@@ -110,6 +326,7 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
               placeholder="Enter assignment title"
               className={`${styles.formInput} ${errors.title ? styles.errorInput : ''}`}
               required
+              disabled={isUploading}
             />
             {errors.title && <span className={styles.errorText}>{errors.title}</span>}
           </div>
@@ -125,6 +342,7 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
               className={`${styles.formInput} ${errors.description ? styles.errorInput : ''}`}
               rows="4"
               required
+              disabled={isUploading}
             />
             {errors.description && <span className={styles.errorText}>{errors.description}</span>}
           </div>
@@ -141,8 +359,68 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
               className={`${styles.formInput} ${errors.totalMarks ? styles.errorInput : ''}`}
               min="1"
               required
+              disabled={isUploading}
             />
             {errors.totalMarks && <span className={styles.errorText}>{errors.totalMarks}</span>}
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="file">Assignment File (Optional)</label>
+            <div className={styles.fileUploadContainer}>
+              <input
+                type="file"
+                id="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.zip"
+                className={styles.fileInput}
+                disabled={isUploading}
+              />
+              {!selectedFile && (
+                <label htmlFor="file" className={`${styles.fileLabel} ${isUploading ? styles.disabled : ''}`}>
+                  <div className={styles.fileUploadIcon}>📁</div>
+                  <span>Choose File: </span>
+                  <small>PDF, DOC, DOCX, JPG, PNG, ZIP (Max 100MB)</small>
+                </label>
+              )}
+            </div>
+            {errors.file && <span className={styles.errorText}>{errors.file}</span>}
+            
+            {selectedFile && (
+              <div className={styles.filePreview}>
+                <div className={styles.fileInfo}>
+                  <div className={styles.fileIcon}>
+                    {getFileIcon(selectedFile.name)}
+                  </div>
+                  <div className={styles.fileDetails}>
+                    <span className={styles.fileName}>{selectedFile.name}</span>
+                    <span className={styles.fileSize}>{formatFileSize(selectedFile.size)}</span>
+                  </div>
+                </div>
+                {!isUploading && (
+                  <button
+                    type="button"
+                    className={styles.removeFileBtn}
+                    onClick={removeFile}
+                    title="Remove file"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            )}
+
+            {isUploading && uploadProgress > 0 && (
+              <div className={styles.progressContainer}>
+                <div className={styles.progressBar}>
+                  <div 
+                    className={styles.progressFill} 
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
+                <span className={styles.progressText}>{uploadProgress}% uploaded</span>
+              </div>
+            )}
           </div>
 
           <div className={styles.formActions}>
@@ -150,11 +428,16 @@ const AddAssignmentModal = ({ isOpen, onClose, onSubmit }) => {
               type="button" 
               className={styles.cancelBtn}
               onClick={handleClose}
+              disabled={isUploading}
             >
               Cancel
             </button>
-            <button type="submit" className={styles.submitBtn}>
-              Create Assignment
+            <button 
+              type="submit" 
+              className={styles.submitBtn}
+              disabled={isUploading || loading}
+            >
+              {isUploading ? 'Creating...' : 'Create Assignment'}
             </button>
           </div>
         </form>
