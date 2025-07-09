@@ -196,6 +196,7 @@ const CourseRequests = () => {
                   <th>Instructor</th>
                   <th>Total Hours</th>
                   <th>Completion Status</th>
+                  <th>System Remark</th>
                   <th>Request Status</th>
                   <th>Actions</th>
                 </tr>
@@ -208,6 +209,7 @@ const CourseRequests = () => {
                       <td>{course.instructorName}</td>
                       <td>{course.totalHours}</td>
                       <td>{course.courseCompletionStatus || "DRAFT"}</td>
+                        <td>{course.systemRemark}</td>
                       <td>
                         <span
                           className={`${styles.statusBadge} ${
