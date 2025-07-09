@@ -40,6 +40,12 @@ export const VERIFY_CANDIDATE_TO_BATCH_URL = `${API_BASE_URL}/batch/verifyEmploy
 export const FIND_TEST_FOR_BATCH_URL = `${API_BASE_URL}/batch/findTests`;
 export const FIND_EMPLOYEE_LIST_FOR_BATCH_URL = `${API_BASE_URL}/batch/findEmployeeList`;
 export const FIND_CANDIDATE_LIST_FOR_BATCH_URL = `${API_BASE_URL}/batch/candidate/view`;
+export const CREATE_ASSIGNMENT_URL = `${API_BASE_URL}/assignment/create`;
+export const VIEW_ASSIGNMENT_URL = `${API_BASE_URL}/assignment/user/viewAssignmentListByUser`;
+export const ASSIGNMENT_SUBMISSION_FEEDBACK_URL = `${API_BASE_URL}/assignment/instructor/evaluate/assignment`;
+export const VIEW_ASSIGNMENT_SUBMISSION_URL = `${API_BASE_URL}/assignment/instructor/submissionList`;
+export const RESEND_COURSE_APPROVAL = `${API_BASE_URL}/course/approval/resend`;
+
 
 
 //Intern
@@ -97,6 +103,10 @@ export const FIND_BATCHES_URL = `${API_BASE_URL}/manager/batch/viewBatchByStatus
 export const APPROVE_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/approve`;
 export const REJECT_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/reject`;
 
+export const FIND_ASSIGNMENT_URL = `${API_BASE_URL}/manager/findAssignmentByStatus`;
+export const APPROVE_ASSIGNMENT_URL = `${API_BASE_URL}/manager/updateAssignmentStatus/approve`;
+export const REJECT_ASSIGNMENT_URL = `${API_BASE_URL}/manager/updateAssignmentStatus/reject`;
+
 export const FIND_CANDIDATE_URL = `${API_BASE_URL}/manager/trp/findCandidates`;
 export const GENERATE_TRP_URL = `${API_BASE_URL}/manager/trp/generate`;
 export const GENERATE_BATCH_TRP_URL = `${API_BASE_URL}/manager/trp/batch/generate`;
@@ -104,6 +114,15 @@ export const GENERATE_BATCH_TRP_URL = `${API_BASE_URL}/manager/trp/batch/generat
 export const UPDATE_INTERN_BULK_FEEDBACK = `${API_BASE_URL}/manager/bulk/update/internRemarkAndFeedback`;
 export const TEST_SS_VIEW = `${API_BASE_URL}/manager/test/invigilation/image`; 
 
+export const UPDATE_USER_PASSWORD = `${API_BASE_URL}/manager/user/updatePassword`; 
+
+export const VIEW_TRAINEE_ASSIGNMENT_URL = `${API_BASE_URL}/assignment/allotment/viewAssignmentList`;
+export const ALLOT_ASSIGNMENT_URL = `${API_BASE_URL}/manager/allotAssignmentToTrainee`;
+
+export const DOWNLOAD_ASSIGNMENT_FILES = `${API_BASE_URL}/assignment/file/download`;
+
+
+export const ALLOT_ASSIGNMENT_BATCH_URL = `${API_BASE_URL}/batch/addAssignmentToBatch`;
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
@@ -127,6 +146,14 @@ export const DOC_UPDATE_STATUS_URL = `${API_BASE_URL}/user/file/doc/updateStatus
 export const VIDEO_SIZE_URL = `${API_BASE_URL}/user/file/video/size`; // in minutes
 
 export const TEST_SS_CAPTURE = `${API_BASE_URL}/user/test/capture`; 
+export const UPDATE_PASSWORD = `${API_BASE_URL}/user/updatePassword`; 
+
+export const SUBMIT_ASSIGNMENT_URL = `${API_BASE_URL}/user/assignment/submit`; 
+export const SUBMIT_INTERNAL_ASSIGNMENT_URL = `${API_BASE_URL}/user/internal/assignment/submit`; 
+export const VIEW_ASSIGNMENT_TRAINEE_URL = `${API_BASE_URL}/user/assignment/view`;
+export const VIEW_INTERNAL_ASSIGNMENT_ALLOTMENT_URL = `${API_BASE_URL}/user/assignment/view/allotmentId`;
+
+export const ASSIGNMENT_UPDATE_STATUS_VIEW_URL = `${API_BASE_URL}/user/file/assignment/view/updateStatus`;
 
 
 

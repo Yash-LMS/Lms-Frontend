@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./InstructorSidebar.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faListCheck, faFolderOpen,faRectangleList, faClipboardList, faPen, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faListCheck, faFolderOpen,faRectangleList, faClipboardList, faPen, faUsers, faFingerprint, faTasks } from "@fortawesome/free-solid-svg-icons";
 
 const InstructorSidebar = ({ activeTab }) => {
     const navigate = useNavigate();
@@ -92,6 +92,35 @@ const InstructorSidebar = ({ activeTab }) => {
             >
               <FontAwesomeIcon icon={faUsers} />
               Batches
+            </a>
+          </li>
+
+           <li
+            className={`${styles.navItem} ${
+              activeTab === "assignments" ? styles.active : ""
+            }`}
+          >
+            <a
+              href="#assignments"
+              onClick={(e) => handleNavigation('/view/assignment', 'assignments', e)}
+            >
+              <FontAwesomeIcon icon={faTasks} />
+              Assignments
+            </a>
+          </li>
+
+
+                 <li
+            className={`${styles.navItem} ${
+              activeTab === "password" ? styles.active : ""
+            }`}
+          >
+            <a
+              href="#password"
+              onClick={(e) => handleNavigation('/user/update/password', 'password', e)}
+            >
+              <FontAwesomeIcon icon={faFingerprint} />
+              Update Password
             </a>
           </li>
 

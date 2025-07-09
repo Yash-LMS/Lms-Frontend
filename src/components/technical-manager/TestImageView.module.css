@@ -126,3 +126,17 @@
   margin-top: 10px;
   font-weight: bold;
 }
+
+.reloadButton {
+  background-color: #a8a9ab;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.reloadButton:hover {
+  background-color: #8c8d8f;
+}

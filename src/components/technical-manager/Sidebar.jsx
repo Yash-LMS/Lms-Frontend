@@ -12,7 +12,9 @@ import {
   faPenToSquare,
   faBarsProgress,
   faBell,
-  faEye
+  faEye,
+  faTasks,
+  faFingerprint
 } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = ({ activeTab }) => {
@@ -20,6 +22,7 @@ const Sidebar = ({ activeTab }) => {
   const [courseBadgeCount, setCourseBadgeCount] = useState(0); // State for course requests badge count
   const [testBadgeCount, setTestBadgeCount] = useState(0); // State for test requests badge count
   const [batchBadgeCount, setBatchBadgeCount] = useState(0);
+  const [assignmentBadgeCount, setAssignmentBadgeCount] = useState(0);
   const [notActiveEmployeeCount, setNotActiveEmployeeCount] = useState(0);
   const [notActiveInternCount, setNotActiveInternCount] = useState(0);
 
@@ -59,6 +62,7 @@ const Sidebar = ({ activeTab }) => {
           setCourseBadgeCount(response.data.payload.courseRequestPending || 0); // Set course badge count
           setTestBadgeCount(response.data.payload.testRequestPending || 0); // Set test badge count
           setBatchBadgeCount(response.data.payload.batchRequestPending || 0);
+          setAssignmentBadgeCount(response.data.payload.assignmentRequestPending || 0);
           setNotActiveEmployeeCount(response.data.payload.employeeRequestCount || 0); // Set not active count
           setNotActiveInternCount(response.data.payload.internRequestCount || 0);
         }
@@ -121,6 +125,19 @@ const Sidebar = ({ activeTab }) => {
               )}
             </a>
           </li>
+          <li className={`${styles.navItem} ${activeTab === "assignmentRequests" ? styles.active : ""}`}>
+            <a
+              href="#assignmentRequests"
+              onClick={(e) => handleNavigation('/manager/assignment/requests', 'assignmentRequests', e)}
+              className={styles.navButton}
+            >
+              <FontAwesomeIcon icon={faBell} />
+              <span className={styles.navText}>Assignment Requests</span>
+              {assignmentBadgeCount > 0 && (
+                <span className={styles.badge}>{assignmentBadgeCount}</span>
+              )}
+            </a>
+          </li>
 
           <li className={`${styles.navItem} ${activeTab === "batch" ? styles.active : ""}`}>
             <a
@@ -129,6 +146,17 @@ const Sidebar = ({ activeTab }) => {
             >
               <FontAwesomeIcon icon={faUsers} />
               <span className={styles.navText}>Batches</span>
+            </a>
+          </li>
+
+          <li className={`${styles.navItem} ${activeTab === "assignments" ? styles.active : ""}`}>
+            <a
+              href="#assignments"
+              onClick={(e) => handleNavigation('/view/assignment', 'assignments', e)}
+            >
+              <FontAwesomeIcon icon={faTasks} />
+              <span className={styles.navText}>Assignments</span>
+        
             </a>
           </li>
 
@@ -184,6 +212,7 @@ const Sidebar = ({ activeTab }) => {
               )}
             </a>
           </li>
+
           <li className={`${styles.navItem} ${activeTab === "intern" ? styles.active : ""}`}>
             <a
               href="#intern"
@@ -196,6 +225,18 @@ const Sidebar = ({ activeTab }) => {
               )}
             </a>
           </li>
+
+         <li className={`${styles.navItem} ${activeTab === "password" ? styles.active : ""}`}>
+            <a
+              href="#password"
+              onClick={(e) => handleNavigation('/manager/update/password', 'password', e)}
+            >
+              <FontAwesomeIcon icon={faFingerprint} />
+              <span className={styles.navText}>Update Password</span>
+     
+            </a>
+          </li>
+
         </ul>
       </nav>
     </aside>

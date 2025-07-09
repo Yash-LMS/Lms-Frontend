@@ -43,6 +43,8 @@ import TraineeResults from "./components/instructor/TraineeResults";
 import QuestionEdit from "./components/test/QuestionEdit";
 import BatchManagement from "./components/instructor/BatchManagement";
 import BatchRequests from "./components/technical-manager/BatchRequests";
+import AssignmentManagement from "./components/instructor/Assignmentmanagement";
+import AssignmentRequests from "./components/technical-manager/AssignmentRequests";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -53,6 +55,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import InternRegistration from "./components/auth/InternRegistration";
 import TrpGenerator from "./components/technical-manager/TrpGenerator";
+import UpdatePassword from "./components/technical-manager/UpdatePassword";
+
+import UserPassword from "./components/user/UpdatePassword";
+import TraineeAssignmentList from "./components/user/TraineeAssignmentList";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -334,6 +340,8 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+
           <Route
             path="/manager/intern"
             element={
@@ -342,6 +350,26 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+                 <Route
+            path="/manager/update/password"
+            element={
+              <ProtectedRoute>
+                <UpdatePassword />
+              </ProtectedRoute>
+            }
+          />
+
+             <Route
+            path="/user/update/password"
+            element={
+              <ProtectedRoute>
+                <UserPassword />
+              </ProtectedRoute>
+            }
+          />
+
+
           <Route
             path="/manager/bulkAllotment"
             element={
@@ -426,6 +454,16 @@ const AppContent = () => {
             }
           />
 
+
+          <Route
+            path="/user/assignment"
+            element={
+              <ProtectedRoute>
+                <TraineeAssignmentList />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/manager/result"
             element={
@@ -458,6 +496,24 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <BatchRequests />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/manager/assignment/requests"
+            element={
+              <ProtectedRoute>
+                <AssignmentRequests />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/view/assignment"
+            element={
+              <ProtectedRoute>
+                <AssignmentManagement />
               </ProtectedRoute>
             }
           />

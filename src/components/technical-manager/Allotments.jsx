@@ -3,13 +3,27 @@ import { useNavigate } from "react-router-dom";
 import styles from "./ResultComponent.module.css";
 import CourseAllotment from "./CourseAllotment";
 import TestAllotment from "./TestAllotment";
+import AssignmentAllotment from "./AssignmentAllotment";
 
-const ResultComponent = () => {
+const Allotments = () => {
   const [activeView, setActiveView] = useState("course");
   const navigate = useNavigate();
 
   const handleViewChange = (view) => {
     setActiveView(view);
+  };
+
+  const renderContent = () => {
+    switch (activeView) {
+      case "course":
+        return <CourseAllotment />;
+      case "test":
+        return <TestAllotment />;
+      case "assignment":
+        return <AssignmentAllotment />;
+      default:
+        return <CourseAllotment />;
+    }
   };
 
   return (
@@ -35,14 +49,22 @@ const ResultComponent = () => {
         >
           Test Allotment
         </button>
+        <button
+          className={`${styles.actionButton} ${
+            activeView === "assignment" ? styles.activeButton : ""
+          }`}
+          onClick={() => handleViewChange("assignment")}
+        >
+          Assignment Allotment
+        </button>
       </div>
 
       {/* Content area */}
       <div className={styles.contentArea}>
-        {activeView === "course" ? <CourseAllotment /> : <TestAllotment />}
+        {renderContent()}
       </div>
     </div>
   );
 };
 
-export default ResultComponent;
+export default Allotments;

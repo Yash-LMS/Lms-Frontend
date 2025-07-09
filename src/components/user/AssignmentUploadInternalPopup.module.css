@@ -1,0 +1,554 @@
+/* AssignmentView.module.css */
+
+.container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+  position: relative; /* This is important for absolute positioning of modal */
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  font-size: 18px;
+  color: #666;
+}
+
+.overlay {
+  position: fixed; /* Use fixed instead of absolute */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  font-size: 18px;
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  margin: 20px;
+}
+
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px 40px;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.content {
+  flex: 1;
+  padding: 40px;
+  background: white;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.assignmentInfo {
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  border: 1px solid #e9ecef;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.infoRow:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 16px;
+  min-width: 140px;
+}
+
+.value {
+  font-size: 16px;
+  color: #212529;
+  text-align: right;
+  flex: 1;
+  margin-left: 20px;
+}
+
+.statusPending {
+  color: #fd7e14;
+  font-weight: 700;
+  background: #fff3cd;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ffeaa7;
+}
+
+.statusSubmitted {
+  color: #20c997;
+  font-weight: 700;
+  background: #d1ecf1;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #bee5eb;
+}
+
+.statusExpired {
+  color: #dc3545;
+  font-weight: 700;
+  background: #f8d7da;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #f5c6cb;
+}
+
+.statusDefault {
+  color: #6c757d;
+  font-weight: 700;
+  background: #e9ecef;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.statusUpdate {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  margin-top: 15px;
+}
+
+.uploadSection {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.uploadButton {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.uploadButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.uploadButton:active {
+  transform: translateY(0);
+}
+
+.expiredNotice {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid #f5c6cb;
+  margin-top: 20px;
+}
+
+.submittedNotice {
+  background: #d4edda;
+  color: #155724;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid #c3e6cb;
+  margin-top: 20px;
+}
+
+/* Modal Styles - Constrained to Component */
+.overlay {
+  position: absolute; /* Changed from fixed to absolute */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.popup {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px; /* Reduced max-width for better fit */
+  max-height: 80vh; /* Reduced max-height */
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.popupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px; /* Reduced padding */
+  border-bottom: 1px solid #e9ecef;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px 16px 0 0;
+}
+
+.popupHeader h3 {
+  margin: 0;
+  font-size: 20px; /* Reduced font size */
+  font-weight: 700;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 28px; /* Reduced font size */
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  width: 35px; /* Reduced size */
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.closeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.popupContent {
+  padding: 25px; /* Reduced padding */
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Reduced gap */
+}
+
+.fileInputContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.fileLabel {
+  display: inline-block;
+  padding: 12px 24px; /* Reduced padding */
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.fileLabel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.fileInput {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+}
+
+.fileInfo {
+  background: #f8f9fa;
+  padding: 15px; /* Reduced padding */
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.fileName {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 5px;
+  word-break: break-all;
+}
+
+.fileSize {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.allowedTypes {
+  background: #e7f3ff;
+  padding: 12px; /* Reduced padding */
+  border-radius: 8px;
+  border: 1px solid #b8daff;
+  color: #004085;
+  font-size: 13px; /* Reduced font size */
+  line-height: 1.5;
+}
+
+.uploadError {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 12px; /* Reduced padding */
+  border-radius: 8px;
+  border: 1px solid #f5c6cb;
+  font-weight: 600;
+}
+
+.progressContainer {
+  margin-top: 15px; /* Reduced margin */
+}
+
+.progressBar {
+  width: 100%;
+  height: 10px; /* Reduced height */
+  background: #e9ecef;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 8px; /* Reduced margin */
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+  border-radius: 5px;
+  transition: width 0.3s ease;
+  animation: progressPulse 2s infinite;
+}
+
+@keyframes progressPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.progressText {
+  text-align: center;
+  color: #495057;
+  font-weight: 600;
+  font-size: 13px; /* Reduced font size */
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 12px; /* Reduced gap */
+  justify-content: flex-end;
+  margin-top: 20px; /* Reduced margin */
+}
+
+.cancelButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px; /* Reduced padding */
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.cancelButton:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submitButton {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px; /* Reduced padding */
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Assignment Container for Parent Component */
+.assignmentContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  .header {
+    padding: 20px;
+  }
+  
+  .header h2 {
+    font-size: 24px;
+  }
+  
+  .content {
+    padding: 20px;
+  }
+  
+  .assignmentInfo {
+    padding: 20px;
+  }
+  
+  .infoRow {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .label {
+    margin-bottom: 5px;
+    min-width: auto;
+  }
+  
+  .value {
+    margin-left: 0;
+    text-align: left;
+  }
+  
+  .popup {
+    width: 95%;
+    max-width: none; /* Remove max-width restriction on mobile */
+    margin: 10px;
+  }
+  
+  .popupHeader {
+    padding: 15px;
+  }
+  
+  .popupHeader h3 {
+    font-size: 18px;
+  }
+  
+  .popupContent {
+    padding: 15px;
+  }
+  
+  .buttonContainer {
+    flex-direction: column;
+  }
+  
+  .cancelButton,
+  .submitButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 15px;
+  }
+  
+  .header h2 {
+    font-size: 20px;
+  }
+  
+  .content {
+    padding: 15px;
+  }
+  
+  .assignmentInfo {
+    padding: 15px;
+  }
+  
+  .popupHeader {
+    padding: 12px;
+  }
+  
+  .popupContent {
+    padding: 12px;
+  }
+  
+  .uploadButton {
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+  
+  .popup {
+    max-height: 85vh; /* Increased max-height for mobile */
+  }
+}

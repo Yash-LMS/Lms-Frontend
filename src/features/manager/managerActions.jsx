@@ -13,6 +13,9 @@ import {
   FIND_BATCHES_URL,
   APPROVE_BATCH_URL,
   REJECT_BATCH_URL,
+  FIND_ASSIGNMENT_URL,
+  APPROVE_ASSIGNMENT_URL,
+  REJECT_ASSIGNMENT_URL
 } from "../../constants/apiConstants";
 
 export const findCoursesByStatus = createAsyncThunk(
@@ -116,6 +119,7 @@ export const rejectTest = createAsyncThunk(
   }
 );
 
+//Batches operations
 export const findBatches = createAsyncThunk(
   "manager/findBatches",
   async ({ user, token, batchStatus }, { rejectWithValue }) => {
@@ -163,6 +167,56 @@ export const rejectBatch = createAsyncThunk(
     }
   }
 );
+
+//Assignment Operations
+export const findAssignments = createAsyncThunk(
+  "manager/findAssignments",
+  async ({ user, token, status }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(FIND_ASSIGNMENT_URL, {
+        user,
+        token,
+        status,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const approveAssignment = createAsyncThunk(
+  "manager/approveAssignment",
+  async ({ user, token, assignmentId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(APPROVE_ASSIGNMENT_URL, {
+        user,
+        token,
+        assignmentId,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const rejectAssignment = createAsyncThunk(
+  "manager/rejectAssignment",
+  async ({ user, token, assignmentId}, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(REJECT_ASSIGNMENT_URL, {
+        user,
+        token,
+        assignmentId,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 
 
 // Fetch user list

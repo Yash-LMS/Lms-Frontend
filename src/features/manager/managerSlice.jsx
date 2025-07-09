@@ -19,7 +19,10 @@ import {
     findInternsCount,
     findBatches,
     approveBatch,
-    rejectBatch
+    rejectBatch,
+    findAssignments,
+    approveAssignment,
+    rejectAssignment
 } from './managerActions';
 
 const managerSlice = createSlice({
@@ -29,6 +32,7 @@ const managerSlice = createSlice({
         users: [],
         tests: [],
         batches: [],
+        assignments: [],
         allottedCourses: [],
         courseCount: [],
         testCount: [],
@@ -170,6 +174,7 @@ const managerSlice = createSlice({
                 state.error = action.payload?.message || 'Failed to reject test';
             })
 
+            // Find batches
             .addCase(findBatches.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -187,7 +192,7 @@ const managerSlice = createSlice({
                 state.error = action.payload?.message || 'Failed to fetch courses';
             })
             
-            // Approve course
+            // Approve batch
             .addCase(approveBatch.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -208,7 +213,7 @@ const managerSlice = createSlice({
                 state.error = action.payload?.message || 'Failed to approve course';
             })
             
-            // Reject course
+            // Reject batch
             .addCase(rejectBatch.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -228,6 +233,67 @@ const managerSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload?.message || 'Failed to fetch batches';
             })
+
+            // Find assignments
+            .addCase(findAssignments.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(findAssignments.fulfilled, (state, action) => {
+                state.loading = false;
+                if (action.payload.response === 'success') {
+                    state.assignments = action.payload.payload || [];
+                } else {
+                    state.error = action.payload.message || 'Failed to fetch courses';
+                }
+            })
+            .addCase(findAssignments.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || 'Failed to fetch courses';
+            })
+            
+            // Approve assignment
+            .addCase(approveAssignment.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(approveAssignment.fulfilled, (state, action) => {
+                state.loading = false;
+                if (action.payload.response === 'success') {
+                    const updatedAssignment = action.payload.payload || {};
+                    state.assignments = state.assignments.map(assignment => 
+                        assignment.id === updatedAssignment.id ? { ...assignment, approvalStatus: 'approved' } : assignment
+                    );
+                } else {
+                    state.error = action.payload.message || 'Failed to approve course';
+                }
+            })
+            .addCase(approveAssignment.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || 'Failed to approve course';
+            })
+            
+            // Reject assignment
+            .addCase(rejectAssignment.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(rejectAssignment.fulfilled, (state, action) => {
+                state.loading = false;
+                if (action.payload.response === 'success') {
+                    const updatedAssignment = action.payload.payload || {};
+                    state.assignments = state.assignments.map(assignment => 
+                        assignment.id === updatedAssignment.id ? { ...assignment, approvalStatus: 'rejected' } : assignment
+                    );
+                } else {
+                    state.error = action.payload.message || 'Failed to reject course';
+                }
+            })
+            .addCase(rejectAssignment.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload?.message || 'Failed to fetch batches';
+            })
+            
             
             
             // Fetch user list
