@@ -716,6 +716,8 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
                     <thead>
                       <tr>
                         <th>Allotment ID</th>
+                         <th>Name</th>
+                        <th>Employee Type</th>
                         <th>Allotment Date</th>
                         <th>End Date</th>
                         <th>Submission Date</th>
@@ -729,6 +731,9 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
                       {submissions.map((submission) => (
                         <tr key={submission.allotmentId}>
                           <td>{submission.allotmentId}</td>
+                          <td>{submission.traineeName}</td>
+                            <td>{submission.employeeType.toUpperCase()}</td>
+                          
                           <td>{formatDate(submission.allotmentDate)}</td>
                           <td>{formatDate(submission.endDate)}</td>
                           <td>{formatDate(submission.submissionDate)}</td>
@@ -763,7 +768,7 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
                                 </button>
                               )}
 
-                              {submission.evaluationStatus === 'pending' && (
+                              {submission.evaluationStatus === 'pending' && submission.status === 'submitted' && (
                                 <button
                                   className={styles.feedbackButton}
                                   onClick={() => handleOpenFeedback(submission)}
