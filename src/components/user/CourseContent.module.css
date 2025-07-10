@@ -210,6 +210,30 @@
   background-color: #edf2f7;
 }
 
+.actions{
+  display: flex;
+  gap: 2rem;
+}
+
+.refreshButton {
+  background-color: #7c4dff;
+  color: white;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 6px 10px;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.refreshButton:hover {
+  background-color: #6b49c9
+}
+
 .sectionTitle {
   font-weight: 600;
   color: #333;

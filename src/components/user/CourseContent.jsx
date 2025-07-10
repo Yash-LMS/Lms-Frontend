@@ -57,9 +57,7 @@ const CourseContent = () => {
     navigate("/user-dashboard");
   };
 
-  // Fetch course data from API
-  useEffect(() => {
-    const fetchCourseData = async () => {
+      const fetchCourseData = async () => {
       try {
         setLoading(true);
         const { user, token } = getUserData();
@@ -104,6 +102,57 @@ const CourseContent = () => {
       }
     };
 
+
+
+  // Fetch course data from API
+  useEffect(() => {
+
+      const fetchCourseData = async () => {
+      try {
+        setLoading(true);
+        const { user, token } = getUserData();
+
+        const response = await axios.post(`${VIEW_USER_COURSE_DETAIL_URL}`, {
+          courseId: parseInt(courseId),
+          allotmentId: parseInt(allotmentId),
+          user: user,
+          token: token,
+        });
+
+        if (response.data.response === "success") {
+          setCourseData(response.data.payload);
+          setActiveCourseId(response.data.payload.courseId);
+
+          // Set initial section expanded states
+          const initialExpandedState = {};
+          response.data.payload.sectionList.forEach((section) => {
+            initialExpandedState[section.sectionId] = true;
+          });
+          setSectionExpanded(initialExpandedState);
+
+          // Set initial active topic if available
+          if (
+            response.data.payload.sectionList.length > 0 &&
+            response.data.payload.sectionList[0].topics.length > 0
+          ) {
+            const firstTopic = response.data.payload.sectionList[0].topics[0];
+            setActiveTopic(firstTopic);
+            setActiveTopicType(firstTopic.topicType);
+            setActiveLesson(firstTopic.topicId.toString());
+          }
+        } else {
+          setError(response.data.message || "Failed to load course");
+        }
+      } catch (err) {
+        setError(
+          "Error fetching course data: " + (err.message || "Unknown error")
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    
     if (courseId) {
       fetchCourseData();
     }
@@ -412,9 +461,13 @@ const CourseContent = () => {
           <div className={styles.sidebar}>
             <div className={styles.sidebarHeader}>
               <div className={styles.headerControls}>
-                <div>
+                <div className={styles.actions}>
                   <button onClick={goToDashboard} className={styles.backButton}>
-                    ← Back to Dashboard
+                    ← Dashboard
+                  </button>
+
+                  <button onClick={fetchCourseData} className={styles.refreshButton}>
+                    Refresh
                   </button>
                 </div>
                 <h3 className={styles.sidebarTitle}>Course content</h3>
