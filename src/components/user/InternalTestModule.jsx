@@ -3,6 +3,7 @@ import axios from 'axios';
 import styles from './TestModule.module.css';
 import { useNavigate, useLocation  } from "react-router-dom";
 import { VIEW_USER_TEST_URL, START_TEST_URL, SUBMIT_TEST_URL } from '../../constants/apiConstants';
+import CameraView from './CameraView';
 
 const InternalTestModule = () => {
   
@@ -45,6 +46,19 @@ const InternalTestModule = () => {
   const[showDevToolWarning,setShowDevToolWarning]=useState(false);
   const[showTimeConfirmation,setShowTimeConfirmation]=useState(false);
   
+
+    const [cameraStream, setCameraStream] = useState(null);
+    const [isCameraActive, setIsCameraActive] = useState(false);
+    const [cameraError, setCameraError] = useState('');
+    const [isPermissionBlocked, setIsPermissionBlocked] = useState(false);
+    const videoRef = useRef(null);
+  
+  
+    const [microphoneStream, setMicrophoneStream] = useState(null);
+    const [isMicrophoneActive, setIsMicrophoneActive] = useState(false);
+    const [microphoneError, setMicrophoneError] = useState('');
+    const [isMicrophonePermissionBlocked, setIsMicrophonePermissionBlocked] = useState(false);
+    const audioRef = useRef(null);
 
 
   useEffect(() => {
@@ -246,6 +260,103 @@ const InternalTestModule = () => {
         setLoading(false);
       }
     };
+
+
+      const turnOnCamera = async () => {
+    try {
+      setCameraError('');
+      setIsPermissionBlocked(false);
+      
+      const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+      
+      if (permissionStatus.state === 'denied') {
+        setIsPermissionBlocked(true);
+        setCameraError('Camera permission is blocked. Please enable camera access in your browser settings and refresh the page.');
+        return;
+      }
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: 'user' 
+        }, 
+        audio: false 
+      });
+      
+      // Store the stream reference
+      setCameraStream(stream);
+      setIsCameraActive(true);
+      
+    } catch (error) {
+      console.error('Camera access error:', error);
+      
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        setIsPermissionBlocked(true);
+        setCameraError('Camera access was denied. Please click the camera icon in your browser\'s address bar to allow camera access, or check your browser settings.');
+      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        setCameraError('No camera found. Please ensure a camera is connected to your device.');
+      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        setCameraError('Camera is already in use by another application. Please close other applications using the camera and try again.');
+      } else {
+        setCameraError('Unable to access camera. Please check your browser settings and try again.');
+      }
+      
+      setIsCameraActive(false);
+      setCameraStream(null);
+    }
+  };
+
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+      setIsCameraActive(false);
+      setCameraError('');
+    }
+  };
+
+   const turnOnMicrophone = async () => {
+    try {
+      setMicrophoneError('');
+      setIsMicrophonePermissionBlocked(false);
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: true,
+        video: false 
+      });
+      
+      setMicrophoneStream(stream);
+      setIsMicrophoneActive(true);
+      
+      if (audioRef.current) {
+        audioRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error('Microphone access error:', error);
+      
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        setMicrophoneError('Microphone access denied. Please allow microphone permission.');
+        setIsMicrophonePermissionBlocked(true);
+      } else if (error.name === 'NotFoundError') {
+        setMicrophoneError('No microphone found on this device.');
+      } else {
+        setMicrophoneError('Failed to access microphone. Please try again.');
+      }
+    }
+  };
+
+  const turnOffMicrophone = () => {
+    if (microphoneStream) {
+      microphoneStream.getTracks().forEach(track => track.stop());
+      setMicrophoneStream(null);
+      setIsMicrophoneActive(false);
+      
+      if (audioRef.current) {
+        audioRef.current.srcObject = null;
+      }
+    }
+  };
 
 
     const fetchTest = async () => {
@@ -602,6 +713,10 @@ const InternalTestModule = () => {
   // Modified to match the expected API format
   const handleSubmit = async (description) => {
     try {
+
+      stopCamera();
+      turnOffMicrophone();
+
       // Get user data from session storage
       const { user, token } = getUserData();
       
@@ -735,9 +850,69 @@ const InternalTestModule = () => {
               <li>Questions and options will be randomized for each test attempt.</li>
             </ul>
           </div>
-          <button className={styles.startButton} onClick={startTest}>
-            Start Test in Full Screen
-          </button>
+    
+
+          {console.log('Camera test',testAllotmentId)}
+
+  <CameraView
+    cameraStream={cameraStream}
+    isCameraActive={isCameraActive}
+    cameraError={cameraError}
+    isPermissionBlocked={isPermissionBlocked}
+    onTurnOnCamera={turnOnCamera}
+    onStopCamera={stopCamera}
+    testAllotmentId={testAllotmentId}
+  />
+
+
+         {cameraError && (
+            <div className={styles.cameraError}>
+              {cameraError.split('\n').map((line, index) => (
+                <div key={index}>{line}</div>
+              ))}
+            </div>
+          )}
+
+               {microphoneError && (
+          <div className={styles.errorMessage}>
+            {microphoneError}
+          </div>
+        )}
+
+
+
+          {!isCameraActive && (
+  <div className={styles.cameraControls}>
+    <button 
+      className={styles.cameraButton} 
+      onClick={turnOnCamera}
+    >
+      Turn On Camera
+    </button>
+    
+  </div>
+)}
+
+    {isCameraActive && !isMicrophoneActive && (
+      <button className={styles.cameraButton} onClick={turnOnMicrophone}>
+        Turn On Mic
+      </button>
+    )}
+
+{/* Camera and microphone is  active - show start button */}
+ {isCameraActive && isMicrophoneActive && (
+  <button 
+    className={styles.startButton} 
+    onClick={startTest}
+  >
+    Start Test in Full Screen
+  </button>
+)}
+
+
+
+
+
         </div>
       </div>
     );
@@ -1046,6 +1221,18 @@ const InternalTestModule = () => {
     </div>
   </div>
 )}
+
+{console.log('Camera test')}
+
+      <CameraView
+        cameraStream={cameraStream}
+        isCameraActive={isCameraActive}
+        cameraError={cameraError}
+        isPermissionBlocked={isPermissionBlocked}
+        onTurnOnCamera={turnOnCamera}
+        onStopCamera={stopCamera}
+        testAllotmentId={testAllotmentId}
+      />
 
 
 
