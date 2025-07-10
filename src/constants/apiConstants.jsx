@@ -90,6 +90,8 @@ export const FIND_TRAINEE_RESULT_URL = `${API_BASE_URL}/manager/test/detail/resu
 export const EXTEND_TEST_END_DATE_URL = `${API_BASE_URL}/manager/test/extendDueDate`;
 export const INTERN_FEEDBACK_VIEW_URL = `${API_BASE_URL}/manager/view/internFeedback`;
 
+export const CREATE_ASSIGNMENT_CATEGORY_URL = `${API_BASE_URL}/manager/assignment/createCategory`;
+
 export const SHOW_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/permission/showResult`;
 export const SHOW_DETAIL_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/permission/showDetailResult`;
 export const COURSE_COUNT_URL = `${API_BASE_URL}/manager/totalCourses`;
@@ -98,7 +100,7 @@ export const EMPLOYEE_COUNT_URL = `${API_BASE_URL}/manager/totalEmployees`;
 export const INTERN_COUNT_URL = `${API_BASE_URL}/manager/totalInterns`;
 export const FETCH_CATEGORIES_URL = `${API_BASE_URL}/manager/getCategories`;
 export const UPDATE_CATEGORY_URL = `${API_BASE_URL}/manager/updateCategory`;
-
+export const FETCH_ASSIGNMENT_CATEGORIES_URL = `${API_BASE_URL}/manager/assignment/getCategories`;
 export const FIND_BATCHES_URL = `${API_BASE_URL}/manager/batch/viewBatchByStatus`;
 export const APPROVE_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/approve`;
 export const REJECT_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/reject`;

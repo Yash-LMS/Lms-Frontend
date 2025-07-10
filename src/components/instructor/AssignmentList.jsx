@@ -561,11 +561,13 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
                 </div>
                 <div className={styles.metaItem}>
                   <span>Total Marks: {assignment.totalMarks || 0}</span>
-                </div>
-                <div className={styles.categoryInfo}>
+                </div> 
+                <div className={styles.metaItem}> 
                   <span className={styles.categoryTag}>
                    Category:  {assignment.category || 'Uncategorized'}
                   </span>
+                </div>  
+                <div className={styles.metaItem}>
                   {assignment.subCategory && (
                     <span className={styles.subCategoryTag}>
                      Subcategory: {assignment.subCategory}
