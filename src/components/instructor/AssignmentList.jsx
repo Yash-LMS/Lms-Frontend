@@ -15,7 +15,7 @@ import {
   faCheck,
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
-import { VIEW_ASSIGNMENT_SUBMISSION_URL, ASSIGNMENT_SUBMISSION_FEEDBACK_URL,DOWNLOAD_ASSIGNMENT_FILES,DOWNLOAD_ASSIGNMENT_INSTRUCTION_FILE } from "../../constants/apiConstants";
+import { VIEW_ASSIGNMENT_SUBMISSION_URL, ASSIGNMENT_SUBMISSION_FEEDBACK_URL, DOWNLOAD_ASSIGNMENT_FILES, DOWNLOAD_ASSIGNMENT_INSTRUCTION_FILE } from "../../constants/apiConstants";
 
 const AssignmentList = ({ assignments, loading, error, onRetry }) => {
   const navigate = useNavigate();
@@ -471,11 +471,11 @@ const handleDownload = async (assigmmentId) => {
               <span style={{ marginLeft: "5px" }}>View Submissions</span>
             </button>
 
-                      <button
-              className={styles.previewButton}
+            <button
+              className={styles.downloadBtn}
               onClick={() => handleDownloadInstructionFile(assignment)}
             >
-              <FontAwesomeIcon icon={faEye} />
+              <FontAwesomeIcon icon={faDownload} />
               <span style={{ marginLeft: "5px" }}>Download Instruction</span>
             </button>
           </div>

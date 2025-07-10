@@ -436,7 +436,6 @@ const EditSectionModal = ({ isOpen, onClose, section, onSubmit }) => {
                 >
                   <option value="video">Video</option>
                   <option value="docs">Documentation</option>
-                  <option value="test">Test/Quiz</option>
                 </select>
               </div>
 
