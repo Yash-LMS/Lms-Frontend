@@ -178,3 +178,6 @@ export const ADD_QUESTION_Library_URL = `${API_BASE_URL}/library/addQuestion`;
 export const VIEW_RANDOM_QUESTION_Library_URL = `${API_BASE_URL}/library/random/findQuestion`;
 export const VIEW_QUESTION_BY_CATEGORY_Library_URL = `${API_BASE_URL}/library/category/findQuestion`;
 
+// All Access
+
+export const DOWNLOAD_ASSIGNMENT_INSTRUCTION_FILE = `${API_BASE_URL}/assignment/file/instruction/download/assignmentId`;

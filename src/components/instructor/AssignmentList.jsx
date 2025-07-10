@@ -15,7 +15,7 @@ import {
   faCheck,
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
-import { VIEW_ASSIGNMENT_SUBMISSION_URL, ASSIGNMENT_SUBMISSION_FEEDBACK_URL,DOWNLOAD_ASSIGNMENT_FILES } from "../../constants/apiConstants";
+import { VIEW_ASSIGNMENT_SUBMISSION_URL, ASSIGNMENT_SUBMISSION_FEEDBACK_URL,DOWNLOAD_ASSIGNMENT_FILES,DOWNLOAD_ASSIGNMENT_INSTRUCTION_FILE } from "../../constants/apiConstants";
 
 const AssignmentList = ({ assignments, loading, error, onRetry }) => {
   const navigate = useNavigate();
@@ -153,6 +153,11 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
     await fetchSubmissions(assignment.assignmentId);
   };
 
+    const handleDownloadInstructionFile = async (assignment) => {
+    setSelectedAssignment(assignment);
+    await handleDownload(assignment.assignmentId);
+  };
+
   // Handle feedback submission
   const handleSubmitFeedback = async () => {
     if (!selectedSubmission || !feedbackForm.marks || !feedbackForm.feedback) {
@@ -266,7 +271,66 @@ const handleDownloadFile = async (allotmentId) => {
       }
     }
   };
+
   
+const handleDownload = async (assigmmentId) => {
+    try {
+      const { user, token } = getUserData();
+
+      console.log(assigmmentId);
+
+      const response = await axios.post(
+        `${DOWNLOAD_ASSIGNMENT_INSTRUCTION_FILE}`, // your API endpoint
+        { assigmmentId, user, token }, // request body
+        {
+          responseType: 'blob', // important to receive file as blob
+        }
+      );
+
+      // Extract filename from content-disposition header if present
+      const disposition = response.headers['content-disposition'];
+      let filename = 'instructions';
+      if (disposition && disposition.indexOf('filename=') !== -1) {
+        const filenameMatch = disposition.match(/filename="?([^"]+)"?/);
+        if (filenameMatch.length > 1) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Get the content type from response headers
+      const contentType = response.headers['content-type'] || 'application/octet-stream';
+
+      // Create a blob URL with the correct content type and trigger download
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      // Handle errors here (e.g. unauthorized, file not found)
+      if (error.response && error.response.data) {
+        // Try to parse error JSON from blob
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const errorMsg = JSON.parse(reader.result);
+            alert(errorMsg.message || 'Error downloading file');
+          } catch {
+            alert('Error downloading file');
+          }
+        };
+        reader.readAsText(error.response.data);
+      } else {
+        alert('Error downloading file');
+      }
+    }
+  };
+
+
 
   // Extract filename from filepath
   const getFileNameFromPath = (filePath) => {
@@ -405,6 +469,14 @@ const handleDownloadFile = async (allotmentId) => {
             >
               <FontAwesomeIcon icon={faEye} />
               <span style={{ marginLeft: "5px" }}>View Submissions</span>
+            </button>
+
+                      <button
+              className={styles.previewButton}
+              onClick={() => handleDownloadInstructionFile(assignment)}
+            >
+              <FontAwesomeIcon icon={faEye} />
+              <span style={{ marginLeft: "5px" }}>Download Instruction</span>
             </button>
           </div>
         </div>
