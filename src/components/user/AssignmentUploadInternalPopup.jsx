@@ -354,10 +354,6 @@ const handleDownloadInstructionFile = async (allotmentId) => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h2>Assignment Details</h2>
-      </div>
-
       {assignment && (
         <div className={styles.content}>
           <div className={styles.assignmentInfo}>
