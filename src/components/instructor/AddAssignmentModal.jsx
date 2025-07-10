@@ -1,12 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { CREATE_ASSIGNMENT_URL } from "../../constants/apiConstants";
+import { CREATE_ASSIGNMENT_URL,FIND_ASSIGNMENT_CATEGORY,FIND_ASSIGNMENT_SUBCATEGORY } from "../../constants/apiConstants";
 import styles from './AddAssignmentModal.module.css';
 
 const AddAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    category: '',
+    subCategory: '',
     totalMarks: ''
   });
 
@@ -15,9 +17,11 @@ const AddAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [loadingSubCategories, setLoadingSubCategories] = useState(false);
   const fileInputRef = useRef(null);
-
-  
 
   // Allowed file types
   const allowedFileTypes = [
@@ -33,9 +37,67 @@ const AddAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
 
   const allowedExtensions = ['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png', '.zip'];
 
+
+  // Fetch categories when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchCategories();
+    }
+  }, [isOpen]);
+
+  // Fetch subcategories when category changes
+  useEffect(() => {
+    if (formData.category) {
+      fetchSubCategories(formData.category);
+    } else {
+      setSubCategories([]);
+      setFormData(prev => ({ ...prev, subCategory: '' }));
+    }
+  }, [formData.category]);
+
+  const fetchCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      const response = await axios.get(`${FIND_ASSIGNMENT_CATEGORY}`);
+      
+      if (response.data && response.data.response === "success") {
+        setCategories(response.data.payload || []);
+      } else {
+        console.error("Failed to fetch categories:", response.data);
+        setCategories([]);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setCategories([]);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  const fetchSubCategories = async (category) => {
+    try {
+      setLoadingSubCategories(true);
+      const response = await axios.get(`${FIND_ASSIGNMENT_SUBCATEGORY}`, {
+        params: { category }
+      });
+      
+      if (response.data && response.data.response === "success") {
+        setSubCategories(response.data.payload || []);
+      } else {
+        console.error("Failed to fetch subcategories:", response.data);
+        setSubCategories([]);
+      }
+    } catch (error) {
+      console.error("Error fetching subcategories:", error);
+      setSubCategories([]);
+    } finally {
+      setLoadingSubCategories(false);
+    }
+  };
+
   if (!isOpen) return null;
 
-    const getUserData = () => {
+  const getUserData = () => {
     try {
       const user = JSON.parse(sessionStorage.getItem("user"));
       const token = sessionStorage.getItem("token");
@@ -50,15 +112,24 @@ const AddAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // If category is changing, reset subcategory
+    if (name === 'category') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        subCategory: '' // Reset subcategory when category changes
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
 
-    // Clear error when user starts typing
+    // Clear error when user starts typing/selecting
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -159,6 +230,14 @@ const AddAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
       newErrors.description = 'Assignment description is required';
     }
 
+    if (!formData.category) {
+      newErrors.category = 'Category is required';
+    }
+
+    if (!formData.subCategory) {
+      newErrors.subCategory = 'Sub-category is required';
+    }
+
     if (!formData.totalMarks) {
       newErrors.totalMarks = 'Total marks is required';
     } else if (isNaN(formData.totalMarks) || parseInt(formData.totalMarks) <= 0) {
@@ -190,6 +269,8 @@ const AddAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
     const assignmentData = {
       title: formData.title.trim(),
       description: formData.description.trim(),
+      category: formData.category,
+      subCategory: formData.subCategory,
       totalMarks: parseInt(formData.totalMarks)
     };
 
@@ -234,16 +315,19 @@ const AddAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
         setFormData({
           title: '',
           description: '',
+          category: '',
+          subCategory: '',
           totalMarks: ''
         });
         setSelectedFile(null);
         setUploadProgress(0);
         setErrors({});
+        setSubCategories([]);
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
 
-          onSuccess();
+        onSuccess();
 
         console.log("Assignment created successfully:", response.data);
       } else {
@@ -283,11 +367,14 @@ const AddAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
     setFormData({
       title: '',
       description: '',
+      category: '',
+      subCategory: '',
       totalMarks: ''
     });
     setSelectedFile(null);
     setUploadProgress(0);
     setErrors({});
+    setSubCategories([]);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -345,6 +432,57 @@ const AddAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
               disabled={isUploading}
             />
             {errors.description && <span className={styles.errorText}>{errors.description}</span>}
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="category">Category *</label>
+            <select 
+              id="category" 
+              name="category"
+              value={formData.category}
+              onChange={handleInputChange}
+              className={`${styles.formInput} ${errors.category ? styles.errorInput : ''}`}
+              required
+              disabled={isUploading || loadingCategories}
+            >
+              <option value="">
+                {loadingCategories ? "Loading categories..." : "Select Category"}
+              </option>
+              {categories.map((category, index) => (
+                <option key={index} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+            {errors.category && <span className={styles.errorText}>{errors.category}</span>}
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="subCategory">Sub Category *</label>
+            <select 
+              id="subCategory" 
+              name="subCategory"
+              value={formData.subCategory}
+              onChange={handleInputChange}
+              className={`${styles.formInput} ${errors.subCategory ? styles.errorInput : ''}`}
+              required
+              disabled={isUploading || loadingSubCategories || !formData.category}
+            >
+              <option value="">
+                {!formData.category 
+                  ? "Select category first" 
+                  : loadingSubCategories 
+                    ? "Loading subcategories..." 
+                    : "Select Sub Category"
+                }
+              </option>
+              {subCategories.map((subCategory, index) => (
+                <option key={index} value={subCategory}>
+                  {subCategory}
+                </option>
+              ))}
+            </select>
+            {errors.subCategory && <span className={styles.errorText}>{errors.subCategory}</span>}
           </div>
 
           <div className={styles.formGroup}>

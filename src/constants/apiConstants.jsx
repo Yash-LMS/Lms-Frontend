@@ -182,3 +182,6 @@ export const VIEW_QUESTION_BY_CATEGORY_Library_URL = `${API_BASE_URL}/library/ca
 
 export const DOWNLOAD_ASSIGNMENT_INSTRUCTION_FILE = `${API_BASE_URL}/assignment/file/instruction/download/assignmentId`;
 export const DOWNLOAD_ASSIGNMENT_INSTRUCTION_ALLOTMENTID_FILE = `${API_BASE_URL}/assignment/file/instruction/download/allotmentId`;
+
+export const FIND_ASSIGNMENT_CATEGORY = `${API_BASE_URL}/assignment/general/assignment/categories`;
+export const FIND_ASSIGNMENT_SUBCATEGORY = `${API_BASE_URL}/assignment/general/assignment/subcategories`;
