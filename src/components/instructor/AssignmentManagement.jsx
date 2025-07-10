@@ -104,6 +104,63 @@ const AssignmentManagement = () => {
     }
   }, []);
 
+  // Create assignment using axios
+  const handleSubmitNewAssignment = async (assignmentData) => {
+    const { user, token } = getUserData();
+
+    if (!user || !token) {
+      alert("User session data is missing. Please log in again.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+   
+
+    const requestData = {
+      user: user,
+      token: token,
+      assignment: assignmentData,
+    };
+
+    try {
+      const response = await axios.post(CREATE_ASSIGNMENT_URL, requestData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("Create assignment response:", response.data);
+
+      if (response.data && (response.data.response === "success")) {
+        setShowAddAssignment(false);
+        setSuccessMessage("Assignment created successfully!");
+        setShowSuccessModal(true);
+
+        // Refresh the assignment list
+        await fetchAssignments();
+        console.log("Assignment created successfully:", response.data);
+      } else {
+        const errorMessage = response.data?.message || response.data?.payload || "Failed to create assignment";
+        setError(errorMessage);
+      }
+    } catch (err) {
+      console.error("Failed to add assignment:", err);
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.payload ||
+        err.message ||
+        "An error occurred while creating the assignment";
+      setError(errorMessage);
+
+      if (err.response?.status === 401) {
+        alert("Unauthorized access. Please log in again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter function
   const getFilteredAssignments = () => {
@@ -214,7 +271,7 @@ const AssignmentManagement = () => {
         <AddAssignmentModal
           isOpen={showAddAssignment}
           onClose={() => setShowAddAssignment(false)}
-          onSuccess={fetchAssignments}
+          onSubmit={handleSubmitNewAssignment}
         />
 
         <AssignmentList
