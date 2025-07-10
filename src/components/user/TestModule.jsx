@@ -683,6 +683,7 @@ const TestModule = () => {
     try {
 
       stopCamera();
+      turnOffMicrophone();
       const { user, token } = getUserData();
 
       // Format answers according to the TestEvaluationModel structure
