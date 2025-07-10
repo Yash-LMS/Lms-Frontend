@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './TraineeAssignmentList.module.css';
 import AssignmentUploadPopup from './AssignmentUploadPopup';
-import { VIEW_ASSIGNMENT_TRAINEE_URL } from '../../constants/apiConstants';
+import { VIEW_ASSIGNMENT_TRAINEE_URL,DOWNLOAD_ASSIGNMENT_INSTRUCTION_ALLOTMENTID_FILE } from '../../constants/apiConstants';
 import DashboardSidebar from '../../assets/DashboardSidebar';
 
 const TraineeAssignmentList = () => {
@@ -44,6 +44,60 @@ const TraineeAssignmentList = () => {
       return { user: null, token: null, role: null };
     }
   };
+
+  const handleDownloadInstructionFile = async (allotmentId) => {
+  try {
+    const { user, token } = getUserData();
+
+    const response = await axios.post(
+      `${DOWNLOAD_ASSIGNMENT_INSTRUCTION_ALLOTMENTID_FILE}`,
+      { allotmentId, user, token },
+      {
+        responseType: 'blob',
+      }
+    );
+
+    // Extract filename from content-disposition header if present
+    const disposition = response.headers['content-disposition'];
+    let filename = 'instructions';
+    if (disposition && disposition.indexOf('filename=') !== -1) {
+      const filenameMatch = disposition.match(/filename="?([^"]+)"?/);
+      if (filenameMatch.length > 1) {
+        filename = filenameMatch[1];
+      }
+    }
+
+    // Get the content type from response headers
+    const contentType = response.headers['content-type'] || 'application/octet-stream';
+
+    // Create a blob URL with the correct content type and trigger download
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error('Download error:', error); // Add console.error for debugging
+    if (error.response && error.response.data) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const errorMsg = JSON.parse(reader.result);
+          alert(errorMsg.message || 'Error downloading file');
+        } catch {
+          alert('Error downloading file');
+        }
+      };
+      reader.readAsText(error.response.data);
+    } else {
+      alert('Error downloading file');
+    }
+  }
+};
 
   const fetchAssignments = async () => {
     try {
@@ -241,16 +295,26 @@ const TraineeAssignmentList = () => {
                   </div>
                 </div>
                 
-                <div className={styles.assignmentActions}>
-                  {canSubmit(assignment) && (
-                    <button
-                      className={styles.submitButton}
-                      onClick={() => handleSubmitClick(assignment)}
-                    >
-                      Submit Assignment
-                    </button>
-                  )}
-                </div>
+                
+        <div className={styles.assignmentActions}>
+  {canSubmit(assignment) && (
+    <button
+      className={styles.submitButton}
+      onClick={() => handleSubmitClick(assignment)}
+    >
+      Submit Assignment
+    </button>
+  )}
+
+  {assignment.storageStatus === 'IN_FILE' && (
+    <button 
+      className={styles.submitButton}
+      onClick={() => handleDownloadInstructionFile(assignment.allotmentId)}
+    >
+      Download Instruction
+    </button>
+  )}
+</div>
               </div>
             </div>
           ))

@@ -273,15 +273,14 @@ const handleDownloadFile = async (allotmentId) => {
   };
 
   
-const handleDownload = async (assigmmentId) => {
+const handleDownload = async (assignmentId) => {
     try {
       const { user, token } = getUserData();
 
-      console.log(assigmmentId);
 
       const response = await axios.post(
         `${DOWNLOAD_ASSIGNMENT_INSTRUCTION_FILE}`, // your API endpoint
-        { assigmmentId, user, token }, // request body
+        { assignmentId, user, token }, // request body
         {
           responseType: 'blob', // important to receive file as blob
         }

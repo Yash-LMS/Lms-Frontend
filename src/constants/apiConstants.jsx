@@ -181,3 +181,4 @@ export const VIEW_QUESTION_BY_CATEGORY_Library_URL = `${API_BASE_URL}/library/ca
 // All Access
 
 export const DOWNLOAD_ASSIGNMENT_INSTRUCTION_FILE = `${API_BASE_URL}/assignment/file/instruction/download/assignmentId`;
+export const DOWNLOAD_ASSIGNMENT_INSTRUCTION_ALLOTMENTID_FILE = `${API_BASE_URL}/assignment/file/instruction/download/allotmentId`;

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import styles from './AssignmentUploadInternalPopup.module.css';
-import {VIEW_INTERNAL_ASSIGNMENT_ALLOTMENT_URL, SUBMIT_INTERNAL_ASSIGNMENT_URL,ASSIGNMENT_UPDATE_STATUS_VIEW_URL } from '../../constants/apiConstants';
+import {VIEW_INTERNAL_ASSIGNMENT_ALLOTMENT_URL, SUBMIT_INTERNAL_ASSIGNMENT_URL,ASSIGNMENT_UPDATE_STATUS_VIEW_URL,DOWNLOAD_ASSIGNMENT_INSTRUCTION_ALLOTMENTID_FILE } from '../../constants/apiConstants';
 
 const AssignmentUploadInternalPopup = ({ allotmentId, trackingId, courseTrackingStatus }) => {
   const [assignment, setAssignment] = useState(null);
@@ -66,6 +66,60 @@ const AssignmentUploadInternalPopup = ({ allotmentId, trackingId, courseTracking
       setIsUpdatingStatus(false);
     }
   };
+
+const handleDownloadInstructionFile = async (allotmentId) => {
+  try {
+    const { user, token } = getUserData();
+
+    const response = await axios.post(
+      `${DOWNLOAD_ASSIGNMENT_INSTRUCTION_ALLOTMENTID_FILE}`,
+      { allotmentId, user, token },
+      {
+        responseType: 'blob',
+      }
+    );
+
+    // Extract filename from content-disposition header if present
+    const disposition = response.headers['content-disposition'];
+    let filename = 'instructions';
+    if (disposition && disposition.indexOf('filename=') !== -1) {
+      const filenameMatch = disposition.match(/filename="?([^"]+)"?/);
+      if (filenameMatch.length > 1) {
+        filename = filenameMatch[1];
+      }
+    }
+
+    // Get the content type from response headers
+    const contentType = response.headers['content-type'] || 'application/octet-stream';
+
+    // Create a blob URL with the correct content type and trigger download
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error('Download error:', error); // Add console.error for debugging
+    if (error.response && error.response.data) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const errorMsg = JSON.parse(reader.result);
+          alert(errorMsg.message || 'Error downloading file');
+        } catch {
+          alert('Error downloading file');
+        }
+      };
+      reader.readAsText(error.response.data);
+    } else {
+      alert('Error downloading file');
+    }
+  }
+};
 
   const fetchAssignmentDetails = async () => {
     const { user, token } = getUserData();
@@ -321,7 +375,20 @@ const AssignmentUploadInternalPopup = ({ allotmentId, trackingId, courseTracking
               <span className={styles.label}>Description:</span>
               <span className={styles.value}>{assignment.description}</span>
             </div>
-            
+
+  
+{assignment.storageStatus === 'IN_FILE' && (
+  <div className={styles.infoRow}>
+    <span className={styles.label}>Instruction File:</span>
+    <button 
+      type="button" // Prevent form submission if inside a form
+      className={styles.instructionButton}
+      onClick={() => handleDownloadInstructionFile(assignment.allotmentId)}
+    >
+      Download Instructions
+    </button>
+  </div>
+)}
             <div className={styles.infoRow}>
               <span className={styles.label}>Allotment Date:</span>
               <span className={styles.value}>{formatDate(assignment.allotmentDate)}</span>

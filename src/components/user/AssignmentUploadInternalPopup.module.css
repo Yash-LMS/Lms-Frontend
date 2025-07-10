@@ -451,6 +451,18 @@
   overflow: hidden;
 }
 
+.instructionButton {
+  background-color: #8e6cef;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .container {
