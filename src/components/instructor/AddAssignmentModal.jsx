@@ -327,9 +327,9 @@ const AddAssignmentModal = ({ isOpen, onClose, onSuccess }) => {
           fileInputRef.current.value = '';
         }
 
-        onSuccess();
+               onSuccess(response.data.message);
 
-        console.log("Assignment created successfully:", response.data);
+
       } else {
         const errorMessage = response.data?.message || response.data?.payload || "Failed to create assignment";
         setErrors(prev => ({
