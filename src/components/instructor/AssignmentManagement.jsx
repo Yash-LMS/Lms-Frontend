@@ -109,8 +109,6 @@ const AssignmentManagement = () => {
     }
   }, []);
 
- 
-  // Filter function
   const getFilteredAssignments = () => {
     if (!assignments || !Array.isArray(assignments)) return [];
 
@@ -124,12 +122,11 @@ const AssignmentManagement = () => {
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
+      // FIXED: Check approvalStatus instead of status/assignmentStatus
       const matchesStatus =
         statusFilter === "all" ||
-        (assignment.status &&
-          assignment.status.toLowerCase() === statusFilter.toLowerCase()) ||
-        (assignment.assignmentStatus &&
-          assignment.assignmentStatus.toLowerCase() === statusFilter.toLowerCase());
+        (assignment.approvalStatus &&
+          assignment.approvalStatus.toLowerCase() === statusFilter.toLowerCase());
 
       return matchesSearch && matchesStatus;
     });

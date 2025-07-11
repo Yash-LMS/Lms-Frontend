@@ -467,7 +467,7 @@ const CourseContent = () => {
                   </button>
 
                   <button onClick={fetchCourseData} className={styles.refreshButton}>
-                    Refresh
+                    ↻ Refresh
                   </button>
                 </div>
                 <h3 className={styles.sidebarTitle}>Course content</h3>
