@@ -150,6 +150,7 @@ const AssignmentManagement = () => {
      setShowAddAssignment(false);
      setSuccessMessage(message);
      setShowSuccessModal(true);
+     fetchAssignments();
   };
 
   return (
