@@ -215,8 +215,6 @@ const TraineeAssignmentList = () => {
     }
   };
 
-  if (loading) return <div className={styles.loading}>Loading assignments...</div>;
-  if (error) return <div className={styles.error}>Error: {error}</div>;
 
   return (
     <div className={styles.container}>
@@ -224,6 +222,8 @@ const TraineeAssignmentList = () => {
 
       <div className={styles.header}>
         <h1>My Assignments</h1>
+
+        {loading && <div className={styles.loading}>Loading assignments...</div>}
 
         {/* Dashboard */}
         <div className={styles.dashboard}>

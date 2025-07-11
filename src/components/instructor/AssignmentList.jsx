@@ -4,11 +4,7 @@ import axios from "axios";
 import styles from "./AssignmentList.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faEdit,
   faEye,
-  faCalendarAlt,
-  faClipboardList,
-  faGraduationCap,
   faTimes,
   faDownload,
   faComment,
@@ -16,8 +12,10 @@ import {
   faStar,
   faFilter,
   faChevronDown,
+  faFileExcel,
 } from "@fortawesome/free-solid-svg-icons";
 import { VIEW_ASSIGNMENT_SUBMISSION_URL, ASSIGNMENT_SUBMISSION_FEEDBACK_URL, DOWNLOAD_ASSIGNMENT_FILES, DOWNLOAD_ASSIGNMENT_INSTRUCTION_FILE } from "../../constants/apiConstants";
+import ExportToExcel from "../../assets/ExportToExcel";
 
 const AssignmentList = ({ assignments, loading, error, onRetry }) => {
   const navigate = useNavigate();
@@ -25,6 +23,9 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const cardsPerPage = 6;
+
+  const [showViewFeedbackModal, setShowViewFeedbackModal] = useState(false);
+  const [viewingSubmission, setViewingSubmission] = useState(null);
 
   // Filter states
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -201,12 +202,66 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
     }
   };
 
+  // Handle view feedback
+const handleViewFeedback = (submission) => {
+  setViewingSubmission(submission);
+  setShowViewFeedbackModal(true);
+};
+
+// Close view feedback modal
+const closeViewFeedbackModal = () => {
+  setShowViewFeedbackModal(false);
+  setViewingSubmission(null);
+};
+
   // Check if assignment is overdue
   const isOverdue = (endDate) => {
     if (!endDate) return false;
     const today = new Date();
     const assignmentEndDate = new Date(endDate);
     return assignmentEndDate < today;
+  };
+
+  // Prepare data for Excel export
+  const prepareExportData = () => {
+    if (!submissions || submissions.length === 0) return [];
+
+    return submissions.map(submission => ({
+      allotmentId: submission.allotmentId,
+      traineeName: submission.traineeName,
+      employeeType: submission.employeeType?.toUpperCase() || 'N/A',
+      allotmentDate: formatDate(submission.allotmentDate),
+      endDate: formatDate(submission.endDate),
+      submissionDate: formatDate(submission.submissionDate),
+      status: submission.status?.toUpperCase() || 'PENDING',
+      marks: submission.marks !== null && submission.marks !== undefined ? 
+        `${submission.marks}/${submission.totalMarks}` : 'Not Graded',
+      evaluationStatus: submission.evaluationStatus?.toUpperCase() || 'PENDING',
+      feedback: submission.feedBack || 'No feedback provided',
+      fileStatus: submission.fileStatus || 'N/A'
+    }));
+  };
+
+  // Excel export headers mapping
+  const getExportHeaders = () => ({
+    allotmentId: 'Allotment ID',
+    traineeName: 'Trainee Name',
+    employeeType: 'Employee Type',
+    allotmentDate: 'Allotment Date',
+    endDate: 'End Date',
+    submissionDate: 'Submission Date',
+    status: 'Status',
+    marks: 'Marks',
+    evaluationStatus: 'Evaluation Status',
+    feedback: 'Feedback',
+    fileStatus: 'File Status'
+  });
+
+  // Generate filename for export
+  const getExportFileName = () => {
+    const assignmentTitle = selectedAssignment?.title?.replace(/[^a-zA-Z0-9]/g, '_') || 'Assignment';
+    const currentDate = new Date().toISOString().split('T')[0];
+    return `${assignmentTitle}_Submissions_${currentDate}`;
   };
 
   // Fetch submissions for an assignment
@@ -441,9 +496,6 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
             ? error
             : error.message || "An error occurred."}
         </p>
-        <button className={styles.retryButton} onClick={onRetry}>
-          Try Again
-        </button>
       </div>
     );
   }
@@ -686,9 +738,11 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
               <h3>Assignment Submissions - {selectedAssignment?.title}</h3>
-              <button className={styles.closeButton} onClick={closeSubmissionsModal}>
-                <FontAwesomeIcon icon={faTimes} />
-              </button>
+              <div className={styles.modalHeaderActions}>
+                <button className={styles.closeButton} onClick={closeSubmissionsModal}>
+                  <FontAwesomeIcon icon={faTimes} />
+                </button>
+              </div>
             </div>
             
             <div className={styles.modalBody}>
@@ -709,6 +763,27 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
                   <p>No submissions found for this assignment.</p>
                 </div>
               )}
+
+               {/* Export to Excel Button */}
+                {!submissionsLoading && !submissionsError && submissions.length > 0 && (
+                  <ExportToExcel
+                    data={prepareExportData()}
+                    headers={getExportHeaders()}
+                    fileName={getExportFileName()}
+                    sheetName="Submissions"
+                    buttonStyle={{
+                      backgroundColor: '#28a745',
+                      color: 'white',
+                      padding: '8px 16px',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      fontSize: '14px',
+                      marginRight: '10px'
+                    }}
+                  />
+                )}
               
               {!submissionsLoading && !submissionsError && submissions.length > 0 && (
                 <div className={styles.submissionsTable}>
@@ -777,6 +852,16 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
                                   <FontAwesomeIcon icon={faComment} />
                                 </button>
                               )}
+
+                               {submission.evaluationStatus === 'evaluated' && (
+      <button
+        className={styles.viewFeedbackButton}
+        onClick={() => handleViewFeedback(submission)}
+        title="View Feedback"
+      >
+        <FontAwesomeIcon icon={faEye} />
+      </button>
+    )}
                             </div>
                           </td>
                         </tr>
@@ -789,6 +874,54 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
           </div>
         </div>
       )}
+
+      {/* View Feedback Modal */}
+{showViewFeedbackModal && (
+  <div className={styles.modalOverlay}>
+    <div className={styles.modalContent}>
+      <div className={styles.modalHeader}>
+        <h3>Feedback Details</h3>
+        <button className={styles.closeButton} onClick={closeViewFeedbackModal}>
+          <FontAwesomeIcon icon={faTimes} />
+        </button>
+      </div>
+      
+      <div className={styles.modalBody}>
+        {viewingSubmission && (
+          <div className={styles.feedbackDetails}>
+            <div className={styles.submissionInfo}>
+              <p><strong>Allotment ID:</strong> {viewingSubmission.allotmentId}</p>
+              <p><strong>Trainee Name:</strong> {viewingSubmission.traineeName}</p>
+              <p><strong>Assignment:</strong> {selectedAssignment?.title}</p>
+              <p><strong>Submission Date:</strong> {formatDate(viewingSubmission.submissionDate)}</p>
+            </div>
+            
+            <div className={styles.evaluationDetails}>
+              <div className={styles.marksSection}>
+                <h4>Marks Awarded</h4>
+                <div className={styles.marksDisplay}>
+                  <span className={styles.marksValue}>
+                    {viewingSubmission.marks} / {viewingSubmission.totalMarks}
+                  </span>
+                  <span className={styles.marksPercentage}>
+                    ({Math.round((viewingSubmission.marks / viewingSubmission.totalMarks) * 100)}%)
+                  </span>
+                </div>
+              </div>
+              
+              <div className={styles.feedbackSection}>
+                <h4>Feedback</h4>
+                <div className={styles.feedbackText}>
+                  {viewingSubmission.feedBack || 'No feedback provided'}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Feedback Modal */}
       {showFeedbackModal && (

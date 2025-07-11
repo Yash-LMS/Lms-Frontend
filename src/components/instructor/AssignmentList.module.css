@@ -826,8 +826,8 @@
 }
 
 .downloadButton:hover {
-  background: #3b82f6;
-  border-color: #3b82f6;
+  background: #7559ce;
+  border-color: #8e6cef;
   color: white;
 }
 
@@ -863,7 +863,7 @@
 }
 
 .formGroup {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .formGroup label {
@@ -888,7 +888,7 @@
 .formGroup input:focus,
 .formGroup textarea:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #8e6cef;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -903,9 +903,8 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
+  margin-bottom: 30px;
 }
 
 .cancelButton,
@@ -932,12 +931,12 @@
 }
 
 .submitButton {
-  background: #3b82f6;
+  background: #8e6cef;
   color: white;
 }
 
 .submitButton:hover:not(:disabled) {
-  background: #2563eb;
+  background: #7559ce;
 }
 
 .submitButton:disabled {
@@ -1286,4 +1285,69 @@
     padding: 10px 16px;
     margin-bottom: 16px;
   }
+}
+
+.viewFeedbackButton {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.viewFeedbackButton:hover {
+  background: #138496;
+}
+
+.feedbackDetails {
+  padding: 20px 0;
+}
+
+.evaluationDetails {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.marksSection {
+  margin-bottom: 20px;
+}
+
+.marksSection h4 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.marksDisplay {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.marksValue {
+  font-size: 24px;
+  font-weight: bold;
+  color: #28a745;
+}
+
+.marksPercentage {
+  font-size: 16px;
+  color: #666;
+}
+
+.feedbackSection h4 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.feedbackText {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+  line-height: 1.6;
+  color: #333;
 }
