@@ -111,21 +111,6 @@ const InstructorSidebar = ({ activeTab }) => {
 
           <li
             className={`${styles.navItem} ${
-              activeTab === "feedback" ? styles.active : ""
-            }`}
-          >
-            <a
-              href="#feedback"
-              onClick={(e) => handleNavigation('/feedback/management', 'feedback', e)}
-            >
-              <FontAwesomeIcon icon={faTasks} />
-              Feedback
-            </a>
-          </li>
-
-
-                 <li
-            className={`${styles.navItem} ${
               activeTab === "password" ? styles.active : ""
             }`}
           >

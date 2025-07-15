@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import styles from './AddFeedbackModal.module.css';
+import { CREATE_FEEDBACK_URL } from '../../constants/apiConstants';
 
 const AddFeedbackModal = ({ isOpen, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -17,9 +18,9 @@ const AddFeedbackModal = ({ isOpen, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
 
   const feedbackQuestionTypes = [
-    { value: 'TEXT', label: 'Description' },
-    { value: 'RATING', label: 'Rating (5 Stars)' },
-    { value: 'CONDITIONAL', label: 'Yes/No' }
+    { value: 'text', label: 'Description' },
+    { value: 'rating', label: 'Rating (5 Stars)' },
+    { value: 'conditional', label: 'Yes/No' }
   ];
 
   if (!isOpen) return null;
@@ -148,23 +149,25 @@ const AddFeedbackModal = ({ isOpen, onClose, onSuccess }) => {
 
     setLoading(true);
 
-    const feedbackData = {
-      feedbackName: formData.feedbackName.trim(),
-      feedbackQuestions: formData.questions.map(q => ({
-        questionDescription: q.questionDescription.trim(),
-        feedbackQuestionType: q.feedbackQuestionType
-      }))
-    };
-
+    // Prepare the request payload according to the API structure (ApiRequestModelFeedback)
     const requestData = {
       user: user,
       token: token,
-      feedback: feedbackData,
+      feedbackName: formData.feedbackName.trim(),
+      feedbackQuestionList: formData.questions.map(q => ({
+        questionDescription: q.questionDescription.trim(),
+        feedbackQuestionType: q.feedbackQuestionType // This should match the enum values
+      }))
     };
 
+    console.log("Feedback data being sent:", requestData);
+    console.log("Number of questions:", requestData.feedbackQuestionList.length);
+
     try {
-      // Replace with actual feedback creation API URL
-      const response = await axios.post("/api/feedback/create", requestData, {
+      console.log("Sending request to:", CREATE_FEEDBACK_URL);
+      console.log("Request data:", requestData);
+
+      const response = await axios.post(CREATE_FEEDBACK_URL, requestData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -172,7 +175,8 @@ const AddFeedbackModal = ({ isOpen, onClose, onSuccess }) => {
 
       console.log("Create feedback response:", response.data);
 
-      if (response.data && (response.data.response === "success")) {
+      // Check for successful response based on the API structure
+      if (response.data && (response.data.response === "success" || response.data.response === "Success")) {
         // Reset form after successful submission
         setFormData({
           feedbackName: '',
@@ -194,19 +198,29 @@ const AddFeedbackModal = ({ isOpen, onClose, onSuccess }) => {
       }
     } catch (err) {
       console.error("Failed to add feedback:", err);
-      const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.payload ||
-        err.message ||
-        "An error occurred while creating the feedback";
+      
+      let errorMessage = "An error occurred while creating the feedback";
+      
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.data?.payload) {
+        errorMessage = err.response.data.payload;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
       
       setErrors(prev => ({
         ...prev,
         submit: errorMessage
       }));
 
+      // Handle specific error cases
       if (err.response?.status === 401) {
         alert("Unauthorized access. Please log in again.");
+      } else if (err.response?.status === 403) {
+        alert("You don't have permission to create feedback.");
+      } else if (err.response?.status === 500) {
+        alert("Server error. Please try again later.");
       }
     } finally {
       setLoading(false);

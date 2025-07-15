@@ -160,6 +160,18 @@ const Sidebar = ({ activeTab }) => {
             </a>
           </li>
 
+          <li className={`${styles.navItem} ${activeTab === "feedback" ? styles.active : ""}`}>
+            <a
+              href="#feedback"
+              onClick={(e) => handleNavigation('/feedback/management', 'feedback', e)}
+            >
+              <FontAwesomeIcon icon={faTasks} />
+              <span className={styles.navText}>Feedback</span>
+        
+            </a>
+          </li>
+          
+
           <li className={`${styles.navItem} ${activeTab === "allot" ? styles.active : ""}`}>
             <a
               href="#allotment"
