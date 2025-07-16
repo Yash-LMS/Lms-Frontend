@@ -372,3 +372,56 @@
 .cancelButton:hover {
   background-color: #e5e5e5;
 }
+
+.feedbackSelect {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  background-color: white;
+}
+
+.feedbackSelect:focus {
+  outline: none;
+  border-color: #8e6cef;
+  box-shadow: 0 0 0 2px rgba(187, 0, 255, 0.25);
+}
+
+.loadingFeedback {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.cancelButton {
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  background-color: #f8f9fa;
+  color: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cancelButton:hover {
+  background-color: #e9ecef;
+}
+
+.approveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.approveButton:disabled:hover {
+  background-color: #28a745; /* Keep original color when disabled */
+}
