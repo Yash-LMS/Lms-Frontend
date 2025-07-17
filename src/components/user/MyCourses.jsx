@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { viewAllotedCourses, userCourseFeedback } from "../../features/user/userActions";
 import DashboardSidebar from "../../assets/DashboardSidebar";
 import styles from "./MyCourses.module.css";
-import { COURSE_IMAGE_VIEW_URL,  USER_COURSE_CERTIFICATE_URL } from "../../constants/apiConstants";
+import { COURSE_IMAGE_VIEW_URL,  USER_COURSE_CERTIFICATE_URL, USER_COURSE_VERIFY_MANUALLY_URL } from "../../constants/apiConstants";
 import Image from "../Image/DefaultCourse.png";
 import axios from 'axios';
 
@@ -43,6 +43,14 @@ const MyCourses = () => {
   // State for certificate download - track by allotmentId
   const [downloadingCertificateId, setDownloadingCertificateId] = useState(null);
   const [certificateDownloadError, setCertificateDownloadError] = useState(null);
+
+  // State for verify completion - track by allotmentId
+  const [verifyingCompletionId, setVerifyingCompletionId] = useState(null);
+  const [verifyCompletionError, setVerifyCompletionError] = useState(null);
+  
+  // State for success messages
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const [courseImages, setCourseImages] = useState({});
   const defaultImageUrl = Image; 
@@ -106,21 +114,112 @@ const MyCourses = () => {
   useEffect(() => {
     if (feedbackSubmission.success) {
       // Show success message
-      alert("Feedback submitted successfully!");
+      setSuccessMessage("Feedback submitted successfully!");
+      setShowSuccessMessage(true);
       setShowFeedbackModal(false);
       setFeedbackText("");
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        setSuccessMessage("");
+      }, 5000);
     }
     
     if (feedbackSubmission.error) {
       // Show error message
-      alert("Failed to submit feedback. Please try again.");
+      setSuccessMessage("Failed to submit feedback. Please try again.");
+      setShowSuccessMessage(true);
+      
+      // Hide error message after 5 seconds
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        setSuccessMessage("");
+      }, 5000);
     }
   }, [feedbackSubmission]);
+
+  const handleVerifyCompletion = async (allotmentId) => {
+    try {
+      if (!user || !token) {
+        setSuccessMessage("User not authenticated.");
+        setShowSuccessMessage(true);
+        setTimeout(() => {
+          setShowSuccessMessage(false);
+          setSuccessMessage("");
+        }, 5000);
+        return;
+      }
+
+      // Reset previous error
+      setVerifyCompletionError(null);
+
+      // Set loading state for this specific course
+      setVerifyingCompletionId(allotmentId);
+
+      const requestData = { 
+        user, 
+        token, 
+        allotmentId 
+      };
+
+      const response = await axios.post(`${USER_COURSE_VERIFY_MANUALLY_URL}`, requestData);
+
+      if (response.data) {
+        if (response.data.response === 'success') {
+          setSuccessMessage("Course completion verified successfully!");
+          setShowSuccessMessage(true);
+          // Refresh the courses to get updated completion status
+          dispatch(viewAllotedCourses());
+          
+          // Hide success message after 5 seconds
+          setTimeout(() => {
+            setShowSuccessMessage(false);
+            setSuccessMessage("");
+          }, 5000);
+        } else {
+          setVerifyCompletionError(response.datamessage || "Verification failed");
+          setSuccessMessage(response.data.message || "Verification failed");
+          setShowSuccessMessage(true);
+          
+          // Hide error message after 5 seconds
+          setTimeout(() => {
+            setShowSuccessMessage(false);
+            setSuccessMessage("");
+          }, 5000);
+        }
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (error) {
+      console.error("Error verifying course completion:", error);
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.message || 
+                          "An error occurred while verifying course completion. Please try again.";
+      setVerifyCompletionError(errorMessage);
+      setSuccessMessage(errorMessage);
+      setShowSuccessMessage(true);
+      
+      // Hide error message after 5 seconds
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        setSuccessMessage("");
+      }, 5000);
+    } finally {
+      // Clear loading state after verification attempt (success or failure)
+      setVerifyingCompletionId(null);
+    }
+  };
 
   const handleDownloadCertificate = async (allotmentId) => {
     try {
       if (!user || !token) {
-        alert("User not authenticated.");
+        setSuccessMessage("User not authenticated.");
+        setShowSuccessMessage(true);
+        setTimeout(() => {
+          setShowSuccessMessage(false);
+          setSuccessMessage("");
+        }, 5000);
         return;
       }
 
@@ -143,7 +242,14 @@ const MyCourses = () => {
       if (response.status === 406) {
         const courseStatus = response.headers['x-course-status'];
         setCertificateDownloadError(`Cannot download certificate: Course ${courseStatus}`);
-        alert(`Cannot download certificate: Course ${courseStatus}`);
+        setSuccessMessage(`Cannot download certificate: Course ${courseStatus}`);
+        setShowSuccessMessage(true);
+        
+        // Hide error message after 5 seconds
+        setTimeout(() => {
+          setShowSuccessMessage(false);
+          setSuccessMessage("");
+        }, 5000);
         return;
       }
 
@@ -160,13 +266,30 @@ const MyCourses = () => {
         // Clean up resources
         URL.revokeObjectURL(url);
         document.body.removeChild(a);
+        
+        // Show success message
+        setSuccessMessage("Certificate downloaded successfully!");
+        setShowSuccessMessage(true);
+        
+        // Hide success message after 5 seconds
+        setTimeout(() => {
+          setShowSuccessMessage(false);
+          setSuccessMessage("");
+        }, 5000);
       } else {
         throw new Error("Failed to generate certificate");
       }
     } catch (error) {
       console.error("Error downloading certificate:", error);
       setCertificateDownloadError("An error occurred while downloading the certificate. Please try again.");
-      alert("An error occurred while downloading the certificate. Please try again.");
+      setSuccessMessage("An error occurred while downloading the certificate. Please try again.");
+      setShowSuccessMessage(true);
+      
+      // Hide error message after 5 seconds
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        setSuccessMessage("");
+      }, 5000);
     } finally {
       // Clear loading state after download attempt (success or failure)
       setDownloadingCertificateId(null);
@@ -238,6 +361,13 @@ const MyCourses = () => {
           />
         </div>
       </header>
+
+      {/* Success Message */}
+      {showSuccessMessage && (
+        <div className={styles.successMessage}>
+          {successMessage}
+        </div>
+      )}
 
       {loading && <div className={styles.loadingState}>Loading courses...</div>}
       {error && (
@@ -311,6 +441,23 @@ const MyCourses = () => {
                     ? "Start Learning"
                     : "Continue Learning"}
                 </button>
+
+                {/* Show Verify Completion button only if completionStatus is NOT 100% */}
+                {course.completionStatus < 100 && (
+                  <button
+                    className={styles.verifyButton}
+                    onClick={() => handleVerifyCompletion(course.allotmentId)}
+                    disabled={verifyingCompletionId === course.allotmentId}
+                  >
+                    {verifyingCompletionId === course.allotmentId ? (
+                      <span className={styles.loadingSpinner}>
+                        Verifying...
+                      </span>
+                    ) : (
+                      "Verify Completion"
+                    )}
+                  </button>
+                )}
 
                 {/* Show Submit Feedback button if completionStatus is 100% */}
                 {course.completionStatus >= 100 && (

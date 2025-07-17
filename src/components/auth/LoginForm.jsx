@@ -84,6 +84,24 @@ const LoginForm = ({ setLoginStatus }) => {
         }
     };
 
+        useEffect(() => {
+       
+        const { user, token } = getUserData();
+ 
+        
+        if(user==null) {
+            return;
+        }
+        
+        if (user.role === 'instructor') {
+            navigate("/instructor-dashboard");
+        } else if (user.role === 'user') {
+            navigate("/user-dashboard");
+        } else {
+            navigate("/manager-dashboard"); 
+        }
+    }, []);
+
     useEffect(() => {
        
         const { user, token } = getUserData();

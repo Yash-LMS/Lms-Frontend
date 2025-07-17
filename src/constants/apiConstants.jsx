@@ -45,7 +45,9 @@ export const VIEW_ASSIGNMENT_URL = `${API_BASE_URL}/assignment/user/viewAssignme
 export const ASSIGNMENT_SUBMISSION_FEEDBACK_URL = `${API_BASE_URL}/assignment/instructor/evaluate/assignment`;
 export const VIEW_ASSIGNMENT_SUBMISSION_URL = `${API_BASE_URL}/assignment/instructor/submissionList`;
 export const RESEND_COURSE_APPROVAL = `${API_BASE_URL}/course/approval/resend`;
-
+export const CREATE_FEEDBACK_URL = `${API_BASE_URL}/feedback/create`;
+export const VIEW_FEEDBACK_URL = `${API_BASE_URL}/feedback/view`;
+export const VIEW_FEEDBACK_FOR_ALLOTMENT_URL = `${API_BASE_URL}/feedback/allotment/viewFeedback`;
 
 
 //Intern
@@ -90,6 +92,8 @@ export const FIND_TRAINEE_RESULT_URL = `${API_BASE_URL}/manager/test/detail/resu
 export const EXTEND_TEST_END_DATE_URL = `${API_BASE_URL}/manager/test/extendDueDate`;
 export const INTERN_FEEDBACK_VIEW_URL = `${API_BASE_URL}/manager/view/internFeedback`;
 
+export const CREATE_ASSIGNMENT_CATEGORY_URL = `${API_BASE_URL}/manager/assignment/createCategory`;
+
 export const SHOW_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/permission/showResult`;
 export const SHOW_DETAIL_RESULT_PERMISSION_URL = `${API_BASE_URL}/manager/test/permission/showDetailResult`;
 export const COURSE_COUNT_URL = `${API_BASE_URL}/manager/totalCourses`;
@@ -98,7 +102,7 @@ export const EMPLOYEE_COUNT_URL = `${API_BASE_URL}/manager/totalEmployees`;
 export const INTERN_COUNT_URL = `${API_BASE_URL}/manager/totalInterns`;
 export const FETCH_CATEGORIES_URL = `${API_BASE_URL}/manager/getCategories`;
 export const UPDATE_CATEGORY_URL = `${API_BASE_URL}/manager/updateCategory`;
-
+export const FETCH_ASSIGNMENT_CATEGORIES_URL = `${API_BASE_URL}/manager/assignment/getCategories`;
 export const FIND_BATCHES_URL = `${API_BASE_URL}/manager/batch/viewBatchByStatus`;
 export const APPROVE_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/approve`;
 export const REJECT_BATCH_URL = `${API_BASE_URL}/manager/updateBatchStatus/reject`;
@@ -155,7 +159,7 @@ export const VIEW_INTERNAL_ASSIGNMENT_ALLOTMENT_URL = `${API_BASE_URL}/user/assi
 
 export const ASSIGNMENT_UPDATE_STATUS_VIEW_URL = `${API_BASE_URL}/user/file/assignment/view/updateStatus`;
 
-
+export const USER_COURSE_VERIFY_MANUALLY_URL = `${API_BASE_URL}/user/course/verifyCompletionStatus`;
 
 //Test
 export const CREATE_TEST_URL = `${API_BASE_URL}/test/createTest`;
@@ -178,3 +182,10 @@ export const ADD_QUESTION_Library_URL = `${API_BASE_URL}/library/addQuestion`;
 export const VIEW_RANDOM_QUESTION_Library_URL = `${API_BASE_URL}/library/random/findQuestion`;
 export const VIEW_QUESTION_BY_CATEGORY_Library_URL = `${API_BASE_URL}/library/category/findQuestion`;
 
+// All Access
+
+export const DOWNLOAD_ASSIGNMENT_INSTRUCTION_FILE = `${API_BASE_URL}/assignment/file/instruction/download/assignmentId`;
+export const DOWNLOAD_ASSIGNMENT_INSTRUCTION_ALLOTMENTID_FILE = `${API_BASE_URL}/assignment/file/instruction/download/allotmentId`;
+
+export const FIND_ASSIGNMENT_CATEGORY = `${API_BASE_URL}/assignment/general/assignment/categories`;
+export const FIND_ASSIGNMENT_SUBCATEGORY = `${API_BASE_URL}/assignment/general/assignment/subcategories`;

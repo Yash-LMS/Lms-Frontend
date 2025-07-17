@@ -45,6 +45,7 @@ import BatchManagement from "./components/instructor/BatchManagement";
 import BatchRequests from "./components/technical-manager/BatchRequests";
 import AssignmentManagement from "./components/instructor/Assignmentmanagement";
 import AssignmentRequests from "./components/technical-manager/AssignmentRequests";
+import FeedbackManagement from "./components/technical-manager/FeedbackManagement";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -514,6 +515,15 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <AssignmentManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/feedback/management"
+            element={
+              <ProtectedRoute>
+                <FeedbackManagement />
               </ProtectedRoute>
             }
           />

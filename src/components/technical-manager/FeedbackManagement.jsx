@@ -1,31 +1,31 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import styles from "./AssignmentManagement.module.css";
-import AssignmentList from "./AssignmentList";
-import AddAssignmentModal from "./AddAssignmentModal";
+import styles from "./FeedbackManagement.module.css";
+import FeedbackList from "./FeedbackList";
+import AddFeedbackModal from "./AddFeedbackModal";
 import SuccessModal from "../../assets/SuccessModal";
 import { useNavigate } from "react-router-dom";
 import InstructorSidebar from "../instructor/InstructorSidebar";
-import Sidebar from "../technical-manager/Sidebar";
+import Sidebar from "./Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { CREATE_ASSIGNMENT_URL, VIEW_ASSIGNMENT_URL } from "../../constants/apiConstants";
+import { VIEW_FEEDBACK_URL } from "../../constants/apiConstants";
 
-const AssignmentManagement = () => {
+const FeedbackManagement = () => {
   const navigate = useNavigate();
 
   // State management
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [assignments, setAssignments] = useState([]);
-  const [activeTab, setActiveTab] = useState("assignments");
-  const [showAddAssignment, setShowAddAssignment] = useState(false);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [activeTab, setActiveTab] = useState("feedback");
+  const [showAddFeedback, setShowAddFeedback] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const assignmentStatusOptions = ["ALL", "APPROVED", "PENDING", "REJECTED"];
+  const feedbackStatusOptions = ["ALL", "APPROVED", "PENDING", "REJECTED"];
   const [role, setRole] = useState();
 
   const getUserData = () => {
@@ -45,13 +45,8 @@ const AssignmentManagement = () => {
     }
   };
 
-
-  
-
-  
-  
-  // Fetch assignments using axios
-  const fetchAssignments = async () => {
+  // Fetch feedbacks using axios
+  const fetchFeedbacks = async () => {
     const { user, token } = getUserData();
 
     if (!user || !token) {
@@ -68,32 +63,50 @@ const AssignmentManagement = () => {
         token: token,
       };
 
-      const response = await axios.post(VIEW_ASSIGNMENT_URL, requestData, {
+      console.log("Fetching feedbacks from:", VIEW_FEEDBACK_URL);
+      console.log("Request data:", requestData);
+
+      const response = await axios.post(VIEW_FEEDBACK_URL, requestData, {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
-      console.log("View assignment response:", response.data);
+      console.log("View feedback response:", response.data);
 
-      if (response.data && (response.data.response === "success")) {
-        setAssignments(response.data.payload || []);
-        console.log("Assignments fetched successfully:", response.data.payload);
+      // Check for successful response based on the API structure
+      if (response.data && (response.data.response === "success" || response.data.response === "Success")) {
+        const feedbackData = response.data.payload || [];
+        setFeedbacks(feedbackData);
+        console.log("Feedbacks fetched successfully:", feedbackData);
       } else {
-        const errorMessage = response.data?.message || response.data?.payload || "Failed to fetch assignments";
+        const errorMessage = response.data?.message || response.data?.payload || "Failed to fetch feedbacks";
         setError(errorMessage);
       }
     } catch (err) {
-      console.error("Error fetching assignments:", err);
-      const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.payload ||
-        err.message ||
-        "An error occurred while fetching assignments";
+      console.error("Error fetching feedbacks:", err);
+      
+      let errorMessage = "An error occurred while fetching feedbacks";
+      
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.data?.payload) {
+        errorMessage = err.response.data.payload;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
       setError(errorMessage);
 
+      // Handle specific error cases
       if (err.response?.status === 401) {
         alert("Unauthorized access. Please log in again.");
+        // Optionally redirect to login
+        // navigate('/login');
+      } else if (err.response?.status === 403) {
+        alert("You don't have permission to view feedbacks.");
+      } else if (err.response?.status === 500) {
+        alert("Server error. Please try again later.");
       }
     } finally {
       setLoading(false);
@@ -105,34 +118,36 @@ const AssignmentManagement = () => {
     
     if (user && role) {
       setRole(role);
-      fetchAssignments();
+      fetchFeedbacks();
+    } else {
+      setError("Please log in to access this page.");
+      // Optionally redirect to login
+      // navigate('/login');
     }
   }, []);
 
-  const getFilteredAssignments = () => {
-    if (!assignments || !Array.isArray(assignments)) return [];
+  const getFilteredFeedbacks = () => {
+    if (!feedbacks || !Array.isArray(feedbacks)) return [];
 
-    return assignments.filter((assignment) => {
-      if (!assignment) return false;
+    return feedbacks.filter((feedback) => {
+      if (!feedback) return false;
 
-      // Handle both title and assignmentName for flexibility
-      const assignmentName = assignment.title || assignment.assignmentName || assignment.name || '';
+      const feedbackName = feedback.feedbackName || '';
       
-      const matchesSearch = assignmentName
+      const matchesSearch = feedbackName
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
-      // FIXED: Check approvalStatus instead of status/assignmentStatus
       const matchesStatus =
         statusFilter === "all" ||
-        (assignment.approvalStatus &&
-          assignment.approvalStatus.toLowerCase() === statusFilter.toLowerCase());
+        (feedback.status &&
+          feedback.status.toLowerCase() === statusFilter.toLowerCase());
 
       return matchesSearch && matchesStatus;
     });
   };
 
-  const filteredAssignments = getFilteredAssignments();
+  const filteredFeedbacks = getFilteredFeedbacks();
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -143,14 +158,24 @@ const AssignmentManagement = () => {
   };
 
   const handleRetry = () => {
-    fetchAssignments();
+    fetchFeedbacks();
   };
 
-    const handleShowSuceessModal = (message) => {
-     setShowAddAssignment(false);
-     setSuccessMessage(message);
-     setShowSuccessModal(true);
-     fetchAssignments();
+  const handleShowSuccessModal = (message) => {
+    setShowAddFeedback(false);
+    setSuccessMessage(message);
+    setShowSuccessModal(true);
+    // Refresh the feedback list after successful creation
+    fetchFeedbacks();
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    setSuccessMessage("");
+  };
+
+  const handleCloseAddFeedback = () => {
+    setShowAddFeedback(false);
   };
 
   return (
@@ -164,20 +189,20 @@ const AssignmentManagement = () => {
       <main className={styles.mainContent}>
         <header className={styles.contentHeader}>
           <div className={styles.headerLeft}>
-            <h1>Assignment Management</h1>
+            <h1>Feedback Management</h1>
             <button
               className={styles.addBatchBtn}
-              onClick={() => setShowAddAssignment(true)}
+              onClick={() => setShowAddFeedback(true)}
               disabled={loading}
             >
               <FontAwesomeIcon icon={faPlus} />
-              <span style={{ marginLeft: "5px" }}>Create New Assignment</span>
+              <span style={{ marginLeft: "5px" }}>Create New Feedback</span>
             </button>
           </div>
           <div className={styles.headerRight}>
             <input
               type="search"
-              placeholder="Search assignments..."
+              placeholder="Search feedbacks..."
               className={styles.searchInput}
               value={searchTerm}
               onChange={handleSearchChange}
@@ -187,7 +212,7 @@ const AssignmentManagement = () => {
               value={statusFilter}
               onChange={handleStatusFilterChange}
             >
-              {assignmentStatusOptions.map((status) => (
+              {feedbackStatusOptions.map((status) => (
                 <option key={status} value={status.toLowerCase()}>
                   {status}
                 </option>
@@ -199,10 +224,10 @@ const AssignmentManagement = () => {
         {(searchTerm || statusFilter !== "all") && (
           <div className={styles.searchResultsInfo}>
             <p>
-              {filteredAssignments.length === 0
-                ? "No assignments match your search criteria"
-                : `Found ${filteredAssignments.length} assignment${
-                    filteredAssignments.length !== 1 ? "s" : ""
+              {filteredFeedbacks.length === 0
+                ? "No feedbacks match your search criteria"
+                : `Found ${filteredFeedbacks.length} feedback${
+                    filteredFeedbacks.length !== 1 ? "s" : ""
                   }`}
             </p>
             {(searchTerm || statusFilter !== "all") && (
@@ -219,15 +244,15 @@ const AssignmentManagement = () => {
           </div>
         )}
 
-        {/* Add Assignment Modal Component */}
-        <AddAssignmentModal
-          isOpen={showAddAssignment}
-          onClose={() => setShowAddAssignment(false)}
-          onSuccess={handleShowSuceessModal}
+        {/* Add Feedback Modal Component */}
+        <AddFeedbackModal
+          isOpen={showAddFeedback}
+          onClose={handleCloseAddFeedback}
+          onSuccess={handleShowSuccessModal}
         />
 
-        <AssignmentList
-          assignments={filteredAssignments}
+        <FeedbackList
+          feedbacks={filteredFeedbacks}
           loading={loading}
           error={error}
           onRetry={handleRetry}
@@ -236,7 +261,7 @@ const AssignmentManagement = () => {
         {showSuccessModal && (
           <SuccessModal
             message={successMessage}
-            onClose={() => setShowSuccessModal(false)}
+            onClose={handleCloseSuccessModal}
           />
         )}
       </main>
@@ -244,4 +269,4 @@ const AssignmentManagement = () => {
   );
 };
 
-export default AssignmentManagement;
+export default FeedbackManagement;

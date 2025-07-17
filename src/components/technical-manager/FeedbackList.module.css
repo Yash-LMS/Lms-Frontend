@@ -1,0 +1,563 @@
+/* CSS Variables (same as parent) */
+:root {
+    --primary-color: #8e6cef;
+    --primary-hover: #7559ce;
+    --secondary-color: #1c1d1f;
+    --text-primary: #1c1d1f;
+    --text-secondary: #6a6f73;
+    --border-color: #e5e7eb;
+    --background-main: #f5f7f9;
+    --background-card: #ffffff;
+    --sidebar-active: #f0e6ff;
+    --success-color: #1e7f2c;
+    --warning-color: #8b6f1c;
+    --error-color: #dc3545;
+    --info-color: #0d6efd;
+    --hold-color: #6c757d;
+  }
+  
+  /* Course List Container */
+  .courseListContainer {
+    width: 100%;
+  }
+  
+  /* Course/Batch List Grid */
+  .courseList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  /* Course/Batch Cards */
+  .courseCard {
+    background-color: var(--background-card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative; 
+    overflow: visible;
+    margin-left: 22px; 
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    width: 85%;
+    max-width: 85%;
+  }
+  
+  .courseCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(142, 108, 239, 0.1);
+  }
+  
+  /* Card Header */
+  .courseHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    margin-top: 12px;
+  }
+  
+  .courseHeader h3 {
+    color: var(--primary-color);
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  /* Status Badges */
+  .statusBadge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .approved {
+    background-color: #ecf7ed;
+    color: var(--success-color);
+  }
+  
+  .pending {
+    background-color: #fff8e5;
+    color: var(--warning-color);
+  }
+  
+  .hold {
+    background-color: #f5f5f5;
+    color: var(--hold-color);
+  }
+  
+  .not_approved,
+  .rejected {
+    background-color: #ffebee;
+    color: var(--error-color);
+  }
+
+  /* Course Info */
+  .courseInfo {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .detailLabel {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  
+  /* Card Actions */
+  .cardActions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: auto; 
+    padding-top: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  /* Buttons */
+  .addButton {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.25s;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+  
+  .addButton:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .editButton,
+  .previewButton {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    flex: 1;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .editButton {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+  }
+  
+  .editButton:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  .previewButton {
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: 8px;
+  }
+  
+  .previewButton:hover {
+    background-color: var(--sidebar-active);
+  }
+
+  .addCourseButton {
+    background-color: #f0e6ff;
+    color: #8e6cef;
+    border: 1px solid #8e6cef;
+    border-radius: 8px;
+    padding: 0.6em 1.2em;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    flex: 1; /* Allow equal sizing */
+    min-width: 100px; /* Ensure minimum width */
+  }
+  
+  .addCourseButton:hover {
+    background-color: #e0d6ff;
+  }
+  
+  /* Ribbon-style tag */
+  .courseTag {
+    position: absolute;
+    top: 6px;
+    right: -19px;
+    background-color: #ff5722;
+    color: white;
+    padding: 2px 0;
+    font-weight: bold;
+    font-size: 11px;
+    width: 74px;
+    text-align: center;
+    transform: rotate(45deg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    letter-spacing: 0.5px;
+  }
+  
+  .courseTag:before,
+  .courseTag:after {
+    content: "";
+    position: absolute;
+    width: 6px;
+    height: 12px;
+    z-index: -1;
+    background-color: #d7481d;
+  }
+  
+  .courseTag:before {
+    bottom: -4px;
+    left: -4px;
+    transform: skewY(-60deg);
+  }
+  
+  .courseTag:after {
+    bottom: -4px;
+    right: -4px;
+    transform: skewY(60deg);
+  }
+  
+  /* Pagination */
+  .paginationControls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px 0;
+  }
+  
+  .paginationButton {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    margin: 0 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+  }
+  
+  .paginationButton:hover {
+    background-color: var(--primary-hover);
+  }
+  
+  .paginationButton:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .pageIndicator {
+    font-size: 14px;
+    margin: 0 15px;
+    font-weight: 500;
+  }
+  
+  /* Empty States */
+  .noCourses {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    background-color: var(--background-card);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+  }
+  
+  .errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background-color: var(--background-card);
+    border-radius: 8px;
+  }
+  
+  .errorMessage {
+    color: var(--error-color);
+    background-color: #ffebee;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--error-color);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .courseList {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .courseList {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .courseList {
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    }
+  
+    .courseHeader {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  
+    .cardActions {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  
+    .addButton,
+    .editButton,
+    .previewButton {
+      flex: none;
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .courseList {
+      grid-template-columns: 1fr;
+    }
+    
+    .courseCard {
+      max-width: 100%;
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+
+  /* Add these styles to your existing FeedbackList.module.css */
+
+/* Action buttons */
+.actionButtons {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+  justify-content: flex-end;
+}
+
+.actionButton {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background: #f8f9fa;
+  color: #6c757d;
+}
+
+.actionButton:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.actionButton:first-child {
+  background: #007bff;
+  color: white;
+}
+
+.actionButton:first-child:hover {
+  background: #0056b3;
+}
+
+.actionButton:last-child {
+  background: #dc3545;
+  color: white;
+}
+
+.actionButton:last-child:hover {
+  background: #c82333;
+}
+
+/* Modal styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e9ecef;
+  background: #f8f9fa;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.closeButton:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.modalBody {
+  padding: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.questionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.questionItem {
+  padding: 16px;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  background: #f8f9fa;
+}
+
+.questionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.questionNumber {
+  font-weight: bold;
+  color: #8e6cef;
+  font-size: 14px;
+}
+
+.questionType {
+  background: #8e6cef;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.questionDescription {
+  color: #333;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.noQuestions {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.modalFooter {
+  padding: 20px;
+  border-top: 1px solid #e9ecef;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.closeModalButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.closeModalButton:hover {
+  background: #5a6268;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .modalContent {
+    width: 95%;
+    max-height: 90vh;
+  }
+  
+  .modalHeader h2 {
+    font-size: 1.1rem;
+  }
+  
+  .actionButtons {
+    justify-content: center;
+    gap: 6px;
+  }
+  
+  .actionButton {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}

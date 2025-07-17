@@ -36,13 +36,14 @@ export const findCoursesByStatus = createAsyncThunk(
 
 export const approveCourse = createAsyncThunk(
   "manager/approveCourse",
-  async ({ user, token, courseId, feedBack }, { rejectWithValue }) => {
+  async ({ user, token, courseId, feedBack, feedbackId }, { rejectWithValue }) => {
     try {
       const response = await axios.post(APPROVE_COURSE_URL, {
         user,
         token,
         courseId,
         feedBack,
+        feedbackId,
       });
       return response.data;
     } catch (error) {

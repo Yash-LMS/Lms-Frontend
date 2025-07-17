@@ -207,22 +207,19 @@ const [selectedBatchForAssignment, setSelectedBatchForAssignment] = useState(nul
                 <FontAwesomeIcon icon={faFileText} />
                 <span style={{ marginLeft: "5px" }}>Add Test</span>
               </button>
-
-                     <button
-                className={styles.addButton}
-                onClick={() => handleAddAssignment(batch)}
-              >
-                <FontAwesomeIcon icon={faFileText} />
-                <span style={{ marginLeft: "5px" }}>Add Assignment</span>
-              </button>
-
-
               <button
                 className={styles.previewButton}
                 onClick={() => handleViewCandidates(batch)}
               >
                 <FontAwesomeIcon icon={faEye} />
                 <span style={{ marginLeft: "5px" }}>Preview Candidates</span>
+              </button>
+              <button
+                className={styles.addButton}
+                onClick={() => handleAddAssignment(batch)}
+              >
+                <FontAwesomeIcon icon={faFileText} />
+                <span style={{ marginLeft: "5px" }}>Add Assignment</span>
               </button>
               <button
                 className={styles.editButton}

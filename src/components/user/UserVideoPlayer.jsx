@@ -117,8 +117,8 @@ const UserVideoPlayer = ({ courseId, trackingId, completionStatus, topicId, user
           viewVideo();
         }
         
-        // Mark as completed when user watches at least 100% of the video
-        if (video.currentTime >= video.duration && !videoCompleted) {
+        // Mark as completed when user watches at least 90% of the video
+        if (video.currentTime >= video.duration * 0.9 && !videoCompleted) {
           setVideoCompleted(true);
           completeVideo();
         }

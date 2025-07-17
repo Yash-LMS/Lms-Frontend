@@ -13,7 +13,8 @@ import Sidebar from "./Sidebar";
 import AddOffice from "./AddOffice";
 import CategoryCreator from "./CategoryCreator";
 import axios from "axios";
-import { FETCH_CATEGORIES_URL, UPDATE_CATEGORY_URL } from "../../constants/apiConstants";
+import { FETCH_CATEGORIES_URL, UPDATE_CATEGORY_URL, FETCH_ASSIGNMENT_CATEGORIES_URL } from "../../constants/apiConstants";
+import AssignmentCategoryCreator from "./AssignmentCategoryCreator";
 
 const ManagerDashboard = () => {
   const navigate = useNavigate();
@@ -122,6 +123,33 @@ const ManagerDashboard = () => {
       }
   
       const response = await axios.post(`${FETCH_CATEGORIES_URL}`, {
+        user,
+        token,
+      });
+  
+      if (response.data.response === "success") {
+        setCategoriesData(response.data.payload);
+        console.log("Categories loaded:", response.data.payload);
+      } else {
+        setCategoriesData([]);
+        console.error("Failed to fetch categories or no data found.");
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setCategoriesData([]);
+    }
+  };
+
+    const fetchAssignmentCategoriesData = async () => {
+    try {
+      const { user, token } = getUserData();
+  
+      if (!user || !token) {
+        console.error("User or token is missing.");
+        return;
+      }
+  
+      const response = await axios.post(`${FETCH_ASSIGNMENT_CATEGORIES_URL}`, {
         user,
         token,
       });
@@ -758,6 +786,9 @@ const ManagerDashboard = () => {
             <AddOffice />
             <CategoryCreator
                fetchAllCategories={fetchCategoriesData} 
+            />
+            <AssignmentCategoryCreator
+              fetchAllCategories={fetchAssignmentCategoriesData} 
             />
           </div>
         </div>
