@@ -60,6 +60,7 @@ import UpdatePassword from "./components/technical-manager/UpdatePassword";
 
 import UserPassword from "./components/user/UpdatePassword";
 import TraineeAssignmentList from "./components/user/TraineeAssignmentList";
+import ProfileCompletion from "./components/auth/ProfileCompletion";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -203,6 +204,9 @@ const AppContent = () => {
           <Route path="/certificate" element={<CertificateValidation />} />
 
           <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+
+          
+          <Route path="/complete-profile" element={<ProfileCompletion/>} />
 
           <Route
             path="/instructor-dashboard"

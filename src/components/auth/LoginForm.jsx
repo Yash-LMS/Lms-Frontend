@@ -33,16 +33,48 @@ const LoginForm = ({ setLoginStatus }) => {
 
     const getUserData = () => {
         try {
-          return {
-            user: JSON.parse(sessionStorage.getItem("user")),
-            token: sessionStorage.getItem("token"),
-            role: sessionStorage.getItem("role"),
-          };
+            return {
+                user: JSON.parse(sessionStorage.getItem("user")),
+                token: sessionStorage.getItem("token"),
+                role: sessionStorage.getItem("role"),
+            };
         } catch (error) {
-          console.error("Error parsing user data:", error);
-          return { user: null, token: null, role: null };
+            console.error("Error parsing user data:", error);
+            return { user: null, token: null, role: null };
         }
-      };
+    };
+
+    // Function to check if user needs to complete profile (only for 'user' role)
+    const needsProfileCompletion = (userData) => {
+        // Only check profile completion for users with 'user' role
+        if (userData.role !== 'user') {
+            return false;
+        }
+        
+        // Check if user has uploaded documents based on DocumentStatus enum
+        const resumeNotUpdated = !userData.resumeStatus || userData.resumeStatus === 'not_updated';
+        const photoNotUpdated = !userData.photoStatus || userData.photoStatus === 'not_updated';
+        
+        return resumeNotUpdated || photoNotUpdated;
+    };
+
+    // Function to redirect user based on role and profile completion status
+    const redirectUser = (userData) => {
+        // Only check profile completion for users with 'user' role
+        if (userData.role === 'user' && needsProfileCompletion(userData)) {
+            navigate("/complete-profile");
+            return;
+        }
+        
+        // Redirect to appropriate dashboard based on role
+        if (userData.role === 'instructor') {
+            navigate("/instructor-dashboard");
+        } else if (userData.role === 'user') {
+            navigate("/user-dashboard");
+        } else {
+            navigate("/manager-dashboard");
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -69,8 +101,12 @@ const LoginForm = ({ setLoginStatus }) => {
                 setUser(userData);
                 sessionStorage.setItem('user', JSON.stringify(userData));
                 sessionStorage.setItem('token', response.data.payload.token);
+                sessionStorage.setItem('role', userData.role); // Store role separately if needed
                 setLoginStatus(true);
                 setLogin(true);
+                
+                // Redirect based on profile completion status
+                redirectUser(userData);
             } else {
                 setLoginError(response.data.message || "Unable to login try again");
                 setFormData({ emailId: '', password: '' });
@@ -84,41 +120,16 @@ const LoginForm = ({ setLoginStatus }) => {
         }
     };
 
-        useEffect(() => {
-       
-        const { user, token } = getUserData();
- 
-        
-        if(user==null) {
-            return;
-        }
-        
-        if (user.role === 'instructor') {
-            navigate("/instructor-dashboard");
-        } else if (user.role === 'user') {
-            navigate("/user-dashboard");
-        } else {
-            navigate("/manager-dashboard"); 
-        }
-    }, []);
-
     useEffect(() => {
-       
         const { user, token } = getUserData();
- 
         
-        if(!login || !user || !token) {
+        if(user == null) {
             return;
         }
         
-        if (user.role === 'instructor') {
-            navigate("/instructor-dashboard");
-        } else if (user.role === 'user') {
-            navigate("/user-dashboard");
-        } else {
-            navigate("/manager-dashboard"); 
-        }
-    }, [login, navigate, user]);
+        // Check if user is already logged in and redirect accordingly
+        redirectUser(user);
+    }, []);
 
     return (
         <div className={styles.container}>

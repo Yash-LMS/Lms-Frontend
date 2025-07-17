@@ -160,6 +160,10 @@ export const VIEW_INTERNAL_ASSIGNMENT_ALLOTMENT_URL = `${API_BASE_URL}/user/assi
 export const ASSIGNMENT_UPDATE_STATUS_VIEW_URL = `${API_BASE_URL}/user/file/assignment/view/updateStatus`;
 
 export const USER_COURSE_VERIFY_MANUALLY_URL = `${API_BASE_URL}/user/course/verifyCompletionStatus`;
+export const USER_FEEDBACK_QUESTIONS_VIEW_URL = `${API_BASE_URL}/user/feedback/viewFeedback`;
+export const USER_FEEDBACK_QUESTIONS_SUBMIT_URL = `${API_BASE_URL}/user/feedback/submit`;
+
+export const PROFILE_UPDATE_URL = `${API_BASE_URL}/user/employee/documentUpdate`;
 
 //Test
 export const CREATE_TEST_URL = `${API_BASE_URL}/test/createTest`;
