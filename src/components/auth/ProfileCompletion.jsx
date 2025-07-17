@@ -165,6 +165,7 @@ const ProfileCompletion = ({ setLoginStatus }) => {
             <div className={styles.formWrapper}>
                 <h2 className={styles.title}>Complete Your Profile</h2>
                 <p className={styles.subtitle}>Please upload your profile photo and resume to continue</p>
+                <p className={styles.subtitle1}>Please capture the profile image from system camera if you don't have </p>
                 
                 {uploadError && <div className={styles.errorMessage}>{uploadError}</div>}
                 {uploadSuccess && <div className={styles.successMessage}>{uploadSuccess}</div>}
@@ -182,12 +183,12 @@ const ProfileCompletion = ({ setLoginStatus }) => {
                             style={{ padding: '13px' }}
                         />
                         <small className={styles.fileHint}>
-                            Accepted formats: JPEG, JPG, PNG, GIF (Max size: 5MB)
+                            Accepted formats: JPEG, JPG, PNG (Max size: 5MB)
                         </small>
                     </div>
                     
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>Resume Document *</label>
+                        <label className={styles.label}>Resume Document (in YASH Format) *</label>
                         <input
                             type="file"
                             name="resumeDocument"
@@ -198,7 +199,7 @@ const ProfileCompletion = ({ setLoginStatus }) => {
                             style={{ padding: '13px' }}
                         />
                         <small className={styles.fileHint}>
-                            Accepted formats: PDF, DOC, DOCX (Max size: 10MB)
+                            Accepted formats: PDF only (Max size: 10MB)
                         </small>
                     </div>
                     
