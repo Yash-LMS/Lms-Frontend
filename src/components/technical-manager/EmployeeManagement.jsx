@@ -35,6 +35,9 @@ const EmployeeManagementPage = () => {
   
   const { employeeCount } = useSelector((state) => state.manager);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage] = useState(5);
+
   // Function to get user data from sessionStorage
   const getUserData = () => {
     try {
@@ -315,6 +318,30 @@ const EmployeeManagementPage = () => {
     setSelectedEmployees(new Set());
     setSelectAll(false);
   };
+
+  // Handle page change
+const handlePageChange = (pageNumber) => {
+  setCurrentPage(pageNumber);
+};
+
+// Handle previous page
+const handlePrevPage = () => {
+  if (currentPage > 1) {
+    setCurrentPage(currentPage - 1);
+  }
+};
+
+// Handle next page
+const handleNextPage = () => {
+  if (currentPage < totalPages) {
+    setCurrentPage(currentPage + 1);
+  }
+};
+
+// Reset to first page when filters change
+useEffect(() => {
+  setCurrentPage(1);
+}, [roleFilter, statusFilter, searchTerm]);
 
   // Component for displaying employee profile image
   const EmployeeProfileImage = ({ emailId }) => {
@@ -633,6 +660,11 @@ const EmployeeManagementPage = () => {
   const showDownloadColumn = filteredUsers.some(user => user.role === "user" || user.role === "instructor");
   const showSelectionColumn = filteredUsers.some(user => user.role === "user" || user.role === "instructor");
 
+   const indexOfLastRecord = currentPage * recordsPerPage;
+const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+const currentRecords = filteredUsers.slice(indexOfFirstRecord, indexOfLastRecord);
+const totalPages = Math.ceil(filteredUsers.length / recordsPerPage);
+
   // Define Excel headers for employee management
   const excelHeaders = {
     firstName: "First Name",
@@ -809,26 +841,26 @@ const EmployeeManagementPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.length > 0 ? (
-                    filteredUsers.map((user) => (
-                      <tr key={user.emailId || Math.random()}>
+                  {currentRecords.length > 0 ? (
+    currentRecords.map((user) => (
+      <tr key={user.emailId || Math.random()}>
                         {showSelectionColumn && (
-                          <td>
-                            {(user.role === "user" || user.role === "instructor") ? (
-                              <button
-                                className={styles.selectButton}
-                                onClick={() => handleEmployeeSelection(user.emailId)}
-                                disabled={bulkDownloading}
-                              >
-                                <FontAwesomeIcon 
-                                  icon={selectedEmployees.has(user.emailId) ? faCheckSquare : faSquare} 
-                                />
-                              </button>
-                            ) : (
-                              <span className={styles.notApplicable}></span>
-                            )}
-                          </td>
-                        )}
+          <td>
+            {(user.role === "user" || user.role === "instructor") ? (
+              <button
+                className={styles.selectButton}
+                onClick={() => handleEmployeeSelection(user.emailId)}
+                disabled={bulkDownloading}
+              >
+                <FontAwesomeIcon 
+                  icon={selectedEmployees.has(user.emailId) ? faCheckSquare : faSquare} 
+                />
+              </button>
+            ) : (
+              <span className={styles.notApplicable}></span>
+            )}
+          </td>
+        )}
                         {showProfileImageColumn && (
                           <td>
                             {(user.role === "user" || user.role === "instructor") ? (
@@ -956,6 +988,41 @@ const EmployeeManagementPage = () => {
                   )}
                 </tbody>
               </table>
+              {filteredUsers.length > 0 && (
+  <div className={styles.paginationContainer}>
+    <div className={styles.paginationInfo}>
+      Showing {indexOfFirstRecord + 1} to {Math.min(indexOfLastRecord, filteredUsers.length)} of {filteredUsers.length} entries
+    </div>
+    
+    <div className={styles.paginationControls}>
+      <button
+        className={`${styles.paginationButton} ${currentPage === 1 ? styles.disabled : ''}`}
+        onClick={handlePrevPage}
+        disabled={currentPage === 1}
+      >
+        Previous
+      </button>
+      
+      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+        <button
+          key={pageNumber}
+          className={`${styles.paginationButton} ${currentPage === pageNumber ? styles.active : ''}`}
+          onClick={() => handlePageChange(pageNumber)}
+        >
+          {pageNumber}
+        </button>
+      ))}
+      
+      <button
+        className={`${styles.paginationButton} ${currentPage === totalPages ? styles.disabled : ''}`}
+        onClick={handleNextPage}
+        disabled={currentPage === totalPages}
+      >
+        Next
+      </button>
+    </div>
+  </div>
+)}
             </div>
           )}
         </div>
