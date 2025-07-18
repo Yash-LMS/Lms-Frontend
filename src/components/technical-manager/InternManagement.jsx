@@ -822,6 +822,7 @@ const handleSubmitStatusChange = async () => {
                       }}>
                         {intern.emailId}
                       </td>
+                      
                         <td>{intern.address}</td>
                         <td>{intern.institution}</td>
                         <td>{intern.stream}</td>
