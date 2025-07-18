@@ -38,6 +38,65 @@ const EmployeeManagementPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(5);
 
+  // Add these utility functions at the top of your component, before the main component definition
+
+// Utility function to clear all employee images from session storage
+const clearAllEmployeeImages = () => {
+  const keysToRemove = [];
+  
+  for (let i = 0; i < sessionStorage.length; i++) {
+    const key = sessionStorage.key(i);
+    if (key && key.startsWith('employee_image_')) {
+      keysToRemove.push(key);
+    }
+  }
+  
+  keysToRemove.forEach(key => sessionStorage.removeItem(key));
+  console.log(`Cleared ${keysToRemove.length} employee images from session storage`);
+};
+
+// Utility function to get session storage usage
+const getSessionStorageUsage = () => {
+  let totalSize = 0;
+  let imageCount = 0;
+  
+  for (let i = 0; i < sessionStorage.length; i++) {
+    const key = sessionStorage.key(i);
+    if (key && key.startsWith('employee_image_')) {
+      const value = sessionStorage.getItem(key);
+      totalSize += value.length;
+      imageCount++;
+    }
+  }
+  
+  return {
+    imageCount,
+    totalSize,
+    totalSizeMB: (totalSize / (1024 * 1024)).toFixed(2)
+  };
+};
+
+// Add this useEffect in your main component to clear old images when component mounts
+useEffect(() => {
+  // Clear old images when component mounts
+  const oneHourAgo = Date.now() - (60 * 60 * 1000); // 1 hour ago
+  
+  for (let i = 0; i < sessionStorage.length; i++) {
+    const key = sessionStorage.key(i);
+    if (key && key.startsWith('employee_image_')) {
+      try {
+        const data = JSON.parse(sessionStorage.getItem(key));
+        if (data.timestamp < oneHourAgo) {
+          sessionStorage.removeItem(key);
+        }
+      } catch (e) {
+        // Remove corrupted entries
+        sessionStorage.removeItem(key);
+      }
+    }
+  }
+}, []);
+
   // Function to get user data from sessionStorage
   const getUserData = () => {
     try {
@@ -344,17 +403,37 @@ useEffect(() => {
 }, [roleFilter, statusFilter, searchTerm]);
 
   // Component for displaying employee profile image
-  const EmployeeProfileImage = ({ emailId, index }) => {
+ // Updated EmployeeProfileImage component with session storage and optimized loading
+const EmployeeProfileImage = ({ emailId, index }) => {
   const [imageUrl, setImageUrl] = useState(null);
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   const [showFullImage, setShowFullImage] = useState(false);
 
+  // Session storage key for images
+  const getImageStorageKey = (emailId) => `employee_image_${emailId}`;
+
   useEffect(() => {
     const fetchImage = async () => {
       try {
+        // First check if image is already in session storage
+        const storageKey = getImageStorageKey(emailId);
+        const cachedImageData = sessionStorage.getItem(storageKey);
+        
+        if (cachedImageData) {
+          // If cached, use the cached data
+          const imageBlob = new Blob([new Uint8Array(JSON.parse(cachedImageData).data)], { 
+            type: JSON.parse(cachedImageData).type 
+          });
+          const imageObjectUrl = URL.createObjectURL(imageBlob);
+          setImageUrl(imageObjectUrl);
+          setImageError(false);
+          setImageLoading(false);
+          return;
+        }
+
+        // If not cached, fetch from server
         const { token } = getUserData();
-        // Updated API call with index parameter
         const response = await fetch(
           `${EMPLOYEE_PROFILE_IMAGE_URL}?emailId=${encodeURIComponent(emailId)}&index=${index}`,
           {
@@ -370,6 +449,22 @@ useEffect(() => {
           const imageObjectUrl = URL.createObjectURL(blob);
           setImageUrl(imageObjectUrl);
           setImageError(false);
+
+          // Store in session storage for future use
+          const arrayBuffer = await blob.arrayBuffer();
+          const imageData = {
+            data: Array.from(new Uint8Array(arrayBuffer)),
+            type: blob.type,
+            timestamp: Date.now()
+          };
+          
+          try {
+            sessionStorage.setItem(storageKey, JSON.stringify(imageData));
+          } catch (storageError) {
+            console.warn('Failed to store image in session storage:', storageError);
+            // If storage is full, try to clear old images
+            clearOldImages();
+          }
         } else {
           setImageError(true);
         }
@@ -390,7 +485,27 @@ useEffect(() => {
         URL.revokeObjectURL(imageUrl);
       }
     };
-  }, [emailId, index]); // Added index to dependency array
+  }, [emailId, index]);
+
+  // Function to clear old images from session storage
+  const clearOldImages = () => {
+    const oneHourAgo = Date.now() - (60 * 60 * 1000); // 1 hour ago
+    
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key && key.startsWith('employee_image_')) {
+        try {
+          const data = JSON.parse(sessionStorage.getItem(key));
+          if (data.timestamp < oneHourAgo) {
+            sessionStorage.removeItem(key);
+          }
+        } catch (e) {
+          // Remove corrupted entries
+          sessionStorage.removeItem(key);
+        }
+      }
+    }
+  };
 
   if (imageLoading) {
     return (
@@ -872,7 +987,7 @@ const totalPages = Math.ceil(filteredUsers.length / recordsPerPage);
               {(user.role === "user" || user.role === "instructor") ? (
                 <EmployeeProfileImage 
                   emailId={user.emailId} 
-                  index={actualIndex} 
+                  index={actualIndex}
                 />
               ) : (
                 <div className={styles.profileImageContainer}>
