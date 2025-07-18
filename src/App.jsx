@@ -61,6 +61,7 @@ import UpdatePassword from "./components/technical-manager/UpdatePassword";
 import UserPassword from "./components/user/UpdatePassword";
 import TraineeAssignmentList from "./components/user/TraineeAssignmentList";
 import ProfileCompletion from "./components/auth/ProfileCompletion";
+import { USER_PROFILE_IMAGE_URL } from "./constants/apiConstants";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -541,12 +542,44 @@ const AppContent = () => {
 const NavbarWithRouter = ({ setLoginStatus }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [profileImage, setProfileImage] = useState(null);
+  const [showHoverImage, setShowHoverImage] = useState(false);
+  const [hoverImagePosition, setHoverImagePosition] = useState({ x: 0, y: 0 });
 
   const user = useSelector((state) => state.user.user);
   const userData = JSON.parse(sessionStorage.getItem("user"));
 
+  // Fetch profile image when component mounts or user changes
+  useEffect(() => {
+    if (userData && userData.emailId) {
+      fetchProfileImage();
+    }
+  }, [userData]);
+
+  const fetchProfileImage = async () => {
+    try {
+      const response = await axios.get(USER_PROFILE_IMAGE_URL, {
+        params: { emailId: userData.emailId },
+        responseType: 'blob'
+      });
+      
+      if (response.data && response.data.size > 0) {
+        const imageUrl = URL.createObjectURL(response.data);
+        setProfileImage(imageUrl);
+      }
+    } catch (error) {
+      console.log('No profile image found or error fetching image:', error);
+      setProfileImage(null);
+    }
+  };
+
   const handleLogout = () => {
     try {
+      // Clean up image URL to prevent memory leaks
+      if (profileImage) {
+        URL.revokeObjectURL(profileImage);
+      }
+      
       sessionStorage.removeItem("user");
       sessionStorage.removeItem("token");
       sessionStorage.removeItem("role");
@@ -579,7 +612,6 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
     navigate("/certificate");
   };
 
-  // Function to handle register navigation directly
   const handleRegisterClick = (e) => {
     e.preventDefault();
     navigate("/register");
@@ -590,87 +622,141 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
     navigate("/intern/register");
   };
 
-  // Function to handle login navigation directly
   const handleLoginClick = (e) => {
     e.preventDefault();
     navigate("/login");
   };
 
-  return (
-    <nav className={styles.navbar}>
-      <div className={styles.navbarContent}>
-        <span
-          className={styles.navbarBrand}
-          onClick={handleDashboardNavigate}
-          style={{ cursor: "pointer" }}
-        >
-          <img
-            src={src}
-            alt="Yash Logo"
-            height="55"
-            onClick={handleDashboardNavigate}
-          />
-          <h3>LMS</h3>
-        </span>
+  const handleMouseEnter = (e) => {
+    if (profileImage) {
+      const rect = e.target.getBoundingClientRect();
+      setHoverImagePosition({
+        x: rect.left + rect.width / 2,
+        y: rect.bottom + 10
+      });
+      setShowHoverImage(true);
+    }
+  };
 
-        <div className={styles.navbarLinks}>
-          <button
-            onClick={handleCertificateVerification}
-            className={styles.navLinks}
+  const handleMouseLeave = () => {
+    setShowHoverImage(false);
+  };
+
+  // Clean up on component unmount
+  useEffect(() => {
+    return () => {
+      if (profileImage) {
+        URL.revokeObjectURL(profileImage);
+      }
+    };
+  }, [profileImage]);
+
+  return (
+    <>
+      <nav className={styles.navbar}>
+        <div className={styles.navbarContent}>
+          <span
+            className={styles.navbarBrand}
+            onClick={handleDashboardNavigate}
+            style={{ cursor: "pointer" }}
           >
-            <FontAwesomeIcon icon={faCircleCheck} />
-            <span>Verify Certificate</span>
-          </button>
-          {sessionStorage.getItem("user") ? (
-            <>
-              <div className={styles.userProfile}>
-                <div className={styles.userAvatar}>
-                  {userData.firstName[0] +
-                    (userData.lastName ? userData.lastName[0] : "")}
-                </div>
-                <div className={styles.userInfo}>
-                  <span className={styles.userName}>
-                    {userData.firstName + " " + (userData.lastName || "")}
-                  </span>
-                  <span className={styles.divider}>|</span>
-                  <span
-                    className={styles.userRole}
-                    style={{ fontWeight: 700, fontSize: "14px" }}
+            <img
+              src={src}
+              alt="Yash Logo"
+              height="55"
+              onClick={handleDashboardNavigate}
+            />
+            <h3>LMS</h3>
+          </span>
+
+          <div className={styles.navbarLinks}>
+            <button
+              onClick={handleCertificateVerification}
+              className={styles.navLinks}
+            >
+              <FontAwesomeIcon icon={faCircleCheck} />
+              <span>Verify Certificate</span>
+            </button>
+            {sessionStorage.getItem("user") ? (
+              <>
+                <div className={styles.userProfile}>
+                  <div 
+                    className={`${styles.userAvatar} ${profileImage ? styles.userAvatarWithImage : ''}`}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                   >
-                    {(userData.role
-                      ? userData.role.replace(/_/g, " ")
-                      : "Not Available"
-                    ).toUpperCase()}
-                  </span>
+                    {profileImage ? (
+                      <img 
+                        src={profileImage} 
+                        alt="Profile" 
+                        className={styles.profileImage}
+                      />
+                    ) : (
+                      userData.firstName[0] +
+                      (userData.lastName ? userData.lastName[0] : "")
+                    )}
+                  </div>
+                  <div className={styles.userInfo}>
+                    <span className={styles.userName}>
+                      {userData.firstName + " " + (userData.lastName || "")}
+                    </span>
+                    <span className={styles.divider}>|</span>
+                    <span
+                      className={styles.userRole}
+                      style={{ fontWeight: 700, fontSize: "14px" }}
+                    >
+                      {(userData.role
+                        ? userData.role.replace(/_/g, " ")
+                        : "Not Available"
+                      ).toUpperCase()}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <button onClick={handleLogout} className={styles.logoutBtn}>
-                <FontAwesomeIcon icon={faRightFromBracket} />
-                <span>Logout</span>
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={handleRegisterClick} className={styles.navLinks}>
-                <FontAwesomeIcon icon={faUserPlus} />
-                <span>Register as Employee</span>
-              </button>
-              <button
-                onClick={handleInternRegisterClick}
-                className={styles.navLinks}
-              >
-                <FontAwesomeIcon icon={faUserPlus} />
-                <span>Register as Intern</span>
-              </button>
-              <button onClick={handleLoginClick} className={styles.navLinks}>
-                <FontAwesomeIcon icon={faRightToBracket} />
-                <span>Login</span>
-              </button>
-            </>
-          )}
+                <button onClick={handleLogout} className={styles.logoutBtn}>
+                  <FontAwesomeIcon icon={faRightFromBracket} />
+                  <span>Logout</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button onClick={handleRegisterClick} className={styles.navLinks}>
+                  <FontAwesomeIcon icon={faUserPlus} />
+                  <span>Register as Employee</span>
+                </button>
+                <button
+                  onClick={handleInternRegisterClick}
+                  className={styles.navLinks}
+                >
+                  <FontAwesomeIcon icon={faUserPlus} />
+                  <span>Register as Intern</span>
+                </button>
+                <button onClick={handleLoginClick} className={styles.navLinks}>
+                  <FontAwesomeIcon icon={faRightToBracket} />
+                  <span>Login</span>
+                </button>
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Hover Image Modal */}
+      {showHoverImage && profileImage && (
+        <div 
+          className={styles.hoverImageModal}
+          style={{
+            left: `${hoverImagePosition.x}px`,
+            top: `${hoverImagePosition.y}px`
+          }}
+        >
+          <img 
+            src={profileImage} 
+            alt="Profile Preview" 
+            className={styles.hoverImage}
+          />
+        </div>
+      )}
+    </>
   );
 };
 

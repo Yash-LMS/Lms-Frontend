@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   findEmployeeList,
   updateUserRoleAndStatus,
@@ -9,6 +10,12 @@ import {
 import styles from "./EmployeeManagement.module.css";
 import Sidebar from "./Sidebar";
 import ExportToExcel from "../../assets/ExportToExcel";
+import { 
+  EMPLOYEE_PROFILE_IMAGE_URL,
+  DOWNLOAD_RESUME_URL 
+} from "../../constants/apiConstants";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDownload } from "@fortawesome/free-solid-svg-icons";
 
 const EmployeeManagementPage = () => {
   const dispatch = useDispatch();
@@ -16,6 +23,7 @@ const EmployeeManagementPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [downloadingResumes, setDownloadingResumes] = useState({});
   const { employeeCount } = useSelector((state) => state.manager);
 
   // Function to get user data from sessionStorage
@@ -48,6 +56,187 @@ const EmployeeManagementPage = () => {
     { value: "not_active", label: "Not Active" },
     { value: "blocked", label: "Blocked" },
   ];
+
+  // Function to download resume
+  const downloadResume = async (emailId, employeeName) => {
+    const { user, token } = getUserData();
+    
+    if (!user || !token) {
+      setError("Session expired. Please login again.");
+      return;
+    }
+
+    // Set loading state for this specific resume
+    setDownloadingResumes(prev => ({ ...prev, [emailId]: true }));
+
+    try {
+      const response = await axios.post(
+        DOWNLOAD_RESUME_URL,
+        {
+          user: user,
+          token: token,
+          emailId: emailId
+        },
+        {
+          responseType: 'blob', // Important for file downloads
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        // Create blob URL and trigger download
+        const blob = new Blob([response.data]);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        
+        // Try to get filename from response headers
+        const contentDisposition = response.headers['content-disposition'];
+        let filename = `${employeeName}_resume`;
+        
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+          if (filenameMatch) {
+            filename = filenameMatch[1];
+          }
+        } else {
+          // Default filename with common extensions
+          filename = `${employeeName.replace(/\s+/g, '_')}_resume.pdf`;
+        }
+        
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        
+        console.log(`Resume downloaded successfully for ${emailId}`);
+      }
+    } catch (error) {
+      console.error('Error downloading resume:', error);
+      
+      if (error.response) {
+        if (error.response.status === 401) {
+          setError("Unauthorized access. Please login again.");
+        } else if (error.response.status === 404) {
+          setError(`Resume not found for ${employeeName}`);
+        } else {
+          setError(`Failed to download resume for ${employeeName}: ${error.response.data?.message || 'Unknown error'}`);
+        }
+      } else if (error.request) {
+        setError("Network error. Please check your connection and try again.");
+      } else {
+        setError(`Error downloading resume for ${employeeName}: ${error.message}`);
+      }
+    } finally {
+      // Clear loading state for this specific resume
+      setDownloadingResumes(prev => ({ ...prev, [emailId]: false }));
+    }
+  };
+
+  // Component for displaying employee profile image
+  const EmployeeProfileImage = ({ emailId }) => {
+    const [imageUrl, setImageUrl] = useState(null);
+    const [imageError, setImageError] = useState(false);
+    const [imageLoading, setImageLoading] = useState(true);
+    const [showFullImage, setShowFullImage] = useState(false);
+
+    useEffect(() => {
+      const fetchImage = async () => {
+        try {
+          const { token } = getUserData();
+          const response = await fetch(
+            `${EMPLOYEE_PROFILE_IMAGE_URL}?emailId=${encodeURIComponent(emailId)}`,
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          if (response.ok) {
+            const blob = await response.blob();
+            const imageObjectUrl = URL.createObjectURL(blob);
+            setImageUrl(imageObjectUrl);
+            setImageError(false);
+          } else {
+            setImageError(true);
+          }
+        } catch (error) {
+          console.error('Error fetching employee image:', error);
+          setImageError(true);
+        } finally {
+          setImageLoading(false);
+        }
+      };
+
+      if (emailId) {
+        fetchImage();
+      }
+
+      // Cleanup function to revoke object URL
+      return () => {
+        if (imageUrl) {
+          URL.revokeObjectURL(imageUrl);
+        }
+      };
+    }, [emailId]);
+
+    if (imageLoading) {
+      return (
+        <div className={styles.profileImageContainer}>
+          <div className={styles.profileImagePlaceholder}>
+            <span className={styles.loadingText}>Loading...</span>
+          </div>
+        </div>
+      );
+    }
+
+    if (imageError || !imageUrl) {
+      return (
+        <div className={styles.profileImageContainer}>
+          <div className={styles.profileImagePlaceholder}>
+            <span className={styles.placeholderText}>No Image</span>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.profileImageContainer}>
+        <div
+          className={styles.profileImageWrapper}
+          onMouseEnter={() => setShowFullImage(true)}
+          onMouseLeave={() => setShowFullImage(false)}
+        >
+          <img
+            src={imageUrl}
+            alt={`Profile of ${emailId}`}
+            className={styles.profileImage}
+            onError={() => setImageError(true)}
+          />
+          {showFullImage && (
+            <div className={styles.fullImageOverlay}>
+              <div className={styles.fullImageContainer}>
+                <img
+                  src={imageUrl}
+                  alt={`Full profile of ${emailId}`}
+                  className={styles.fullImage}
+                  onError={() => setImageError(true)}
+                />
+                <div className={styles.fullImageInfo}>
+                  <p className={styles.fullImageEmail}>{emailId}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   // Fetch user list on component mount and when filters change
   useEffect(() => {
@@ -235,6 +424,12 @@ const EmployeeManagementPage = () => {
 
   const [activeTab, setActiveTab] = useState("employee");
 
+  // Check if any user has "user" role to determine if profile image column should be shown
+  const showProfileImageColumn = filteredUsers.some(user => user.role === "user");
+
+  // Check if any user has "user" or "instructor" role to determine if download column should be shown
+  const showDownloadColumn = filteredUsers.some(user => user.role === "user" || user.role === "instructor");
+
   // Define Excel headers for employee management
   const excelHeaders = {
     firstName: "First Name",
@@ -347,18 +542,33 @@ const EmployeeManagementPage = () => {
               <table className={styles.table}>
                 <thead>
                   <tr>
+                    {showProfileImageColumn && <th>Profile</th>}
                     <th>Name</th>
                     <th>Email ID</th>
                     <th>Office ID</th>
                     <th>Role</th>
                     <th>User Status</th>
                     <th>Action</th>
+                    {showDownloadColumn && <th>Resume</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {filteredUsers.length > 0 ? (
                     filteredUsers.map((user) => (
                       <tr key={user.emailId || Math.random()}>
+                        {showProfileImageColumn && (
+                          <td>
+                            {(user.role === "user" || user.role === "instructor") ? (
+                              <EmployeeProfileImage emailId={user.emailId} />
+                            ) : (
+                              <div className={styles.profileImageContainer}>
+                                <div className={styles.profileImagePlaceholder}>
+                                  <span className={styles.placeholderText}>N/A</span>
+                                </div>
+                              </div>
+                            )}
+                          </td>
+                        )}
                         <td>
                           {user.name ||
                             `${user.firstName || ""} ${user.lastName || ""}`}
@@ -412,11 +622,41 @@ const EmployeeManagementPage = () => {
                             ))}
                           </select>
                         </td>
+                        {showDownloadColumn && (
+                          <td>
+                            {(user.role === "user" || user.role === "instructor") ? (
+                              <button
+                                className={styles.downloadButton}
+                                onClick={() => downloadResume(
+                                  user.emailId, 
+                                  user.name || `${user.firstName || ""} ${user.lastName || ""}`
+                                )}
+                                disabled={downloadingResumes[user.emailId]}
+                                title={`Download resume for ${user.name || user.firstName || user.emailId}`}
+                              >
+                                {downloadingResumes[user.emailId] ? (
+                                  <span className={styles.downloadingText}>
+                                    <span className={styles.spinner}></span>
+                                    Downloading...
+                                  </span>
+                                ) : (
+                                  <span
+                                  title="Download Submission"
+                                  >
+                                     <FontAwesomeIcon icon={faDownload}></FontAwesomeIcon>
+                                  </span>
+                                )}
+                              </button>
+                            ) : (
+                              <span className={styles.notApplicable}>N/A</span>
+                            )}
+                          </td>
+                        )}
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className={styles.emptyMessage}>
+                      <td colSpan={showProfileImageColumn && showDownloadColumn ? 8 : showProfileImageColumn || showDownloadColumn ? 7 : 6} className={styles.emptyMessage}>
                         {searchTerm
                           ? "No results found. Try a different search term."
                           : "No users found with the selected filters. Try changing your filters."}

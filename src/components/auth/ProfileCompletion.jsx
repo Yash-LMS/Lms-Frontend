@@ -9,6 +9,7 @@ const ProfileCompletion = ({ setLoginStatus }) => {
     const [loadRender, setLoadRender] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [uploadSuccess, setUploadSuccess] = useState('');
+    const [userRole, setUserRole] = useState('');
     
     const [formData, setFormData] = useState({
         profilePhoto: null,
@@ -28,6 +29,21 @@ const ProfileCompletion = ({ setLoginStatus }) => {
         }
     };
 
+    const handleLogout = () => {
+        // Clear all session data
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("role");
+        
+        // Update login status if provided
+        if (setLoginStatus) {
+            setLoginStatus(false);
+        }
+        
+        // Navigate to login page
+        navigate('/login');
+    };
+
     // Check if user should be on this page
     useEffect(() => {
         const { user, token } = getUserData();
@@ -37,13 +53,12 @@ const ProfileCompletion = ({ setLoginStatus }) => {
             return;
         }
         
-        // Only allow users with 'user' role to access this page
-        if (user.role !== 'user') {
-            if (user.role === 'instructor') {
-                navigate("/instructor-dashboard");
-            } else {
-                navigate("/manager-dashboard");
-            }
+        // Allow both users and instructors to access this page
+        if (user.role === 'user' || user.role === 'instructor') {
+            setUserRole(user.role);
+        } else {
+            // Redirect managers to their dashboard
+            navigate("/manager-dashboard");
         }
     }, []);
 
@@ -138,12 +153,12 @@ const ProfileCompletion = ({ setLoginStatus }) => {
                 const updatedUser = { ...user, hasProfilePhoto: true, hasResume: true };
                 sessionStorage.setItem('user', JSON.stringify(updatedUser));
                 
-                setUploadSuccess('Profile completed successfully! Redirecting...');
+                setUploadSuccess('Profile completed successfully! You will be logged out in 3 seconds to ensure security...');
                 
-                // Redirect to user dashboard after a short delay
+                // Logout after a short delay instead of redirecting
                 setTimeout(() => {
-                    navigate("/user-dashboard");
-                }, 2000);
+                    handleLogout();
+                }, 3000);
                 
             } else {
                 setUploadError(response.data.message || "Unable to upload files. Please try again.");
@@ -154,18 +169,30 @@ const ProfileCompletion = ({ setLoginStatus }) => {
             setLoadRender(false);
         }
     };
+    
+    // Dynamic content based on user role
+    const getPageTitle = () => {
+        return userRole === 'instructor' ? 'Complete Your Instructor Profile' : 'Complete Your Profile';
+    };
 
-    const handleSkipForNow = () => {
-        // Only redirect to user dashboard since this component is only for users
-        navigate("/user-dashboard");
+    const getSubtitle = () => {
+        return userRole === 'instructor' 
+            ? 'Please upload your profile photo and resume/CV to continue as an instructor'
+            : 'Please upload your profile photo and resume to continue';
+    };
+
+    const getResumeLabel = () => {
+        return userRole === 'instructor' 
+            ? 'Resume/CV Document (in YASH Format) *'
+            : 'Resume Document (in YASH Format) *';
     };
 
     return (
         <div className={styles.container}>
             <div className={styles.formWrapper}>
-                <h2 className={styles.title}>Complete Your Profile</h2>
-                <p className={styles.subtitle}>Please upload your profile photo and resume to continue</p>
-                <p className={styles.subtitle1}>Please capture the profile image from system camera if you don't have </p>
+                <h2 className={styles.title}>{getPageTitle()}</h2>
+                <p className={styles.subtitle}>{getSubtitle()}</p>
+                <p className={styles.subtitle1}>Please capture the profile image from system camera application if you don't have</p>
                 
                 {uploadError && <div className={styles.errorMessage}>{uploadError}</div>}
                 {uploadSuccess && <div className={styles.successMessage}>{uploadSuccess}</div>}
@@ -188,7 +215,7 @@ const ProfileCompletion = ({ setLoginStatus }) => {
                     </div>
                     
                     <div className={styles.formGroup}>
-                        <label className={styles.label}>Resume Document (in YASH Format) *</label>
+                        <label className={styles.label}>{getResumeLabel()}</label>
                         <input
                             type="file"
                             name="resumeDocument"
@@ -211,15 +238,6 @@ const ProfileCompletion = ({ setLoginStatus }) => {
                         >
                             {loadRender ? 'Uploading...' : 'Complete Profile'}
                         </button>
-                        
-                        {/* <button
-                            type="button"
-                            onClick={handleSkipForNow}
-                            className={styles.skipButton}
-                            disabled={loadRender}
-                        >
-                            Skip for Now
-                        </button> */}
                     </div>
                 </form>
             </div>

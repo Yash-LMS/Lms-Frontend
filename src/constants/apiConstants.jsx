@@ -125,8 +125,9 @@ export const ALLOT_ASSIGNMENT_URL = `${API_BASE_URL}/manager/allotAssignmentToTr
 
 export const DOWNLOAD_ASSIGNMENT_FILES = `${API_BASE_URL}/assignment/file/download`;
 
-
 export const ALLOT_ASSIGNMENT_BATCH_URL = `${API_BASE_URL}/batch/addAssignmentToBatch`;
+export const EMPLOYEE_PROFILE_IMAGE_URL = `${API_BASE_URL}/manager/employee/image`;
+export const DOWNLOAD_RESUME_URL = `${API_BASE_URL}/manager/document/resume/download`;
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
@@ -164,6 +165,9 @@ export const USER_FEEDBACK_QUESTIONS_VIEW_URL = `${API_BASE_URL}/user/feedback/v
 export const USER_FEEDBACK_QUESTIONS_SUBMIT_URL = `${API_BASE_URL}/user/feedback/submit`;
 
 export const PROFILE_UPDATE_URL = `${API_BASE_URL}/user/employee/documentUpdate`;
+export const DOWNLOAD_YOUR_RESUME_URL = `${API_BASE_URL}/user/document/resume/download`
+export const UPDATE_RESUME_URL = `${API_BASE_URL}/user/document/resume/update`;
+export const USER_PROFILE_IMAGE_URL = `${API_BASE_URL}/user/employee/image`;
 
 //Test
 export const CREATE_TEST_URL = `${API_BASE_URL}/test/createTest`;

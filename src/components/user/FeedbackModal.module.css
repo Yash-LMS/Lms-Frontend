@@ -1,0 +1,387 @@
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(28, 29, 31, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal Container */
+.feedbackModal {
+  background: var(--background-card);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(28, 29, 31, 0.15);
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Modal Header */
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: white;
+}
+
+.modalTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Modal Content */
+.modalContent {
+  flex: 1;
+  padding: 28px;
+  overflow-y: auto;
+}
+
+/* Loading State */
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px;
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error Message */
+.errorMessage {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: var(--error-color);
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Success Message */
+.successMessage {
+  background-color: #f0f9ff;
+  border: 1px solid #93c5fd;
+  color: var(--success-color);
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Course Info */
+.courseInfo {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: white;
+  padding: 18px 22px;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Questions Container */
+.questionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Question Block */
+.questionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: var(--background-main);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  position: relative;
+}
+
+.questionNumber {
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  background: var(--primary-color);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.questionLabel {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  margin-top: 8px;
+}
+
+.required {
+  color: var(--error-color);
+  margin-left: 6px;
+}
+
+/* Text Input */
+.textInput {
+  width: 95%;
+  padding: 16px 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 1rem;
+  resize: vertical;
+  min-height: 100px;
+  transition: all 0.2s;
+  font-family: inherit;
+  background: var(--background-card);
+}
+
+.textInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(142, 108, 239, 0.1);
+}
+
+.textInput::placeholder {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* Rating Container */
+.ratingContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.starButton {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 8px;
+  transition: all 0.2s;
+  border-radius: 8px;
+}
+
+.starActive {
+  color: #fbbf24;
+}
+
+.starInactive {
+  color: var(--border-color);
+}
+
+.starButton:hover {
+  background-color: var(--background-main);
+  transform: scale(1.1);
+}
+
+.ratingText {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-left: 12px;
+  font-weight: 500;
+}
+
+/* Conditional Container */
+.conditionalContainer {
+  display: flex;
+  gap: 16px;
+}
+
+.conditionalButton {
+  padding: 12px 24px;
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--background-card);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  min-width: 80px;
+}
+
+.conditionalActive {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.conditionalInactive {
+  background-color: var(--background-card);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.conditionalButton:hover {
+  border-color: var(--primary-color);
+}
+
+.conditionalActive:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+/* Modal Actions */
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 24px 28px;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--background-main);
+}
+
+.cancelButton {
+  padding: 12px 24px;
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--background-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.cancelButton:hover {
+  background-color: var(--background-main);
+  border-color: var(--text-secondary);
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submitButton {
+  padding: 12px 24px;
+  border: 2px solid var(--primary-color);
+  border-radius: 10px;
+  background: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.submitButton:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submitSpinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .feedbackModal {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .modalHeader {
+    padding: 20px 24px;
+  }
+  
+  .modalTitle {
+    font-size: 1.5rem;
+  }
+  
+  .modalContent {
+    padding: 24px;
+  }
+  
+  .modalActions {
+    padding: 20px 24px;
+  }
+  
+  .starButton {
+    font-size: 1.75rem;
+  }
+  
+  .conditionalContainer {
+    flex-direction: column;
+  }
+  
+  .conditionalButton {
+    width: 100%;
+  }
+  
+  .questionBlock {
+    padding: 20px;
+  }
+  
+  .questionLabel {
+    font-size: 1rem;
+  }
+}

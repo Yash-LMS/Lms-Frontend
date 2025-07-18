@@ -460,3 +460,25 @@
   border-radius: 8px;
 }
 
+.feedbackSubmittedMessage {
+  background: linear-gradient(135deg, var(--success-color) 0%, #20c997 100%);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.feedbackSubmittedMessage:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
