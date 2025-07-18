@@ -24,6 +24,7 @@ const EmployeeManagementPage = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [downloadingResumes, setDownloadingResumes] = useState({});
+  const [resumeAvailability, setResumeAvailability] = useState({}); // New state to track resume availability
   const { employeeCount } = useSelector((state) => state.manager);
 
   // Function to get user data from sessionStorage
@@ -56,6 +57,43 @@ const EmployeeManagementPage = () => {
     { value: "not_active", label: "Not Active" },
     { value: "blocked", label: "Blocked" },
   ];
+
+  // Function to check if resume exists
+  const checkResumeAvailability = async (emailId) => {
+    const { user, token } = getUserData();
+    
+    if (!user || !token) {
+      return false;
+    }
+
+    try {
+      const response = await axios.post(
+        DOWNLOAD_RESUME_URL,
+        {
+          user: user,
+          token: token,
+          emailId: emailId
+        },
+        {
+          method: 'HEAD', // Use HEAD request to check if file exists without downloading
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 5000, // 5 second timeout
+        }
+      );
+
+      return response.status === 200;
+    } catch (error) {
+      // If error is 404, resume doesn't exist
+      if (error.response && error.response.status === 404) {
+        return false;
+      }
+      // For other errors, assume resume might exist (to avoid false negatives due to network issues)
+      console.warn(`Could not check resume availability for ${emailId}:`, error.message);
+      return true;
+    }
+  };
 
   // Function to download resume
   const downloadResume = async (emailId, employeeName) => {
@@ -122,6 +160,8 @@ const EmployeeManagementPage = () => {
           setError("Unauthorized access. Please login again.");
         } else if (error.response.status === 404) {
           setError(`Resume not found for ${employeeName}`);
+          // Update resume availability state
+          setResumeAvailability(prev => ({ ...prev, [emailId]: false }));
         } else {
           setError(`Failed to download resume for ${employeeName}: ${error.response.data?.message || 'Unknown error'}`);
         }
@@ -237,6 +277,32 @@ const EmployeeManagementPage = () => {
       </div>
     );
   };
+
+  // Check resume availability for all users when component mounts or users change
+  useEffect(() => {
+    const checkAllResumes = async () => {
+      if (users && users.length > 0) {
+        const resumeChecks = {};
+        
+        // Only check for users with "user" or "instructor" roles
+        const usersToCheck = users.filter(user => 
+          (user.role === "user" || user.role === "instructor") && 
+          user.employeeType !== "intern"
+        );
+
+        // Check resume availability for each user
+        const promises = usersToCheck.map(async (user) => {
+          const hasResume = await checkResumeAvailability(user.emailId);
+          resumeChecks[user.emailId] = hasResume;
+        });
+
+        await Promise.all(promises);
+        setResumeAvailability(resumeChecks);
+      }
+    };
+
+    checkAllResumes();
+  }, [users]);
 
   // Fetch user list on component mount and when filters change
   useEffect(() => {
@@ -546,6 +612,7 @@ const EmployeeManagementPage = () => {
                     <th>Name</th>
                     <th>Email ID</th>
                     <th>Office ID</th>
+                    <th>Mobile No.</th>
                     <th>Role</th>
                     <th>User Status</th>
                     <th>Action</th>
@@ -575,6 +642,7 @@ const EmployeeManagementPage = () => {
                         </td>
                         <td>{user.emailId}</td>
                         <td>{user.officeId}</td>
+                        <td>{user.mobileNo}</td>
                         <td>
                           <select
                             className={styles.tableSelect}
@@ -626,24 +694,35 @@ const EmployeeManagementPage = () => {
                           <td>
                             {(user.role === "user" || user.role === "instructor") ? (
                               <button
-                                className={styles.downloadButton}
+                                className={`${styles.downloadButton} ${
+                                  resumeAvailability[user.emailId] === false ? styles.disabledButton : ''
+                                }`}
                                 onClick={() => downloadResume(
                                   user.emailId, 
                                   user.name || `${user.firstName || ""} ${user.lastName || ""}`
                                 )}
-                                disabled={downloadingResumes[user.emailId]}
-                                title={`Download resume for ${user.name || user.firstName || user.emailId}`}
+                                disabled={
+                                  downloadingResumes[user.emailId] || 
+                                  resumeAvailability[user.emailId] === false
+                                }
+                                title={
+                                  resumeAvailability[user.emailId] === false 
+                                    ? "Resume not available" 
+                                    : `Download resume for ${user.name || user.firstName || user.emailId}`
+                                }
                               >
                                 {downloadingResumes[user.emailId] ? (
                                   <span className={styles.downloadingText}>
                                     <span className={styles.spinner}></span>
                                     Downloading...
                                   </span>
+                                ) : resumeAvailability[user.emailId] === false ? (
+                                  <span className={styles.noResumeText}>
+                                    No Resume
+                                  </span>
                                 ) : (
-                                  <span
-                                  title="Download Submission"
-                                  >
-                                     <FontAwesomeIcon icon={faDownload}></FontAwesomeIcon>
+                                  <span title="Download Submission">
+                                    <FontAwesomeIcon icon={faDownload} />
                                   </span>
                                 )}
                               </button>
