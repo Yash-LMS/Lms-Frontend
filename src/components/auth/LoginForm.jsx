@@ -47,9 +47,7 @@ const LoginForm = ({ setLoginStatus }) => {
     // Function to check if user needs to complete profile (only for 'user' role)
     const needsProfileCompletion = (userData) => {
         // Only check profile completion for users with 'user' role
-        if (userData.role !== 'user') {
-            return false;
-        }
+   
         
         // Check if user has uploaded documents based on DocumentStatus enum
         const resumeNotUpdated = !userData.resumeStatus || userData.resumeStatus === 'not_updated';
@@ -62,6 +60,11 @@ const LoginForm = ({ setLoginStatus }) => {
     const redirectUser = (userData) => {
         // Only check profile completion for users with 'user' role
         if (userData.role === 'user' && needsProfileCompletion(userData)) {
+            navigate("/complete-profile");
+            return;
+        }
+
+        if (userData.role === 'instructor' && needsProfileCompletion(userData)) {
             navigate("/complete-profile");
             return;
         }
