@@ -459,6 +459,7 @@ const handleSubmitStatusChange = async () => {
     startDate: "Start Date",
     endDate: "End Date",
     duration: "Duration (in months)",
+    contactNo: "Mobile No.",
     remark: "Remark",
     feedback: "Feedback",
     status: "Account Status",
@@ -772,6 +773,7 @@ const handleSubmitStatusChange = async () => {
                     <th>Start Date</th>
                     <th>End Date</th>
                     <th>Duration (in months)</th>
+                    <th>Mobile No.</th>
                     <th>Remark</th>
                     <th>Account Status</th>
                     <th>Completion Status</th>
@@ -819,6 +821,7 @@ const handleSubmitStatusChange = async () => {
                         <td>{formatDate(intern.startDate)}</td>
                         <td>{formatDate(intern.endDate)}</td>
                         <td>{intern.duration}</td>
+                        <td>{intern.contactNo}</td>
                         <td>{intern.remark}</td>
                         <td>
                           <span

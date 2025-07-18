@@ -149,7 +149,7 @@
   overflow-y: auto; /* Enable vertical scrolling */
   overflow-x: auto; /* Keep horizontal scrolling */
   max-height: 350px;
-  width: 100%;
+  max-width: 100%;
 }
 
 .table {
@@ -157,11 +157,12 @@
   border-collapse: collapse;
   font-size: 14px;
   table-layout: fixed;
+  min-width: 2000px;
 }
 
 .table th {
   text-align: center;
-  padding: 16px 20px;
+  padding: 12px 8px;
   background-color: #f9fafb;
   font-weight: 600;
   color: #374151;
@@ -171,10 +172,11 @@
 }
 
 .table td {
-  padding: 16px 20px;
+  padding: 12px 8px;
   border-bottom: 1px solid #e5e7eb;
   color: #4b5563;
   text-align: center;
+  white-space: nowrap;
 }
 
 .table tr:last-child td {
@@ -384,4 +386,433 @@
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.profileImageContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  margin-left: 68px;
+}
+
+.profileImageWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.profileImage {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.profileImage:hover {
+  border-color: #7e8082;
+  transform: scale(1.05);
+}
+
+.profileImagePlaceholder {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 10px;
+  color: #6c757d;
+  text-align: center;
+}
+
+.placeholderText {
+  font-size: 10px;
+  font-weight: 500;
+  color: #6c757d;
+}
+
+.loadingText {
+  font-size: 8px;
+  font-weight: 500;
+  color: #007bff;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.fullImageOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-in-out;
+  pointer-events: none;
+}
+
+.fullImageContainer {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: slideIn 0.3s ease-out;
+}
+
+.fullImage {
+  max-width: 400px;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  object-fit: contain;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.fullImageInfo {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.fullImageEmail {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  padding: 8px 16px;
+  background-color: #f8f9fa;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.bulkActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.bulkDownloadButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.bulkDownloadButton:hover {
+  background: #0056b3;
+}
+
+.bulkDownloadButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.clearSelectionsButton {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.clearSelectionsButton:hover {
+  background: #c82333;
+}
+
+.selectButton {
+  background: white;
+  cursor: pointer;
+  color: black;
+  padding: 6px 8px;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 40px;
+}
+
+.selectButton:hover {
+  background-color: #f8f9fa;
+  border-color: #7559ce;
+}
+
+.selectButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.selectAllButton {
+  background-color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: black;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.selectAllButton:hover {
+  background-color: #f8f9fa;
+  border-color: #0056b3;
+}
+
+.selectAllButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.selectAllText {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Style the FontAwesome icons specifically */
+.selectButton svg,
+.selectAllButton svg {
+  color: #8e6cef;
+  width: 16px;
+  height: 16px;
+}
+
+.selectButton:hover svg,
+.selectAllButton:hover svg {
+  color: #7559ce;
+}
+
+/* For the N/A span */
+.notApplicable {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.selectAllText {
+  font-size: 12px;
+}
+
+.selectedCount {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 5px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: scale(0.9) translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+  .profileImageContainer {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .profileImage,
+  .profileImagePlaceholder {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .placeholderText,
+  .loadingText {
+    font-size: 8px;
+  }
+
+  .fullImageContainer {
+    padding: 15px;
+    margin: 10px;
+  }
+
+  .fullImage {
+    max-width: 300px;
+    max-height: 300px;
+  }
+
+  .fullImageEmail {
+    font-size: 12px;
+  }
+}
+
+.downloadButton{
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.downloadButton:active {
+  transform: translateY(0);
+}
+
+.downloadButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.downloadButton:disabled:hover {
+  background-color: #6c757d;
+  transform: none;
+}
+
+.downloadIcon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.downloadingText {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.notApplicable {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.paginationContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px 0;
+  border-top: 1px solid #e0e0e0;
+}
+
+.paginationInfo {
+  font-size: 14px;
+  color: #666;
+}
+
+.paginationControls {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.paginationButton {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background-color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.paginationButton:hover:not(.disabled) {
+  background-color: #f0f0f0;
+  border-color: #ccc;
+}
+
+.paginationButton.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.paginationButton.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f8f9fa;
 }

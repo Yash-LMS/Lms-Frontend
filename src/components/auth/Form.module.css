@@ -137,3 +137,67 @@
 .forgotPasswordBtn:focus {
     outline: none;
 }
+
+.subtitle {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.subtitle1 {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: #0bb116;
+}
+
+.fileHint {
+    display: block;
+    color: #666;
+    font-size: 12px;
+    margin-top: 0.25rem;
+}
+
+.buttonGroup {
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+}
+
+.skipButton {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.skipButton:hover {
+    background-color: #5a6268;
+}
+
+.skipButton:disabled {
+    background-color: #6c757d;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive design for button group */
+@media (min-width: 768px) {
+    .buttonGroup {
+        flex-direction: row;
+    }
+    
+    .skipButton {
+        flex: 1;
+    }
+    
+    .submitButton {
+        flex: 1;
+    }
+}

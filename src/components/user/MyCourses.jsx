@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom"; 
-import { viewAllotedCourses, userCourseFeedback } from "../../features/user/userActions";
+import { viewAllotedCourses } from "../../features/user/userActions";
 import DashboardSidebar from "../../assets/DashboardSidebar";
+import FeedbackModal from "./FeedbackModal";
 import styles from "./MyCourses.module.css";
-import { COURSE_IMAGE_VIEW_URL,  USER_COURSE_CERTIFICATE_URL, USER_COURSE_VERIFY_MANUALLY_URL } from "../../constants/apiConstants";
+import { COURSE_IMAGE_VIEW_URL, USER_COURSE_CERTIFICATE_URL, USER_COURSE_VERIFY_MANUALLY_URL } from "../../constants/apiConstants";
 import Image from "../Image/DefaultCourse.png";
 import axios from 'axios';
 
@@ -27,8 +28,7 @@ const MyCourses = () => {
   const { 
     allottedCourses, 
     loading, 
-    error,
-    feedbackSubmission 
+    error
   } = useSelector((state) => state.employee);
 
   // State for search and filter
@@ -37,8 +37,10 @@ const MyCourses = () => {
 
   // State for feedback modal
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [feedbackText, setFeedbackText] = useState("");
   const [selectedCourse, setSelectedCourse] = useState(null);
+  
+  // State to track submitted feedback by allotmentId
+  const [submittedFeedback, setSubmittedFeedback] = useState(new Set());
 
   // State for certificate download - track by allotmentId
   const [downloadingCertificateId, setDownloadingCertificateId] = useState(null);
@@ -54,6 +56,18 @@ const MyCourses = () => {
 
   const [courseImages, setCourseImages] = useState({});
   const defaultImageUrl = Image; 
+
+  useEffect(() => {
+    // Load submitted feedback from localStorage on component mount
+    const savedFeedback = localStorage.getItem('submittedFeedback');
+    if (savedFeedback) {
+      try {
+        setSubmittedFeedback(new Set(JSON.parse(savedFeedback)));
+      } catch (error) {
+        console.error("Error parsing saved feedback data:", error);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     // Function to fetch image for a single course
@@ -110,44 +124,10 @@ const MyCourses = () => {
     dispatch(viewAllotedCourses());
   }, [dispatch]);
 
-  // Effect to handle feedback submission result
-  useEffect(() => {
-    if (feedbackSubmission.success) {
-      // Show success message
-      setSuccessMessage("Feedback submitted successfully!");
-      setShowSuccessMessage(true);
-      setShowFeedbackModal(false);
-      setFeedbackText("");
-      
-      // Hide success message after 5 seconds
-      setTimeout(() => {
-        setShowSuccessMessage(false);
-        setSuccessMessage("");
-      }, 5000);
-    }
-    
-    if (feedbackSubmission.error) {
-      // Show error message
-      setSuccessMessage("Failed to submit feedback. Please try again.");
-      setShowSuccessMessage(true);
-      
-      // Hide error message after 5 seconds
-      setTimeout(() => {
-        setShowSuccessMessage(false);
-        setSuccessMessage("");
-      }, 5000);
-    }
-  }, [feedbackSubmission]);
-
   const handleVerifyCompletion = async (allotmentId) => {
     try {
       if (!user || !token) {
-        setSuccessMessage("User not authenticated.");
-        setShowSuccessMessage(true);
-        setTimeout(() => {
-          setShowSuccessMessage(false);
-          setSuccessMessage("");
-        }, 5000);
+        showMessage("User not authenticated.");
         return;
       }
 
@@ -167,26 +147,12 @@ const MyCourses = () => {
 
       if (response.data) {
         if (response.data.response === 'success') {
-          setSuccessMessage("Course completion verified successfully!");
-          setShowSuccessMessage(true);
+          showMessage("Course completion verified successfully!");
           // Refresh the courses to get updated completion status
           dispatch(viewAllotedCourses());
-          
-          // Hide success message after 5 seconds
-          setTimeout(() => {
-            setShowSuccessMessage(false);
-            setSuccessMessage("");
-          }, 5000);
         } else {
-          setVerifyCompletionError(response.datamessage || "Verification failed");
-          setSuccessMessage(response.data.message || "Verification failed");
-          setShowSuccessMessage(true);
-          
-          // Hide error message after 5 seconds
-          setTimeout(() => {
-            setShowSuccessMessage(false);
-            setSuccessMessage("");
-          }, 5000);
+          setVerifyCompletionError(response.data.message || "Verification failed");
+          showMessage(response.data.message || "Verification failed");
         }
       } else {
         throw new Error("Invalid response format");
@@ -197,14 +163,7 @@ const MyCourses = () => {
                           error.response?.data?.message || 
                           "An error occurred while verifying course completion. Please try again.";
       setVerifyCompletionError(errorMessage);
-      setSuccessMessage(errorMessage);
-      setShowSuccessMessage(true);
-      
-      // Hide error message after 5 seconds
-      setTimeout(() => {
-        setShowSuccessMessage(false);
-        setSuccessMessage("");
-      }, 5000);
+      showMessage(errorMessage);
     } finally {
       // Clear loading state after verification attempt (success or failure)
       setVerifyingCompletionId(null);
@@ -214,12 +173,7 @@ const MyCourses = () => {
   const handleDownloadCertificate = async (allotmentId) => {
     try {
       if (!user || !token) {
-        setSuccessMessage("User not authenticated.");
-        setShowSuccessMessage(true);
-        setTimeout(() => {
-          setShowSuccessMessage(false);
-          setSuccessMessage("");
-        }, 5000);
+        showMessage("User not authenticated.");
         return;
       }
 
@@ -242,14 +196,7 @@ const MyCourses = () => {
       if (response.status === 406) {
         const courseStatus = response.headers['x-course-status'];
         setCertificateDownloadError(`Cannot download certificate: Course ${courseStatus}`);
-        setSuccessMessage(`Cannot download certificate: Course ${courseStatus}`);
-        setShowSuccessMessage(true);
-        
-        // Hide error message after 5 seconds
-        setTimeout(() => {
-          setShowSuccessMessage(false);
-          setSuccessMessage("");
-        }, 5000);
+        showMessage(`Cannot download certificate: Course ${courseStatus}`);
         return;
       }
 
@@ -268,32 +215,54 @@ const MyCourses = () => {
         document.body.removeChild(a);
         
         // Show success message
-        setSuccessMessage("Certificate downloaded successfully!");
-        setShowSuccessMessage(true);
-        
-        // Hide success message after 5 seconds
-        setTimeout(() => {
-          setShowSuccessMessage(false);
-          setSuccessMessage("");
-        }, 5000);
+        showMessage("Certificate downloaded successfully!");
       } else {
         throw new Error("Failed to generate certificate");
       }
     } catch (error) {
       console.error("Error downloading certificate:", error);
       setCertificateDownloadError("An error occurred while downloading the certificate. Please try again.");
-      setSuccessMessage("An error occurred while downloading the certificate. Please try again.");
-      setShowSuccessMessage(true);
-      
-      // Hide error message after 5 seconds
-      setTimeout(() => {
-        setShowSuccessMessage(false);
-        setSuccessMessage("");
-      }, 5000);
+      showMessage("An error occurred while downloading the certificate. Please try again.");
     } finally {
       // Clear loading state after download attempt (success or failure)
       setDownloadingCertificateId(null);
     }
+  };
+
+  // Helper function to show messages
+  const showMessage = (message) => {
+    setSuccessMessage(message);
+    setShowSuccessMessage(true);
+    
+    // Hide message after 5 seconds
+    setTimeout(() => {
+      setShowSuccessMessage(false);
+      setSuccessMessage("");
+    }, 5000);
+  };
+
+  // Feedback modal handlers
+  const handleFeedbackSuccess = (message) => {
+    // Mark feedback as submitted for this course
+    const newSubmittedFeedback = new Set(submittedFeedback);
+    newSubmittedFeedback.add(selectedCourse.allotmentId);
+    setSubmittedFeedback(newSubmittedFeedback);
+    
+    // Save to localStorage
+    localStorage.setItem('submittedFeedback', JSON.stringify([...newSubmittedFeedback]));
+    
+    showMessage(message);
+    setShowFeedbackModal(false);
+    setSelectedCourse(null);
+  };
+
+  const handleFeedbackError = (message) => {
+    showMessage(message);
+  };
+
+  const handleFeedbackClose = () => {
+    setShowFeedbackModal(false);
+    setSelectedCourse(null);
   };
 
   const getStatusClass = (status) => {
@@ -303,6 +272,11 @@ const MyCourses = () => {
       completed: styles.completed,
     };
     return statusClasses[status] || styles.approved;
+  };
+
+  // Check if feedback has been submitted for a course
+  const isFeedbackSubmitted = (allotmentId) => {
+    return submittedFeedback.has(allotmentId);
   };
 
   // Filter and search logic
@@ -316,18 +290,6 @@ const MyCourses = () => {
         return matchesSearch && matchesStatus;
       })
     : [];
-
-  const handleFeedbackSubmit = () => {
-    if (!selectedCourse || !feedbackText.trim()) return;
-
-    // Dispatch feedback submission
-    dispatch(userCourseFeedback({
-      user,
-      token,
-      courseId: selectedCourse.course.courseId,
-      feedback: feedbackText,
-    }));
-  };
 
   // Function to format completion status to 2 decimal places ONLY if it has decimals
   const formatCompletionStatus = (status) => {
@@ -459,8 +421,8 @@ const MyCourses = () => {
                   </button>
                 )}
 
-                {/* Show Submit Feedback button if completionStatus is 100% */}
-                {course.completionStatus >= 100 && (
+                {/* Show Submit Feedback button if completionStatus is 100% and feedback not submitted */}
+                {course.completionStatus >= 100 && !isFeedbackSubmitted(course.allotmentId) && (
                   <button
                     className={styles.feedbackButton}
                     onClick={() => {
@@ -468,8 +430,15 @@ const MyCourses = () => {
                       setShowFeedbackModal(true);
                     }}
                   >
-                    Feedback
+                   Feedback
                   </button>
+                )}
+
+                {/* Show Feedback Already Submitted message if feedback was submitted */}
+                {course.completionStatus >= 100 && isFeedbackSubmitted(course.allotmentId) && (
+                  <div className={styles.feedbackSubmittedMessage}>
+                    ✓ Feedback Already Submitted
+                  </div>
                 )}
 
                 {course.completionStatus >= 100 && (
@@ -493,39 +462,16 @@ const MyCourses = () => {
         </div>
       )}
 
-      {/* Feedback Modal */}
-      {showFeedbackModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.feedbackModal}>
-            <h2 className={styles.modalTitle}>Submit Feedback</h2>
-            <p className={styles.modalInstructions}>
-              Please provide your feedback for the course:
-            </p>
-            <textarea
-              className={styles.feedbackTextarea}
-              value={feedbackText}
-              onChange={(e) => setFeedbackText(e.target.value)}
-              placeholder="Enter your feedback here..."
-              rows={5}
-            />
-            <div className={styles.modalActions}>
-              <button
-                className={styles.cancelButton}
-                onClick={() => setShowFeedbackModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className={styles.submitButton}
-                onClick={handleFeedbackSubmit}
-                disabled={!feedbackText.trim() || feedbackSubmission.loading}
-              >
-                {feedbackSubmission.loading ? "Submitting..." : "Submit"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* New Feedback Modal */}
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={handleFeedbackClose}
+        course={selectedCourse}
+        user={user}
+        token={token}
+        onSuccess={handleFeedbackSuccess}
+        onError={handleFeedbackError}
+      />
     </div>
   );
 };
