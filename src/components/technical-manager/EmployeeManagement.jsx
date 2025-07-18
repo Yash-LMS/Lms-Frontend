@@ -502,6 +502,7 @@ const EmployeeManagementPage = () => {
     lastName: "Last Name",
     emailId: "Email ID",
     officeId: "Office ID",
+    mobileNo: "Mobile No.",
     role: "Role",
     status: "User Status",
   };
