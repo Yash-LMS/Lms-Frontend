@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import JSZip from "jszip"; // You'll need to install this: npm install jszip
 import {
   findEmployeeList,
   updateUserRoleAndStatus,
@@ -15,7 +16,7 @@ import {
   DOWNLOAD_RESUME_URL 
 } from "../../constants/apiConstants";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDownload } from "@fortawesome/free-solid-svg-icons";
+import { faDownload, faCheckSquare, faSquare } from "@fortawesome/free-solid-svg-icons";
 
 const EmployeeManagementPage = () => {
   const dispatch = useDispatch();
@@ -24,7 +25,14 @@ const EmployeeManagementPage = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [downloadingResumes, setDownloadingResumes] = useState({});
-  const [resumeAvailability, setResumeAvailability] = useState({}); // New state to track resume availability
+  const [resumeAvailability, setResumeAvailability] = useState({});
+  
+  // New states for bulk operations
+  const [selectedEmployees, setSelectedEmployees] = useState(new Set());
+  const [selectAll, setSelectAll] = useState(false);
+  const [bulkDownloading, setBulkDownloading] = useState(false);
+  const [bulkDownloadProgress, setBulkDownloadProgress] = useState({ current: 0, total: 0 });
+  
   const { employeeCount } = useSelector((state) => state.manager);
 
   // Function to get user data from sessionStorage
@@ -75,37 +83,31 @@ const EmployeeManagementPage = () => {
           emailId: emailId
         },
         {
-          method: 'HEAD', // Use HEAD request to check if file exists without downloading
+          method: 'HEAD',
           headers: {
             'Content-Type': 'application/json',
           },
-          timeout: 5000, // 5 second timeout
+          timeout: 5000,
         }
       );
 
       return response.status === 200;
     } catch (error) {
-      // If error is 404, resume doesn't exist
       if (error.response && error.response.status === 404) {
         return false;
       }
-      // For other errors, assume resume might exist (to avoid false negatives due to network issues)
       console.warn(`Could not check resume availability for ${emailId}:`, error.message);
       return true;
     }
   };
 
-  // Function to download resume
-  const downloadResume = async (emailId, employeeName) => {
+  // Function to download single resume (returns blob data)
+  const downloadSingleResumeBlob = async (emailId, employeeName) => {
     const { user, token } = getUserData();
     
     if (!user || !token) {
-      setError("Session expired. Please login again.");
-      return;
+      throw new Error("Session expired. Please login again.");
     }
-
-    // Set loading state for this specific resume
-    setDownloadingResumes(prev => ({ ...prev, [emailId]: true }));
 
     try {
       const response = await axios.post(
@@ -116,7 +118,7 @@ const EmployeeManagementPage = () => {
           emailId: emailId
         },
         {
-          responseType: 'blob', // Important for file downloads
+          responseType: 'blob',
           headers: {
             'Content-Type': 'application/json',
           }
@@ -124,15 +126,9 @@ const EmployeeManagementPage = () => {
       );
 
       if (response.status === 200) {
-        // Create blob URL and trigger download
-        const blob = new Blob([response.data]);
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        
-        // Try to get filename from response headers
+        // Get filename from response headers or create default
         const contentDisposition = response.headers['content-disposition'];
-        let filename = `${employeeName}_resume`;
+        let filename = `${employeeName}_resume.pdf`;
         
         if (contentDisposition) {
           const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
@@ -140,40 +136,184 @@ const EmployeeManagementPage = () => {
             filename = filenameMatch[1];
           }
         } else {
-          // Default filename with common extensions
           filename = `${employeeName.replace(/\s+/g, '_')}_resume.pdf`;
         }
-        
-        link.setAttribute('download', filename);
+
+        return {
+          blob: response.data,
+          filename: filename,
+          success: true
+        };
+      }
+    } catch (error) {
+      console.error(`Error downloading resume for ${emailId}:`, error);
+      return {
+        blob: null,
+        filename: null,
+        success: false,
+        error: error.response?.data?.message || error.message
+      };
+    }
+  };
+
+  // Function to download resume (original single download function)
+  const downloadResume = async (emailId, employeeName) => {
+    const { user, token } = getUserData();
+    
+    if (!user || !token) {
+      setError("Session expired. Please login again.");
+      return;
+    }
+
+    setDownloadingResumes(prev => ({ ...prev, [emailId]: true }));
+
+    try {
+      const result = await downloadSingleResumeBlob(emailId, employeeName);
+      
+      if (result.success) {
+        // Create blob URL and trigger download
+        const url = window.URL.createObjectURL(result.blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', result.filename);
         document.body.appendChild(link);
         link.click();
         link.remove();
         window.URL.revokeObjectURL(url);
         
         console.log(`Resume downloaded successfully for ${emailId}`);
+      } else {
+        setError(`Failed to download resume for ${employeeName}: ${result.error}`);
       }
     } catch (error) {
       console.error('Error downloading resume:', error);
-      
-      if (error.response) {
-        if (error.response.status === 401) {
-          setError("Unauthorized access. Please login again.");
-        } else if (error.response.status === 404) {
-          setError(`Resume not found for ${employeeName}`);
-          // Update resume availability state
-          setResumeAvailability(prev => ({ ...prev, [emailId]: false }));
-        } else {
-          setError(`Failed to download resume for ${employeeName}: ${error.response.data?.message || 'Unknown error'}`);
-        }
-      } else if (error.request) {
-        setError("Network error. Please check your connection and try again.");
-      } else {
-        setError(`Error downloading resume for ${employeeName}: ${error.message}`);
-      }
+      setError(`Error downloading resume for ${employeeName}: ${error.message}`);
     } finally {
-      // Clear loading state for this specific resume
       setDownloadingResumes(prev => ({ ...prev, [emailId]: false }));
     }
+  };
+
+  // Function to handle bulk resume download
+  const downloadBulkResumes = async () => {
+    if (selectedEmployees.size === 0) {
+      setError("Please select at least one employee to download resumes.");
+      return;
+    }
+
+    setBulkDownloading(true);
+    setBulkDownloadProgress({ current: 0, total: selectedEmployees.size });
+
+    const zip = new JSZip();
+    const selectedUsers = filteredUsers.filter(user => selectedEmployees.has(user.emailId));
+    const resumeFolder = zip.folder("Employee_Resumes");
+    
+    let successCount = 0;
+    let failureCount = 0;
+    const failures = [];
+
+    try {
+      // Download resumes one by one using for loop
+      for (let i = 0; i < selectedUsers.length; i++) {
+        const user = selectedUsers[i];
+        const employeeName = user.name || `${user.firstName || ""} ${user.lastName || ""}`;
+        
+        setBulkDownloadProgress({ current: i + 1, total: selectedUsers.length });
+        
+        try {
+          console.log(`Downloading resume ${i + 1}/${selectedUsers.length} for ${user.emailId}`);
+          
+          const result = await downloadSingleResumeBlob(user.emailId, employeeName);
+          
+          if (result.success) {
+            // Add the resume to the ZIP file
+            resumeFolder.file(result.filename, result.blob);
+            successCount++;
+            console.log(`Successfully added ${result.filename} to ZIP`);
+          } else {
+            failureCount++;
+            failures.push({ email: user.emailId, name: employeeName, error: result.error });
+            console.warn(`Failed to download resume for ${user.emailId}: ${result.error}`);
+          }
+        } catch (error) {
+          failureCount++;
+          failures.push({ email: user.emailId, name: employeeName, error: error.message });
+          console.error(`Error processing resume for ${user.emailId}:`, error);
+        }
+        
+        // Add a small delay to prevent overwhelming the server
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      if (successCount > 0) {
+        // Generate and download the ZIP file
+        console.log(`Generating ZIP file with ${successCount} resumes`);
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        
+        // Create download link for ZIP
+        const url = window.URL.createObjectURL(zipBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Employee_Resumes_${new Date().toISOString().split('T')[0]}.zip`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        
+        console.log(`ZIP file downloaded successfully with ${successCount} resumes`);
+      }
+
+      // Show summary message
+      let message = `Bulk download completed. `;
+      if (successCount > 0) {
+        message += `Successfully downloaded ${successCount} resume(s). `;
+      }
+      if (failureCount > 0) {
+        message += `Failed to download ${failureCount} resume(s). `;
+        if (failures.length > 0) {
+          message += `Failed employees: ${failures.map(f => f.name).join(', ')}`;
+        }
+      }
+    
+    } catch (error) {
+      console.error('Error during bulk download:', error);
+      setError(`Error during bulk download: ${error.message}`);
+    } finally {
+      setBulkDownloading(false);
+      setBulkDownloadProgress({ current: 0, total: 0 });
+      
+    }
+  };
+
+  // Function to handle individual employee selection
+  const handleEmployeeSelection = (emailId) => {
+    const newSelected = new Set(selectedEmployees);
+    if (newSelected.has(emailId)) {
+      newSelected.delete(emailId);
+    } else {
+      newSelected.add(emailId);
+    }
+    setSelectedEmployees(newSelected);
+    
+    // Update select all state
+    setSelectAll(newSelected.size === filteredUsers.filter(user => user.role === "user" || user.role === "instructor").length);
+  };
+
+  // Function to handle select all toggle
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedEmployees(new Set());
+      setSelectAll(false);
+    } else {
+      const eligibleUsers = filteredUsers.filter(user => user.role === "user" || user.role === "instructor");
+      setSelectedEmployees(new Set(eligibleUsers.map(user => user.emailId)));
+      setSelectAll(true);
+    }
+  };
+
+  // Function to clear all selections
+  const clearAllSelections = () => {
+    setSelectedEmployees(new Set());
+    setSelectAll(false);
   };
 
   // Component for displaying employee profile image
@@ -217,7 +357,6 @@ const EmployeeManagementPage = () => {
         fetchImage();
       }
 
-      // Cleanup function to revoke object URL
       return () => {
         if (imageUrl) {
           URL.revokeObjectURL(imageUrl);
@@ -284,13 +423,11 @@ const EmployeeManagementPage = () => {
       if (users && users.length > 0) {
         const resumeChecks = {};
         
-        // Only check for users with "user" or "instructor" roles
         const usersToCheck = users.filter(user => 
           (user.role === "user" || user.role === "instructor") && 
           user.employeeType !== "intern"
         );
 
-        // Check resume availability for each user
         const promises = usersToCheck.map(async (user) => {
           const hasResume = await checkResumeAvailability(user.emailId);
           resumeChecks[user.emailId] = hasResume;
@@ -304,13 +441,17 @@ const EmployeeManagementPage = () => {
     checkAllResumes();
   }, [users]);
 
+  // Clear selections when filters change
+  useEffect(() => {
+    clearAllSelections();
+  }, [roleFilter, statusFilter, searchTerm]);
+
   // Fetch user list on component mount and when filters change
   useEffect(() => {
     const { user, token } = getUserData();
     if (user && token) {
       setLoading(true);
 
-      // Create a request payload object
       const payload = {
         user,
         token,
@@ -462,12 +603,10 @@ const EmployeeManagementPage = () => {
   const filteredUsers =
     users && users.length > 0
       ? users.filter((user) => {
-          // First filter out interns
           if (user.employeeType === "intern") {
             return false;
           }
 
-          // Then apply search term filtering
           if (!searchTerm) {
             return true;
           }
@@ -490,11 +629,9 @@ const EmployeeManagementPage = () => {
 
   const [activeTab, setActiveTab] = useState("employee");
 
-  // Check if any user has "user" role to determine if profile image column should be shown
   const showProfileImageColumn = filteredUsers.some(user => user.role === "user");
-
-  // Check if any user has "user" or "instructor" role to determine if download column should be shown
   const showDownloadColumn = filteredUsers.some(user => user.role === "user" || user.role === "instructor");
+  const showSelectionColumn = filteredUsers.some(user => user.role === "user" || user.role === "instructor");
 
   // Define Excel headers for employee management
   const excelHeaders = {
@@ -568,7 +705,6 @@ const EmployeeManagementPage = () => {
               ))}
             </select>
 
-            {/* Clear all filters button */}
             {(roleFilter !== "all" || statusFilter !== "all") && (
               <button
                 className={styles.clearFiltersButton}
@@ -585,18 +721,57 @@ const EmployeeManagementPage = () => {
 
         <div className={styles.searchResultCount}>
           Found <span>{filteredUsers.length}</span> results
+          {selectedEmployees.size > 0 && (
+            <span className={styles.selectedCount}>
+              {" "}| Selected: {selectedEmployees.size}
+            </span>
+          )}
         </div>
 
         <div className={styles.headerActions}>
-          <ExportToExcel
-            data={filteredUsers}
-            headers={excelHeaders}
-            fileName="Employee-Management-Results"
-            sheetName="Employees"
-            buttonStyle={{
-              marginBottom: "20px",
-            }}
-          />
+          <div className={styles.actionButtons}>
+            <ExportToExcel
+              data={filteredUsers}
+              headers={excelHeaders}
+              fileName="Employee-Management-Results"
+              sheetName="Employees"
+              buttonStyle={{
+                marginRight: "10px",
+              }}
+            />
+            
+            {showSelectionColumn && (
+              <div className={styles.bulkActions}>
+                {selectedEmployees.size > 0 && (
+                  <>
+                    <button
+                      className={styles.bulkDownloadButton}
+                      onClick={downloadBulkResumes}
+                      disabled={bulkDownloading}
+                    >
+                      {bulkDownloading ? (
+                        <span>
+                          <span className={styles.spinner}></span>
+                          Downloading {bulkDownloadProgress.current}/{bulkDownloadProgress.total}...
+                        </span>
+                      ) : (
+                        <span>
+                          <FontAwesomeIcon icon={faDownload} /> Download Selected ({selectedEmployees.size})
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      className={styles.clearSelectionsButton}
+                      onClick={clearAllSelections}
+                      disabled={bulkDownloading}
+                    >
+                      Clear Selections
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className={styles.cardContent}>
@@ -609,6 +784,18 @@ const EmployeeManagementPage = () => {
               <table className={styles.table}>
                 <thead>
                   <tr>
+                    {showSelectionColumn && (
+                      <th>
+                        <button
+                          className={styles.selectAllButton}
+                          onClick={handleSelectAll}
+                          disabled={bulkDownloading}
+                        >
+                          <FontAwesomeIcon icon={selectAll ? faCheckSquare : faSquare} />
+                          <span className={styles.selectAllText}>Select All</span>
+                        </button>
+                      </th>
+                    )}
                     {showProfileImageColumn && <th>Profile</th>}
                     <th>Name</th>
                     <th>Email ID</th>
@@ -624,6 +811,23 @@ const EmployeeManagementPage = () => {
                   {filteredUsers.length > 0 ? (
                     filteredUsers.map((user) => (
                       <tr key={user.emailId || Math.random()}>
+                        {showSelectionColumn && (
+                          <td>
+                            {(user.role === "user" || user.role === "instructor") ? (
+                              <button
+                                className={styles.selectButton}
+                                onClick={() => handleEmployeeSelection(user.emailId)}
+                                disabled={bulkDownloading}
+                              >
+                                <FontAwesomeIcon 
+                                  icon={selectedEmployees.has(user.emailId) ? faCheckSquare : faSquare} 
+                                />
+                              </button>
+                            ) : (
+                              <span className={styles.notApplicable}>N/A</span>
+                            )}
+                          </td>
+                        )}
                         {showProfileImageColumn && (
                           <td>
                             {(user.role === "user" || user.role === "instructor") ? (
@@ -704,7 +908,8 @@ const EmployeeManagementPage = () => {
                                 )}
                                 disabled={
                                   downloadingResumes[user.emailId] || 
-                                  resumeAvailability[user.emailId] === false
+                                  resumeAvailability[user.emailId] === false ||
+                                  bulkDownloading
                                 }
                                 title={
                                   resumeAvailability[user.emailId] === false 
@@ -736,7 +941,12 @@ const EmployeeManagementPage = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={showProfileImageColumn && showDownloadColumn ? 8 : showProfileImageColumn || showDownloadColumn ? 7 : 6} className={styles.emptyMessage}>
+                      <td colSpan={
+                        (showSelectionColumn ? 1 : 0) + 
+                        (showProfileImageColumn ? 1 : 0) + 
+                        (showDownloadColumn ? 1 : 0) + 
+                        8
+                      } className={styles.emptyMessage}>
                         {searchTerm
                           ? "No results found. Try a different search term."
                           : "No users found with the selected filters. Try changing your filters."}

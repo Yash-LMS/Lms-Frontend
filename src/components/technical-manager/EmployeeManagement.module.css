@@ -157,7 +157,7 @@
   border-collapse: collapse;
   font-size: 14px;
   table-layout: fixed;
-  min-width: 1200px;
+  min-width: 2000px;
 }
 
 .table th {
@@ -496,6 +496,150 @@
   background-color: #f8f9fa;
   border-radius: 20px;
   display: inline-block;
+}
+
+.bulkActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.bulkDownloadButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.bulkDownloadButton:hover {
+  background: #0056b3;
+}
+
+.bulkDownloadButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.clearSelectionsButton {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.clearSelectionsButton:hover {
+  background: #c82333;
+}
+
+.selectButton {
+  background: white;
+  border: 2px solid black;
+  cursor: pointer;
+  font-size: 16px;
+  color: black;
+  padding: 6px 8px;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selectButton:hover {
+  background-color: #f8f9fa;
+  border-color: #0056b3;
+}
+
+.selectButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.selectAllButton {
+  background-color: white;
+  border: 2px solid black;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: black;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.selectAllButton:hover {
+  background-color: #f8f9fa;
+  border-color: #0056b3;
+}
+
+.selectAllButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.selectAllText {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Style the FontAwesome icons specifically */
+.selectButton svg,
+.selectAllButton svg {
+  color: black !important;
+  width: 16px;
+  height: 16px;
+}
+
+.selectButton:hover svg,
+.selectAllButton:hover svg {
+  color: #0056b3 !important;
+}
+
+/* For the N/A span */
+.notApplicable {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.selectAllText {
+  font-size: 12px;
+}
+
+.selectedCount {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 5px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 @keyframes pulse {
