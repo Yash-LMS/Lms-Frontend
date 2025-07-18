@@ -344,105 +344,107 @@ useEffect(() => {
 }, [roleFilter, statusFilter, searchTerm]);
 
   // Component for displaying employee profile image
-  const EmployeeProfileImage = ({ emailId }) => {
-    const [imageUrl, setImageUrl] = useState(null);
-    const [imageError, setImageError] = useState(false);
-    const [imageLoading, setImageLoading] = useState(true);
-    const [showFullImage, setShowFullImage] = useState(false);
+  const EmployeeProfileImage = ({ emailId, index }) => {
+  const [imageUrl, setImageUrl] = useState(null);
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [showFullImage, setShowFullImage] = useState(false);
 
-    useEffect(() => {
-      const fetchImage = async () => {
-        try {
-          const { token } = getUserData();
-          const response = await fetch(
-            `${EMPLOYEE_PROFILE_IMAGE_URL}?emailId=${encodeURIComponent(emailId)}`,
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-
-          if (response.ok) {
-            const blob = await response.blob();
-            const imageObjectUrl = URL.createObjectURL(blob);
-            setImageUrl(imageObjectUrl);
-            setImageError(false);
-          } else {
-            setImageError(true);
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const { token } = getUserData();
+        // Updated API call with index parameter
+        const response = await fetch(
+          `${EMPLOYEE_PROFILE_IMAGE_URL}?emailId=${encodeURIComponent(emailId)}&index=${index}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
           }
-        } catch (error) {
-          console.error('Error fetching employee image:', error);
+        );
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const imageObjectUrl = URL.createObjectURL(blob);
+          setImageUrl(imageObjectUrl);
+          setImageError(false);
+        } else {
           setImageError(true);
-        } finally {
-          setImageLoading(false);
         }
-      };
-
-      if (emailId) {
-        fetchImage();
+      } catch (error) {
+        console.error('Error fetching employee image:', error);
+        setImageError(true);
+      } finally {
+        setImageLoading(false);
       }
+    };
 
-      return () => {
-        if (imageUrl) {
-          URL.revokeObjectURL(imageUrl);
-        }
-      };
-    }, [emailId]);
-
-    if (imageLoading) {
-      return (
-        <div className={styles.profileImageContainer}>
-          <div className={styles.profileImagePlaceholder}>
-            <span className={styles.loadingText}>Loading...</span>
-          </div>
-        </div>
-      );
+    if (emailId && index !== undefined) {
+      fetchImage();
     }
 
-    if (imageError || !imageUrl) {
-      return (
-        <div className={styles.profileImageContainer}>
-          <div className={styles.profileImagePlaceholder}>
-            <span className={styles.placeholderText}>No Image</span>
-          </div>
-        </div>
-      );
-    }
+    return () => {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, [emailId, index]); // Added index to dependency array
 
+  if (imageLoading) {
     return (
       <div className={styles.profileImageContainer}>
-        <div
-          className={styles.profileImageWrapper}
-          onMouseEnter={() => setShowFullImage(true)}
-          onMouseLeave={() => setShowFullImage(false)}
-        >
-          <img
-            src={imageUrl}
-            alt={`Profile of ${emailId}`}
-            className={styles.profileImage}
-            onError={() => setImageError(true)}
-          />
-          {showFullImage && (
-            <div className={styles.fullImageOverlay}>
-              <div className={styles.fullImageContainer}>
-                <img
-                  src={imageUrl}
-                  alt={`Full profile of ${emailId}`}
-                  className={styles.fullImage}
-                  onError={() => setImageError(true)}
-                />
-                <div className={styles.fullImageInfo}>
-                  <p className={styles.fullImageEmail}>{emailId}</p>
-                </div>
-              </div>
-            </div>
-          )}
+        <div className={styles.profileImagePlaceholder}>
+          <span className={styles.loadingText}>Loading...</span>
         </div>
       </div>
     );
-  };
+  }
+
+  if (imageError || !imageUrl) {
+    return (
+      <div className={styles.profileImageContainer}>
+        <div className={styles.profileImagePlaceholder}>
+          <span className={styles.placeholderText}>No Image</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.profileImageContainer}>
+      <div
+        className={styles.profileImageWrapper}
+        onMouseEnter={() => setShowFullImage(true)}
+        onMouseLeave={() => setShowFullImage(false)}
+      >
+        <img
+          src={imageUrl}
+          alt={`Profile of ${emailId}`}
+          className={styles.profileImage}
+          onError={() => setImageError(true)}
+        />
+        {showFullImage && (
+          <div className={styles.fullImageOverlay}>
+            <div className={styles.fullImageContainer}>
+              <img
+                src={imageUrl}
+                alt={`Full profile of ${emailId}`}
+                className={styles.fullImage}
+                onError={() => setImageError(true)}
+              />
+              <div className={styles.fullImageInfo}>
+                <p className={styles.fullImageEmail}>{emailId}</p>
+                <p className={styles.fullImageIndex}>Index: {index}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
   // Check resume availability for all users when component mounts or users change
   useEffect(() => {
@@ -841,152 +843,160 @@ const totalPages = Math.ceil(filteredUsers.length / recordsPerPage);
                   </tr>
                 </thead>
                 <tbody>
-                  {currentRecords.length > 0 ? (
-    currentRecords.map((user) => (
-      <tr key={user.emailId || Math.random()}>
-                        {showSelectionColumn && (
-          <td>
-            {(user.role === "user" || user.role === "instructor") ? (
-              <button
-                className={styles.selectButton}
-                onClick={() => handleEmployeeSelection(user.emailId)}
-                disabled={bulkDownloading}
-              >
-                <FontAwesomeIcon 
-                  icon={selectedEmployees.has(user.emailId) ? faCheckSquare : faSquare} 
+  {currentRecords.length > 0 ? (
+    currentRecords.map((user, index) => {
+      // Calculate the actual index based on pagination
+      const actualIndex = indexOfFirstRecord + index;
+      
+      return (
+        <tr key={user.emailId || Math.random()}>
+          {showSelectionColumn && (
+            <td>
+              {(user.role === "user" || user.role === "instructor") ? (
+                <button
+                  className={styles.selectButton}
+                  onClick={() => handleEmployeeSelection(user.emailId)}
+                  disabled={bulkDownloading}
+                >
+                  <FontAwesomeIcon 
+                    icon={selectedEmployees.has(user.emailId) ? faCheckSquare : faSquare} 
+                  />
+                </button>
+              ) : (
+                <span className={styles.notApplicable}></span>
+              )}
+            </td>
+          )}
+          {showProfileImageColumn && (
+            <td>
+              {(user.role === "user" || user.role === "instructor") ? (
+                <EmployeeProfileImage 
+                  emailId={user.emailId} 
+                  index={actualIndex} 
                 />
-              </button>
-            ) : (
-              <span className={styles.notApplicable}></span>
-            )}
+              ) : (
+                <div className={styles.profileImageContainer}>
+                  <div className={styles.profileImagePlaceholder}>
+                    <span className={styles.placeholderText}>N/A</span>
+                  </div>
+                </div>
+              )}
+            </td>
+          )}
+          <td>
+            {user.name ||
+              `${user.firstName || ""} ${user.lastName || ""}`}
           </td>
-        )}
-                        {showProfileImageColumn && (
-                          <td>
-                            {(user.role === "user" || user.role === "instructor") ? (
-                              <EmployeeProfileImage emailId={user.emailId} />
-                            ) : (
-                              <div className={styles.profileImageContainer}>
-                                <div className={styles.profileImagePlaceholder}>
-                                  <span className={styles.placeholderText}>N/A</span>
-                                </div>
-                              </div>
-                            )}
-                          </td>
-                        )}
-                        <td>
-                          {user.name ||
-                            `${user.firstName || ""} ${user.lastName || ""}`}
-                        </td>
-                        <td>{user.emailId}</td>
-                        <td>{user.officeId}</td>
-                        <td>{user.mobileNo}</td>
-                        <td>
-                          <select
-                            className={styles.tableSelect}
-                            value={user.role}
-                            onChange={(e) =>
-                              handleRoleChange(user.emailId, e.target.value)
-                            }
-                          >
-                            {roles.map((role) => (
-                              <option key={role} value={role}>
-                                {role.charAt(0).toUpperCase() + role.slice(1)}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          <span
-                            className={`${styles.statusBadge} ${
-                              (user.userStatus || user.status) === "active"
-                                ? styles.statusActive
-                                : (user.userStatus || user.status) === "blocked"
-                                ? styles.statusBlocked
-                                : styles.statusNotActive
-                            }`}
-                          >
-                            {(user.userStatus || user.status) === "active"
-                              ? "Active"
-                              : (user.userStatus || user.status) === "blocked"
-                              ? "Blocked"
-                              : "Not Active"}
-                          </span>
-                        </td>
-                        <td>
-                          <select
-                            className={styles.tableSelect}
-                            value={user.userStatus || user.status}
-                            onChange={(e) =>
-                              handleStatusChange(user.emailId, e.target.value)
-                            }
-                          >
-                            {statusOptions.map((status) => (
-                              <option key={status.value} value={status.value}>
-                                {status.label}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        {showDownloadColumn && (
-                          <td>
-                            {(user.role === "user" || user.role === "instructor") ? (
-                              <button
-                                className={`${styles.downloadButton} ${
-                                  resumeAvailability[user.emailId] === false ? styles.disabledButton : ''
-                                }`}
-                                onClick={() => downloadResume(
-                                  user.emailId, 
-                                  user.name || `${user.firstName || ""} ${user.lastName || ""}`
-                                )}
-                                disabled={
-                                  downloadingResumes[user.emailId] || 
-                                  resumeAvailability[user.emailId] === false ||
-                                  bulkDownloading
-                                }
-                                title={
-                                  resumeAvailability[user.emailId] === false 
-                                    ? "Resume not available" 
-                                    : `Download resume for ${user.name || user.firstName || user.emailId}`
-                                }
-                              >
-                                {downloadingResumes[user.emailId] ? (
-                                  <span className={styles.downloadingText}>
-                                    <span className={styles.spinner}></span>
-                                    Downloading...
-                                  </span>
-                                ) : resumeAvailability[user.emailId] === false ? (
-                                  <span className={styles.noResumeText}>
-                                    No Resume
-                                  </span>
-                                ) : (
-                                  <span title="Download Submission">
-                                    <FontAwesomeIcon icon={faDownload} />
-                                  </span>
-                                )}
-                              </button>
-                            ) : (
-                              <span className={styles.notApplicable}>N/A</span>
-                            )}
-                          </td>
-                        )}
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={
-                        (showSelectionColumn ? 1 : 0) + 
-                        (showProfileImageColumn ? 1 : 0) + 
-                        (showDownloadColumn ? 1 : 0) + 
-                        8
-                      } className={styles.emptyMessage}>
-                        {searchTerm
-                          ? "No results found. Try a different search term."
-                          : "No users found with the selected filters. Try changing your filters."}
-                      </td>
-                    </tr>
+          <td>{user.emailId}</td>
+          <td>{user.officeId}</td>
+          <td>{user.mobileNo}</td>
+          <td>
+            <select
+              className={styles.tableSelect}
+              value={user.role}
+              onChange={(e) =>
+                handleRoleChange(user.emailId, e.target.value)
+              }
+            >
+              {roles.map((role) => (
+                <option key={role} value={role}>
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                </option>
+              ))}
+            </select>
+          </td>
+          <td>
+            <span
+              className={`${styles.statusBadge} ${
+                (user.userStatus || user.status) === "active"
+                  ? styles.statusActive
+                  : (user.userStatus || user.status) === "blocked"
+                  ? styles.statusBlocked
+                  : styles.statusNotActive
+              }`}
+            >
+              {(user.userStatus || user.status) === "active"
+                ? "Active"
+                : (user.userStatus || user.status) === "blocked"
+                ? "Blocked"
+                : "Not Active"}
+            </span>
+          </td>
+          <td>
+            <select
+              className={styles.tableSelect}
+              value={user.userStatus || user.status}
+              onChange={(e) =>
+                handleStatusChange(user.emailId, e.target.value)
+              }
+            >
+              {statusOptions.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
+          </td>
+          {showDownloadColumn && (
+            <td>
+              {(user.role === "user" || user.role === "instructor") ? (
+                <button
+                  className={`${styles.downloadButton} ${
+                    resumeAvailability[user.emailId] === false ? styles.disabledButton : ''
+                  }`}
+                  onClick={() => downloadResume(
+                    user.emailId, 
+                    user.name || `${user.firstName || ""} ${user.lastName || ""}`
                   )}
-                </tbody>
+                  disabled={
+                    downloadingResumes[user.emailId] || 
+                    resumeAvailability[user.emailId] === false ||
+                    bulkDownloading
+                  }
+                  title={
+                    resumeAvailability[user.emailId] === false 
+                      ? "Resume not available" 
+                      : `Download resume for ${user.name || user.firstName || user.emailId}`
+                  }
+                >
+                  {downloadingResumes[user.emailId] ? (
+                    <span className={styles.downloadingText}>
+                      <span className={styles.spinner}></span>
+                      Downloading...
+                    </span>
+                  ) : resumeAvailability[user.emailId] === false ? (
+                    <span className={styles.noResumeText}>
+                      No Resume
+                    </span>
+                  ) : (
+                    <span title="Download Submission">
+                      <FontAwesomeIcon icon={faDownload} />
+                    </span>
+                  )}
+                </button>
+              ) : (
+                <span className={styles.notApplicable}>N/A</span>
+              )}
+            </td>
+          )}
+        </tr>
+      );
+    })
+  ) : (
+    <tr>
+      <td colSpan={
+        (showSelectionColumn ? 1 : 0) + 
+        (showProfileImageColumn ? 1 : 0) + 
+        (showDownloadColumn ? 1 : 0) + 
+        8
+      } className={styles.emptyMessage}>
+        {searchTerm
+          ? "No results found. Try a different search term."
+          : "No users found with the selected filters. Try changing your filters."}
+      </td>
+    </tr>
+  )}
+</tbody>
               </table>
               {filteredUsers.length > 0 && (
   <div className={styles.paginationContainer}>
