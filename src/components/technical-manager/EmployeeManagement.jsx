@@ -844,7 +844,16 @@ const totalPages = Math.ceil(filteredUsers.length / recordsPerPage);
             {user.name ||
               `${user.firstName || ""} ${user.lastName || ""}`}
           </td>
-          <td>{user.emailId}</td>
+        <td style={{
+  wordWrap: 'break-word',
+  wordBreak: 'break-all',
+  whiteSpace: 'normal',
+  maxWidth: '200px',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis'
+}}>
+  {user.emailId}
+</td>
           <td>{user.officeId}</td>
           <td>{user.mobileNo}</td>
           <td>

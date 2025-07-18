@@ -812,7 +812,16 @@ const handleSubmitStatusChange = async () => {
                           )}
                         </td>
                         <td>{`${intern.firstName} ${intern.lastName}`}</td>
-                        <td>{intern.emailId}</td>
+                      <td style={{
+  wordWrap: 'break-word',
+  wordBreak: 'break-all',
+  whiteSpace: 'normal',
+  maxWidth: '200px',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis'
+}}>
+  {intern.emailId}
+</td>
                         <td>{intern.address}</td>
                         <td>{intern.institution}</td>
                         <td>{intern.stream}</td>
