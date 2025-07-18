@@ -17,6 +17,7 @@ import {
 } from "../../constants/apiConstants";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faCheckSquare, faSquare } from "@fortawesome/free-solid-svg-icons";
+import EmployeeProfileImage from "./EmployeeProfileIMage";
 
 const EmployeeManagementPage = () => {
   const dispatch = useDispatch();
@@ -38,10 +39,10 @@ const EmployeeManagementPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(5);
 
-  // Add these utility functions at the top of your component, before the main component definition
+const getImageStorageKey = (emailId) => `employeeImage_${emailId}`;
+const fetchedEmailsRef = new Set();
 
-// Utility function to clear all employee images from session storage
-const clearAllEmployeeImages = () => {
+  const clearAllEmployeeImages = () => {
   const keysToRemove = [];
   
   for (let i = 0; i < sessionStorage.length; i++) {
@@ -402,166 +403,7 @@ useEffect(() => {
   setCurrentPage(1);
 }, [roleFilter, statusFilter, searchTerm]);
 
-  // Component for displaying employee profile image
- // Updated EmployeeProfileImage component with session storage and optimized loading
-const EmployeeProfileImage = ({ emailId, index }) => {
-  const [imageUrl, setImageUrl] = useState(null);
-  const [imageError, setImageError] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
-  const [showFullImage, setShowFullImage] = useState(false);
-
-  // Session storage key for images
-  const getImageStorageKey = (emailId) => `employee_image_${emailId}`;
-
-  useEffect(() => {
-    const fetchImage = async () => {
-      try {
-        // First check if image is already in session storage
-        const storageKey = getImageStorageKey(emailId);
-        const cachedImageData = sessionStorage.getItem(storageKey);
-        
-        if (cachedImageData) {
-          // If cached, use the cached data
-          const imageBlob = new Blob([new Uint8Array(JSON.parse(cachedImageData).data)], { 
-            type: JSON.parse(cachedImageData).type 
-          });
-          const imageObjectUrl = URL.createObjectURL(imageBlob);
-          setImageUrl(imageObjectUrl);
-          setImageError(false);
-          setImageLoading(false);
-          return;
-        }
-
-        // If not cached, fetch from server
-        const { token } = getUserData();
-        const response = await fetch(
-          `${EMPLOYEE_PROFILE_IMAGE_URL}?emailId=${encodeURIComponent(emailId)}&index=${index}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        if (response.ok) {
-          const blob = await response.blob();
-          const imageObjectUrl = URL.createObjectURL(blob);
-          setImageUrl(imageObjectUrl);
-          setImageError(false);
-
-          // Store in session storage for future use
-          const arrayBuffer = await blob.arrayBuffer();
-          const imageData = {
-            data: Array.from(new Uint8Array(arrayBuffer)),
-            type: blob.type,
-            timestamp: Date.now()
-          };
-          
-          try {
-            sessionStorage.setItem(storageKey, JSON.stringify(imageData));
-          } catch (storageError) {
-            console.warn('Failed to store image in session storage:', storageError);
-            // If storage is full, try to clear old images
-            clearOldImages();
-          }
-        } else {
-          setImageError(true);
-        }
-      } catch (error) {
-        console.error('Error fetching employee image:', error);
-        setImageError(true);
-      } finally {
-        setImageLoading(false);
-      }
-    };
-
-    if (emailId && index !== undefined) {
-      fetchImage();
-    }
-
-    return () => {
-      if (imageUrl) {
-        URL.revokeObjectURL(imageUrl);
-      }
-    };
-  }, [emailId, index]);
-
-  // Function to clear old images from session storage
-  const clearOldImages = () => {
-    const oneHourAgo = Date.now() - (60 * 60 * 1000); // 1 hour ago
-    
-    for (let i = 0; i < sessionStorage.length; i++) {
-      const key = sessionStorage.key(i);
-      if (key && key.startsWith('employee_image_')) {
-        try {
-          const data = JSON.parse(sessionStorage.getItem(key));
-          if (data.timestamp < oneHourAgo) {
-            sessionStorage.removeItem(key);
-          }
-        } catch (e) {
-          // Remove corrupted entries
-          sessionStorage.removeItem(key);
-        }
-      }
-    }
-  };
-
-  if (imageLoading) {
-    return (
-      <div className={styles.profileImageContainer}>
-        <div className={styles.profileImagePlaceholder}>
-          <span className={styles.loadingText}>Loading...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (imageError || !imageUrl) {
-    return (
-      <div className={styles.profileImageContainer}>
-        <div className={styles.profileImagePlaceholder}>
-          <span className={styles.placeholderText}>No Image</span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={styles.profileImageContainer}>
-      <div
-        className={styles.profileImageWrapper}
-        onMouseEnter={() => setShowFullImage(true)}
-        onMouseLeave={() => setShowFullImage(false)}
-      >
-        <img
-          src={imageUrl}
-          alt={`Profile of ${emailId}`}
-          className={styles.profileImage}
-          onError={() => setImageError(true)}
-        />
-        {showFullImage && (
-          <div className={styles.fullImageOverlay}>
-            <div className={styles.fullImageContainer}>
-              <img
-                src={imageUrl}
-                alt={`Full profile of ${emailId}`}
-                className={styles.fullImage}
-                onError={() => setImageError(true)}
-              />
-              <div className={styles.fullImageInfo}>
-                <p className={styles.fullImageEmail}>{emailId}</p>
-                <p className={styles.fullImageIndex}>Index: {index}</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-  // Check resume availability for all users when component mounts or users change
+// Check resume availability for all users when component mounts or users change
   useEffect(() => {
     const checkAllResumes = async () => {
       if (users && users.length > 0) {

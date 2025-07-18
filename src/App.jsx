@@ -542,120 +542,104 @@ const AppContent = () => {
 const NavbarWithRouter = ({ setLoginStatus }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+ 
   const [profileImage, setProfileImage] = useState(null);
   const [showHoverImage, setShowHoverImage] = useState(false);
   const [hoverImagePosition, setHoverImagePosition] = useState({ x: 0, y: 0 });
-
-  const user = useSelector((state) => state.user.user);
+ 
   const userData = JSON.parse(sessionStorage.getItem("user"));
-
-  // Fetch profile image when component mounts or user changes
+ 
   useEffect(() => {
-    if (userData && userData.emailId) {
-      fetchProfileImage();
+    if (userData?.emailId) {
+      const cachedImage = sessionStorage.getItem("Profile_Image");
+ 
+      if (cachedImage) {
+        setProfileImage(cachedImage);
+      } else {
+        fetchAndCacheProfileImage();
+      }
     }
   }, [userData]);
-
-  const fetchProfileImage = async () => {
+ 
+  const fetchAndCacheProfileImage = async () => {
     try {
       const response = await axios.get(USER_PROFILE_IMAGE_URL, {
         params: { emailId: userData.emailId },
-        responseType: 'blob'
+        responseType: "blob",
       });
-      
+ 
       if (response.data && response.data.size > 0) {
-        const imageUrl = URL.createObjectURL(response.data);
-        setProfileImage(imageUrl);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64data = reader.result;
+          sessionStorage.setItem("Profile_Image", base64data);
+          setProfileImage(base64data);
+        };
+        reader.readAsDataURL(response.data);
       }
     } catch (error) {
-      console.log('No profile image found or error fetching image:', error);
-      setProfileImage(null);
+      console.warn("Failed to fetch profile image:", error.message);
     }
   };
-
+ 
   const handleLogout = () => {
-    try {
-      // Clean up image URL to prevent memory leaks
-      if (profileImage) {
-        URL.revokeObjectURL(profileImage);
-      }
-      
-      sessionStorage.removeItem("user");
-      sessionStorage.removeItem("token");
-      sessionStorage.removeItem("role");
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
-
-      setLoginStatus(false);
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout failed:", error);
-      sessionStorage.clear();
-      localStorage.clear();
-      setLoginStatus(false);
-      navigate("/login");
-    }
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("role");
+    sessionStorage.removeItem("Profile_Image");
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+ 
+    setLoginStatus(false);
+    navigate("/login");
   };
-
+ 
   const handleDashboardNavigate = () => {
-    if (userData.role === "instructor") {
-      navigate("/instructor-dashboard");
-    } else if (userData.role === "technical_manager") {
-      navigate("/manager-dashboard");
-    } else if (userData.role === "user") {
-      navigate("/user-dashboard");
-    }
+    if (userData.role === "instructor") navigate("/instructor-dashboard");
+    else if (userData.role === "technical_manager") navigate("/manager-dashboard");
+    else if (userData.role === "user") navigate("/user-dashboard");
   };
-
+ 
   const handleCertificateVerification = (e) => {
     e.preventDefault();
     navigate("/certificate");
   };
-
+ 
   const handleRegisterClick = (e) => {
     e.preventDefault();
     navigate("/register");
   };
-
+ 
   const handleInternRegisterClick = (e) => {
     e.preventDefault();
     navigate("/intern/register");
   };
-
+ 
   const handleLoginClick = (e) => {
     e.preventDefault();
     navigate("/login");
   };
-
+ 
   const handleMouseEnter = (e) => {
     if (profileImage) {
       const rect = e.target.getBoundingClientRect();
       setHoverImagePosition({
         x: rect.left + rect.width / 2,
-        y: rect.bottom + 10
+        y: rect.bottom + 10,
       });
       setShowHoverImage(true);
     }
   };
-
+ 
   const handleMouseLeave = () => {
     setShowHoverImage(false);
   };
-
-  // Clean up on component unmount
-  useEffect(() => {
-    return () => {
-      if (profileImage) {
-        URL.revokeObjectURL(profileImage);
-      }
-    };
-  }, [profileImage]);
-
+ 
   return (
-    <>
-      <nav className={styles.navbar}>
-        <div className={styles.navbarContent}>
-          <span
+<>
+<nav className={styles.navbar}>
+<div className={styles.navbarContent}>
+<span
             className={styles.navbarBrand}
             onClick={handleDashboardNavigate}
             style={{ cursor: "pointer" }}
@@ -668,96 +652,73 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
             />
             <h3>LMS</h3>
           </span>
-
+ 
           <div className={styles.navbarLinks}>
-            <button
-              onClick={handleCertificateVerification}
-              className={styles.navLinks}
-            >
-              <FontAwesomeIcon icon={faCircleCheck} />
-              <span>Verify Certificate</span>
-            </button>
-            {sessionStorage.getItem("user") ? (
-              <>
-                <div className={styles.userProfile}>
-                  <div 
-                    className={`${styles.userAvatar} ${profileImage ? styles.userAvatarWithImage : ''}`}
+<button onClick={handleCertificateVerification} className={styles.navLinks}>
+<FontAwesomeIcon icon={faCircleCheck} />
+<span>Verify Certificate</span>
+</button>
+ 
+            {userData ? (
+<>
+<div className={styles.userProfile}>
+<div
+                    className={`${styles.userAvatar} ${profileImage ? styles.userAvatarWithImage : ""}`}
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
-                  >
+>
                     {profileImage ? (
-                      <img 
-                        src={profileImage} 
-                        alt="Profile" 
-                        className={styles.profileImage}
-                      />
+<img src={profileImage} alt="Profile" className={styles.profileImage} />
                     ) : (
                       userData.firstName[0] +
                       (userData.lastName ? userData.lastName[0] : "")
                     )}
-                  </div>
-                  <div className={styles.userInfo}>
-                    <span className={styles.userName}>
+</div>
+<div className={styles.userInfo}>
+<span className={styles.userName}>
                       {userData.firstName + " " + (userData.lastName || "")}
-                    </span>
-                    <span className={styles.divider}>|</span>
-                    <span
-                      className={styles.userRole}
-                      style={{ fontWeight: 700, fontSize: "14px" }}
-                    >
-                      {(userData.role
-                        ? userData.role.replace(/_/g, " ")
-                        : "Not Available"
-                      ).toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-                <button onClick={handleLogout} className={styles.logoutBtn}>
-                  <FontAwesomeIcon icon={faRightFromBracket} />
-                  <span>Logout</span>
-                </button>
-              </>
+</span>
+<span className={styles.divider}>|</span>
+<span className={styles.userRole}>
+                      {(userData.role || "Not Available").replace(/_/g, " ").toUpperCase()}
+</span>
+</div>
+</div>
+<button onClick={handleLogout} className={styles.logoutBtn}>
+<FontAwesomeIcon icon={faRightFromBracket} />
+<span>Logout</span>
+</button>
+</>
             ) : (
-              <>
-                <button onClick={handleRegisterClick} className={styles.navLinks}>
-                  <FontAwesomeIcon icon={faUserPlus} />
-                  <span>Register as Employee</span>
-                </button>
-                <button
-                  onClick={handleInternRegisterClick}
-                  className={styles.navLinks}
-                >
-                  <FontAwesomeIcon icon={faUserPlus} />
-                  <span>Register as Intern</span>
-                </button>
-                <button onClick={handleLoginClick} className={styles.navLinks}>
-                  <FontAwesomeIcon icon={faRightToBracket} />
-                  <span>Login</span>
-                </button>
-              </>
+<>
+<button onClick={handleRegisterClick} className={styles.navLinks}>
+<FontAwesomeIcon icon={faUserPlus} />
+<span>Register as Employee</span>
+</button>
+<button onClick={handleInternRegisterClick} className={styles.navLinks}>
+<FontAwesomeIcon icon={faUserPlus} />
+<span>Register as Intern</span>
+</button>
+<button onClick={handleLoginClick} className={styles.navLinks}>
+<FontAwesomeIcon icon={faRightToBracket} />
+<span>Login</span>
+</button>
+</>
             )}
-          </div>
-        </div>
-      </nav>
-
-      {/* Hover Image Modal */}
+</div>
+</div>
+</nav>
+ 
+      {/* Hover Preview */}
       {showHoverImage && profileImage && (
-        <div 
+<div
           className={styles.hoverImageModal}
-          style={{
-            left: `${hoverImagePosition.x}px`,
-            top: `${hoverImagePosition.y}px`
-          }}
-        >
-          <img 
-            src={profileImage} 
-            alt="Profile Preview" 
-            className={styles.hoverImage}
-          />
-        </div>
+          style={{ left: `${hoverImagePosition.x}px`, top: `${hoverImagePosition.y}px` }}
+>
+<img src={profileImage} alt="Profile Preview" className={styles.hoverImage} />
+</div>
       )}
-    </>
+</>
   );
 };
-
 export default App;
