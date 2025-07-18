@@ -72,22 +72,22 @@ const ProfileCompletion = ({ setLoginStatus }) => {
                     setUploadError('Please upload a valid image file (JPEG, JPG, PNG, GIF)');
                     return;
                 }
-                // Check file size (max 5MB)
-                if (files[0].size > 5 * 1024 * 1024) {
-                    setUploadError('Image file size should be less than 5MB');
+                // Check file size (max 50KB)
+                if (files[0].size > 50 * 1024) {
+                    setUploadError('Image file size should be less than 50KB');
                     return;
                 }
             }
             
             if (name === 'resumeDocument') {
-                const validDocTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-                if (!validDocTypes.includes(files[0].type)) {
-                    setUploadError('Please upload a valid document file (PDF, DOC, DOCX)');
+                // Only allow PDF files
+                if (files[0].type !== 'application/pdf') {
+                    setUploadError('Please upload a valid PDF file only');
                     return;
                 }
-                // Check file size (max 10MB)
-                if (files[0].size > 10 * 1024 * 1024) {
-                    setUploadError('Document file size should be less than 10MB');
+                // Check file size (max 2MB)
+                if (files[0].size > 2 * 1024 * 1024) {
+                    setUploadError('PDF file size should be less than 2MB');
                     return;
                 }
             }
@@ -210,7 +210,7 @@ const ProfileCompletion = ({ setLoginStatus }) => {
                             style={{ padding: '13px' }}
                         />
                         <small className={styles.fileHint}>
-                            Accepted formats: JPEG, JPG, PNG (Max size: 5MB)
+                            Accepted formats: JPEG, JPG, PNG, GIF (Max size: 50KB)
                         </small>
                     </div>
                     
@@ -219,14 +219,14 @@ const ProfileCompletion = ({ setLoginStatus }) => {
                         <input
                             type="file"
                             name="resumeDocument"
-                            accept=".pdf,.doc,.docx"
+                            accept=".pdf"
                             onChange={handleFileChange}
                             className={styles.input}
                             required
                             style={{ padding: '13px' }}
                         />
                         <small className={styles.fileHint}>
-                            Accepted formats: PDF only (Max size: 10MB)
+                            Accepted formats: PDF only (Max size: 2MB)
                         </small>
                     </div>
                     
