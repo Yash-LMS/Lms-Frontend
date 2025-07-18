@@ -394,7 +394,7 @@
   align-items: center;
   width: 50px;
   height: 50px;
-  margin-left: 45px;
+  margin-left: 68px;
 }
 
 .profileImageWrapper {
@@ -539,9 +539,7 @@
 
 .selectButton {
   background: white;
-  border: 2px solid black;
   cursor: pointer;
-  font-size: 16px;
   color: black;
   padding: 6px 8px;
   border-radius: 4px;
@@ -550,11 +548,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-left: 40px;
 }
 
 .selectButton:hover {
   background-color: #f8f9fa;
-  border-color: #0056b3;
+  border-color: #7559ce;
 }
 
 .selectButton:disabled {
@@ -564,7 +563,6 @@
 
 .selectAllButton {
   background-color: white;
-  border: 2px solid black;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -594,14 +592,14 @@
 /* Style the FontAwesome icons specifically */
 .selectButton svg,
 .selectAllButton svg {
-  color: black !important;
+  color: #8e6cef;
   width: 16px;
   height: 16px;
 }
 
 .selectButton:hover svg,
 .selectAllButton:hover svg {
-  color: #0056b3 !important;
+  color: #7559ce;
 }
 
 /* For the N/A span */

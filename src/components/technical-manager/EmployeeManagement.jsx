@@ -737,6 +737,7 @@ const EmployeeManagementPage = () => {
               sheetName="Employees"
               buttonStyle={{
                 marginRight: "10px",
+                marginBottom: "0px",
               }}
             />
             
@@ -824,7 +825,7 @@ const EmployeeManagementPage = () => {
                                 />
                               </button>
                             ) : (
-                              <span className={styles.notApplicable}>N/A</span>
+                              <span className={styles.notApplicable}></span>
                             )}
                           </td>
                         )}
