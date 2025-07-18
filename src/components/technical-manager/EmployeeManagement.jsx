@@ -964,7 +964,11 @@ const totalPages = Math.ceil(filteredUsers.length / recordsPerPage);
   )}
 </tbody>
               </table>
-              {filteredUsers.length > 0 && (
+             
+            </div>
+          )}
+        </div>
+         {filteredUsers.length > 0 && (
   <div className={styles.paginationContainer}>
     <div className={styles.paginationInfo}>
       Showing {indexOfFirstRecord + 1} to {Math.min(indexOfLastRecord, filteredUsers.length)} of {filteredUsers.length} entries
@@ -999,9 +1003,6 @@ const totalPages = Math.ceil(filteredUsers.length / recordsPerPage);
     </div>
   </div>
 )}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
