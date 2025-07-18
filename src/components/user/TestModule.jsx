@@ -739,7 +739,6 @@ const TestModule = () => {
       }
     } catch (err) {
       console.error("Submission error:", err);
-      alert("Failed to submit the test.");
     }
   };
 
