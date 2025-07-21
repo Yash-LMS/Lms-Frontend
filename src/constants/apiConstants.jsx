@@ -61,6 +61,8 @@ export const UPDATE_COMPLETION_STATUS_URL = `${API_BASE_URL}/manager/update/inte
 export const INTERNSHIP_PROGRAM_LIST = `${API_BASE_URL}/office/internship/findAllPrograms`;
 export const UPDATE_INTERN_FEEDBACK_URL = `${API_BASE_URL}/manager/update/internFeedback`;
 
+export const VERSION_CHECK_URL = `${API_BASE_URL}/version/check`;
+
 //Technical Manager
 export const FIND_COURSE_BY_STATUS_URL = `${API_BASE_URL}/manager/findCourseByStatus`;
 export const FIND_DASHBOARD_INFORMATION_URL = `${API_BASE_URL}/manager/findDashboardInformation`;
