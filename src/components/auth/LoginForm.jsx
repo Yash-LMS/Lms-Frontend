@@ -144,9 +144,12 @@ const LoginForm = ({ setLoginStatus }) => {
         }
 
         try {
+            // Convert email to lowercase before submitting
+            const emailId = formData.emailId.toLowerCase().trim();
+            
             const response = await axios.get(LOGIN_URL, {
                 params: { 
-                    emailId: formData.emailId, 
+                    emailId: emailId, 
                     password: formData.password 
                 } 
             });
