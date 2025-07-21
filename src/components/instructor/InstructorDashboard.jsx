@@ -41,6 +41,40 @@ const InstructorDashboard = () => {
     }
   };
 
+
+        const needsProfileCompletion = (userData) => {
+          const resumeNotUpdated = !userData.resumeStatus || userData.resumeStatus === 'not_updated';
+          const photoNotUpdated = !userData.photoStatus || userData.photoStatus === 'not_updated';
+          
+          return resumeNotUpdated || photoNotUpdated;
+      };
+  
+      const redirectUser = (userData) => {
+          if (userData.role === 'user' && needsProfileCompletion(userData)) {
+              navigate("/complete-profile");
+              return;
+          }
+  
+          if (userData.role === 'instructor' && needsProfileCompletion(userData)) {
+              navigate("/complete-profile");
+              return;
+          }
+          
+          if (userData.role === 'instructor') {
+              navigate("/instructor-dashboard");
+          } else if (userData.role === 'user') {
+              navigate("/user-dashboard");
+          } else {
+              navigate("/manager-dashboard");
+          }
+      };
+  
+  
+    useEffect(() => {
+      const{user,token}=getUserData();
+      redirectUser(user);
+    }, []);
+
   // Fixed useEffect to avoid infinite loop by using an empty dependency array
   useEffect(() => {
     const fetchCourses = async () => {

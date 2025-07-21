@@ -20,7 +20,57 @@ const Dashboard = () => {
     fetchCourses();
   }, [dispatch]);
 
-  console.log(courses)
+  const getUserData = () => {
+  try {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const token = sessionStorage.getItem("token");
+    const role = user?.role || null;
+    
+    return {
+      user,
+      token,
+      role,
+    };
+  } catch (error) {
+    console.error("Error parsing user data:", error);
+    return { user: null, token: null, role: null };
+  }
+};
+
+
+      const needsProfileCompletion = (userData) => {
+        const resumeNotUpdated = !userData.resumeStatus || userData.resumeStatus === 'not_updated';
+        const photoNotUpdated = !userData.photoStatus || userData.photoStatus === 'not_updated';
+        
+        return resumeNotUpdated || photoNotUpdated;
+    };
+
+    const redirectUser = (userData) => {
+        if (userData.role === 'user' && needsProfileCompletion(userData)) {
+            navigate("/complete-profile");
+            return;
+        }
+
+        if (userData.role === 'instructor' && needsProfileCompletion(userData)) {
+            navigate("/complete-profile");
+            return;
+        }
+        
+        if (userData.role === 'instructor') {
+            navigate("/instructor-dashboard");
+        } else if (userData.role === 'user') {
+            navigate("/user-dashboard");
+        } else {
+            navigate("/manager-dashboard");
+        }
+    };
+
+
+  useEffect(() => {
+    const{user,token}=getUserData();
+    redirectUser(user);
+  }, []);
+
 
   return (
     <div className={styles.dashboardContainer}>

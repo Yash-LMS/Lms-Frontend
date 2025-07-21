@@ -57,6 +57,41 @@ const MyCourses = () => {
   const [courseImages, setCourseImages] = useState({});
   const defaultImageUrl = Image; 
 
+
+      const needsProfileCompletion = (userData) => {
+        const resumeNotUpdated = !userData.resumeStatus || userData.resumeStatus === 'not_updated';
+        const photoNotUpdated = !userData.photoStatus || userData.photoStatus === 'not_updated';
+        
+        return resumeNotUpdated || photoNotUpdated;
+    };
+
+    const redirectUser = (userData) => {
+        if (userData.role === 'user' && needsProfileCompletion(userData)) {
+            navigate("/complete-profile");
+            return;
+        }
+
+        if (userData.role === 'instructor' && needsProfileCompletion(userData)) {
+            navigate("/complete-profile");
+            return;
+        }
+        
+        if (userData.role === 'instructor') {
+            navigate("/instructor-dashboard");
+        } else if (userData.role === 'user') {
+            navigate("/user-dashboard");
+        } else {
+            navigate("/manager-dashboard");
+        }
+    };
+
+
+  useEffect(() => {
+    const{user,token}=getUserData();
+    redirectUser(user);
+  }, []);
+
+
   useEffect(() => {
     // Load submitted feedback from localStorage on component mount
     const savedFeedback = localStorage.getItem('submittedFeedback');
@@ -120,6 +155,7 @@ const MyCourses = () => {
     };
   }, [allottedCourses]);
 
+  
   useEffect(() => {
     dispatch(viewAllotedCourses());
   }, [dispatch]);
