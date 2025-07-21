@@ -1,4 +1,6 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+export const CLIENT_VERSION = import.meta.env.VITE_APP_VERSION;
+
 
 export const USER_ACCOUNT_OTP_GENERATE = `${API_BASE_URL}/user/account/generateOtp`;
 export const USER_ACCOUNT_OTP_VALIDATE = `${API_BASE_URL}/user/account/validateOtp`;

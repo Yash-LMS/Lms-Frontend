@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './Form.module.css'; 
-import { LOGIN_URL,VERSION_CHECK_URL } from '../../constants/apiConstants';
+import { LOGIN_URL,VERSION_CHECK_URL,CLIENT_VERSION } from '../../constants/apiConstants';
 
 const LoginForm = ({ setLoginStatus }) => {
     const navigate = useNavigate();
@@ -19,7 +19,7 @@ const LoginForm = ({ setLoginStatus }) => {
     const [isCheckingVersion, setIsCheckingVersion] = useState(true);
 
     // Get version from environment variables
-    const CLIENT_VERSION = process.env.REACT_APP_VERSION || 'V1';
+
     
     const handleChange = (e) => {
         setFormData({
