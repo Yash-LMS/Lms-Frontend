@@ -401,41 +401,54 @@ const handleSubmitStatusChange = async () => {
   };
 
   // Enhanced filtering function with date filters
-  const filteredInterns = interns.filter((intern) => {
-    // Apply the search filter with null/undefined handling
-    const matchesSearch =
-      !searchTerm || // Handle null/undefined searchTerm
-      searchTerm.trim() === "" ||
-      (intern.firstName && intern.firstName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (intern.lastName && intern.lastName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (intern.emailId && intern.emailId.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (intern.institution && intern.institution.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (intern.internshipProgram && intern.internshipProgram.toLowerCase().includes(searchTerm.toLowerCase()));
-  
-    // Apply date filters
-    let matchesDateFilter = true;
-  
-    if (startDateFilter || endDateFilter) {
-      const internStartDate = new Date(intern.startDate);
-      const internEndDate = new Date(intern.endDate);
-  
-      if (startDateFilter) {
-        const filterStartDate = new Date(startDateFilter);
-        // Check if intern's start date is on or after the filter start date
-        matchesDateFilter =
-          matchesDateFilter && internStartDate >= filterStartDate;
-      }
-  
-      if (endDateFilter) {
-        const filterEndDate = new Date(endDateFilter);
-        // Check if intern's end date is on or before the filter end date
-        matchesDateFilter = matchesDateFilter && internEndDate <= filterEndDate;
+ const filteredInterns = interns.filter((intern) => {
+  // Apply the search filter with null/undefined handling
+  const matchesSearch =
+    !searchTerm || // Handle null/undefined searchTerm
+    searchTerm.trim() === "" ||
+    (intern.firstName && intern.firstName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (intern.lastName && intern.lastName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (intern.emailId && intern.emailId.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (intern.institution && intern.institution.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (intern.internshipProgram && intern.internshipProgram.toLowerCase().includes(searchTerm.toLowerCase()));
+
+  // Apply date filters
+  let matchesDateFilter = true;
+
+  if (startDateFilter || endDateFilter) {
+    const internStartDate = new Date(intern.startDate);
+    const internEndDate = new Date(intern.endDate);
+
+    // Ensure dates are valid
+    if (isNaN(internStartDate.getTime()) || isNaN(internEndDate.getTime())) {
+      return false; // Skip records with invalid dates
+    }
+
+    if (startDateFilter) {
+      const filterStartDate = new Date(startDateFilter);
+      if (isNaN(filterStartDate.getTime())) {
+        console.warn('Invalid start date filter:', startDateFilter);
+      } else {
+        // Check if intern's end date is on or after the filter start date
+        // This ensures we include internships that overlap with the filter period
+        matchesDateFilter = matchesDateFilter && internEndDate >= filterStartDate;
       }
     }
-  
-    return matchesSearch && matchesDateFilter;
-  });
 
+    if (endDateFilter) {
+      const filterEndDate = new Date(endDateFilter);
+      if (isNaN(filterEndDate.getTime())) {
+        console.warn('Invalid end date filter:', endDateFilter);
+      } else {
+        // Check if intern's start date is on or before the filter end date
+        // This ensures we include internships that overlap with the filter period
+        matchesDateFilter = matchesDateFilter && internStartDate <= filterEndDate;
+      }
+    }
+  }
+
+  return matchesSearch && matchesDateFilter;
+});
   // New function to clear date filters
   const clearDateFilters = () => {
     setStartDateFilter("");
@@ -447,24 +460,23 @@ const handleSubmitStatusChange = async () => {
     return startDateFilter || endDateFilter;
   };
 
-  const excelHeaders = {
-    firstName: "First Name",
-    lastName: "Last Name",
-    emailId: "Email ID",
-    address: "Address",
-    institution: "Institution",
-    stream: "Stream",
-    yearOfPassing: "Year Of Passing",
-    internshipProgram: "Program",
-    startDate: "Start Date",
-    endDate: "End Date",
-    duration: "Duration (in months)",
-    contactNo: "Mobile No.",
-    remark: "Remark",
-    feedback: "Feedback",
-    status: "Account Status",
-    completionStatus: "Completion Status",
-  };
+const excelHeaders = {
+  fullName: "Full Name",
+  emailId: "Email ID",
+  address: "Address",
+  institution: "Institution",
+  stream: "Stream",
+  yearOfPassing: "Year Of Passing",
+  internshipProgram: "Program",
+  startDate: "Start Date",
+  endDate: "End Date",
+  duration: "Duration (in months)",
+  contactNo: "Mobile No.",
+  remark: "Remark",
+  feedback: "Feedback",
+  status: "Account Status",
+  completionStatus: "Completion Status",
+};
 
   const handleFilterChange = (e) => {
     setSelectedStatus(e.target.value);
@@ -527,6 +539,24 @@ const handleSubmitStatusChange = async () => {
       return "No interns found.";
     }
   };
+
+  const transformedDataForExcel = filteredInterns.map(intern => ({
+  fullName: `${intern.firstName || ''} ${intern.lastName || ''}`.trim(),
+  emailId: intern.emailId,
+  address: intern.address,
+  institution: intern.institution,
+  stream: intern.stream,
+  yearOfPassing: intern.yearOfPassing,
+  internshipProgram: intern.internshipProgram,
+  startDate: intern.startDate,
+  endDate: intern.endDate,
+  duration: intern.duration,
+  contactNo: intern.contactNo,
+  remark: intern.remark,
+  feedback: intern.feedback,
+  status: intern.status,
+  completionStatus: intern.completionStatus,
+}));
 
   const handleBulkRegistrationSuccess = () => {
     fetchInterns();
@@ -736,15 +766,15 @@ const handleSubmitStatusChange = async () => {
         </div>
 
         <div className={styles.exportExcel}>
-          <ExportToExcel
-            data={filteredInterns}
-            headers={excelHeaders}
-            fileName="Intern-Management-Results"
-            sheetName="Interns"
-            buttonStyle={{
-              marginBottom: "20px",
-            }}
-          />
+<ExportToExcel
+  data={transformedDataForExcel}
+  headers={excelHeaders}
+  fileName="Intern-Management-Results"
+  sheetName="Interns"
+  buttonStyle={{
+    marginBottom: "20px",
+  }}
+/>
 
                               <button
               className={styles.bulkButton}
