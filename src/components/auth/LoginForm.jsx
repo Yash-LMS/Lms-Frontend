@@ -58,10 +58,6 @@ const LoginForm = ({ setLoginStatus }) => {
             return;
         }
 
-        if (userData.role === 'instructor' && needsProfileCompletion(userData)) {
-            navigate("/complete-profile");
-            return;
-        }
         
         if (userData.role === 'instructor') {
             navigate("/instructor-dashboard");
