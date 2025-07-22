@@ -13,6 +13,8 @@ import {
   faFilter,
   faChevronDown,
   faFileExcel,
+  faExclamationTriangle,
+  faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { VIEW_ASSIGNMENT_SUBMISSION_URL, ASSIGNMENT_SUBMISSION_FEEDBACK_URL, DOWNLOAD_ASSIGNMENT_FILES, DOWNLOAD_ASSIGNMENT_INSTRUCTION_FILE } from "../../constants/apiConstants";
 import ExportToExcel from "../../assets/ExportToExcel";
@@ -47,6 +49,12 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
     feedback: '',
   });
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackError, setFeedbackError] = useState(null);
+  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+
+  // Download states
+  const [downloadError, setDownloadError] = useState(null);
+  const [downloadSuccess, setDownloadSuccess] = useState(null);
 
   // Get unique categories and subcategories
   const getFilterOptions = () => {
@@ -129,6 +137,28 @@ const AssignmentList = ({ assignments, loading, error, onRetry }) => {
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedCategory, selectedSubCategory]);
+
+  // Auto-clear success/error messages
+  useEffect(() => {
+    if (downloadSuccess) {
+      const timer = setTimeout(() => setDownloadSuccess(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [downloadSuccess]);
+
+  useEffect(() => {
+    if (downloadError) {
+      const timer = setTimeout(() => setDownloadError(null), 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [downloadError]);
+
+  useEffect(() => {
+    if (feedbackSuccess) {
+      const timer = setTimeout(() => setFeedbackSuccess(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [feedbackSuccess]);
 
   // Get user data function
   const getUserData = () => {
@@ -311,11 +341,13 @@ const closeViewFeedbackModal = () => {
   // Handle feedback submission
   const handleSubmitFeedback = async () => {
     if (!selectedSubmission || !feedbackForm.marks || !feedbackForm.feedback) {
-      alert("Please provide both marks and feedback");
+      setFeedbackError("Please provide both marks and feedback");
       return;
     }
 
     setFeedbackSubmitting(true);
+    setFeedbackError(null);
+    setFeedbackSuccess(false);
     
     try {
       const { user, token } = getUserData();
@@ -333,6 +365,7 @@ const closeViewFeedbackModal = () => {
       });
 
       if (response.data && response.data.response === "success") {
+        setFeedbackSuccess(true);
         setShowFeedbackModal(false);
         setFeedbackForm({ marks: '', feedback: '' });
         setSelectedSubmission(null);
@@ -346,6 +379,7 @@ const closeViewFeedbackModal = () => {
       }
     } catch (error) {
       console.error("Error submitting feedback:", error);
+      setFeedbackError(error.message || "Failed to submit feedback");
     } finally {
       setFeedbackSubmitting(false);
     }
@@ -358,11 +392,16 @@ const closeViewFeedbackModal = () => {
       marks: '',
       feedback: '',
     });
+    setFeedbackError(null);
+    setFeedbackSuccess(false);
     setShowFeedbackModal(true);
   };
 
   // Handle file download
   const handleDownloadFile = async (allotmentId) => {
+    setDownloadError(null);
+    setDownloadSuccess(null);
+    
     try {
       const { user, token } = getUserData();
 
@@ -393,25 +432,30 @@ const closeViewFeedbackModal = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
 
+      setDownloadSuccess(`File "${filename}" downloaded successfully`);
+
     } catch (error) {
       if (error.response && error.response.data) {
         const reader = new FileReader();
         reader.onload = () => {
           try {
             const errorMsg = JSON.parse(reader.result);
-            alert(errorMsg.message || 'Error downloading file');
+            setDownloadError(errorMsg.message || 'Error downloading file');
           } catch {
-            alert('Error downloading file');
+            setDownloadError('Error downloading file');
           }
         };
         reader.readAsText(error.response.data);
       } else {
-        alert('Error downloading file');
+        setDownloadError('Error downloading file');
       }
     }
   };
 
   const handleDownload = async (assignmentId) => {
+    setDownloadError(null);
+    setDownloadSuccess(null);
+    
     try {
       const { user, token } = getUserData();
 
@@ -442,20 +486,22 @@ const closeViewFeedbackModal = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
 
+      setDownloadSuccess(`Instruction file "${filename}" downloaded successfully`);
+
     } catch (error) {
       if (error.response && error.response.data) {
         const reader = new FileReader();
         reader.onload = () => {
           try {
             const errorMsg = JSON.parse(reader.result);
-            alert(errorMsg.message || 'Error downloading file');
+            setDownloadError(errorMsg.message || 'Error downloading instruction file');
           } catch {
-            alert('Error downloading file');
+            setDownloadError('Error downloading instruction file');
           }
         };
         reader.readAsText(error.response.data);
       } else {
-        alert('Error downloading file');
+        setDownloadError('Error downloading instruction file');
       }
     }
   };
@@ -478,6 +524,8 @@ const closeViewFeedbackModal = () => {
     setShowFeedbackModal(false);
     setSelectedSubmission(null);
     setFeedbackForm({ marks: '', feedback: '' });
+    setFeedbackError(null);
+    setFeedbackSuccess(false);
   };
 
   if (loading) {
@@ -510,6 +558,25 @@ const closeViewFeedbackModal = () => {
 
   return (
     <div className={styles.courseListContainer}>
+      {/* Global Success/Error Messages */}
+      {downloadSuccess && (
+        <div className={styles.successContainer}>
+          <div className={styles.successMessage}>
+            <FontAwesomeIcon icon={faCheckCircle} />
+            <span>{downloadSuccess}</span>
+          </div>
+        </div>
+      )}
+      
+      {downloadError && (
+        <div className={styles.errorContainer}>
+          <div className={styles.errorMessage}>
+            <FontAwesomeIcon icon={faExclamationTriangle} />
+            <span>{downloadError}</span>
+          </div>
+        </div>
+      )}
+
       {/* Filter Section */}
       <div className={styles.filterSection}>
         <div className={styles.filterHeader}>
@@ -746,6 +813,16 @@ const closeViewFeedbackModal = () => {
             </div>
             
             <div className={styles.modalBody}>
+              {/* Feedback Success Message */}
+              {feedbackSuccess && (
+                <div className={styles.successContainer}>
+                  <div className={styles.successMessage}>
+                    <FontAwesomeIcon icon={faCheckCircle} />
+                    <span>Feedback submitted successfully!</span>
+                  </div>
+                </div>
+              )}
+
               {submissionsLoading && (
                 <div className={styles.loadingContainer}>
                   <p>Loading submissions...</p>
@@ -754,7 +831,10 @@ const closeViewFeedbackModal = () => {
               
               {submissionsError && (
                 <div className={styles.errorContainer}>
-                  <p className={styles.errorMessage}>{submissionsError}</p>
+                  <p className={styles.errorMessage}>
+                    <FontAwesomeIcon icon={faExclamationTriangle} />
+                    <span>{submissionsError}</span>
+                  </p>
                 </div>
               )}
               

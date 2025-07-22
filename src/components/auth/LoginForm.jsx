@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './Form.module.css'; 
-import { LOGIN_URL } from '../../constants/apiConstants';
+import { LOGIN_URL,VERSION_CHECK_URL,CLIENT_VERSION } from '../../constants/apiConstants';
 
 const LoginForm = ({ setLoginStatus }) => {
     const navigate = useNavigate();
@@ -15,17 +15,18 @@ const LoginForm = ({ setLoginStatus }) => {
     const [login, setLogin] = useState(false);
     const [loginError, setLoginError] = useState('');
     const [user, setUser] = useState(null);
+    const [versionMismatch, setVersionMismatch] = useState(false);
+    const [isCheckingVersion, setIsCheckingVersion] = useState(true);
 
+    // Get version from environment variables
+
+    
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
     };
-
-    // const validateEmail = (email) => {
-    //     return email.endsWith('@yash.com');
-    // };
 
     const handleForgotPassword = () => {
         navigate('/forgot-password');
@@ -44,21 +45,14 @@ const LoginForm = ({ setLoginStatus }) => {
         }
     };
 
-    // Function to check if user needs to complete profile (only for 'user' role)
     const needsProfileCompletion = (userData) => {
-        // Only check profile completion for users with 'user' role
-   
-        
-        // Check if user has uploaded documents based on DocumentStatus enum
         const resumeNotUpdated = !userData.resumeStatus || userData.resumeStatus === 'not_updated';
         const photoNotUpdated = !userData.photoStatus || userData.photoStatus === 'not_updated';
         
         return resumeNotUpdated || photoNotUpdated;
     };
 
-    // Function to redirect user based on role and profile completion status
     const redirectUser = (userData) => {
-        // Only check profile completion for users with 'user' role
         if (userData.role === 'user' && needsProfileCompletion(userData)) {
             navigate("/complete-profile");
             return;
@@ -69,7 +63,6 @@ const LoginForm = ({ setLoginStatus }) => {
             return;
         }
         
-        // Redirect to appropriate dashboard based on role
         if (userData.role === 'instructor') {
             navigate("/instructor-dashboard");
         } else if (userData.role === 'user') {
@@ -79,22 +72,84 @@ const LoginForm = ({ setLoginStatus }) => {
         }
     };
 
+    // Version check function
+    const checkVersion = async () => {
+        try {
+            setIsCheckingVersion(true);
+            const response = await axios.get(VERSION_CHECK_URL);
+            const serverVersion = response.data;
+            
+            if (CLIENT_VERSION !== serverVersion) {
+                setVersionMismatch(true);
+                setLoginError(`Version mismatch detected. Client: ${CLIENT_VERSION}, Server: ${serverVersion}. Please clear cache and cookies.`);
+                return false;
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Version check failed:', error);
+            // If version check fails, we can either:
+            // 1. Allow login (assuming version is okay)
+            // 2. Block login (strict version control)
+            // Here we'll allow login but log the error
+            console.warn('Version check failed, proceeding with login');
+            return true;
+        } finally {
+            setIsCheckingVersion(false);
+        }
+    };
+
+    // Function to clear cache and cookies
+    const clearCacheAndCookies = () => {
+        try {
+            // Clear sessionStorage
+            sessionStorage.clear();
+            
+            // Clear localStorage
+            localStorage.clear();
+            
+            // Clear cookies (for current domain)
+            document.cookie.split(";").forEach((c) => {
+                const eqPos = c.indexOf("=");
+                const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + window.location.hostname;
+            });
+            
+            // Force reload the page to clear any cached resources
+            window.location.reload(true);
+        } catch (error) {
+            console.error('Error clearing cache and cookies:', error);
+            alert('Please manually clear your browser cache and cookies, then refresh the page.');
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoginError(''); // Reset login error
+        
+        // If version mismatch detected, don't proceed with login
+        if (versionMismatch) {
+            return;
+        }
+        
+        setLoginError('');
         setLoadRender(true);
 
-        // // Validate email
-        // if (!validateEmail(formData.emailId)) {
-        //     setLoginError('Email must end with @yash.com');
-        //     setLoadRender(false);
-        //     return;
-        // }
+        // Check version before proceeding with login
+        const versionValid = await checkVersion();
+        if (!versionValid) {
+            setLoadRender(false);
+            return;
+        }
 
         try {
+            // Convert email to lowercase before submitting
+            const emailId = formData.emailId.toLowerCase().trim();
+            
             const response = await axios.get(LOGIN_URL, {
                 params: { 
-                    emailId: formData.emailId, 
+                    emailId: emailId, 
                     password: formData.password 
                 } 
             });
@@ -104,18 +159,16 @@ const LoginForm = ({ setLoginStatus }) => {
                 setUser(userData);
                 sessionStorage.setItem('user', JSON.stringify(userData));
                 sessionStorage.setItem('token', response.data.payload.token);
-                sessionStorage.setItem('role', userData.role); // Store role separately if needed
+                sessionStorage.setItem('role', userData.role);
                 setLoginStatus(true);
                 setLogin(true);
                 
-                // Redirect based on profile completion status
                 redirectUser(userData);
             } else {
                 setLoginError(response.data.message || "Unable to login try again");
                 setFormData({ emailId: '', password: '' });
             }
         } catch (err) {
-            // Set a generic error message for invalid credentials
             setLoginError(err.message); 
             setFormData({ emailId: '', password: '' });
         } finally {
@@ -124,15 +177,70 @@ const LoginForm = ({ setLoginStatus }) => {
     };
 
     useEffect(() => {
-        const { user, token } = getUserData();
-        
-        if(user == null) {
-            return;
-        }
-        
-        // Check if user is already logged in and redirect accordingly
-        redirectUser(user);
+        // Check version on component mount
+        const initializeComponent = async () => {
+            const versionValid = await checkVersion();
+            
+            if (versionValid) {
+                const { user, token } = getUserData();
+                
+                if(user == null) {
+                    return;
+                }
+                
+                redirectUser(user);
+            }
+        };
+
+        initializeComponent();
     }, []);
+
+    // If checking version, show loading state
+    if (isCheckingVersion) {
+        return (
+            <div className={styles.container}>
+                <div className={styles.formWrapper} style={{ marginTop: '110px' }}>
+                    <div className={styles.title}>Checking application version...</div>
+                </div>
+            </div>
+        );
+    }
+
+    // If version mismatch detected, show warning
+    if (versionMismatch) {
+        return (
+            <div className={styles.container}>
+                <div className={styles.formWrapper} style={{ marginTop: '110px' }}>
+                    <h2 className={styles.title} style={{ color: '#dc3545' }}>Version Mismatch Detected</h2>
+                    <div className={styles.errorMessage} style={{ marginBottom: '20px' }}>
+                        {loginError}
+                    </div>
+                    <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+                        <p>Your application version is outdated. Please clear your browser cache and cookies to get the latest version.</p>
+                        <p><strong>Client Version:</strong> {CLIENT_VERSION}</p>
+                    </div>
+                    <button
+                        onClick={clearCacheAndCookies}
+                        className={styles.submitButton}
+                        style={{ backgroundColor: '#dc3545', borderColor: '#dc3545' }}
+                    >
+                        Clear Cache & Cookies
+                    </button>
+                    <div style={{ marginTop: '15px', textAlign: 'center' }}>
+                        <small>
+                            If the problem persists, please manually:
+                            <br />
+                            1. Clear your browser cache and cookies
+                            <br />
+                            2. Close and reopen your browser
+                            <br />
+                            3. Refresh this page
+                        </small>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.container}>
@@ -151,6 +259,7 @@ const LoginForm = ({ setLoginStatus }) => {
                             className={styles.input}
                             placeholder='Email'
                             required
+                            disabled={versionMismatch}
                         />
                     </div>
                     
@@ -164,12 +273,14 @@ const LoginForm = ({ setLoginStatus }) => {
                             className={styles.input}
                             placeholder='Password'
                             required
+                            disabled={versionMismatch}
                         />
                         <div className={styles.forgotPassword}>
                             <button 
                                 type="button" 
                                 onClick={handleForgotPassword}
                                 className={styles.forgotPasswordBtn}
+                                disabled={versionMismatch}
                             >
                                 Forgot Password?
                             </button>
@@ -178,7 +289,7 @@ const LoginForm = ({ setLoginStatus }) => {
                     
                     <button
                         type="submit"
-                        disabled={loadRender}
+                        disabled={loadRender || versionMismatch}
                         className={styles.submitButton} 
                     >
                         {loadRender ? 'Loading...' : 'Login'}

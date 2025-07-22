@@ -77,6 +77,7 @@ const getSessionStorageUsage = () => {
   };
 };
 
+
 // Add this useEffect in your main component to clear old images when component mounts
 useEffect(() => {
   // Clear old images when component mounts
@@ -586,30 +587,31 @@ useEffect(() => {
   };
 
   // Filter users based on search term and exclude interns
-  const filteredUsers =
-    users && users.length > 0
-      ? users.filter((user) => {
-          if (user.employeeType === "intern") {
-            return false;
-          }
+ 
+const filteredUsers =
+  users && users.length > 0
+    ? users.filter((user) => {
+        if (user.employeeType === "intern") {
+          return false;
+        }
 
-          if (!searchTerm) {
-            return true;
-          }
+        if (!searchTerm) {
+          return true;
+        }
 
-          const searchTermLower = searchTerm.toLowerCase();
-          const name =
-            user.name || `${user.firstName || ""} ${user.lastName || ""}`;
+        const searchTermLower = searchTerm.toLowerCase();
+        const name =
+          user.name || `${user.firstName || ""} ${user.lastName || ""}`;
 
-          return (
-            name.toLowerCase().includes(searchTermLower) ||
-            user.emailId.toLowerCase().includes(searchTermLower) ||
-            user.officeId?.toLowerCase().includes(searchTermLower) ||
-            user.role.toLowerCase().includes(searchTermLower) ||
-            user.status?.toLowerCase().includes(searchTermLower)
-          );
-        })
-      : [];
+        return (
+          name.toLowerCase().includes(searchTermLower) ||
+          (user.emailId && user.emailId.toLowerCase().includes(searchTermLower)) ||
+          (user.officeId && user.officeId.toLowerCase().includes(searchTermLower)) ||
+          (user.role && user.role.toLowerCase().includes(searchTermLower)) ||
+          (user.status && user.status.toLowerCase().includes(searchTermLower))
+        );
+      })
+    : [];
 
   const isLoading = reduxLoading || loading;
 
@@ -625,15 +627,24 @@ const currentRecords = filteredUsers.slice(indexOfFirstRecord, indexOfLastRecord
 const totalPages = Math.ceil(filteredUsers.length / recordsPerPage);
 
   // Define Excel headers for employee management
-  const excelHeaders = {
-    firstName: "First Name",
-    lastName: "Last Name",
-    emailId: "Email ID",
-    officeId: "Office ID",
-    mobileNo: "Mobile No.",
-    role: "Role",
-    status: "User Status",
-  };
+const excelHeaders = {
+  fullName: "Full Name",
+  emailId: "Email ID",
+  officeId: "Office ID",
+  mobileNo: "Mobile No.",
+  role: "Role",
+  status: "User Status",
+};
+
+const transformedUsersForExcel = filteredUsers.map(user => ({
+  fullName: user.name || `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+  emailId: user.emailId,
+  officeId: user.officeId,
+  mobileNo: user.mobileNo,
+  role: user.role,
+  status: user.status,
+}));
+
 
   return (
     <div className={styles.container}>
@@ -721,16 +732,15 @@ const totalPages = Math.ceil(filteredUsers.length / recordsPerPage);
 
         <div className={styles.headerActions}>
           <div className={styles.actionButtons}>
-            <ExportToExcel
-              data={filteredUsers}
-              headers={excelHeaders}
-              fileName="Employee-Management-Results"
-              sheetName="Employees"
-              buttonStyle={{
-                marginRight: "10px",
-                marginBottom: "0px",
-              }}
-            />
+ <ExportToExcel
+  data={transformedUsersForExcel}
+  headers={excelHeaders}
+  fileName="Employee List"
+  sheetName="Users"
+  buttonStyle={{
+    marginBottom: "20px",
+  }}
+/>
             
             {showSelectionColumn && (
               <div className={styles.bulkActions}>
@@ -844,7 +854,16 @@ const totalPages = Math.ceil(filteredUsers.length / recordsPerPage);
             {user.name ||
               `${user.firstName || ""} ${user.lastName || ""}`}
           </td>
-          <td>{user.emailId}</td>
+        <td style={{
+  wordWrap: 'break-word',
+  wordBreak: 'break-all',
+  whiteSpace: 'normal',
+  maxWidth: '200px',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis'
+}}>
+  {user.emailId}
+</td>
           <td>{user.officeId}</td>
           <td>{user.mobileNo}</td>
           <td>
@@ -955,7 +974,11 @@ const totalPages = Math.ceil(filteredUsers.length / recordsPerPage);
   )}
 </tbody>
               </table>
-              {filteredUsers.length > 0 && (
+             
+            </div>
+          )}
+        </div>
+         {filteredUsers.length > 0 && (
   <div className={styles.paginationContainer}>
     <div className={styles.paginationInfo}>
       Showing {indexOfFirstRecord + 1} to {Math.min(indexOfLastRecord, filteredUsers.length)} of {filteredUsers.length} entries
@@ -990,9 +1013,6 @@ const totalPages = Math.ceil(filteredUsers.length / recordsPerPage);
     </div>
   </div>
 )}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

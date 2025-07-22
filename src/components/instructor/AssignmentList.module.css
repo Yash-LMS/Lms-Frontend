@@ -704,6 +704,18 @@
   margin: 0;
 }
 
+.successContainer {
+  padding: 20px;
+  text-align: center;
+}
+
+.successMessage {
+  color: #dc2626;
+  font-weight: 500;
+  margin: 0;
+}
+
+
 .noSubmissions {
   text-align: center;
   padding: 60px 20px;
