@@ -62,6 +62,7 @@ import UserPassword from "./components/user/UpdatePassword";
 import TraineeAssignmentList from "./components/user/TraineeAssignmentList";
 import ProfileCompletion from "./components/auth/ProfileCompletion";
 import { USER_PROFILE_IMAGE_URL } from "./constants/apiConstants";
+import CourseAnalytics from "./components/graph/CourseAnalytics";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -493,6 +494,15 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <BatchManagement />
+              </ProtectedRoute>
+            }
+          />
+
+                 <Route
+            path="/analysis/course"
+            element={
+              <ProtectedRoute>
+                <CourseAnalytics />
               </ProtectedRoute>
             }
           />

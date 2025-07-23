@@ -183,6 +183,11 @@ export const FIND_QUESTION_BY_USER_URL = `${API_BASE_URL}/library/findQuestionBy
 export const UPDATE_QUESTION_URL = `${API_BASE_URL}/library/updateQuestion`;
 
 
+// Analysis
+export const COURSE_ANALYSIS_URL = `${API_BASE_URL}/analysis/course`;
+
+
+
 // Question Library
 export const VIEW_QUESTION_ALL_CATEGORY_URL = `${API_BASE_URL}/library/find/all/question/category`;
 export const VIEW_QUESTION_ALL_SUB_CATEGORY_URL = `${API_BASE_URL}/library/find/all/question/subcategory`;
