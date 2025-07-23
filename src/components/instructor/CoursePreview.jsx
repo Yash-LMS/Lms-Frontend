@@ -269,81 +269,73 @@ const CoursePreview = () => {
   };
 
   const toggleTopicEditMode = (sectionId) => {
-    setIsTopicEditMode(prev => ({
-      ...prev,
-      [sectionId]: !prev[sectionId]
-    }));
-  };
+  setIsTopicEditMode(prev => ({
+    ...prev,
+    [sectionId]: !prev[sectionId]
+  }));
+};
 
-  // Direct API call to update topic sequence
-  const updateTopicSequence = async (updatedTopics, sectionId) => {
-    const { user, token } = getUserData();
+// Direct API call to update topic sequence
+const updateTopicSequence = async (updatedTopics, sectionId) => {
+  const { user, token } = getUserData();
 
-    if (!user || !token) {
-      alert("User session data is missing. Please log in again.");
-      return;
-    }
+  if (!user || !token) {
+    alert("User session data is missing. Please log in again.");
+    return;
+  }
 
-    // Create the sequence update models for topics
-    const topicSequenceUpdateModels = updatedTopics.map(topic => ({
-      topicId: topic.topicId,
-      sequenceId: topic.topicsSequenceId
-    }));
+  // Create the sequence update models for topics
+  const topicSequenceUpdateModels = updatedTopics.map(topic => ({
+    topicId: topic.topicId,
+    sequenceId: topic.topicsSequenceId
+  }));
 
-    console.log('Topic sequence update models:', topicSequenceUpdateModels);
+  console.log('Topic sequence update models:', topicSequenceUpdateModels);
 
-    try {
-      setTopicSequenceUpdateLoading(true);
+  try {
+    setTopicSequenceUpdateLoading(true);
+    
+    // Using Axios to update topic sequence
+    const response = await axios.post(UPDATE_TOPIC_SEQUENCE, {
+      user,
+      token,
+      topicSequenceUpdateModels
+    });
+
+    console.log('Topic sequence update response:', response.data);
+
+    // Axios automatically throws errors for non-2xx responses and parses JSON
+    if (response.data && response.data.response === "success") {
+      await fetchCourseDetails();
+      setIsTopicEditMode(prev => ({
+        ...prev,
+        [sectionId]: false
+      }));
       
-      // Using Axios to update topic sequence
-      const response = await axios.post(UPDATE_TOPIC_SEQUENCE, {
-        user,
-        token,
-        topicSequenceUpdateModels
-      });
-
-      console.log('Topic sequence update response:', response.data);
-
-      // Axios automatically throws errors for non-2xx responses and parses JSON
-      if (response.data && response.data.response === "success") {
-        await fetchCourseDetails();
-        setIsTopicEditMode(prev => ({
-          ...prev,
-          [sectionId]: false
-        }));
-        
-        // Show success modal
-        setSuccessMessage("Topic sequence updated successfully!");
-        setShowSuccessModal(true);
-      
-      } else {
-        throw new Error("Failed to update topic sequence");
-      }
-    } catch (error) {
-      console.error("Failed to update topic sequence:", error);
-      const errorMessage = error.response?.data?.message || error.message;
-      alert("Failed to update topic sequence: " + errorMessage);
-    } finally {
-      setTopicSequenceUpdateLoading(false);
+      // Show success modal
+      setSuccessMessage("Topic sequence updated successfully!");
+      setShowSuccessModal(true);
+    
+    } else {
+      throw new Error("Failed to update topic sequence");
     }
-  };
+  } catch (error) {
+    console.error("Failed to update topic sequence:", error);
+    const errorMessage = error.response?.data?.message || error.message;
+    alert("Failed to update topic sequence: " + errorMessage);
+  } finally {
+    setTopicSequenceUpdateLoading(false);
+  }
+};
 
-  // Handle save changes for topic sequence update
-  const handleSaveTopicSequenceChanges = async (updatedTopics, sectionId) => {
-    await updateTopicSequence(updatedTopics, sectionId);
-  };
+// Handle save changes for topic sequence update
+const handleSaveTopicSequenceChanges = async (updatedTopics, sectionId) => {
+  await updateTopicSequence(updatedTopics, sectionId);
+};
 
   // Close success modal
   const handleCloseSuccessModal = () => {
     setShowSuccessModal(false);
-  };
-
-  // Handle modal backdrop clicks to prevent flickering
-  const handleModalBackdropClick = (e, closeHandler) => {
-    e.stopPropagation();
-    if (e.target === e.currentTarget) {
-      closeHandler();
-    }
   };
 
   if (loading) {
@@ -497,133 +489,133 @@ const CoursePreview = () => {
                     </div>
 
                     {expandedSections[section.sectionId] && section.topics && (
-                      <div className={styles.topicsList}>
-                        {/* Topic reorder controls */}
-                        <div className={styles.topicHeader}>
-                          {!isTopicEditMode[section.sectionId] && (
-                            <button 
-                              className={styles.editModeToggle} 
-                              onClick={() => toggleTopicEditMode(section.sectionId)}
-                            >
-                              Re-Order Topics
-                            </button>
-                          )}
-                        </div>
+  <div className={styles.topicsList}>
+    {/* Topic reorder controls */}
+    <div className={styles.topicHeader}>
+      {!isTopicEditMode[section.sectionId] && (
+        <button 
+          className={styles.editModeToggle} 
+          onClick={() => toggleTopicEditMode(section.sectionId)}
+        >
+          Re-Order Topics
+        </button>
+      )}
+    </div>
 
-                        {/* Show topic reorder modal if in edit mode for this section */}
-                        {isTopicEditMode[section.sectionId] ? (
-                          <TopicReorderModal
-                            topics={section.topics}
-                            sectionId={section.sectionId}
-                            isEditMode={isTopicEditMode[section.sectionId]}
-                            toggleEditMode={toggleTopicEditMode}
-                            onSaveChanges={handleSaveTopicSequenceChanges}
-                          />
-                        ) : (
-                          // Regular topic display
-                          section.topics
-                            .slice() // Create a copy
-                            .sort((a, b) => a.topicsSequenceId - b.topicsSequenceId) // Sort by topicsSequenceId
-                            .map((topic) => (
-                            <div key={topic.topicId} className={styles.topicItem}>
-                              <div className={styles.topicDetails}>
-                                <span className={styles.topicSequence}>
-                                  {topic.topicsSequenceId}.
-                                </span>
-                                <span className={styles.topicName}>
-                                  {topic.topicName}
-                                </span>
-                                <span
-                                  className={`${styles.topicType} ${
-                                    styles[topic.topicType]
-                                  }`}
-                                >
-                                  {topic.topicType}
-                                </span>
-                              </div>
-                              <div className={styles.topicLinks}>
-                                {topic.videoURL && topic.videoURL !== "" && (
-                                  <button
-                                    onClick={() => handleOpenVideoPlayer(topic)}
-                                    className={styles.resourceLink}
-                                  >
-                                    Watch Video
-                                  </button>
-                                )}
-                                {topic.docsURL && topic.docsURL !== "" && (
-                                  <button
-                                    onClick={() =>
-                                      handleOpenFilePreview(topic.topicId)
-                                    }
-                                    className={styles.resourceLink}
-                                  >
-                                    View Docs
-                                  </button>
-                                )}
-                                {/* New button for test preview */}
-                                {topic.topicType === "test" && topic.testId && (
-                                  <button
-                                    onClick={() => handlePreviewClick(topic.testId)}
-                                    className={styles.resourceLink}
-                                  >
-                                    View Test
-                                  </button>
-                                )}
-                                {topic.file && topic.file !== "" && (
-                                  <a
-                                    href={URL.createObjectURL(new Blob([topic.file]))}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={styles.resourceLink}
-                                  >
-                                    Download File
-                                  </a>
-                                )}
-                                {((topic.videoURL && topic.videoURL !== "") || 
-                                  (topic.docsURL && topic.docsURL !== "")) ? (
-                                  <button
-                                    onClick={() => handleDeleteFile(topic.topicId)}
-                                    title="Remove file"
-                                    className={styles.removeFileButton}
-                                  >
-                                    Remove File
-                                  </button>
-                                ) : (
-                                  topic.topicType === "video" && (
-                                    <p className={styles.noVideoMessage}>
-                                      No video available
-                                    </p>
-                                  )
-                                )}
-                              </div>
-                              {(topic.modifiedValue ||
-                                (topic.lastModifiedDate &&
-                                  topic.lastModifiedTime)) && (
-                                <div className={styles.topicMetadataContainer}>
-                                  {topic.modifiedValue && (
-                                    <p className={styles.topicMetadata}>
-                                      <strong>Modified Value:</strong>
-                                      <span className={styles.modifiedBadge}>
-                                        {topic.modifiedValue}
-                                      </span>
-                                    </p>
-                                  )}
-                                  {topic.lastModifiedDate &&
-                                    topic.lastModifiedTime && (
-                                      <p className={styles.topicMetadata}>
-                                        <strong>Last Modified:</strong>
-                                        <span
-                                          className={styles.timeStamp}
-                                        >{`${topic.lastModifiedDate} ${topic.lastModifiedTime}`}</span>
-                                      </p>
-                                    )}
-                                </div>
-                              )}
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    )}
+    {/* Show topic reorder modal if in edit mode for this section */}
+    {isTopicEditMode[section.sectionId] ? (
+      <TopicReorderModal
+        topics={section.topics}
+        sectionId={section.sectionId}
+        isEditMode={isTopicEditMode[section.sectionId]}
+        toggleEditMode={toggleTopicEditMode}
+        onSaveChanges={handleSaveTopicSequenceChanges}
+      />
+    ) : (
+      // Regular topic display
+      section.topics
+        .slice() // Create a copy
+        .sort((a, b) => a.topicsSequenceId - b.topicsSequenceId) // Sort by topicsSequenceId
+        .map((topic) => (
+        <div key={topic.topicId} className={styles.topicItem}>
+          <div className={styles.topicDetails}>
+            <span className={styles.topicSequence}>
+              {topic.topicsSequenceId}.
+            </span>
+            <span className={styles.topicName}>
+              {topic.topicName}
+            </span>
+            <span
+              className={`${styles.topicType} ${
+                styles[topic.topicType]
+              }`}
+            >
+              {topic.topicType}
+            </span>
+          </div>
+          <div className={styles.topicLinks}>
+            {topic.videoURL && topic.videoURL !== "" && (
+              <button
+                onClick={() => handleOpenVideoPlayer(topic)}
+                className={styles.resourceLink}
+              >
+                Watch Video
+              </button>
+            )}
+            {topic.docsURL && topic.docsURL !== "" && (
+              <button
+                onClick={() =>
+                  handleOpenFilePreview(topic.topicId)
+                }
+                className={styles.resourceLink}
+              >
+                View Docs
+              </button>
+            )}
+            {/* New button for test preview */}
+            {topic.topicType === "test" && topic.testId && (
+              <button
+                onClick={() => handlePreviewClick(topic.testId)}
+                className={styles.resourceLink}
+              >
+                View Test
+              </button>
+            )}
+            {topic.file && topic.file !== "" && (
+              <a
+                href={URL.createObjectURL(new Blob([topic.file]))}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.resourceLink}
+              >
+                Download File
+              </a>
+            )}
+            {((topic.videoURL && topic.videoURL !== "") || 
+              (topic.docsURL && topic.docsURL !== "")) ? (
+              <button
+                onClick={() => handleDeleteFile(topic.topicId)}
+                title="Remove file"
+                className={styles.removeFileButton}
+              >
+                Remove File
+              </button>
+            ) : (
+              topic.topicType === "video" && (
+                <p className={styles.noVideoMessage}>
+                  No video available
+                </p>
+              )
+            )}
+          </div>
+          {(topic.modifiedValue ||
+            (topic.lastModifiedDate &&
+              topic.lastModifiedTime)) && (
+            <div className={styles.topicMetadataContainer}>
+              {topic.modifiedValue && (
+                <p className={styles.topicMetadata}>
+                  <strong>Modified Value:</strong>
+                  <span className={styles.modifiedBadge}>
+                    {topic.modifiedValue}
+                  </span>
+                </p>
+              )}
+              {topic.lastModifiedDate &&
+                topic.lastModifiedTime && (
+                  <p className={styles.topicMetadata}>
+                    <strong>Last Modified:</strong>
+                    <span
+                      className={styles.timeStamp}
+                    >{`${topic.lastModifiedDate} ${topic.lastModifiedTime}`}</span>
+                  </p>
+                )}
+            </div>
+          )}
+        </div>
+      ))
+    )}
+  </div>
+)}
                   </div>
                 ))}
               </div>
@@ -646,11 +638,8 @@ const CoursePreview = () => {
       )}
   
       {showVideoPlayer && selectedTopicId && (
-        <div 
-          className={styles.videoPlayerModal}
-          onClick={(e) => handleModalBackdropClick(e, handleCloseVideoPlayer)}
-        >
-          <div className={styles.videoPlayerContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.videoPlayerModal}>
+          <div className={styles.videoPlayerContent}>
             <div className={styles.videoPlayerHeader}>
               <button
                 className={styles.closeButton}
@@ -672,17 +661,10 @@ const CoursePreview = () => {
       )}
   
       {showFilePreview && currentTopicId && (
-        <div 
-          className={styles.filePreviewModal}
-          onClick={(e) => handleModalBackdropClick(e, handleCloseFilePreview)}
-        >
-          <div className={styles.filePreviewContent} onClick={(e) => e.stopPropagation()}>
-            <FilePreview
-              topicId={currentTopicId}
-              onClose={handleCloseFilePreview}
-            />
-          </div>
-        </div>
+        <FilePreview
+          topicId={currentTopicId}
+          onClose={handleCloseFilePreview}
+        />
       )}
   
       {sequenceUpdateLoading && (
@@ -693,17 +675,10 @@ const CoursePreview = () => {
 
       {/* Success Modal */}
       {showSuccessModal && (
-        <div 
-          className={styles.successModalBackdrop}
-          onClick={(e) => handleModalBackdropClick(e, handleCloseSuccessModal)}
-        >
-          <div className={styles.successModalContent} onClick={(e) => e.stopPropagation()}>
-            <SuccessModal 
-              message={successMessage}
-              onClose={handleCloseSuccessModal}
-            />
-          </div>
-        </div>
+        <SuccessModal 
+          message={successMessage}
+          onClose={handleCloseSuccessModal}
+        />
       )}
     </div>
   );

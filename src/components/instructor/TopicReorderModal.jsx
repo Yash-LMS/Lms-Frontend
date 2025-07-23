@@ -1,59 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import styles from './TopicReorderModal.module.css';
+import React, { useState, useEffect } from "react";
+import styles from "./TopicReorderModal.module.css";
 
-const TopicReorderModal = ({ 
-  topics, 
-  sectionId, 
-  isEditMode, 
-  toggleEditMode, 
-  onSaveChanges 
+const TopicReorderModal = ({
+  topics,
+  sectionId,
+  isEditMode,
+  toggleEditMode,
+  onSaveChanges,
 }) => {
-  const [reorderedTopics, setReorderedTopics] = useState([]);
+  const [orderedTopics, setOrderedTopics] = useState([]);
 
   useEffect(() => {
-    if (topics) {
-      // Initialize with sorted topics
-      const sortedTopics = [...topics].sort((a, b) => a.topicsSequenceId - b.topicsSequenceId);
-      setReorderedTopics(sortedTopics);
-    }
+    // Initialize with topics sorted by topicsSequenceId
+    const sortedTopics = [...topics].sort(
+      (a, b) => a.topicsSequenceId - b.topicsSequenceId
+    );
+    setOrderedTopics(sortedTopics);
   }, [topics]);
 
-  const moveTopicUp = (index) => {
-    if (index > 0) {
-      const newTopics = [...reorderedTopics];
-      [newTopics[index], newTopics[index - 1]] = [newTopics[index - 1], newTopics[index]];
-      
-      // Update sequence IDs
-      newTopics.forEach((topic, idx) => {
-        topic.topicsSequenceId = idx + 1;
-      });
-      
-      setReorderedTopics(newTopics);
+  const handleMoveTopic = (index, direction) => {
+    if (
+      (direction === "up" && index === 0) ||
+      (direction === "down" && index === orderedTopics.length - 1)
+    ) {
+      return; // Can't move further up/down
     }
-  };
 
-  const moveTopicDown = (index) => {
-    if (index < reorderedTopics.length - 1) {
-      const newTopics = [...reorderedTopics];
-      [newTopics[index], newTopics[index + 1]] = [newTopics[index + 1], newTopics[index]];
-      
-      // Update sequence IDs
-      newTopics.forEach((topic, idx) => {
-        topic.topicsSequenceId = idx + 1;
-      });
-      
-      setReorderedTopics(newTopics);
-    }
+    const items = Array.from(orderedTopics);
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    
+    // Swap the items
+    const temp = items[index];
+    items[index] = items[newIndex];
+    items[newIndex] = temp;
+
+    // Update topicsSequenceId to match new order - create new objects to avoid read-only issues
+    const updatedItems = items.map((item, idx) => ({
+      ...item,
+      topicsSequenceId: idx + 1, // Start from 1
+    }));
+
+    setOrderedTopics(updatedItems);
   };
 
   const handleSave = () => {
-    onSaveChanges(reorderedTopics, sectionId);
+    onSaveChanges(orderedTopics, sectionId);
   };
 
   const handleCancel = () => {
     toggleEditMode(sectionId);
   };
 
+  // If not in edit mode, don't render anything
   if (!isEditMode) return null;
 
   return (
@@ -62,14 +60,14 @@ const TopicReorderModal = ({
         <div className={styles.reorderHeader}>
           <h3>Reorder Topics</h3>
           <div className={styles.buttonGroup}>
-            <button 
-              className={styles.cancelButton} 
+            <button
+              className={styles.cancelButton}
               onClick={handleCancel}
             >
               Cancel
             </button>
-            <button 
-              className={styles.saveButton} 
+            <button
+              className={styles.saveButton}
               onClick={handleSave}
             >
               Save Changes
@@ -77,40 +75,41 @@ const TopicReorderModal = ({
           </div>
         </div>
 
-        <div className={styles.instructions}>
-          Use the up/down arrows to reorder topics. Changes will be saved when you click "Save Changes".
-        </div>
+        <p className={styles.instructions}>
+          Use the up and down arrows to reorder topics. Click "Save Changes" when finished.
+        </p>
 
         <div className={styles.topicsDropArea}>
-          {reorderedTopics.map((topic, index) => (
-            <div key={topic.topicId} className={styles.draggableTopicCard}>
+          {orderedTopics.map((topic, index) => (
+            <div
+              key={topic.topicId.toString()}
+              className={styles.draggableTopicCard}
+            >
               <div className={styles.topicHeader}>
                 <div className={styles.topicInfo}>
                   <span className={styles.topicSequence}>
                     {topic.topicsSequenceId}.
                   </span>
                   <h4 className={styles.topicTitle}>{topic.topicName}</h4>
-                  <span className={`${styles.topicType} ${styles[topic.topicType]}`}>
+                  <span className={`${styles.topicType} ${styles[topic.topicType?.toLowerCase()]}`}>
                     {topic.topicType}
                   </span>
                 </div>
                 <div className={styles.topicActions}>
                   <div className={styles.moveButtons}>
                     <button
-                      className={styles.moveBtn}
-                      onClick={() => moveTopicUp(index)}
+                      onClick={() => handleMoveTopic(index, "up")}
                       disabled={index === 0}
-                      title="Move up"
+                      aria-label="Move up"
                     >
-                      ↑
+                      ▲
                     </button>
                     <button
-                      className={styles.moveBtn}
-                      onClick={() => moveTopicDown(index)}
-                      disabled={index === reorderedTopics.length - 1}
-                      title="Move down"
+                      onClick={() => handleMoveTopic(index, "down")}
+                      disabled={index === orderedTopics.length - 1}
+                      aria-label="Move down"
                     >
-                      ↓
+                      ▼
                     </button>
                   </div>
                 </div>
