@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./InstructorSidebar.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faListCheck, faFolderOpen,faRectangleList, faClipboardList, faPen, faUsers, faFingerprint, faTasks } from "@fortawesome/free-solid-svg-icons";
+import { faListCheck, faFolderOpen,faRectangleList, faClipboardList, faPen, faUsers, faFingerprint, faTasks, faPieChart } from "@fortawesome/free-solid-svg-icons";
 
 const InstructorSidebar = ({ activeTab }) => {
     const navigate = useNavigate();
@@ -118,8 +118,8 @@ const InstructorSidebar = ({ activeTab }) => {
               href="#analysis"
               onClick={(e) => handleNavigation('/analysis/course', 'analysis', e)}
             >
-              <FontAwesomeIcon icon={faTasks} />
-               Course Analysis
+              <FontAwesomeIcon icon={faPieChart} />
+               Analytics
             </a>
           </li>
 
