@@ -13,6 +13,14 @@ const CourseAnalytics = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [role, setRole] = useState();
   const [activeTab, setActiveTab] = useState("analysis");
+  
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState({
+    title: '',
+    users: [],
+    status: ''
+  });
 
   const getUserData = () => {
     try {
@@ -80,6 +88,47 @@ const CourseAnalytics = () => {
   useEffect(() => {
     fetchCourseAnalytics();
   }, []);
+
+  // Function to open modal with status details
+  const openStatusModal = (course, status) => {
+    let users = [];
+    let title = '';
+    
+    switch(status) {
+      case 'pending':
+        users = course.pendingList || [];
+        title = `Pending Users - ${course.courseName}`;
+        break;
+      case 'started':
+        users = course.startedList || [];
+        title = `Started Users - ${course.courseName}`;
+        break;
+      case 'completed':
+        users = course.completedList || [];
+        title = `Completed Users - ${course.courseName}`;
+        break;
+      default:
+        users = [];
+        title = '';
+    }
+    
+    setModalData({
+      title,
+      users,
+      status
+    });
+    setIsModalOpen(true);
+  };
+
+  // Function to close modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalData({
+      title: '',
+      users: [],
+      status: ''
+    });
+  };
 
   const prepareChartData = (course) => {
     return [
@@ -217,6 +266,47 @@ const CourseAnalytics = () => {
     );
   };
 
+  // Modal Component
+  const StatusModal = () => {
+    if (!isModalOpen) return null;
+
+    return (
+      <div className={styles.modalOverlay} onClick={closeModal}>
+        <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalHeader}>
+            <h3 className={styles.modalTitle}>{modalData.title}</h3>
+            <button className={styles.modalCloseBtn} onClick={closeModal}>
+              ×
+            </button>
+          </div>
+          
+          <div className={styles.modalBody}>
+            {modalData.users.length > 0 ? (
+              <div className={styles.usersList}>
+                <div className={styles.usersCount}>
+                  Total: {modalData.users.length} user{modalData.users.length !== 1 ? 's' : ''}
+                </div>
+                <div className={styles.usersGrid}>
+                  {modalData.users.map((user, index) => (
+                    <div key={index} className={`${styles.userCard} ${styles[`userCard${modalData.status.charAt(0).toUpperCase() + modalData.status.slice(1)}`]}`}>
+                      <div className={styles.userInfo}>
+                        <span className={styles.userName}>{user}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className={styles.noUsers}>
+                No users found for this status.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return <div className={styles.loading}>Loading course analytics...</div>;
   }
@@ -270,19 +360,28 @@ const CourseAnalytics = () => {
             </div>
 
             <div className={styles.statsContainer}>
-              <div className={styles.statItem}>
+              <div 
+                className={`${styles.statItem} ${styles.clickableStatItem}`}
+                onClick={() => openStatusModal(course, 'pending')}
+              >
                 <span className={styles.statLabel}>Pending:</span>
                 <span className={`${styles.statValue} ${styles.statValuePending}`}>
                   {course.pendingCount}
                 </span>
               </div>
-              <div className={styles.statItem}>
+              <div 
+                className={`${styles.statItem} ${styles.clickableStatItem}`}
+                onClick={() => openStatusModal(course, 'started')}
+              >
                 <span className={styles.statLabel}>Started:</span>
                 <span className={`${styles.statValue} ${styles.statValueStarted}`}>
                   {course.startedCount}
                 </span>
               </div>
-              <div className={styles.statItem}>
+              <div 
+                className={`${styles.statItem} ${styles.clickableStatItem}`}
+                onClick={() => openStatusModal(course, 'completed')}
+              >
                 <span className={styles.statLabel}>Completed:</span>
                 <span className={`${styles.statValue} ${styles.statValueCompleted}`}>
                   {course.completedCount}
@@ -292,6 +391,9 @@ const CourseAnalytics = () => {
           </div>
         ))}
       </div>
+
+      {/* Status Modal */}
+      <StatusModal />
     </div>
   );
 };

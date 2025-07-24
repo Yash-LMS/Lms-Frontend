@@ -1,6 +1,6 @@
 .container {
   padding: 20px;
-  background-color: #f5f5f5;
+  background-color: #edf2f7;
   min-height: 100vh;
   margin-left: 250px; /* Add this to account for sidebar width */
 }
@@ -10,16 +10,13 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
-  background: white;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .header h1 {
   margin: 0;
-  color: #333;
-  font-size: 2rem;
+  color: #8e6cef;
+  font-size: 1.75rem;
 }
 
 .chartToggle {
@@ -42,9 +39,9 @@
 }
 
 .toggleBtn.active {
-  background-color: #007bff;
+  background-color: #8e6cef;
   color: white;
-  border-color: #007bff;
+  border-color: #8e6cef;
 }
 
 .coursesGrid {
@@ -161,7 +158,7 @@
 
 .scaleInfo {
   position: absolute;
-  bottom: 10px;
+  bottom: -5px;
   right: 10px;
   background-color: rgba(255, 255, 255, 0.9);
   padding: 8px 12px;
@@ -285,5 +282,201 @@
   .statItem {
     flex-direction: row;
     justify-content: space-between;
+  }
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  position: relative;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modalHeader {
+  background: linear-gradient(135deg, #8e6cef 0%, #7559ce 100%);
+  color: white;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: white;
+}
+
+.modalCloseBtn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  line-height: 1;
+}
+
+.modalCloseBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.modalBody {
+  padding: 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.usersList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.usersCount {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+  padding: 8px 12px;
+  background-color: #f8fafc;
+  border-radius: 6px;
+  border-left: 4px solid #8e6cef;
+}
+
+.usersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.userCard {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 4px solid #8e6cef;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Different colors for different statuses */
+.userCardPending {
+  border-left-color: #ff4444;
+  background-color: #fef2f2;
+}
+
+.userCardStarted {
+  border-left-color: #ffaa00;
+  background-color: #fffbeb;
+}
+
+.userCardCompleted {
+  border-left-color: #22c55e;
+  background-color: #f0fdf4;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.userName {
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.noUsers {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* Clickable stat items */
+.clickableStatItem {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.clickableStatItem:hover {
+  background-color: rgba(142, 108, 239, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.clickableStatItem::after {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  font-size: 12px;
+}
+
+.clickableStatItem:hover::after {
+  opacity: 1;
+}
+
+/* Responsive design for modal */
+@media (max-width: 768px) {
+  .modalContent {
+    width: 95%;
+    margin: 20px;
+    max-height: 85vh;
+  }
+  
+  .modalHeader {
+    padding: 16px 20px;
+  }
+  
+  .modalTitle {
+    font-size: 1.1rem;
+  }
+  
+  .modalBody {
+    padding: 20px;
+  }
+  
+  .usersGrid {
+    grid-template-columns: 1fr;
   }
 }
