@@ -228,7 +228,7 @@ const AssignmentAllotment = () => {
   
   const assignmentOptions = (assignmentList || []).map(assignment => ({
     value: assignment.assignmentId,
-    label: assignment.description
+    label: assignment.title
   }));
 
   return (

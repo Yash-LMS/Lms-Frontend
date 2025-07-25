@@ -599,6 +599,9 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
     sessionStorage.removeItem("Profile_Image");
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+
+    sessionStorage.clear();
+    localStorage.clear();
  
     setLoginStatus(false);
     navigate("/login");

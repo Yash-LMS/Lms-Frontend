@@ -223,7 +223,7 @@ const QuestionLibraryPreview = ({ isOpen, onClose }) => {
                   onChange={handleLevelChange}
                   className={styles.select}
                 >
-                  <option value="all">All Levels</option>
+                  <option value="all">Select Level</option>
                   <option value="easy">Easy</option>
                   <option value="medium">Medium</option>
                   <option value="hard">Hard</option>
