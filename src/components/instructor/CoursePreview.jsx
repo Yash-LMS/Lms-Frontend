@@ -512,7 +512,7 @@ const handleSaveTopicSequenceChanges = async (updatedTopics, sectionId) => {
                           Edit
                         </button>
                         <button
-                          className={styles.editBtn}
+                          className={styles.deleteBtn}
                           onClick={() => handleDeleteSection(section)}
                         >
                           Delete
