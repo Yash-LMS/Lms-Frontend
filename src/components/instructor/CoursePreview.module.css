@@ -553,3 +553,15 @@
   background-color: #7c4dff;
   color: white;
 }
+
+ .deleteBtn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    background-color: #f44336;
+    color: white;
+  }

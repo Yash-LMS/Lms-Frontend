@@ -46,13 +46,17 @@ body, html {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    overflow-y: auto;
   }
   
   .questionHeader {
+    display: flex;
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 15px;
     color: #333;
+    justify-content: space-between;
+    align-items: center;
   }
   
   .questionText {
@@ -73,6 +77,16 @@ body, html {
     color: #666;
     text-align: right;
   }
+
+  .error {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid #f5c6cb;
+  font-size: 14px;
+}
   
   .optionsContainer {
     display: flex;
@@ -200,3 +214,262 @@ body, html {
     transform: translateX(-3px);
   }
   
+  .editControls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.editButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.editButton:hover {
+  background: #0056b3;
+}
+
+.saveButton {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: #218838;
+}
+
+.saveButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: #5a6268;
+}
+
+.cancelButton:disabled {
+  background: #adb5bd;
+  cursor: not-allowed;
+}
+
+/* Edit Section */
+.editSection {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.fieldGroup {
+  margin-bottom: 20px;
+}
+
+.fieldLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+}
+
+.quillContainer {
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+}
+
+.quillContainer .ql-editor {
+  min-height: 120px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.marksInput {
+  width: 80px;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.marksInput:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.radioGroup {
+  display: flex;
+  gap: 20px;
+}
+
+.radioGroup label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.radioGroup input[type="radio"] {
+  margin: 0;
+}
+
+/* Options Section */
+.optionsSection {
+  margin-top: 20px;
+}
+
+.optionsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.optionsHeader h4 {
+  margin: 0;
+  color: #495057;
+  font-size: 16px;
+}
+
+.addOptionButton {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.addOptionButton:hover:not(:disabled) {
+  background: #138496;
+}
+
+.addOptionButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.removeOptionButton {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.removeOptionButton:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.removeOptionButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.optionEdit {
+  margin-bottom: 15px;
+  padding: 15px;
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.optionEdit.correctOption {
+  border-color: #28a745;
+  background: #f8fff9;
+}
+
+.optionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.correctCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  cursor: pointer;
+}
+
+.correctCheckbox input {
+  margin: 0;
+  cursor: pointer;
+}
+
+.optionInput {
+  width: 95%;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.optionInput:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.correctOptionMarker {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  background: #28a745;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 40px;
+}

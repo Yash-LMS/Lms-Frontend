@@ -13,7 +13,7 @@ import SectionReorderModal from "./SectionReorderModal";
 import TopicReorderModal from "./TopicReorderModal";
 import SuccessModal from "../../assets/SuccessModal";
 import styles from "./CoursePreview.module.css";
-import { UPDATE_SECTION_SEQUENCE, UPDATE_TOPIC_SEQUENCE } from "../../constants/apiConstants";
+import { UPDATE_SECTION_SEQUENCE, UPDATE_TOPIC_SEQUENCE, DELETE_SECTION_URL } from "../../constants/apiConstants";
 import axios from "axios";
 
 const CoursePreview = () => {
@@ -96,7 +96,39 @@ const CoursePreview = () => {
     setShowEditSection(true);
   };
 
-  const handleEditSubmit = async (updatedSection) => {
+  const handleDeleteSection = async (section, courseId) => {
+  const { user, token } = getUserData(); 
+
+  try {
+    const response = await axios.post(
+      DELETE_SECTION_URL,
+      {
+        sectionId: section.sectionId,
+        user,
+        token,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data && response.data.response === "success") {
+      // Handle success (e.g., refresh section list, show message)
+      alert("Section deleted successfully!");
+      fetchCourseDetails();
+    } else {
+      // Handle failure
+      alert(response.data?.message || "Failed to delete section.");
+    }
+  } catch (error) {
+    console.error("Error deleting section:", error);
+    alert("Error deleting section. Please try again.");
+  }
+};
+
+   const handleEditSubmit = async (updatedSection) => {
     const { user, token } = getUserData();
 
     if (!user || !token) {
@@ -478,6 +510,12 @@ const handleSaveTopicSequenceChanges = async (updatedTopics, sectionId) => {
                           onClick={() => handleEditSection(section)}
                         >
                           Edit
+                        </button>
+                        <button
+                          className={styles.editBtn}
+                          onClick={() => handleDeleteSection(section)}
+                        >
+                          Delete
                         </button>
                         <span
                           className={styles.expandIcon}

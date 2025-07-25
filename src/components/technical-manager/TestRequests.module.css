@@ -193,7 +193,8 @@
   }
   
   .approveButton,
-  .rejectButton {
+  .rejectButton,
+  .deleteButton {
     padding: 0.5rem 1rem;
     border-radius: 6px;
     font-size: 13px;
@@ -220,6 +221,16 @@
   
   .rejectButton:hover {
     background-color: #e53935;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .deleteButton {
+    background-color: #f45d52;
+    color: white;
+  }
+  
+  .deleteButton:hover {
+    background-color: #e34d4b;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
   
