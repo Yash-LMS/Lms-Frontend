@@ -27,6 +27,7 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
       [{ 'indent': '-1' }, { 'indent': '+1' }],
       [{ 'color': [] }, { 'background': [] }],
       ['link'],
+      ['code-block'], // Add code block support
       ['clean']
     ],
   };
@@ -37,7 +38,8 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
     'list', 'bullet', 'indent',
     'script',
     'color', 'background',
-    'link'
+    'link',
+    'code-block' // Add code block format
   ];
 
   const getUserData = () => {
@@ -62,6 +64,83 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Questions Template');
     
     XLSX.writeFile(workbook, 'question_upload_template.xlsx');
+  };
+
+  // Enhanced function to format text content properly
+  const formatTextContent = (text) => {
+    if (!text) return '<p></p>';
+    
+    // Convert to string if it's not already
+    const textStr = text.toString();
+    
+    // If it already contains HTML tags, return as is
+    if (textStr.includes('<') && textStr.includes('>')) {
+      return textStr;
+    }
+    
+    // Enhanced parsing for code and formatting
+    let formattedText = textStr;
+    
+    // Handle code blocks (text between triple backticks or common code patterns)
+    // Pattern 1: Triple backticks
+    formattedText = formattedText.replace(/```([\s\S]*?)```/g, '<pre class="ql-syntax">$1</pre>');
+    
+    // Pattern 2: Inline code (single backticks)
+    formattedText = formattedText.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    // Pattern 3: Common programming patterns (functions, variables, etc.)
+    // Detect lines that look like code (contain common programming syntax)
+    const lines = formattedText.split('\n');
+    const processedLines = lines.map(line => {
+      const trimmedLine = line.trim();
+      
+      // Check if line looks like code (contains programming syntax)
+      const codePatterns = [
+        /^\s*(function|const|let|var|if|for|while|class|def|public|private|protected)\s/,
+        /^\s*[\w\$_]+\s*\([^)]*\)\s*[{=]/,
+        /^\s*[\w\$_]+\s*=\s*.+[;,]/,
+        /^\s*[{}()[\];]/,
+        /^\s*\/\/|^\s*\/\*|^\s*\*/,
+        /^\s*#include|^\s*import|^\s*from/,
+        /^\s*<\w+.*>.*<\/\w+>/,
+        /^\s*\w+\.\w+\(/
+      ];
+      
+      const looksLikeCode = codePatterns.some(pattern => pattern.test(trimmedLine));
+      
+      if (looksLikeCode && !line.includes('<pre') && !line.includes('<code')) {
+        return line; // Keep as is for code block formatting
+      }
+      
+      return line;
+    });
+    
+    // If multiple lines and many look like code, wrap in code block
+    const codeLines = processedLines.filter(line => {
+      const trimmedLine = line.trim();
+      const codePatterns = [
+        /^\s*(function|const|let|var|if|for|while|class|def|public|private|protected)\s/,
+        /^\s*[\w\$_]+\s*\([^)]*\)\s*[{=]/,
+        /^\s*[\w\$_]+\s*=\s*.+[;,]/,
+        /^\s*[{}()[\];]/
+      ];
+      return codePatterns.some(pattern => pattern.test(trimmedLine));
+    });
+    
+    if (lines.length > 1 && codeLines.length > lines.length * 0.3) {
+      // If more than 30% of lines look like code, treat as code block
+      formattedText = `<pre class="ql-syntax">${formattedText}</pre>`;
+    } else {
+      // Handle line breaks properly
+      formattedText = formattedText.replace(/\n/g, '<br>');
+      
+      // Wrap in paragraph if not already wrapped
+      if (!formattedText.includes('<p>') && !formattedText.includes('<pre>')) {
+        formattedText = `<p>${formattedText}</p>`;
+      }
+    }
+    
+    return formattedText;
   };
 
   const handleFileUpload = (e) => {
@@ -91,13 +170,14 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
         }
 
         
-          // Prepare options dynamically
+          // Prepare options dynamically - FIX: Handle zero values properly
           const options = [];
           for (let i = 4; i <= 11; i++) {
-            if (row[i]) {
+            // Check for null, undefined, and empty string, but allow 0 and other falsy values like false
+            if (row[i] !== null && row[i] !== undefined && row[i] !== '') {
               options.push({
                 id: `option${options.length + 1}`,
-                text: row[i],
+                text: row[i].toString(), // Convert to string to handle numbers properly
                 isCorrect: false
               });
             }
@@ -112,12 +192,9 @@ const BulkUploadQuestionModal = ({ isOpen, onClose, testId }) => {
             opt.isCorrect = correctOptions.includes(String.fromCharCode(97 + idx));
           });
 
-          // Convert simple text description to HTML format for ReactQuill
-          // If the description already contains HTML tags, keep it as is
+          // FIX: Enhanced description formatting for code and other content
           const description = row[1] || '';
-          const formattedDescription = description.includes('<') && description.includes('>')
-            ? description
-            : `<p>${description}</p>`;
+          const formattedDescription = formatTextContent(description);
 
           return {
             id: row[0] || index + 1,

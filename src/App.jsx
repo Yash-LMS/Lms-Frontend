@@ -62,6 +62,7 @@ import UserPassword from "./components/user/UpdatePassword";
 import TraineeAssignmentList from "./components/user/TraineeAssignmentList";
 import ProfileCompletion from "./components/auth/ProfileCompletion";
 import { USER_PROFILE_IMAGE_URL } from "./constants/apiConstants";
+import CourseAnalytics from "./components/graph/CourseAnalytics";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -497,6 +498,15 @@ const AppContent = () => {
             }
           />
 
+                 <Route
+            path="/analysis/course"
+            element={
+              <ProtectedRoute>
+                <CourseAnalytics />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/manager/batch/requests"
             element={
@@ -589,6 +599,9 @@ const NavbarWithRouter = ({ setLoginStatus }) => {
     sessionStorage.removeItem("Profile_Image");
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+
+    sessionStorage.clear();
+    localStorage.clear();
  
     setLoginStatus(false);
     navigate("/login");

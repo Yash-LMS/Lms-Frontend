@@ -148,6 +148,10 @@ const TestList = ({
                 <span className={styles.detailLabel}>Duration:</span>
                 <span>{test.duration} minutes</span>
               </div>
+              <div className={styles.detailItem}>
+                <span className={styles.detailLabel}>Feedback:</span>
+                <span>{test.feedback}</span>
+              </div>
             </div>
 
             <div className={styles.testActions}>

@@ -9,6 +9,8 @@ import {
 import styles from "./TestRequests.module.css";
 import SuccessModal from "../../assets/SuccessModal";
 import Sidebar from "./Sidebar";
+import { DELETE_TEST_URL } from "../../constants/apiConstants";
+import axios from "axios";
 
 const TestRequests = () => {
   const dispatch = useDispatch();
@@ -24,6 +26,8 @@ const TestRequests = () => {
   const [feedbackText, setFeedbackText] = useState("");
   const [currentTestId, setCurrentTestId] = useState(null);
   const [actionType, setActionType] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState("");
 
   const testStatusOptions = ["PENDING", "APPROVED", "REJECTED"];
 
@@ -95,6 +99,28 @@ const TestRequests = () => {
       }
     });
   };
+
+  const handleDeleteTest = async (testId) => {
+  const { user, token } = getUserData();
+  try {
+    const response = await axios.post(
+      DELETE_TEST_URL,
+      { testId, user, token },
+      { headers: { "Content-Type": "application/json" } }
+    );
+    if (response.data && response.data.response === "success") {
+      setDeleteMessage("Test deleted successfully.");
+      setShowDeleteModal(true);
+      fetchTests();
+    } else {
+      setDeleteMessage(response.data?.message || "Failed to delete test.");
+      setShowDeleteModal(true);
+    }
+  } catch (error) {
+    setDeleteMessage("Error deleting test. Please try again.");
+    setShowDeleteModal(true);
+  }
+};
 
   const handleFeedbackSubmit = () => {
     const { user, token } = getUserData();
@@ -194,6 +220,7 @@ const TestRequests = () => {
                   <th>Test Name</th>
                   <th>Instructor</th>
                   <th>Duration (min)</th>
+                  <th>System Remark</th>
                   <th>Request Status</th>
                   <th>Actions</th>
                 </tr>
@@ -205,6 +232,7 @@ const TestRequests = () => {
                       <td>{test.testName}</td>
                       <td>{test.instructorName}</td>
                       <td>{test.duration}</td>
+                      <td>{test.systemRemark || "New"}</td>
                       <td>
                         <span
                           className={`${styles.statusBadge} ${
@@ -232,6 +260,14 @@ const TestRequests = () => {
                               }
                             >
                               Reject
+                            </button>
+                            <button
+                              className={styles.deleteButton}
+                               onClick={() =>
+                                handleDeleteTest(test.testId || test.id)
+                              }
+                            >
+                              Delete
                             </button>
                             <button
                               className={styles.btnPreview}
@@ -305,6 +341,13 @@ const TestRequests = () => {
           onClose={() => setShowSuccessModal(false)}
         />
       )}
+
+      {showDeleteModal && (
+       <SuccessModal
+    message={deleteMessage}
+    onClose={() => setShowDeleteModal(false)}
+  />
+)}
     </div>
   );
 };

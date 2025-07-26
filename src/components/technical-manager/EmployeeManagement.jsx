@@ -645,6 +645,29 @@ const transformedUsersForExcel = filteredUsers.map(user => ({
   status: user.status,
 }));
 
+const getPaginationRange = () => {
+  const maxVisiblePages = 5;
+  const totalPagesCount = totalPages;
+  
+  if (totalPagesCount <= maxVisiblePages) {
+    // If total pages is less than or equal to max visible, show all pages
+    return Array.from({ length: totalPagesCount }, (_, i) => i + 1);
+  }
+  
+  const halfVisible = Math.floor(maxVisiblePages / 2);
+  
+  // Calculate start and end page numbers
+  let startPage = Math.max(currentPage - halfVisible, 1);
+  let endPage = Math.min(startPage + maxVisiblePages - 1, totalPagesCount);
+  
+  // Adjust start page if we're near the end
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(endPage - maxVisiblePages + 1, 1);
+  }
+  
+  return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+};
+
 
   return (
     <div className={styles.container}>
@@ -993,7 +1016,23 @@ const transformedUsersForExcel = filteredUsers.map(user => ({
         Previous
       </button>
       
-      {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+      {/* Show first page if not in visible range */}
+      {getPaginationRange()[0] > 1 && (
+        <>
+          <button
+            className={styles.paginationButton}
+            onClick={() => handlePageChange(1)}
+          >
+            1
+          </button>
+          {getPaginationRange()[0] > 2 && (
+            <span className={styles.paginationEllipsis}>...</span>
+          )}
+        </>
+      )}
+      
+      {/* Show visible page range */}
+      {getPaginationRange().map((pageNumber) => (
         <button
           key={pageNumber}
           className={`${styles.paginationButton} ${currentPage === pageNumber ? styles.active : ''}`}
@@ -1002,6 +1041,21 @@ const transformedUsersForExcel = filteredUsers.map(user => ({
           {pageNumber}
         </button>
       ))}
+      
+      {/* Show last page if not in visible range */}
+      {getPaginationRange()[getPaginationRange().length - 1] < totalPages && (
+        <>
+          {getPaginationRange()[getPaginationRange().length - 1] < totalPages - 1 && (
+            <span className={styles.paginationEllipsis}>...</span>
+          )}
+          <button
+            className={styles.paginationButton}
+            onClick={() => handlePageChange(totalPages)}
+          >
+            {totalPages}
+          </button>
+        </>
+      )}
       
       <button
         className={`${styles.paginationButton} ${currentPage === totalPages ? styles.disabled : ''}`}

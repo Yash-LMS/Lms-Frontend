@@ -30,6 +30,7 @@ export const COURSE_IMAGE_VIEW_URL = `${API_BASE_URL}/course/image`;
 export const TEST_INSTRUCTOR_URL = `${API_BASE_URL}/test/findTests`;
 export const TRAINEE_RESULT_BY_INSTRUCTOR = `${API_BASE_URL}/test/viewTraineeResults`;
 export const UPDATE_SECTION_SEQUENCE = `${API_BASE_URL}/course/update/section/sequence`;
+export const UPDATE_TOPIC_SEQUENCE = `${API_BASE_URL}/course/update/topic/sequence`;
 export const INSTRUCTOR_TRAINEE_RESULT_URL = `${API_BASE_URL}/test/viewTraineeResults`;
 export const FIND_DETAILED_TRAINEE_RESULT_URL = `${API_BASE_URL}/test/detail/result`;
 export const CREATE_BATCH_URL = `${API_BASE_URL}/batch/create`;
@@ -181,6 +182,13 @@ export const PREVIEW_TEST_URL = `${API_BASE_URL}/test/view/question`;
 export const PREVIEW_TEST_MANAGER_URL = `${API_BASE_URL}/manager/view/question`;
 export const FIND_QUESTION_BY_USER_URL = `${API_BASE_URL}/library/findQuestionByUser`;
 export const UPDATE_QUESTION_URL = `${API_BASE_URL}/library/updateQuestion`;
+export const UPDATE_TEST_QUESTION_URL= `${API_BASE_URL}/test/update/question`;
+export const DELETE_TEST_URL = `${API_BASE_URL}/manager/test/delete`;
+
+
+// Analysis
+export const COURSE_ANALYSIS_URL = `${API_BASE_URL}/analysis/course`;
+
 
 
 // Question Library

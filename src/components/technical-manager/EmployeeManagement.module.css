@@ -614,7 +614,7 @@
 }
 
 .selectedCount {
-  color: #007bff;
+  color: #8e6cef;
   font-weight: bold;
 }
 
@@ -623,7 +623,7 @@
   width: 12px;
   height: 12px;
   border: 2px solid #f3f3f3;
-  border-top: 2px solid #007bff;
+  border-top: 2px solid #8e6cef;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-right: 5px;
@@ -806,13 +806,23 @@
 }
 
 .paginationButton.active {
-  background-color: #007bff;
+  background-color: #8e6cef;
   color: white;
-  border-color: #007bff;
+  border-color: #8e6cef;
 }
 
 .paginationButton.disabled {
   opacity: 0.5;
   cursor: not-allowed;
   background-color: #f8f9fa;
+}
+
+.paginationEllipsis {
+  padding: 8px 12px;
+  color: #666;
+  font-weight: bold;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }

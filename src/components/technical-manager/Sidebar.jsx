@@ -14,7 +14,9 @@ import {
   faBell,
   faEye,
   faTasks,
-  faFingerprint
+  faFingerprint,
+  faPieChart,
+  faComments
 } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = ({ activeTab }) => {
@@ -165,7 +167,7 @@ const Sidebar = ({ activeTab }) => {
               href="#feedback"
               onClick={(e) => handleNavigation('/feedback/management', 'feedback', e)}
             >
-              <FontAwesomeIcon icon={faTasks} />
+              <FontAwesomeIcon icon={faComments} />
               <span className={styles.navText}>Feedback</span>
         
             </a>
@@ -209,6 +211,16 @@ const Sidebar = ({ activeTab }) => {
             >
               <FontAwesomeIcon icon={faEye} />
               <span className={styles.navText}>View Allotted Test</span>
+            </a>
+          </li>
+
+                    <li className={`${styles.navItem} ${activeTab === "analysis" ? styles.active : ""}`}>
+            <a
+              href="#analysis"
+              onClick={(e) => handleNavigation('/analysis/course', 'analysis', e)}
+            >
+              <FontAwesomeIcon icon={faPieChart} />
+              <span className={styles.navText}>Analytics</span>
             </a>
           </li>
           
