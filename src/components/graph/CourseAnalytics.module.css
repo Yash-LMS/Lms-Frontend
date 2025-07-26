@@ -255,36 +255,6 @@
   margin: 20px;
 }
 
-@media (max-width: 768px) {
-  .container {
-    margin-left: 0; /* Remove margin on mobile */
-  }
-  
-  .header {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
-  }
-  
-  .header h1 {
-    font-size: 1.5rem;
-  }
-  
-  .coursesGrid {
-    grid-template-columns: 1fr;
-  }
-  
-  .statsContainer {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .statItem {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-}
-
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -309,6 +279,13 @@
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   position: relative;
   animation: modalSlideIn 0.3s ease-out;
+}
+
+/* Wide modal for table */
+.modalContentWide {
+  width: 95%;
+  max-width: 1200px;
+  max-height: 85vh;
 }
 
 @keyframes modalSlideIn {
@@ -357,7 +334,7 @@
 
 .modalBody {
   padding: 24px;
-  max-height: 60vh;
+  max-height: 70vh;
   overflow-y: auto;
 }
 
@@ -375,6 +352,203 @@
   background-color: #f8fafc;
   border-radius: 6px;
   border-left: 4px solid #8e6cef;
+}
+
+/* Table heading */
+.tableHeading {
+  margin: 10px 0;
+  padding: 10px 0;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.tableHeading h4 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Table styles */
+.tableContainer {
+  overflow-x: auto;
+  margin-top: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.usersTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 800px;
+}
+
+.usersTable th {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 12px 10px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+  font-size: 0.9em;
+  color: #4a5568;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.usersTable td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.85em;
+  vertical-align: middle;
+}
+
+.tableRow:hover {
+  background-color: #f8fafc;
+  transition: background-color 0.2s ease;
+}
+
+/* Row status colors */
+.rowPending {
+  border-left: 4px solid #ff4444;
+}
+
+.rowStarted {
+  border-left: 4px solid #ffaa00;
+}
+
+.rowCompleted {
+  border-left: 4px solid #22c55e;
+}
+
+/* Employee details styling */
+.employeeId {
+  font-weight: 600;
+  color: #2d3748;
+  font-family: monospace;
+}
+
+.employeeName {
+  font-weight: 500;
+  color: #1a202c;
+}
+
+.employeeEmail {
+  color: #4a5568;
+  font-size: 0.8em;
+  word-break: break-all;
+}
+
+.employeeMobile {
+  color: #4a5568;
+  font-family: monospace;
+}
+
+/* Badge styles */
+.employeeTypeBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badgeDefault {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.badgeINSTRUCTOR {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.badgeSTUDENT {
+  background: #c6f6d5;
+  color: #2f855a;
+}
+
+.badgeADMIN {
+  background: #feebc8;
+  color: #c05621;
+}
+
+.badgeEMPLOYEE {
+  background: #bee3f8;
+  color: #2b6cb0;
+}
+
+.badgeTRAINEE {
+  background: #e9d8fd;
+  color: #6b46c1;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusPENDING {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.statusSTARTED {
+  background: #feebc8;
+  color: #c05621;
+}
+
+.statusCOMPLETED {
+  background: #c6f6d5;
+  color: #2f855a;
+}
+
+.statusINPROGRESS {
+  background: #bee3f8;
+  color: #2b6cb0;
+}
+
+.statusNOTSTARTED {
+  background: #f7fafc;
+  color: #4a5568;
+}
+
+/* Progress cell */
+.progressCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 80px;
+}
+
+.progressText {
+  font-size: 0.8em;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.progressBarSmall {
+  width: 60px;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressFillSmall {
+  height: 100%;
+  background: linear-gradient(90deg, #48bb78, #68d391);
+  transition: width 0.3s ease;
+  border-radius: 3px;
 }
 
 .usersGrid {
@@ -456,12 +630,46 @@
   opacity: 1;
 }
 
-/* Responsive design for modal */
+/* Responsive design */
 @media (max-width: 768px) {
+  .container {
+    margin-left: 0; /* Remove margin on mobile */
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .coursesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .statsContainer {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .statItem {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  /* Responsive modal */
   .modalContent {
     width: 95%;
     margin: 20px;
     max-height: 85vh;
+  }
+  
+  .modalContentWide {
+    width: 98%;
+    margin: 10px;
   }
   
   .modalHeader {
@@ -473,10 +681,32 @@
   }
   
   .modalBody {
-    padding: 20px;
+    padding: 20px 15px;
+    max-height: 75vh;
   }
   
   .usersGrid {
     grid-template-columns: 1fr;
+  }
+  
+  /* Responsive table */
+  .tableContainer {
+    margin: 10px -15px;
+  }
+  
+  .usersTable {
+    font-size: 0.8em;
+    min-width: 700px;
+  }
+  
+  .usersTable th,
+  .usersTable td {
+    padding: 8px 6px;
+  }
+  
+  .employeeEmail {
+    font-size: 0.7em;
+    max-width: 120px;
+    word-break: break-all;
   }
 }

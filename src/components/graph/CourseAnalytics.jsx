@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import axios from 'axios';
 import styles from './CourseAnalytics.module.css';
 import Sidebar from '../technical-manager/Sidebar';
 import InstructorSidebar from '../instructor/InstructorSidebar';
+import ExportToExcel from '../../assets/ExportToExcel';
 import { COURSE_ANALYSIS_URL } from '../../constants/apiConstants';
 
 const CourseAnalytics = () => {
@@ -21,6 +23,7 @@ const CourseAnalytics = () => {
     users: [],
     status: ''
   });
+  const [currentCourse, setCurrentCourse] = useState(null);
 
   const getUserData = () => {
     try {
@@ -54,32 +57,22 @@ const CourseAnalytics = () => {
         return;
       }
 
-      const response = await fetch(COURSE_ANALYSIS_URL, {
-        method: 'POST',
+      const response = await axios.post(COURSE_ANALYSIS_URL, {
+        user: user,
+        token: token
+      }, {
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user: user,
-          token: token
-        })
+        }
       });
 
-      // Check if the response is ok first
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      // Parse the response as JSON
-      const data = await response.json();
-
-      if (data.response === 'success') {
-        setCourseData(data.payload || []);
+      if (response.data.response === 'success') {
+        setCourseData(response.data.payload || []);
       } else {
-        setError(data.message || 'Failed to fetch course analytics');
+        setError(response.data.message || 'Failed to fetch course analytics');
       }
     } catch (err) {
-      setError('Error fetching course analytics: ' + err.message);
+      setError('Error fetching course analytics: ' + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
@@ -117,17 +110,34 @@ const CourseAnalytics = () => {
       users,
       status
     });
+    setCurrentCourse(course);
     setIsModalOpen(true);
   };
 
   // Function to close modal
   const closeModal = () => {
     setIsModalOpen(false);
+    setCurrentCourse(null);
     setModalData({
       title: '',
       users: [],
       status: ''
     });
+  };
+
+  // Prepare data for Excel export
+  const prepareExcelData = (users, courseName, status) => {
+    return users.map((user, index) => ({
+      'S.No': index + 1,
+      'Employee ID': user.employeeId || 'N/A',
+      'Name': user.name || 'N/A',
+      'Email ID': user.emailId || 'N/A',
+      'Mobile No': user.mobileNo || 'N/A',
+      'Employee Type': user.employeeType || 'N/A',
+      'Completion Status': user.completionStatus || status.toUpperCase(),
+      'Progress %': user.completionPercentage !== undefined ? `${user.completionPercentage.toFixed(1)}%` : '0.0%',
+      'Course Name': courseName
+    }));
   };
 
   const prepareChartData = (course) => {
@@ -178,7 +188,7 @@ const CourseAnalytics = () => {
               <p className={styles.tooltipListTitle}>Users:</p>
               <ul>
                 {data.list.slice(0, 5).map((user, index) => (
-                  <li key={index}>{user}</li>
+                  <li key={index}>{user.name} - {user.employeeType}</li>
                 ))}
                 {data.list.length > 5 && <li>...and {data.list.length - 5} more</li>}
               </ul>
@@ -270,9 +280,15 @@ const CourseAnalytics = () => {
   const StatusModal = () => {
     if (!isModalOpen) return null;
 
+    // Prepare data for Excel export
+    const excelData = prepareExcelData(modalData.users, currentCourse?.courseName, modalData.status);
+    
+    // Generate filename based on course and status
+    const fileName = `${currentCourse?.courseName?.replace(/[^a-zA-Z0-9]/g, '_')}_${modalData.status}_Users_${new Date().toISOString().split('T')[0]}`;
+
     return (
       <div className={styles.modalOverlay} onClick={closeModal}>
-        <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={`${styles.modalContent} ${styles.modalContentWide}`} onClick={(e) => e.stopPropagation()}>
           <div className={styles.modalHeader}>
             <h3 className={styles.modalTitle}>{modalData.title}</h3>
             <button className={styles.modalCloseBtn} onClick={closeModal}>
@@ -281,19 +297,81 @@ const CourseAnalytics = () => {
           </div>
           
           <div className={styles.modalBody}>
-            {modalData.users.length > 0 ? (
+            {modalData.users && modalData.users.length > 0 ? (
               <div className={styles.usersList}>
                 <div className={styles.usersCount}>
                   Total: {modalData.users.length} user{modalData.users.length !== 1 ? 's' : ''}
                 </div>
-                <div className={styles.usersGrid}>
-                  {modalData.users.map((user, index) => (
-                    <div key={index} className={`${styles.userCard} ${styles[`userCard${modalData.status.charAt(0).toUpperCase() + modalData.status.slice(1)}`]}`}>
-                      <div className={styles.userInfo}>
-                        <span className={styles.userName}>{user}</span>
-                      </div>
-                    </div>
-                  ))}
+                
+                {/* Export to Excel Button */}
+                <div className={styles.exportSection}>
+                  <ExportToExcel
+                    data={excelData}
+                    fileName={fileName}
+                    sheetName={`${modalData.status.charAt(0).toUpperCase() + modalData.status.slice(1)} Users`}
+                    buttonStyle={{
+                      backgroundColor: '#007bff',
+                      fontSize: '14px',
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      marginBottom: '15px'
+                    }}
+                  />
+                </div>
+                
+                <div className={styles.tableHeading}>
+                  <h4>Employee Details</h4>
+                </div>
+                
+                <div className={styles.tableContainer}>
+                  <table className={styles.usersTable}>
+                    <thead>
+                      <tr>
+                        <th style={{width: '60px'}}>S.No</th>
+                        <th style={{width: '100px'}}>Employee ID</th>
+                        <th style={{width: '150px'}}>Name</th>
+                        <th style={{width: '200px'}}>Email ID</th>
+                        <th style={{width: '120px'}}>Mobile No</th>
+                        <th style={{width: '120px'}}>Employee Type</th>
+                        <th style={{width: '140px'}}>Completion Status</th>
+                        <th style={{width: '100px'}}>Progress %</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {modalData.users.map((user, index) => (
+                        <tr key={`user-${index}-${user.employeeId || index}`} className={`${styles.tableRow} ${styles[`row${modalData.status.charAt(0).toUpperCase() + modalData.status.slice(1)}`]}`}>
+                          <td style={{textAlign: 'center'}}>{index + 1}</td>
+                          <td className={styles.employeeId}>{user.employeeId || 'N/A'}</td>
+                          <td className={styles.employeeName}>{user.name || 'N/A'}</td>
+                          <td className={styles.employeeEmail}>{user.emailId || 'N/A'}</td>
+                          <td className={styles.employeeMobile}>{user.mobileNo || 'N/A'}</td>
+                          <td>
+                            <span className={`${styles.employeeTypeBadge} ${styles[`badge${user.employeeType?.replace(/[^a-zA-Z0-9]/g, '') || 'Default'}`]}`}>
+                              {user.employeeType || 'N/A'}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`${styles.statusBadge} ${styles[`status${user.completionStatus?.replace(/[^a-zA-Z0-9]/g, '') || modalData.status.charAt(0).toUpperCase() + modalData.status.slice(1)}`]}`}>
+                              {user.completionStatus || modalData.status.toUpperCase()}
+                            </span>
+                          </td>
+                          <td>
+                            <div className={styles.progressCell}>
+                              <span className={styles.progressText}>
+                                {user.completionPercentage !== undefined ? `${user.completionPercentage.toFixed(1)}%` : '0.0%'}
+                              </span>
+                              <div className={styles.progressBarSmall}>
+                                <div 
+                                  className={styles.progressFillSmall} 
+                                  style={{ width: `${user.completionPercentage || 0}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             ) : (
