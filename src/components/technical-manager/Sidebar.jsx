@@ -220,7 +220,17 @@ const Sidebar = ({ activeTab }) => {
               onClick={(e) => handleNavigation('/analysis/course', 'analysis', e)}
             >
               <FontAwesomeIcon icon={faPieChart} />
-              <span className={styles.navText}>Analytics</span>
+              <span className={styles.navText}>Course Analytics</span>
+            </a>
+          </li>
+
+                              <li className={`${styles.navItem} ${activeTab === "testInsight" ? styles.active : ""}`}>
+            <a
+              href="#analysis"
+              onClick={(e) => handleNavigation('/analysis/test', 'testInsight', e)}
+            >
+              <FontAwesomeIcon icon={faPieChart} />
+              <span className={styles.navText}> Test Analytics</span>
             </a>
           </li>
           

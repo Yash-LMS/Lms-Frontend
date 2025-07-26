@@ -188,6 +188,7 @@ export const DELETE_TEST_URL = `${API_BASE_URL}/manager/test/delete`;
 
 // Analysis
 export const COURSE_ANALYSIS_URL = `${API_BASE_URL}/analysis/course`;
+export const TEST_ANALYSIS_URL = `${API_BASE_URL}/analysis/test`;
 
 
 

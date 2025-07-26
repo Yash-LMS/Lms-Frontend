@@ -1,0 +1,769 @@
+.container {
+  padding: 20px;
+  background-color: #edf2f7;
+  min-height: 100vh;
+  margin-left: 250px; /* Add this to account for sidebar width */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+}
+
+.header h1 {
+  margin: 0;
+  color: #8e6cef;
+  font-size: 1.75rem;
+}
+
+.chartToggle {
+  display: flex;
+  gap: 10px;
+}
+
+.toggleBtn {
+  padding: 10px 20px;
+  border: 2px solid #ddd;
+  background: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.toggleBtn:hover {
+  background-color: #f0f0f0;
+}
+
+.toggleBtn.active {
+  background-color: #8e6cef;
+  color: white;
+  border-color: #8e6cef;
+}
+
+.testsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 20px;
+}
+
+.testCard {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.testCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.testHeader {
+  margin-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
+}
+
+.testHeader h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.4rem;
+}
+
+.testInfo {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.totalAllotments {
+  color: #666;
+  font-weight: 500;
+  background-color: #f8f9fa;
+  padding: 5px 10px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.duration {
+  color: #666;
+  font-weight: 500;
+  background-color: #e3f2fd;
+  padding: 5px 10px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.chartContainer {
+  margin-bottom: 20px;
+  height: 300px;
+}
+
+.statsContainer {
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+}
+
+.statLabel {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+/* Chart specific styles */
+.chartWrapper {
+  position: relative;
+  width: 100%;
+  height: 300px;
+}
+
+.pieChartLegend {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.legendItem:last-child {
+  margin-bottom: 0;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  margin-right: 8px;
+}
+
+.legendText {
+  color: #333;
+}
+
+.scaleInfo {
+  position: absolute;
+  bottom: -5px;
+  right: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 8px 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 11px;
+  font-weight: 500;
+  color: #666;
+}
+
+/* Stat value color classes for test statuses */
+.statValuePending {
+  color: #6b7280;
+}
+
+.statValueStarted {
+  color: #3b82f6;
+}
+
+.statValueExpired {
+  color: #ef4444;
+}
+
+.statValueCompleted {
+  color: #10b981;
+}
+
+.tooltip {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  max-width: 200px;
+}
+
+.tooltipLabel {
+  margin: 0 0 8px 0;
+  font-weight: bold;
+  color: #333;
+}
+
+.tooltipList {
+  margin-top: 8px;
+}
+
+.tooltipListTitle {
+  margin: 0 0 5px 0;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.tooltipList ul {
+  margin: 0;
+  padding-left: 15px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.tooltipList li {
+  margin-bottom: 2px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  font-size: 1.2rem;
+  color: #d32f2f;
+  background-color: #ffebee;
+  border: 1px solid #f8bbd9;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 20px;
+}
+
+.noData {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  font-size: 1.2rem;
+  color: #666;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 20px;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  position: relative;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+/* Wide modal for table */
+.modalContentWide {
+  width: 95%;
+  max-width: 1400px;
+  max-height: 85vh;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modalHeader {
+  background: linear-gradient(135deg, #8e6cef 0%, #7559ce 100%);
+  color: white;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: white;
+}
+
+.modalCloseBtn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  line-height: 1;
+}
+
+.modalCloseBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.modalBody {
+  padding: 24px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.usersList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.usersCount {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+  padding: 8px 12px;
+  background-color: #f8fafc;
+  border-radius: 6px;
+  border-left: 4px solid #8e6cef;
+}
+
+.exportSection {
+  display: flex;
+  justify-content: flex-end;
+  margin: 10px 0;
+}
+
+/* Table heading */
+.tableHeading {
+  margin: 10px 0;
+  padding: 10px 0;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.tableHeading h4 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Table styles */
+.tableContainer {
+  overflow-x: auto;
+  margin-top: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.usersTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 1000px;
+}
+
+.usersTable th {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 12px 10px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+  font-size: 0.9em;
+  color: #4a5568;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.usersTable td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.85em;
+  vertical-align: middle;
+}
+
+.tableRow:hover {
+  background-color: #f8fafc;
+  transition: background-color 0.2s ease;
+}
+
+/* Row status colors for test statuses */
+.rowPending {
+  border-left: 4px solid #6b7280;
+}
+
+.rowStarted {
+  border-left: 4px solid #3b82f6;
+}
+
+.rowExpired {
+  border-left: 4px solid #ef4444;
+}
+
+.rowCompleted {
+  border-left: 4px solid #10b981;
+}
+
+/* Employee details styling */
+.employeeId {
+  font-weight: 600;
+  color: #2d3748;
+  font-family: monospace;
+}
+
+.employeeName {
+  font-weight: 500;
+  color: #1a202c;
+}
+
+.employeeEmail {
+  color: #4a5568;
+  font-size: 0.8em;
+  word-break: break-all;
+}
+
+.employeeMobile {
+  color: #4a5568;
+  font-family: monospace;
+}
+
+/* Badge styles */
+.employeeTypeBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badgeDefault {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.badgeINSTRUCTOR {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.badgeSTUDENT {
+  background: #c6f6d5;
+  color: #2f855a;
+}
+
+.badgeADMIN {
+  background: #feebc8;
+  color: #c05621;
+}
+
+.badgeEMPLOYEE {
+  background: #bee3f8;
+  color: #2b6cb0;
+}
+
+.badgeTRAINEE {
+  background: #e9d8fd;
+  color: #6b46c1;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusPENDING {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.statusSTARTED {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.statusEXPIRED {
+  background: #fecaca;
+  color: #ef4444;
+}
+
+.statusCOMPLETED {
+  background: #d1fae5;
+  color: #10b981;
+}
+
+.statusINPROGRESS {
+  background: #dbeafe;
+  color: #3b82f6;
+}
+
+.statusNOTSTARTED {
+  background: #f7fafc;
+  color: #4a5568;
+}
+
+/* Test-specific cells */
+.scoreCell {
+  text-align: center;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.totalMarksCell {
+  text-align: center;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.percentageCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 80px;
+}
+
+.percentageText {
+  font-size: 0.8em;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.percentageBarSmall {
+  width: 60px;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.percentageFillSmall {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  transition: width 0.3s ease;
+  border-radius: 3px;
+}
+
+.usersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.userCard {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 4px solid #8e6cef;
+  background-color: #f8fafc;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Different colors for different test statuses */
+.userCardPending {
+  border-left-color: #6b7280;
+  background-color: #f9fafb;
+}
+
+.userCardStarted {
+  border-left-color: #3b82f6;
+  background-color: #f0f9ff;
+}
+
+.userCardExpired {
+  border-left-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.userCardCompleted {
+  border-left-color: #10b981;
+  background-color: #f0fdf4;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.userName {
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.noUsers {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+/* Clickable stat items */
+.clickableStatItem {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.clickableStatItem:hover {
+  background-color: rgba(142, 108, 239, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.clickableStatItem::after {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  font-size: 12px;
+}
+
+.clickableStatItem:hover::after {
+  opacity: 1;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    margin-left: 0; /* Remove margin on mobile */
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .testsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .statsContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  
+  .statItem {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .testInfo {
+    gap: 10px;
+  }
+
+  /* Responsive modal */
+  .modalContent {
+    width: 95%;
+    margin: 20px;
+    max-height: 85vh;
+  }
+  
+  .modalContentWide {
+    width: 98%;
+    margin: 10px;
+  }
+  
+  .modalHeader {
+    padding: 16px 20px;
+  }
+  
+  .modalTitle {
+    font-size: 1.1rem;
+  }
+  
+  .modalBody {
+    padding: 20px 15px;
+    max-height: 75vh;
+  }
+  
+  .usersGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Responsive table */
+  .tableContainer {
+    margin: 10px -15px;
+  }
+  
+  .usersTable {
+    font-size: 0.8em;
+    min-width: 900px;
+  }
+  
+  .usersTable th,
+  .usersTable td {
+    padding: 8px 6px;
+  }
+  
+  .employeeEmail {
+    font-size: 0.7em;
+    max-width: 120px;
+    word-break: break-all;
+  }
+}
