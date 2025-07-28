@@ -35,6 +35,9 @@ const MyCourses = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
+  // State for view toggle (default is card)
+  const [viewMode, setViewMode] = useState("card");
+
   // State for feedback modal
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -57,40 +60,37 @@ const MyCourses = () => {
   const [courseImages, setCourseImages] = useState({});
   const defaultImageUrl = Image; 
 
+  const needsProfileCompletion = (userData) => {
+    const resumeNotUpdated = !userData.resumeStatus || userData.resumeStatus === 'not_updated';
+    const photoNotUpdated = !userData.photoStatus || userData.photoStatus === 'not_updated';
+    
+    return resumeNotUpdated || photoNotUpdated;
+  };
 
-      const needsProfileCompletion = (userData) => {
-        const resumeNotUpdated = !userData.resumeStatus || userData.resumeStatus === 'not_updated';
-        const photoNotUpdated = !userData.photoStatus || userData.photoStatus === 'not_updated';
-        
-        return resumeNotUpdated || photoNotUpdated;
-    };
+  const redirectUser = (userData) => {
+    if (userData.role === 'user' && needsProfileCompletion(userData)) {
+      navigate("/complete-profile");
+      return;
+    }
 
-    const redirectUser = (userData) => {
-        if (userData.role === 'user' && needsProfileCompletion(userData)) {
-            navigate("/complete-profile");
-            return;
-        }
-
-        if (userData.role === 'instructor' && needsProfileCompletion(userData)) {
-            navigate("/complete-profile");
-            return;
-        }
-        
-        if (userData.role === 'instructor') {
-            navigate("/instructor-dashboard");
-        } else if (userData.role === 'user') {
-            navigate("/user-dashboard");
-        } else {
-            navigate("/manager-dashboard");
-        }
-    };
-
+    if (userData.role === 'instructor' && needsProfileCompletion(userData)) {
+      navigate("/complete-profile");
+      return;
+    }
+    
+    if (userData.role === 'instructor') {
+      navigate("/instructor-dashboard");
+    } else if (userData.role === 'user') {
+      navigate("/user-dashboard");
+    } else {
+      navigate("/manager-dashboard");
+    }
+  };
 
   useEffect(() => {
     const{user,token}=getUserData();
     redirectUser(user);
   }, []);
-
 
   useEffect(() => {
     // Load submitted feedback from localStorage on component mount
@@ -155,7 +155,6 @@ const MyCourses = () => {
     };
   }, [allottedCourses]);
 
-  
   useEffect(() => {
     dispatch(viewAllotedCourses());
   }, [dispatch]);
@@ -334,12 +333,93 @@ const MyCourses = () => {
     return Number.isInteger(value) ? value : value.toFixed(2);
   };
 
+  // Render action buttons for both card and table view
+  const renderActionButtons = (course, isTableView = false) => {
+    return (
+      <div className={isTableView ? styles.tableActions : ""}>
+        <button
+          className={`${styles.continueButton} ${isTableView ? styles.tableButton : ""}`}
+          onClick={() => navigate(`/user/courseContent/${course.course.courseId}/${course.allotmentId}`)}
+        >
+          {course.completionStatus === 0 ? "Start" : "Continue"}
+        </button>
+
+        {/* Show Verify Completion button only if completionStatus is NOT 100% */}
+        {course.completionStatus < 100 && (
+          <button
+            className={`${styles.verifyButton} ${isTableView ? styles.tableButton : ""}`}
+            onClick={() => handleVerifyCompletion(course.allotmentId)}
+            disabled={verifyingCompletionId === course.allotmentId}
+          >
+            {verifyingCompletionId === course.allotmentId ? "Verifying..." : "Verify"}
+          </button>
+        )}
+
+        {/* Show Submit Feedback button if completionStatus is 100% and feedback not submitted */}
+        {course.completionStatus >= 100 && !isFeedbackSubmitted(course.allotmentId) && (
+          <button
+            className={`${styles.feedbackButton} ${isTableView ? styles.tableButton : ""}`}
+            onClick={() => {
+              setSelectedCourse(course);
+              setShowFeedbackModal(true);
+            }}
+          >
+            Feedback
+          </button>
+        )}
+
+        {/* Show Feedback Already Submitted message if feedback was submitted */}
+        {course.completionStatus >= 100 && isFeedbackSubmitted(course.allotmentId) && !isTableView && (
+          <div className={styles.feedbackSubmittedMessage}>
+            ✓ Feedback Submitted
+          </div>
+        )}
+
+        {course.completionStatus >= 100 && (
+          <button
+            className={`${styles.downloadButton} ${isTableView ? styles.tableButton : ""}`}
+            onClick={() => handleDownloadCertificate(course.allotmentId)}
+            disabled={downloadingCertificateId === course.allotmentId}
+          >
+            {downloadingCertificateId === course.allotmentId ? "Downloading..." : "Certificate"}
+          </button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className={styles.myCoursesContainer}>
       <DashboardSidebar activeTab="dashboard" />
       <header className={styles.coursesHeader}>
         <h1>My Courses</h1>
         <div className={styles.coursesFilters}>
+          {/* View Toggle Radio Buttons */}
+          <div className={styles.viewToggle}>
+            <label className={styles.radioLabel}>
+              <input
+                type="radio"
+                name="viewMode"
+                value="card"
+                checked={viewMode === "card"}
+                onChange={(e) => setViewMode(e.target.value)}
+                className={styles.radioInput}
+              />
+              <span className={styles.radioText}>Card View</span>
+            </label>
+            <label className={styles.radioLabel}>
+              <input
+                type="radio"
+                name="viewMode"
+                value="table"
+                checked={viewMode === "table"}
+                onChange={(e) => setViewMode(e.target.value)}
+                className={styles.radioInput}
+              />
+              <span className={styles.radioText}>Table View</span>
+            </label>
+          </div>
+
           <select
             className={styles.filterDropdown}
             value={filterStatus}
@@ -387,115 +467,135 @@ const MyCourses = () => {
         )}
 
       {!loading && !error && allottedCourses && allottedCourses.length > 0 && (
-        <div className={styles.coursesGrid}>
-          {filteredCourses.map((course) => (
-            <div key={course.id} className={styles.courseCard}>
-              <div className={styles.courseImage}>
-                <img
-                  src={courseImages[course.course.courseId] || defaultImageUrl} 
-                  alt={`${course.courseName} thumbnail`} 
-                  className={styles.thumbnail}
-                />
-                <span
-                  className={`${styles.courseStatus} ${getStatusClass(
-                    course.allotmentStatus
-                  )}`}
-                >
-                  {course.allotmentStatus.toUpperCase()}
-                </span>
-              </div>
-              <div className={styles.courseContent}>
-                <h3 className={styles.courseTitle}>
-                  {course.course.courseName}
-                </h3>
-                <p className={styles.courseInstructor}>
-                  Instructor: {course.course.instructor}
-                </p>
-                <p className={styles.courseDuration}>
-                  Description: {course.course.description}
-                </p>
-                <p className={styles.courseDuration}>
-                  Total Hours: {course.course.totalHours}
-                </p>
-
-                <div className={styles.progressContainer}>
-                  <div className={styles.progressInfo}>
-                    <span>Progress</span>
-                    <span>{formatCompletionStatus(course.completionStatus)}%</span>
+        <>
+          {/* Card View */}
+          {viewMode === "card" && (
+            <div className={styles.coursesGrid}>
+              {filteredCourses.map((course) => (
+                <div key={course.id} className={styles.courseCard}>
+                  <div className={styles.courseImage}>
+                    <img
+                      src={courseImages[course.course.courseId] || defaultImageUrl} 
+                      alt={`${course.courseName} thumbnail`} 
+                      className={styles.thumbnail}
+                    />
+                    <span
+                      className={`${styles.courseStatus} ${getStatusClass(
+                        course.allotmentStatus
+                      )}`}
+                    >
+                      {course.allotmentStatus.toUpperCase()}
+                    </span>
                   </div>
-                  <div className={styles.progressBar}>
-                    <div
-                      className={styles.progressFill}
-                      style={{ width: `${course.completionStatus}%` }}
-                    ></div>
+                  <div className={styles.courseContent}>
+                    <h3 className={styles.courseTitle}>
+                      {course.course.courseName}
+                    </h3>
+                    <p className={styles.courseInstructor}>
+                      Instructor: {course.course.instructor}
+                    </p>
+                    <p className={styles.courseDuration}>
+                      Description: {course.course.description}
+                    </p>
+                    <p className={styles.courseDuration}>
+                      Total Hours: {course.course.totalHours}
+                    </p>
+
+                    <div className={styles.progressContainer}>
+                      <div className={styles.progressInfo}>
+                        <span>Progress</span>
+                        <span>{formatCompletionStatus(course.completionStatus)}%</span>
+                      </div>
+                      <div className={styles.progressBar}>
+                        <div
+                          className={styles.progressFill}
+                          style={{ width: `${course.completionStatus}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {renderActionButtons(course, false)}
                   </div>
                 </div>
-
-                <button
-                  className={styles.continueButton}
-                  onClick={() => navigate(`/user/courseContent/${course.course.courseId}/${course.allotmentId}`)}
-                >
-                  {course.completionStatus === 0
-                    ? "Start Learning"
-                    : "Continue Learning"}
-                </button>
-
-                {/* Show Verify Completion button only if completionStatus is NOT 100% */}
-                {course.completionStatus < 100 && (
-                  <button
-                    className={styles.verifyButton}
-                    onClick={() => handleVerifyCompletion(course.allotmentId)}
-                    disabled={verifyingCompletionId === course.allotmentId}
-                  >
-                    {verifyingCompletionId === course.allotmentId ? (
-                      <span className={styles.loadingSpinner}>
-                        Verifying...
-                      </span>
-                    ) : (
-                      "Verify Completion"
-                    )}
-                  </button>
-                )}
-
-                {/* Show Submit Feedback button if completionStatus is 100% and feedback not submitted */}
-                {course.completionStatus >= 100 && !isFeedbackSubmitted(course.allotmentId) && (
-                  <button
-                    className={styles.feedbackButton}
-                    onClick={() => {
-                      setSelectedCourse(course);
-                      setShowFeedbackModal(true);
-                    }}
-                  >
-                   Feedback
-                  </button>
-                )}
-
-                {/* Show Feedback Already Submitted message if feedback was submitted */}
-                {course.completionStatus >= 100 && isFeedbackSubmitted(course.allotmentId) && (
-                  <div className={styles.feedbackSubmittedMessage}>
-                    ✓ Feedback Already Submitted
-                  </div>
-                )}
-
-                {course.completionStatus >= 100 && (
-                  <button
-                    className={styles.downloadButton}
-                    onClick={() => handleDownloadCertificate(course.allotmentId)}
-                    disabled={downloadingCertificateId === course.allotmentId}
-                  >
-                    {downloadingCertificateId === course.allotmentId ? (
-                      <span className={styles.loadingSpinner}>
-                        Downloading Certificate...
-                      </span>
-                    ) : (
-                      "Download Certificate"
-                    )}
-                  </button>
-                )}
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+
+          {/* Table View */}
+          {viewMode === "table" && (
+            <div className={styles.tableContainer}>
+              <table className={styles.coursesTable}>
+                <thead>
+                  <tr>
+                    <th>Course Image</th>
+                    <th>Course Name</th>
+                    <th>Instructor</th>
+                    <th>Total Hours</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>Feedback Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCourses.map((course) => (
+                    <tr key={course.id}>
+                      <td>
+                        <img
+                          src={courseImages[course.course.courseId] || defaultImageUrl}
+                          alt={`${course.courseName} thumbnail`}
+                          className={styles.tableImage}
+                        />
+                      </td>
+                      <td>
+                        <div className={styles.tableCourseInfo}>
+                          <strong>{course.course.courseName}</strong>
+                          <small>{course.course.description}</small>
+                        </div>
+                      </td>
+                      <td>{course.course.instructor}</td>
+                      <td>{course.course.totalHours}h</td>
+                      <td>
+                        <span
+                          className={`${styles.tableStatus} ${getStatusClass(
+                            course.allotmentStatus
+                          )}`}
+                        >
+                          {course.allotmentStatus.toUpperCase()}
+                        </span>
+                      </td>
+                      <td>
+                        <div className={styles.tableProgressContainer}>
+                          <div className={styles.tableProgressBar}>
+                            <div
+                              className={styles.tableProgressFill}
+                              style={{ width: `${course.completionStatus}%` }}
+                            ></div>
+                          </div>
+                          <span className={styles.tableProgressText}>
+                            {formatCompletionStatus(course.completionStatus)}%
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        {course.completionStatus >= 100 && isFeedbackSubmitted(course.allotmentId) ? (
+                          <span className={styles.feedbackSubmittedBadge}>✓ Submitted</span>
+                        ) : course.completionStatus >= 100 ? (
+                          <span className={styles.feedbackPendingBadge}>Pending</span>
+                        ) : (
+                          <span className={styles.feedbackNotApplicable}>N/A</span>
+                        )}
+                      </td>
+                      <td>
+                        {renderActionButtons(course, true)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
 
       {/* New Feedback Modal */}
