@@ -220,10 +220,10 @@ const Sidebar = ({ activeTab }) => {
               onClick={(e) => handleNavigation('/analysis/course', 'analysis', e)}
             >
               <FontAwesomeIcon icon={faPieChart} />
-              <span className={styles.navText}>Analytics</span>
+              <span className={styles.navText}> Analytics</span>
             </a>
           </li>
-          
+
           <li className={`${styles.navItem} ${activeTab === "employee" ? styles.active : ""}`}>
             <a
               href="#employee"

@@ -124,6 +124,7 @@ const InstructorSidebar = ({ activeTab }) => {
           </li>
 
 
+
           <li
             className={`${styles.navItem} ${
               activeTab === "password" ? styles.active : ""
