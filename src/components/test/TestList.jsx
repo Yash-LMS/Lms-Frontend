@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import styles from "./TestList.module.css";
 import { useNavigate } from "react-router-dom";
 import QuestionModal from "./QuestionModal";
@@ -6,7 +7,8 @@ import BulkUploadQuestionModal from "./BulkUploadQuestionModal";
 import QuestionViewerModal from "./QuestionRandomModal";
 import QuestionCategoryImport from "./QuestionCategoryImport";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faPlus, faDownload, faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faPlus, faDownload, faArrowUpFromBracket, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { RESEND_Test_APPROVAL } from "../../constants/apiConstants";
 
 const TestList = ({
   tests,
@@ -16,18 +18,104 @@ const TestList = ({
   onEditTest,
   user,
   token,
+  onSucesss
 }) => {
   const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
   const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
   const [isImportRandomModalOpen, setIsImportRandomModalOpen] = useState(false);
   const [isImportAllModalOpen, setIsImportAllModalOpen] = useState(false);
   const [selectedTest, setSelectedTest] = useState(null);
+  const [resendingTests, setResendingTests] = useState(new Set());
+  const [testMessages, setTestMessages] = useState({}); // Store success/error messages per test
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const cardsPerPage = 6;
   
   const navigate = useNavigate();
+
+  // Get user data function
+  const getUserData = () => {
+    try {
+      return {
+        user: JSON.parse(sessionStorage.getItem("user")),
+        token: sessionStorage.getItem("token"),
+        role: sessionStorage.getItem("role"),
+      };
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      return { user: null, token: null, role: null };
+    }
+  };
+
+  // Resend test for approval
+  const handleResendForApproval = async (test) => {
+    const userData = getUserData();
+    
+    if (!userData.user || !userData.token) {
+      setTestMessages(prev => ({
+        ...prev,
+        [test.testId]: { type: 'error', message: 'User authentication data not found. Please login again.' }
+      }));
+      return;
+    }
+
+    setResendingTests(prev => new Set(prev).add(test.testId));
+    // Clear any existing message for this test
+    setTestMessages(prev => {
+      const newMessages = { ...prev };
+      delete newMessages[test.testId];
+      return newMessages;
+    });
+
+    try {
+      const requestData = {
+        testId: test.testId,
+        user: userData.user,
+        token: userData.token
+      };
+
+      const response = await axios.post(RESEND_Test_APPROVAL, requestData);
+      
+      if (response.data && response.data.response === "success") {
+        setTestMessages(prev => ({
+          ...prev,
+          [test.testId]: { type: 'success', message: response.data.message || 'Test has been successfully resent for approval!' }
+        }));
+        // Optionally trigger a refresh of the tests list
+        if (onEditTest) {
+          onEditTest(); // This might trigger a refresh in the parent component
+        }
+      } else {
+        setTestMessages(prev => ({
+          ...prev,
+          [test.testId]: { type: 'error', message: response.data.message || 'Failed to resend test for approval' }
+        }));
+      }
+    } catch (error) {
+      console.error("Error resending test for approval:", error);
+      
+      let errorMessage = 'An error occurred while resending the test for approval. Please try again.';
+      
+      if (error.response?.status === 401) {
+        errorMessage = 'Unauthorized access. Please login again.';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      setTestMessages(prev => ({
+        ...prev,
+        [test.testId]: { type: 'error', message: errorMessage }
+      }));
+    } finally {
+      setResendingTests(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(test.testId);
+        return newSet;
+      });
+      onSucesss();
+    }
+  };
 
   if (loading) {
     return <div className={styles.loading}>Loading tests...</div>;
@@ -153,6 +241,32 @@ const TestList = ({
                 <span>{test.feedback}</span>
               </div>
             </div>
+
+            {/* Resend Approval Button - Only show for rejected tests */}
+            {test.testStatus === "rejected" && (
+              <div className={styles.resendContainer}>
+                {/* Display success/error message */}
+                {testMessages[test.testId] && (
+                  <div className={`${styles.messageContainer} ${
+                    testMessages[test.testId].type === 'success' 
+                      ? styles.successMessage 
+                      : styles.errorMessage
+                  }`}>
+                    {testMessages[test.testId].message}
+                  </div>
+                )}
+                <button
+                  className={styles.resendButton}
+                  onClick={() => handleResendForApproval(test)}
+                  disabled={resendingTests.has(test.testId)}
+                >
+                  <FontAwesomeIcon icon={faPaperPlane} />
+                  <span style={{marginLeft:'5px'}}>
+                    {resendingTests.has(test.testId) ? "Resending..." : "Resend for Approval"}
+                  </span>
+                </button>
+              </div>
+            )}
 
             <div className={styles.testActions}>
               <div className={styles.questionButtonsContainer}>

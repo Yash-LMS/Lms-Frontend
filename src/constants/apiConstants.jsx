@@ -48,6 +48,7 @@ export const VIEW_ASSIGNMENT_URL = `${API_BASE_URL}/assignment/user/viewAssignme
 export const ASSIGNMENT_SUBMISSION_FEEDBACK_URL = `${API_BASE_URL}/assignment/instructor/evaluate/assignment`;
 export const VIEW_ASSIGNMENT_SUBMISSION_URL = `${API_BASE_URL}/assignment/instructor/submissionList`;
 export const RESEND_COURSE_APPROVAL = `${API_BASE_URL}/course/approval/resend`;
+export const RESEND_Test_APPROVAL = `${API_BASE_URL}/test/approval/resend`;
 export const CREATE_FEEDBACK_URL = `${API_BASE_URL}/feedback/create`;
 export const VIEW_FEEDBACK_URL = `${API_BASE_URL}/feedback/view`;
 export const VIEW_FEEDBACK_FOR_ALLOTMENT_URL = `${API_BASE_URL}/feedback/allotment/viewFeedback`;

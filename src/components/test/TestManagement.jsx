@@ -41,7 +41,6 @@ const TestManagement = () => {
     }
   };
 
-  useEffect(() => {
     const fetchTests = async () => {
       try {
         await dispatch(viewTest());
@@ -51,6 +50,8 @@ const TestManagement = () => {
       }
     };
 
+
+  useEffect(() => {
     fetchTests();
   }, [dispatch]);
 
@@ -211,6 +212,8 @@ const TestManagement = () => {
           error={error}
           onAddQuestions={handleAddQuestions}
           onEditTest={handleEditTest}
+          onSucesss={fetchTests}
+
         />
 
         {/* Add Test Modal Component */}
