@@ -62,8 +62,7 @@ import UserPassword from "./components/user/UpdatePassword";
 import TraineeAssignmentList from "./components/user/TraineeAssignmentList";
 import ProfileCompletion from "./components/auth/ProfileCompletion";
 import { USER_PROFILE_IMAGE_URL } from "./constants/apiConstants";
-import CourseAnalytics from "./components/graph/CourseAnalytics";
-import TestAnalytics from "./components/graph/TestAnalytics";
+import AnalyticsView from "./components/graph/AnalyticsView";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -503,20 +502,13 @@ const AppContent = () => {
             path="/analysis/course"
             element={
               <ProtectedRoute>
-                <CourseAnalytics />
+                <AnalyticsView />
               </ProtectedRoute>
             }
           />
 
 
-                 <Route
-            path="/analysis/test"
-            element={
-              <ProtectedRoute>
-                <TestAnalytics />
-              </ProtectedRoute>
-            }
-          />
+
 
 
           <Route

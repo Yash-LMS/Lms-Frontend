@@ -119,23 +119,10 @@ const InstructorSidebar = ({ activeTab }) => {
               onClick={(e) => handleNavigation('/analysis/course', 'analysis', e)}
             >
               <FontAwesomeIcon icon={faPieChart} />
-              Course Analytics
+               Analytics
             </a>
           </li>
 
-                     <li
-            className={`${styles.navItem} ${
-              activeTab === "testInsight" ? styles.active : ""
-            }`}
-          >
-            <a
-              href="#testInsight"
-              onClick={(e) => handleNavigation('/analysis/test', 'testInsight', e)}
-            >
-              <FontAwesomeIcon icon={faPieChart} />
-              Test Analytics
-            </a>
-          </li>
 
 
           <li
