@@ -634,6 +634,8 @@ const excelHeaders = {
   mobileNo: "Mobile No.",
   role: "Role",
   status: "User Status",
+  resumeStatus:'Resume Status',
+  photoStatus: 'Photo status',
 };
 
 const transformedUsersForExcel = filteredUsers.map(user => ({
@@ -643,6 +645,8 @@ const transformedUsersForExcel = filteredUsers.map(user => ({
   mobileNo: user.mobileNo,
   role: user.role,
   status: user.status,
+  resumeStatus: user.resumeStatus,
+  photoStatus: user.photoStatus,
 }));
 
 const getPaginationRange = () => {
