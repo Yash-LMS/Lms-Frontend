@@ -504,6 +504,7 @@ const handleSaveTopicSequenceChanges = async (updatedTopics, sectionId) => {
                         </span>{" "}
                         {section.title}
                       </h3>
+                      <div className={styles.sectionMetadata}>
                       {selectedCourse.courseStatus && 
   selectedCourse.courseStatus.toLowerCase() !== 'approved' && (
     <div className={styles.sectionActions}>
@@ -519,7 +520,6 @@ const handleSaveTopicSequenceChanges = async (updatedTopics, sectionId) => {
       >
         Delete
       </button>
-
     </div>
   )
 }
@@ -529,6 +529,7 @@ const handleSaveTopicSequenceChanges = async (updatedTopics, sectionId) => {
       >
         {expandedSections[section.sectionId] ? "▲" : "▼"}
       </span>
+      </div>
                     </div>
 
                     {expandedSections[section.sectionId] && section.topics && (
