@@ -25,6 +25,10 @@ const TestAnalytics = () => {
   });
   const [currentTest, setCurrentTest] = useState(null);
 
+  // Score Analysis Modal state
+  const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
+  const [scoreAnalysisData, setScoreAnalysisData] = useState(null);
+
   const getUserData = () => {
     try {
       return {
@@ -127,6 +131,75 @@ const TestAnalytics = () => {
       users: [],
       status: ''
     });
+  };
+
+  // Function to open score analysis modal
+  const openScoreAnalysisModal = (test) => {
+    const completedUsers = test.completedList || [];
+    
+    if (completedUsers.length === 0) {
+      alert('No completed users found for score analysis');
+      return;
+    }
+
+    // Prepare score analysis data with 50% as separate range
+    const scoreRanges = [
+      { range: '0-10%', min: 0, max: 10, count: 0, users: [] },
+      { range: '11-20%', min: 11, max: 20, count: 0, users: [] },
+      { range: '21-30%', min: 21, max: 30, count: 0, users: [] },
+      { range: '31-40%', min: 31, max: 40, count: 0, users: [] },
+      { range: '41-49%', min: 41, max: 49, count: 0, users: [] },
+      { range: '50%', min: 50, max: 50, count: 0, users: [] },
+      { range: '51-60%', min: 51, max: 60, count: 0, users: [] },
+      { range: '61-70%', min: 61, max: 70, count: 0, users: [] },
+      { range: '71-80%', min: 71, max: 80, count: 0, users: [] },
+      { range: '81-90%', min: 81, max: 90, count: 0, users: [] },
+      { range: '91-100%', min: 91, max: 100, count: 0, users: [] }
+    ];
+
+    completedUsers.forEach(user => {
+      const percentage = Number(user.percentage) || 0;
+      
+      scoreRanges.forEach(range => {
+        if (percentage >= range.min && percentage <= range.max) {
+          range.count += 1;
+          range.users.push(user);
+        }
+      });
+    });
+
+    // Calculate statistics
+    const totalUsers = completedUsers.length;
+    const averageScore = completedUsers.reduce((sum, user) => sum + (Number(user.percentage) || 0), 0) / totalUsers;
+    const highestScore = Math.max(...completedUsers.map(user => Number(user.percentage) || 0));
+    const lowestScore = Math.min(...completedUsers.map(user => Number(user.percentage) || 0));
+    
+    // Count passing students (assuming 50% is passing)
+    const passingStudents = completedUsers.filter(user => (Number(user.percentage) || 0) >= 50).length;
+    const failingStudents = totalUsers - passingStudents;
+
+    setScoreAnalysisData({
+      test,
+      scoreRanges: scoreRanges.filter(range => range.count > 0), // Only show ranges with data
+      allRanges: scoreRanges, // Keep all ranges for chart
+      statistics: {
+        totalUsers,
+        averageScore: averageScore.toFixed(2),
+        highestScore,
+        lowestScore,
+        passingStudents,
+        failingStudents,
+        passPercentage: ((passingStudents / totalUsers) * 100).toFixed(1)
+      }
+    });
+    
+    setIsScoreModalOpen(true);
+  };
+
+  // Function to close score analysis modal
+  const closeScoreModal = () => {
+    setIsScoreModalOpen(false);
+    setScoreAnalysisData(null);
   };
 
   // Helper function to safely format percentage
@@ -304,6 +377,133 @@ const TestAnalytics = () => {
     );
   };
 
+  // Score Analysis Chart Component
+  const ScoreAnalysisChart = ({ data }) => {
+    const chartData = data.allRanges.map(range => ({
+      range: range.range,
+      count: range.count,
+      percentage: data.statistics.totalUsers > 0 ? ((range.count / data.statistics.totalUsers) * 100).toFixed(1) : 0
+    }));
+
+    return (
+      <div className={styles.scoreChartWrapper}>
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="range" 
+              angle={-45}
+              textAnchor="end"
+              height={80}
+              interval={0}
+            />
+            <YAxis 
+              label={{ value: 'Number of Students', angle: -90, position: 'insideLeft' }}
+            />
+            <Tooltip 
+              formatter={(value, name) => [
+                `${value} students (${chartData.find(d => d.count === value)?.percentage || 0}%)`,
+                'Count'
+              ]}
+            />
+            <Bar dataKey="count" fill="#8e6cef" radius={[4, 4, 0, 0]}>
+              {chartData.map((entry, index) => {
+                // Color coding: red for low scores, yellow for medium, green for high
+                let color = '#ef4444'; // Red for 0-49%
+                if (index === 5) color = '#f59e0b'; // Yellow for exactly 50%
+                if (index >= 6 && index < 9) color = '#f59e0b'; // Yellow for 51-80%
+                if (index >= 9) color = '#10b981'; // Green for 81-100%
+                return <Cell key={`cell-${index}`} fill={color} />;
+              })}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  };
+
+  // Score Analysis Modal Component
+  const ScoreAnalysisModal = () => {
+    if (!isScoreModalOpen || !scoreAnalysisData) return null;
+
+    const { test, scoreRanges, statistics } = scoreAnalysisData;
+
+    return (
+      <div className={styles.modalOverlay} onClick={closeScoreModal}>
+        <div className={`${styles.modalContent} ${styles.scoreModalContent}`} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalHeader}>
+            <h3 className={styles.modalTitle}>Score Analysis - {test.testName}</h3>
+            <button className={styles.modalCloseBtn} onClick={closeScoreModal}>
+              ×
+            </button>
+          </div>
+          
+          <div className={styles.modalBody}>
+            {/* Statistics Summary */}
+            <div className={styles.statsSection}>
+              <h4>Overall Statistics</h4>
+              <div className={styles.statsGrid}>
+                <div className={styles.statCard}>
+                  <div className={styles.statNumber}>{statistics.totalUsers}</div>
+                  <div className={styles.statLabel}>Total Students</div>
+                </div>
+                <div className={styles.statCard}>
+                  <div className={styles.statNumber}>{statistics.averageScore}%</div>
+                  <div className={styles.statLabel}>Average Score</div>
+                </div>
+                <div className={styles.statCard}>
+                  <div className={styles.statNumber}>{statistics.highestScore}%</div>
+                  <div className={styles.statLabel}>Highest Score</div>
+                </div>
+                <div className={styles.statCard}>
+                  <div className={styles.statNumber}>{statistics.lowestScore}%</div>
+                  <div className={styles.statLabel}>Lowest Score</div>
+                </div>
+                <div className={styles.statCard}>
+                  <div className={styles.statNumber}>{statistics.passingStudents}</div>
+                  <div className={styles.statLabel}>Passing (≥50%)</div>
+                </div>
+                <div className={styles.statCard}>
+                  <div className={styles.statNumber}>{statistics.failingStudents}</div>
+                  <div className={styles.statLabel}>Failing (below 50%)</div>
+                </div>
+              </div>
+              <div className={styles.passRateSection}>
+                <div className={styles.passRate}>
+                  Pass Rate: <span className={styles.passRateValue}>{statistics.passPercentage}%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Score Distribution Chart */}
+            <div className={styles.chartSection}>
+              <h4>Score Distribution</h4>
+              <ScoreAnalysisChart data={scoreAnalysisData} />
+            </div>
+
+            {/* Score Ranges Table */}
+            <div className={styles.rangesSection}>
+              <h4>Detailed Score Breakdown</h4>
+              <div className={styles.rangesGrid}>
+                {scoreRanges.map((range, index) => (
+                  <div key={index} className={styles.rangeCard}>
+                    <div className={styles.rangeHeader}>
+                      <span className={styles.rangeTitle}>{range.range}</span>
+                      <span className={styles.rangeCount}>{range.count} students</span>
+                    </div>
+                    <div className={styles.rangePercentage}>
+                      {((range.count / statistics.totalUsers) * 100).toFixed(1)}% of total
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Modal Component
   const StatusModal = () => {
     if (!isModalOpen) return null;
@@ -474,6 +674,17 @@ const TestAnalytics = () => {
                   Duration: {test.duration} mins
                 </div>
               </div>
+              {/* Score Analysis Button */}
+              {test.completedCount > 0 && (
+                <div className={styles.scoreAnalysisButtonContainer}>
+                  <button 
+                    className={styles.scoreAnalysisBtn}
+                    onClick={() => openScoreAnalysisModal(test)}
+                  >
+                    📊 Score Analysis
+                  </button>
+                </div>
+              )}
             </div>
             
             <div className={styles.chartContainer}>
@@ -524,7 +735,11 @@ const TestAnalytics = () => {
 
       {/* Status Modal */}
       <StatusModal />
+      
+      {/* Score Analysis Modal */}
+      <ScoreAnalysisModal />
     </div>
+    
   );
 };
 

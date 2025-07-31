@@ -99,6 +99,39 @@
   display: inline-block;
 }
 
+/* Score Analysis Button */
+.scoreAnalysisButtonContainer {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.scoreAnalysisBtn {
+  background: linear-gradient(135deg, #8e6cef 0%, #7559ce 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(142, 108, 239, 0.3);
+}
+
+.scoreAnalysisBtn:hover {
+  background: linear-gradient(135deg, #7559ce 0%, #6b46c1 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(142, 108, 239, 0.4);
+}
+
+.scoreAnalysisBtn:active {
+  transform: translateY(0);
+}
+
 .chartContainer {
   margin-bottom: 20px;
   height: 300px;
@@ -308,6 +341,13 @@
   max-height: 85vh;
 }
 
+/* Score Analysis Modal */
+.scoreModalContent {
+  width: 95%;
+  max-width: 1200px;
+  max-height: 90vh;
+}
+
 @keyframes modalSlideIn {
   from {
     opacity: 0;
@@ -356,6 +396,153 @@
   padding: 24px;
   max-height: 70vh;
   overflow-y: auto;
+}
+
+/* Score Analysis Modal Styles */
+.statsSection {
+  margin-bottom: 30px;
+}
+
+.statsSection h4 {
+  margin: 0 0 15px 0;
+  color: #2d3748;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.statCard {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 16px;
+  border-radius: 10px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.statNumber {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #8e6cef;
+  margin-bottom: 5px;
+}
+
+.statLabel {
+  font-size: 0.9rem;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.passRateSection {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.passRate {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.passRateValue {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.chartSection {
+  margin-bottom: 30px;
+}
+
+.chartSection h4 {
+  margin: 0 0 15px 0;
+  color: #2d3748;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.scoreChartWrapper {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.rangesSection {
+  margin-bottom: 20px;
+}
+
+.rangesSection h4 {
+  margin: 0 0 15px 0;
+  color: #2d3748;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.rangesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.rangeCard {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.rangeCard:hover {
+  border-color: #8e6cef;
+  box-shadow: 0 2px 8px rgba(142, 108, 239, 0.15);
+}
+
+.rangeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.rangeTitle {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+}
+
+.rangeCount {
+  background: #8e6cef;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.rangePercentage {
+  font-size: 0.8rem;
+  color: #6b7280;
 }
 
 .usersList {
@@ -717,6 +904,16 @@
     gap: 10px;
   }
 
+  .scoreAnalysisButtonContainer {
+    justify-content: center;
+    margin-top: 15px;
+  }
+
+  .scoreAnalysisBtn {
+    font-size: 0.85rem;
+    padding: 10px 16px;
+  }
+
   /* Responsive modal */
   .modalContent {
     width: 95%;
@@ -727,6 +924,12 @@
   .modalContentWide {
     width: 98%;
     margin: 10px;
+  }
+
+  .scoreModalContent {
+    width: 98%;
+    margin: 10px;
+    max-height: 90vh;
   }
   
   .modalHeader {
@@ -744,6 +947,37 @@
   
   .usersGrid {
     grid-template-columns: 1fr;
+  }
+
+  /* Score Analysis Mobile Responsive */
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .statCard {
+    padding: 12px;
+  }
+
+  .statNumber {
+    font-size: 1.5rem;
+  }
+
+  .statLabel {
+    font-size: 0.8rem;
+  }
+
+  .rangesGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .rangeCard {
+    padding: 10px;
+  }
+
+  .scoreChartWrapper {
+    padding: 15px;
   }
   
   /* Responsive table */
