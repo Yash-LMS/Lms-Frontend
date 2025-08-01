@@ -519,13 +519,13 @@ const TestAnalytics = () => {
 
                   <div className={styles.statsContainer}>
                     <div 
-                      className={`${styles.statItem} ${styles.clickableStatItem} ${styles.statPending}`}
+                      className={`${styles.statItem} ${styles.clickableStatItem}`}
                       onClick={() => openStatusModal(test, 'pending')}
                       title="Click to view pending users"
                     >
                       <div className={styles.statContent}>
                         <span className={styles.statLabel}>Pending</span>
-                        <span className={styles.statValue}>{test.pendingCount}</span>
+                        <span className={`${styles.statValue} ${styles.statValuePending}`}>{test.pendingCount}</span>
                       </div>
                       <div className={styles.statPercentage}>
                         {((test.pendingCount / test.totalAllotments) * 100).toFixed(0)}%
@@ -533,13 +533,13 @@ const TestAnalytics = () => {
                     </div>
                     
                     <div 
-                      className={`${styles.statItem} ${styles.clickableStatItem} ${styles.statStarted}`}
+                      className={`${styles.statItem} ${styles.clickableStatItem}`}
                       onClick={() => openStatusModal(test, 'started')}
                       title="Click to view started users"
                     >
                       <div className={styles.statContent}>
                         <span className={styles.statLabel}>Started</span>
-                        <span className={styles.statValue}>{test.startedCount}</span>
+                        <span className={`${styles.statValue} ${styles.statValueStarted}`}>{test.startedCount}</span>
                       </div>
                       <div className={styles.statPercentage}>
                         {((test.startedCount / test.totalAllotments) * 100).toFixed(0)}%
@@ -547,13 +547,13 @@ const TestAnalytics = () => {
                     </div>
                     
                     <div 
-                      className={`${styles.statItem} ${styles.clickableStatItem} ${styles.statExpired}`}
+                      className={`${styles.statItem} ${styles.clickableStatItem}`}
                       onClick={() => openStatusModal(test, 'expired')}
                       title="Click to view expired users"
                     >
                       <div className={styles.statContent}>
                         <span className={styles.statLabel}>Expired</span>
-                        <span className={styles.statValue}>{test.expiredCount}</span>
+                        <span className={`${styles.statValue} ${styles.statValueCompleted}`}>{test.expiredCount}</span>
                       </div>
                       <div className={styles.statPercentage}>
                         {((test.expiredCount / test.totalAllotments) * 100).toFixed(0)}%

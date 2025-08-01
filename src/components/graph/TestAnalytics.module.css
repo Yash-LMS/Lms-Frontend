@@ -141,7 +141,7 @@
 .statsContainer {
   display: flex;
   justify-content: space-around;
-  gap: 10px;
+  gap: 15px;
   padding-top: 15px;
   border-top: 2px solid #f0f0f0;
 }
@@ -151,7 +151,6 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  flex: 1;
 }
 
 .statLabel {
@@ -162,6 +161,8 @@
 }
 
 .statValue {
+  display: flex;
+  justify-content: space-around;
   font-size: 1.3rem;
   font-weight: bold;
 }
@@ -398,7 +399,7 @@
 .modalBody {
   padding: 16px;
   max-height: calc(95vh - 80px); /* Account for header height */
-  overflow: hidden; /* Remove scrolling */
+  overflow-y:auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1230,4 +1231,21 @@ body.modal-open {
 .clearSearchIcon{
   border: none;
   background: none;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.statValuePending {
+  color: #ff4444;
+}
+
+.statValueStarted {
+  color: #ffaa00;
+}
+
+.statValueCompleted {
+  color: #22c55e;
 }

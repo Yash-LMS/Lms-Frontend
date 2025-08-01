@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faUser, faSpinner, faUserMinus, faComment } from "@fortawesome/free-solid-svg-icons";
 import styles from "./ViewCandidatesModal.module.css";
 import { FIND_CANDIDATE_LIST_FOR_BATCH_URL, RELEASE_CANDIDATE_URL } from "../../constants/apiConstants";
+import ExportToExcel from "../../assets/ExportToExcel";
 
 // Remark Modal Component
 const RemarkModal = ({ isOpen, onClose, onSubmit, candidateName, loading }) => {
@@ -234,6 +235,32 @@ const ViewCandidatesModal = ({ isOpen, onClose, batchId, batchName }) => {
     onClose();
   };
 
+  // Prepare data for Excel export
+  const prepareExportData = () => {
+    return candidates.map((candidate, index) => ({
+      serialNumber: index + 1,
+      name: candidate.name || `Candidate ${index + 1}`,
+      batchCandidateId: candidate.batchCandidateId || 'N/A',
+      emailId: candidate.emailId || 'N/A',
+      employeeId: candidate.employeeId || 'N/A',
+      employeeType: candidate.employeeType || 'N/A',
+      candidateStatus: candidate.candidateStatus || 'N/A',
+      remark: candidate.remark || 'N/A'
+    }));
+  };
+
+  // Define headers for Excel export
+  const exportHeaders = {
+    serialNumber: 'S.No.',
+    name: 'Name',
+    batchCandidateId: 'Batch Candidate ID',
+    emailId: 'Email',
+    employeeId: 'Employee ID',
+    employeeType: 'Employee Type',
+    candidateStatus: 'Status',
+    remark: 'Remark'
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -291,7 +318,20 @@ const ViewCandidatesModal = ({ isOpen, onClose, batchId, batchName }) => {
             {!loading && !error && candidates.length > 0 && (
               <div className={styles.candidatesContainer}>
                 <div className={styles.candidateHeader}>
-                  <h4>Total Candidates: {candidates.length}</h4>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h4>Total Candidates: {candidates.length}</h4>
+                    <ExportToExcel
+                      data={prepareExportData()}
+                      headers={exportHeaders}
+                      fileName={`${batchName}_candidates_${new Date().toISOString().split('T')[0]}`}
+                      sheetName="Candidates"
+                      buttonStyle={{
+                        backgroundColor: '#109304ff',
+                        fontSize: '14px',
+                        padding: '8px 16px'
+                      }}
+                    />
+                  </div>
                 </div>
                 <div className={styles.tableContainer}>
                   <table className={styles.candidatesTable}>
