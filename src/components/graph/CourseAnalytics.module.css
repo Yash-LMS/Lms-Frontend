@@ -11,6 +11,7 @@
   align-items: center;
   margin-bottom: 30px;
   padding: 20px;
+  margin-top: 40px;
 }
 
 .header h1 {
@@ -709,4 +710,17 @@
     max-width: 120px;
     word-break: break-all;
   }
+}
+
+.searchInput {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    min-width: 250px;
+  }
+
+.searchInput:focus {
+    border-color: #8e6cef;
+    outline: none;
 }

@@ -4,21 +4,23 @@ import axios from 'axios';
 import styles from './TestAnalytics.module.css';
 import Sidebar from '../technical-manager/Sidebar';
 import InstructorSidebar from '../instructor/InstructorSidebar';
-import ExportToExcel from '../../assets/ExportToExcel';
+import StatusModal from './StatusModal';
+import ScoreAnalysisModal from './ScoreAnalysisModal';
 import { TEST_ANALYSIS_URL } from '../../constants/apiConstants';
 
 const TestAnalytics = () => {
   const [testData, setTestData] = useState([]);
+  const [filteredTestData, setFilteredTestData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [chartType, setChartType] = useState('pie');
-  const [selectedTest, setSelectedTest] = useState(null);
   const [role, setRole] = useState();
-  const [activeTab, setActiveTab] = useState("testInsight");
+  const [activeTab, setActiveTab] = useState("analysis");
+  const [searchTerm, setSearchTerm] = useState('');
   
-  // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalData, setModalData] = useState({
+  // Status Modal state
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [statusModalData, setStatusModalData] = useState({
     title: '',
     users: [],
     status: ''
@@ -45,7 +47,6 @@ const TestAnalytics = () => {
   useEffect(() => {
     const { user, token, role } = getUserData();
     
-    // Only set role and fetch batches if user data exists
     if (user && role) {
       setRole(role);
     }
@@ -71,7 +72,9 @@ const TestAnalytics = () => {
       });
 
       if (response.data.response === 'success') {
-        setTestData(response.data.payload || []);
+        const data = response.data.payload || [];
+        setTestData(data);
+        setFilteredTestData(data);
       } else {
         setError(response.data.message || 'Failed to fetch test analytics');
       }
@@ -86,7 +89,19 @@ const TestAnalytics = () => {
     fetchTestAnalytics();
   }, []);
 
-  // Function to open modal with status details
+  // Search functionality
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setFilteredTestData(testData);
+    } else {
+      const filtered = testData.filter(test =>
+        test.testName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredTestData(filtered);
+    }
+  }, [searchTerm, testData]);
+
+  // Function to open status modal
   const openStatusModal = (test, status) => {
     let users = [];
     let title = '';
@@ -113,20 +128,20 @@ const TestAnalytics = () => {
         title = '';
     }
     
-    setModalData({
+    setStatusModalData({
       title,
       users,
       status
     });
     setCurrentTest(test);
-    setIsModalOpen(true);
+    setIsStatusModalOpen(true);
   };
 
-  // Function to close modal
-  const closeModal = () => {
-    setIsModalOpen(false);
+  // Function to close status modal
+  const closeStatusModal = () => {
+    setIsStatusModalOpen(false);
     setCurrentTest(null);
-    setModalData({
+    setStatusModalData({
       title: '',
       users: [],
       status: ''
@@ -180,8 +195,8 @@ const TestAnalytics = () => {
 
     setScoreAnalysisData({
       test,
-      scoreRanges: scoreRanges.filter(range => range.count > 0), // Only show ranges with data
-      allRanges: scoreRanges, // Keep all ranges for chart
+      scoreRanges: scoreRanges.filter(range => range.count > 0),
+      allRanges: scoreRanges,
       statistics: {
         totalUsers,
         averageScore: averageScore.toFixed(2),
@@ -200,44 +215,6 @@ const TestAnalytics = () => {
   const closeScoreModal = () => {
     setIsScoreModalOpen(false);
     setScoreAnalysisData(null);
-  };
-
-  // Helper function to safely format percentage
-  const formatPercentage = (percentage) => {
-    if (percentage === null || percentage === undefined || isNaN(percentage)) {
-      return 'N/A';
-    }
-    const numericPercentage = Number(percentage);
-    if (isNaN(numericPercentage)) {
-      return 'N/A';
-    }
-    return `${numericPercentage.toFixed(1)}%`;
-  };
-
-  // Helper function to safely get numeric value
-  const getNumericValue = (value) => {
-    if (value === null || value === undefined) {
-      return 'N/A';
-    }
-    const numericValue = Number(value);
-    return isNaN(numericValue) ? 'N/A' : numericValue;
-  };
-
-  // Prepare data for Excel export
-  const prepareExcelData = (users, testName, status) => {
-    return users.map((user, index) => ({
-      'S.No': index + 1,
-      'Employee ID': user.employeeId || 'N/A',
-      'Name': user.name || 'N/A',
-      'Email ID': user.emailId || 'N/A',
-      'Mobile No': user.mobileNo || 'N/A',
-      'Employee Type': user.employeeType || 'N/A',
-      'Completion Status': user.completionStatus || status.toUpperCase(),
-      'Score': getNumericValue(user.score),
-      'Total Marks': getNumericValue(user.totalMarks),
-      'Percentage': formatPercentage(user.percentage),
-      'Test Name': testName
-    }));
   };
 
   const prepareChartData = (test) => {
@@ -377,262 +354,64 @@ const TestAnalytics = () => {
     );
   };
 
-  // Score Analysis Chart Component
-  const ScoreAnalysisChart = ({ data }) => {
-    const chartData = data.allRanges.map(range => ({
-      range: range.range,
-      count: range.count,
-      percentage: data.statistics.totalUsers > 0 ? ((range.count / data.statistics.totalUsers) * 100).toFixed(1) : 0
-    }));
-
-    return (
-      <div className={styles.scoreChartWrapper}>
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="range" 
-              angle={-45}
-              textAnchor="end"
-              height={80}
-              interval={0}
-            />
-            <YAxis 
-              label={{ value: 'Number of Students', angle: -90, position: 'insideLeft' }}
-            />
-            <Tooltip 
-              formatter={(value, name) => [
-                `${value} students (${chartData.find(d => d.count === value)?.percentage || 0}%)`,
-                'Count'
-              ]}
-            />
-            <Bar dataKey="count" fill="#8e6cef" radius={[4, 4, 0, 0]}>
-              {chartData.map((entry, index) => {
-                // Color coding: red for low scores, yellow for medium, green for high
-                let color = '#ef4444'; // Red for 0-49%
-                if (index === 5) color = '#f59e0b'; // Yellow for exactly 50%
-                if (index >= 6 && index < 9) color = '#f59e0b'; // Yellow for 51-80%
-                if (index >= 9) color = '#10b981'; // Green for 81-100%
-                return <Cell key={`cell-${index}`} fill={color} />;
-              })}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    );
-  };
-
-  // Score Analysis Modal Component
-  const ScoreAnalysisModal = () => {
-    if (!isScoreModalOpen || !scoreAnalysisData) return null;
-
-    const { test, scoreRanges, statistics } = scoreAnalysisData;
-
-    return (
-      <div className={styles.modalOverlay} onClick={closeScoreModal}>
-        <div className={`${styles.modalContent} ${styles.scoreModalContent}`} onClick={(e) => e.stopPropagation()}>
-          <div className={styles.modalHeader}>
-            <h3 className={styles.modalTitle}>Score Analysis - {test.testName}</h3>
-            <button className={styles.modalCloseBtn} onClick={closeScoreModal}>
-              ×
-            </button>
-          </div>
-          
-          <div className={styles.modalBody}>
-            {/* Statistics Summary */}
-            <div className={styles.statsSection}>
-              <h4>Overall Statistics</h4>
-              <div className={styles.statsGrid}>
-                <div className={styles.statCard}>
-                  <div className={styles.statNumber}>{statistics.totalUsers}</div>
-                  <div className={styles.statLabel}>Total Students</div>
-                </div>
-                <div className={styles.statCard}>
-                  <div className={styles.statNumber}>{statistics.averageScore}%</div>
-                  <div className={styles.statLabel}>Average Score</div>
-                </div>
-                <div className={styles.statCard}>
-                  <div className={styles.statNumber}>{statistics.highestScore}%</div>
-                  <div className={styles.statLabel}>Highest Score</div>
-                </div>
-                <div className={styles.statCard}>
-                  <div className={styles.statNumber}>{statistics.lowestScore}%</div>
-                  <div className={styles.statLabel}>Lowest Score</div>
-                </div>
-                <div className={styles.statCard}>
-                  <div className={styles.statNumber}>{statistics.passingStudents}</div>
-                  <div className={styles.statLabel}>Passing (≥50%)</div>
-                </div>
-                <div className={styles.statCard}>
-                  <div className={styles.statNumber}>{statistics.failingStudents}</div>
-                  <div className={styles.statLabel}>Failing (below 50%)</div>
-                </div>
-              </div>
-              <div className={styles.passRateSection}>
-                <div className={styles.passRate}>
-                  Pass Rate: <span className={styles.passRateValue}>{statistics.passPercentage}%</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Score Distribution Chart */}
-            <div className={styles.chartSection}>
-              <h4>Score Distribution</h4>
-              <ScoreAnalysisChart data={scoreAnalysisData} />
-            </div>
-
-            {/* Score Ranges Table */}
-            <div className={styles.rangesSection}>
-              <h4>Detailed Score Breakdown</h4>
-              <div className={styles.rangesGrid}>
-                {scoreRanges.map((range, index) => (
-                  <div key={index} className={styles.rangeCard}>
-                    <div className={styles.rangeHeader}>
-                      <span className={styles.rangeTitle}>{range.range}</span>
-                      <span className={styles.rangeCount}>{range.count} students</span>
-                    </div>
-                    <div className={styles.rangePercentage}>
-                      {((range.count / statistics.totalUsers) * 100).toFixed(1)}% of total
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Modal Component
-  const StatusModal = () => {
-    if (!isModalOpen) return null;
-
-    // Prepare data for Excel export
-    const excelData = prepareExcelData(modalData.users, currentTest?.testName, modalData.status);
-    
-    // Generate filename based on test and status
-    const fileName = `${currentTest?.testName?.replace(/[^a-zA-Z0-9]/g, '_')}_${modalData.status}_Users_${new Date().toISOString().split('T')[0]}`;
-
-    return (
-      <div className={styles.modalOverlay} onClick={closeModal}>
-        <div className={`${styles.modalContent} ${styles.modalContentWide}`} onClick={(e) => e.stopPropagation()}>
-          <div className={styles.modalHeader}>
-            <h3 className={styles.modalTitle}>{modalData.title}</h3>
-            <button className={styles.modalCloseBtn} onClick={closeModal}>
-              ×
-            </button>
-          </div>
-          
-          <div className={styles.modalBody}>
-            {modalData.users && modalData.users.length > 0 ? (
-              <div className={styles.usersList}>
-                <div className={styles.usersCount}>
-                  Total: {modalData.users.length} user{modalData.users.length !== 1 ? 's' : ''}
-                </div>
-                
-                {/* Export to Excel Button */}
-                <div className={styles.exportSection}>
-                  <ExportToExcel
-                    data={excelData}
-                    fileName={fileName}
-                    sheetName={`${modalData.status.charAt(0).toUpperCase() + modalData.status.slice(1)} Users`}
-                    buttonStyle={{
-                      backgroundColor: '#007bff',
-                      fontSize: '14px',
-                      padding: '8px 16px',
-                      borderRadius: '6px',
-                      marginBottom: '15px'
-                    }}
-                  />
-                </div>
-                
-                <div className={styles.tableHeading}>
-                  <h4>Employee Details</h4>
-                </div>
-                
-                <div className={styles.tableContainer}>
-                  <table className={styles.usersTable}>
-                    <thead>
-                      <tr>
-                        <th style={{width: '60px'}}>S.No</th>
-                        <th style={{width: '100px'}}>Employee ID</th>
-                        <th style={{width: '150px'}}>Name</th>
-                        <th style={{width: '200px'}}>Email ID</th>
-                        <th style={{width: '120px'}}>Mobile No</th>
-                        <th style={{width: '120px'}}>Employee Type</th>
-                        <th style={{width: '140px'}}>Status</th>
-                        <th style={{width: '80px'}}>Score</th>
-                        <th style={{width: '100px'}}>Total Marks</th>
-                        <th style={{width: '100px'}}>Percentage</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {modalData.users.map((user, index) => (
-                        <tr key={`user-${index}-${user.employeeId || index}`} className={`${styles.tableRow} ${styles[`row${modalData.status.charAt(0).toUpperCase() + modalData.status.slice(1)}`]}`}>
-                          <td style={{textAlign: 'center'}}>{index + 1}</td>
-                          <td className={styles.employeeId}>{user.employeeId || 'N/A'}</td>
-                          <td className={styles.employeeName}>{user.name || 'N/A'}</td>
-                          <td className={styles.employeeEmail}>{user.emailId || 'N/A'}</td>
-                          <td className={styles.employeeMobile}>{user.mobileNo || 'N/A'}</td>
-                          <td>
-                            <span className={`${styles.employeeTypeBadge} ${styles[`badge${user.employeeType?.replace(/[^a-zA-Z0-9]/g, '') || 'Default'}`]}`}>
-                              {user.employeeType || 'N/A'}
-                            </span>
-                          </td>
-                          <td>
-                            <span className={`${styles.statusBadge} ${styles[`status${user.completionStatus?.replace(/[^a-zA-Z0-9]/g, '') || modalData.status.charAt(0).toUpperCase() + modalData.status.slice(1)}`]}`}>
-                              {user.completionStatus || modalData.status.toUpperCase()}
-                            </span>
-                          </td>
-                          <td className={styles.scoreCell}>
-                            {getNumericValue(user.score)}
-                          </td>
-                          <td className={styles.totalMarksCell}>
-                            {getNumericValue(user.totalMarks)}
-                          </td>
-                          <td>
-                            <div className={styles.percentageCell}>
-                              <span className={styles.percentageText}>
-                                {formatPercentage(user.percentage)}
-                              </span>
-                              {user.percentage !== undefined && user.percentage !== null && !isNaN(user.percentage) && (
-                                <div className={styles.percentageBarSmall}>
-                                  <div 
-                                    className={styles.percentageFillSmall} 
-                                    style={{ width: `${Number(user.percentage) || 0}%` }}
-                                  ></div>
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ) : (
-              <div className={styles.noUsers}>
-                No users found for this status.
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
+  const handleClearSearch = () => {
+    setSearchTerm('');
   };
 
   if (loading) {
-    return <div className={styles.loading}>Loading test analytics...</div>;
+    return (
+      <div className={styles.container}>
+        {role === "technical_manager" ? (
+          <Sidebar activeTab={activeTab} />
+        ) : role === "instructor" ? (
+          <InstructorSidebar activeTab={activeTab} />
+        ) : null}
+        <div className={styles.loading}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Loading test analytics...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className={styles.error}>Error: {error}</div>;
+    return (
+      <div className={styles.container}>
+        {role === "technical_manager" ? (
+          <Sidebar activeTab={activeTab} />
+        ) : role === "instructor" ? (
+          <InstructorSidebar activeTab={activeTab} />
+        ) : null}
+        <div className={styles.error}>
+          <div className={styles.errorIcon}>⚠️</div>
+          <h3>Error Loading Data</h3>
+          <p>{error}</p>
+          <button className={styles.retryBtn} onClick={fetchTestAnalytics}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!testData || testData.length === 0) {
-    return <div className={styles.noData}>No test data available</div>;
+    return (
+      <div className={styles.container}>
+        {role === "technical_manager" ? (
+          <Sidebar activeTab={activeTab} />
+        ) : role === "instructor" ? (
+          <InstructorSidebar activeTab={activeTab} />
+        ) : null}
+        <div className={styles.noData}>
+          <div className={styles.noDataIcon}>📊</div>
+          <h3>No Test Data Available</h3>
+          <p>There are currently no tests to display analytics for.</p>
+          <button className={styles.refreshBtn} onClick={fetchTestAnalytics}>
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -643,103 +422,181 @@ const TestAnalytics = () => {
         <InstructorSidebar activeTab={activeTab} />
       ) : null}
 
-      <div className={styles.header}>
-        <h1>Test Analytics Dashboard</h1>
-        <div className={styles.chartToggle}>
-          <button
-            className={`${styles.toggleBtn} ${chartType === 'pie' ? styles.active : ''}`}
-            onClick={() => setChartType('pie')}
-          >
-            Pie Chart
-          </button>
-          <button
-            className={`${styles.toggleBtn} ${chartType === 'bar' ? styles.active : ''}`}
-            onClick={() => setChartType('bar')}
-          >
-            Bar Chart
-          </button>
-        </div>
-      </div>
-
-      <div className={styles.testsGrid}>
-        {testData.map((test) => (
-          <div key={test.testId} className={styles.testCard}>
-            <div className={styles.testHeader}>
-              <h3>{test.testName}</h3>
-              <div className={styles.testInfo}>
-                <div className={styles.totalAllotments}>
-                  Total Allotments: {test.totalAllotments}
-                </div>
-                <div className={styles.duration}>
-                  Duration: {test.duration} mins
-                </div>
-              </div>
-              {/* Score Analysis Button */}
-              {test.completedCount > 0 && (
-                <div className={styles.scoreAnalysisButtonContainer}>
-                  <button 
-                    className={styles.scoreAnalysisBtn}
-                    onClick={() => openScoreAnalysisModal(test)}
-                  >
-                    📊 Score Analysis
-                  </button>
-                </div>
+      <div className={styles.mainContent}>
+        <div className={styles.header}>
+          <h1>Test Analytics Dashboard</h1>
+          
+          {/* Search Bar */}
+          <div className={styles.searchContainer}>
+            <div className={styles.searchInputWrapper}>
+              <input
+                type="text"
+                placeholder="Search tests by name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchInput}
+              />
+              {searchTerm && (
+                <button 
+                  className={styles.clearSearchIcon}
+                  onClick={handleClearSearch}
+                  title="Clear search"
+                >
+                  ✕
+                </button>
               )}
             </div>
-            
-            <div className={styles.chartContainer}>
-              {chartType === 'pie' ? renderPieChart(test) : renderBarChart(test)}
-            </div>
-
-            <div className={styles.statsContainer}>
-              <div 
-                className={`${styles.statItem} ${styles.clickableStatItem}`}
-                onClick={() => openStatusModal(test, 'pending')}
-              >
-                <span className={styles.statLabel}>Pending:</span>
-                <span className={`${styles.statValue} ${styles.statValuePending}`}>
-                  {test.pendingCount}
-                </span>
+            {searchTerm && (
+              <div className={styles.searchResults}>
+                Found {filteredTestData.length} test{filteredTestData.length !== 1 ? 's' : ''}
               </div>
-              <div 
-                className={`${styles.statItem} ${styles.clickableStatItem}`}
-                onClick={() => openStatusModal(test, 'started')}
-              >
-                <span className={styles.statLabel}>Started:</span>
-                <span className={`${styles.statValue} ${styles.statValueStarted}`}>
-                  {test.startedCount}
-                </span>
-              </div>
-              <div 
-                className={`${styles.statItem} ${styles.clickableStatItem}`}
-                onClick={() => openStatusModal(test, 'expired')}
-              >
-                <span className={styles.statLabel}>Expired:</span>
-                <span className={`${styles.statValue} ${styles.statValueExpired}`}>
-                  {test.expiredCount}
-                </span>
-              </div>
-              <div 
-                className={`${styles.statItem} ${styles.clickableStatItem}`}
-                onClick={() => openStatusModal(test, 'completed')}
-              >
-                <span className={styles.statLabel}>Completed:</span>
-                <span className={`${styles.statValue} ${styles.statValueCompleted}`}>
-                  {test.completedCount}
-                </span>
-              </div>
-            </div>
+            )}
           </div>
-        ))}
-      </div>
 
-      {/* Status Modal */}
-      <StatusModal />
-      
-      {/* Score Analysis Modal */}
-      <ScoreAnalysisModal />
+          <div className={styles.chartToggle}>
+            <button
+              className={`${styles.toggleBtn} ${chartType === 'pie' ? styles.active : ''}`}
+              onClick={() => setChartType('pie')}
+            >
+              Pie Chart
+            </button>
+            <button
+              className={`${styles.toggleBtn} ${chartType === 'bar' ? styles.active : ''}`}
+              onClick={() => setChartType('bar')}
+            >
+              Bar Chart
+            </button>
+          </div>
+        </div>
+
+        {filteredTestData.length === 0 && searchTerm ? (
+          <div className={styles.noSearchResults}>
+            <div className={styles.noResultsIcon}>🔍</div>
+            <h3>No tests found</h3>
+            <p>No tests match your search term "<strong>{searchTerm}</strong>"</p>
+            <button 
+              className={styles.clearSearchBtn}
+              onClick={handleClearSearch}
+            >
+              Clear Search
+            </button>
+          </div>
+        ) : (
+          <>
+
+            <div className={styles.testsGrid}>
+              {filteredTestData.map((test) => (
+                <div key={test.testId} className={styles.testCard}>
+                  <div className={styles.testHeader}>
+                    <h3 className={styles.testTitle}>{test.testName}</h3>
+                    <div className={styles.testInfo}>
+                      <div className={styles.testInfoItem}>
+                        <span className={styles.testInfoLabel}>Total Allotments:</span>
+                        <span className={styles.testInfoValue}>{test.totalAllotments}</span>
+                      </div>
+                      <div className={styles.testInfoItem}>
+                        <span className={styles.testInfoLabel}>Duration:</span>
+                        <span className={styles.testInfoValue}>{test.duration} mins</span>
+                      </div>
+                    </div>
+                    
+                    {/* Score Analysis Button */}
+                    {test.completedCount > 0 && (
+                      <div className={styles.scoreAnalysisButtonContainer}>
+                        <button 
+                          className={styles.scoreAnalysisBtn}
+                          onClick={() => openScoreAnalysisModal(test)}
+                          title="View detailed score analysis"
+                        >
+                          📊 Score Analysis ({test.completedCount} completed)
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className={styles.chartContainer}>
+                    {chartType === 'pie' ? renderPieChart(test) : renderBarChart(test)}
+                  </div>
+
+                  <div className={styles.statsContainer}>
+                    <div 
+                      className={`${styles.statItem} ${styles.clickableStatItem} ${styles.statPending}`}
+                      onClick={() => openStatusModal(test, 'pending')}
+                      title="Click to view pending users"
+                    >
+                      <div className={styles.statContent}>
+                        <span className={styles.statLabel}>Pending</span>
+                        <span className={styles.statValue}>{test.pendingCount}</span>
+                      </div>
+                      <div className={styles.statPercentage}>
+                        {((test.pendingCount / test.totalAllotments) * 100).toFixed(0)}%
+                      </div>
+                    </div>
+                    
+                    <div 
+                      className={`${styles.statItem} ${styles.clickableStatItem} ${styles.statStarted}`}
+                      onClick={() => openStatusModal(test, 'started')}
+                      title="Click to view started users"
+                    >
+                      <div className={styles.statContent}>
+                        <span className={styles.statLabel}>Started</span>
+                        <span className={styles.statValue}>{test.startedCount}</span>
+                      </div>
+                      <div className={styles.statPercentage}>
+                        {((test.startedCount / test.totalAllotments) * 100).toFixed(0)}%
+                      </div>
+                    </div>
+                    
+                    <div 
+                      className={`${styles.statItem} ${styles.clickableStatItem} ${styles.statExpired}`}
+                      onClick={() => openStatusModal(test, 'expired')}
+                      title="Click to view expired users"
+                    >
+                      <div className={styles.statContent}>
+                        <span className={styles.statLabel}>Expired</span>
+                        <span className={styles.statValue}>{test.expiredCount}</span>
+                      </div>
+                      <div className={styles.statPercentage}>
+                        {((test.expiredCount / test.totalAllotments) * 100).toFixed(0)}%
+                      </div>
+                    </div>
+                    
+                    <div 
+                      className={`${styles.statItem} ${styles.clickableStatItem} ${styles.statCompleted}`}
+                      onClick={() => openStatusModal(test, 'completed')}
+                      title="Click to view completed users"
+                    >
+                      <div className={styles.statContent}>
+                        <span className={styles.statLabel}>Completed</span>
+                        <span className={styles.statValue}>{test.completedCount}</span>
+                      </div>
+                      <div className={styles.statPercentage}>
+                        {((test.completedCount / test.totalAllotments) * 100).toFixed(0)}%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Status Modal */}
+        <StatusModal 
+          isOpen={isStatusModalOpen}
+          onClose={closeStatusModal}
+          modalData={statusModalData}
+          currentTest={currentTest}
+        />
+        
+        {/* Score Analysis Modal */}
+        <ScoreAnalysisModal 
+          isOpen={isScoreModalOpen}
+          onClose={closeScoreModal}
+          scoreAnalysisData={scoreAnalysisData}
+        />
+      </div>
     </div>
-    
   );
 };
 
