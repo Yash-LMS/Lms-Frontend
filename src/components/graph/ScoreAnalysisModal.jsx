@@ -143,7 +143,7 @@ const ScoreAnalysisModal = ({
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statNumber}>{statistics.passPercentage}</div>
-                <div className={styles.statLabel}>Pass Rate</div>
+                <div className={styles.statLabel}>Pass Rate (%)</div>
               </div>
             </div>
           </div>

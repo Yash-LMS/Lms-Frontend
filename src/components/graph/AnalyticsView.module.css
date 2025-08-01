@@ -32,13 +32,14 @@
 .radioGroup {
   display: flex;
   gap: 16px;
-  background: white;
+  background-color: rgb(231, 229, 229);
   padding: 6px;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   position: fixed;
   z-index: 1;
+  left: 30%;
 }
 
 .radioLabel {

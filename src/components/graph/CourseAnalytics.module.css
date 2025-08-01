@@ -718,9 +718,23 @@
     border-radius: 8px;
     font-size: 0.9rem;
     min-width: 250px;
+    background-color: rgb(231, 229, 229);
   }
 
 .searchInput:focus {
     border-color: #8e6cef;
     outline: none;
 }
+
+.searchContainer{
+  position: fixed;
+  right: 80px;
+  top: 80px;
+  z-index: 1;
+}
+
+.clearSearchBtn{
+  border: none;
+  background: none;
+}
+

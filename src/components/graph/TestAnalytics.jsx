@@ -442,7 +442,7 @@ const TestAnalytics = () => {
                   onClick={handleClearSearch}
                   title="Clear search"
                 >
-                  ✕
+                  ×
                 </button>
               )}
             </div>
@@ -471,7 +471,6 @@ const TestAnalytics = () => {
 
         {filteredTestData.length === 0 && searchTerm ? (
           <div className={styles.noSearchResults}>
-            <div className={styles.noResultsIcon}>🔍</div>
             <h3>No tests found</h3>
             <p>No tests match your search term "<strong>{searchTerm}</strong>"</p>
             <button 
