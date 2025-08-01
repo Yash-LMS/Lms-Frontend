@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import styles from './TestAnalytics.module.css';
+import styles from './ScoreAnalysisModal.module.css';
 
 const ScoreAnalysisModal = ({ 
   isOpen, 
@@ -50,7 +50,7 @@ const ScoreAnalysisModal = ({
 
     return (
       <div className={styles.scoreChartWrapper}>
-        <ResponsiveContainer width="100%" height={250}>
+        <ResponsiveContainer width="100%" height={280}>
           <BarChart 
             data={chartData} 
             margin={{ top: 10, right: 20, left: 10, bottom: 40 }}
@@ -104,7 +104,7 @@ const ScoreAnalysisModal = ({
 
   return (
     <div className={styles.modalOverlay} onClick={closeModal}>
-      <div className={`${styles.modalContent} ${styles.scoreModalContent}`} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h3 className={styles.modalTitle}>Score Analysis - {test.testName}</h3>
           <button className={styles.modalCloseBtn} onClick={closeModal}>
@@ -115,7 +115,7 @@ const ScoreAnalysisModal = ({
         <div className={styles.modalBody}>
           {/* Statistics Summary */}
           <div className={styles.statsSection}>
-            <h4>Overall Statistics</h4>
+            <h4 className={styles.sectionTitle}>Overall Statistics</h4>
             <div className={styles.statsGrid}>
               <div className={styles.statCard}>
                 <div className={styles.statNumber}>{statistics.totalUsers}</div>
@@ -142,15 +142,15 @@ const ScoreAnalysisModal = ({
                 <div className={styles.statLabel}>Failing (below 50%)</div>
               </div>
               <div className={styles.statCard}>
-                <div className={styles.statNumber}>{statistics.passPercentage}</div>
-                <div className={styles.statLabel}>Pass Rate (%)</div>
+                <div className={styles.statNumber}>{statistics.passPercentage}%</div>
+                <div className={styles.statLabel}>Pass Rate</div>
               </div>
             </div>
           </div>
 
           {/* Score Distribution Chart - Compact version */}
           <div className={styles.chartSection}>
-            <h4>Score Distribution</h4>
+            <h4 className={styles.sectionTitle}>Score Distribution</h4>
             <ScoreAnalysisChart data={scoreAnalysisData} />
           </div>
 
@@ -187,8 +187,8 @@ const ScoreAnalysisModal = ({
           )}
 
           {/* Score Ranges Table */}
-          <div className={styles.rangesSection} >
-            <h4>Detailed Score Breakdown</h4>
+          <div className={styles.rangesSection}>
+            <h4 className={styles.sectionTitle}>Detailed Score Breakdown</h4>
             <div className={styles.rangesGrid}>
               {scoreRanges.map((range, index) => (
                 <div 
