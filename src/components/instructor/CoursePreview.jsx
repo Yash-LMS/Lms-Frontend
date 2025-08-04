@@ -504,26 +504,32 @@ const handleSaveTopicSequenceChanges = async (updatedTopics, sectionId) => {
                         </span>{" "}
                         {section.title}
                       </h3>
-                      <div className={styles.sectionActions}>
-                        <button
-                          className={styles.editBtn}
-                          onClick={() => handleEditSection(section)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className={styles.deleteBtn}
-                          onClick={() => handleDeleteSection(section)}
-                        >
-                          Delete
-                        </button>
-                        <span
-                          className={styles.expandIcon}
-                          onClick={() => toggleSection(section.sectionId)}
-                        >
-                          {expandedSections[section.sectionId] ? "▲" : "▼"}
-                        </span>
-                      </div>
+                      <div className={styles.sectionMetadata}>
+                      {selectedCourse.courseStatus && 
+  selectedCourse.courseStatus.toLowerCase() !== 'approved' && (
+    <div className={styles.sectionActions}>
+      <button
+        className={styles.editBtn}
+        onClick={() => handleEditSection(section)}
+      >
+        Edit
+      </button>
+      <button
+        className={styles.deleteBtn}
+        onClick={() => handleDeleteSection(section)}
+      >
+        Delete
+      </button>
+    </div>
+  )
+}
+      <span
+        className={styles.expandIcon}
+        onClick={() => toggleSection(section.sectionId)}
+      >
+        {expandedSections[section.sectionId] ? "▲" : "▼"}
+      </span>
+      </div>
                     </div>
 
                     {expandedSections[section.sectionId] && section.topics && (

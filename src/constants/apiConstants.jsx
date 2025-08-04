@@ -53,6 +53,8 @@ export const CREATE_FEEDBACK_URL = `${API_BASE_URL}/feedback/create`;
 export const VIEW_FEEDBACK_URL = `${API_BASE_URL}/feedback/view`;
 export const VIEW_FEEDBACK_FOR_ALLOTMENT_URL = `${API_BASE_URL}/feedback/allotment/viewFeedback`;
 
+export const RELEASE_CANDIDATE_URL = `${API_BASE_URL}/batch/candidate/release`;
+
 
 //Intern
 export const REGISTER_INTERN_URL = `${API_BASE_URL}/user/intern/register`;

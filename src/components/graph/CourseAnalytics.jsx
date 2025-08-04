@@ -9,12 +9,14 @@ import { COURSE_ANALYSIS_URL } from '../../constants/apiConstants';
 
 const CourseAnalytics = () => {
   const [courseData, setCourseData] = useState([]);
+  const [filteredCourseData, setFilteredCourseData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [chartType, setChartType] = useState('pie');
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [role, setRole] = useState();
   const [activeTab, setActiveTab] = useState("analysis");
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -67,7 +69,9 @@ const CourseAnalytics = () => {
       });
 
       if (response.data.response === 'success') {
-        setCourseData(response.data.payload || []);
+        const courses = response.data.payload || [];
+        setCourseData(courses);
+        setFilteredCourseData(courses);
       } else {
         setError(response.data.message || 'Failed to fetch course analytics');
       }
@@ -81,6 +85,28 @@ const CourseAnalytics = () => {
   useEffect(() => {
     fetchCourseAnalytics();
   }, []);
+
+  // Search functionality
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredCourseData(courseData);
+    } else {
+      const filtered = courseData.filter(course =>
+        course.courseName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredCourseData(filtered);
+    }
+  }, [searchTerm, courseData]);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchTerm('');
+  };
 
   // Function to open modal with status details
   const openStatusModal = (course, status) => {
@@ -407,6 +433,39 @@ const CourseAnalytics = () => {
 
       <div className={styles.header}>
         <h1>Course Analytics Dashboard</h1>
+        
+        {/* Search Bar */}
+        <div className={styles.searchSection}>
+          <div className={styles.searchContainer}>
+            <div className={styles.searchInputWrapper}>
+              <input
+                type="text"
+                placeholder="Search courses by name..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className={styles.searchInput}
+              />
+              {searchTerm && (
+                <button
+                  onClick={clearSearch}
+                  className={styles.clearSearchBtn}
+                  title="Clear search"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            <div className={styles.searchResults}>
+              {searchTerm && (
+                <span className={styles.searchResultsText}>
+                  {filteredCourseData.length} course{filteredCourseData.length !== 1 ? 's' : ''} found
+                  {searchTerm && ` for "${searchTerm}"`}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className={styles.chartToggle}>
           <button
             className={`${styles.toggleBtn} ${chartType === 'pie' ? styles.active : ''}`}
@@ -423,8 +482,19 @@ const CourseAnalytics = () => {
         </div>
       </div>
 
+      {/* No Results Message */}
+      {filteredCourseData.length === 0 && searchTerm && (
+        <div className={styles.noSearchResults}>
+          <h3>No courses found</h3>
+          <p>No courses match your search term "{searchTerm}"</p>
+          <button onClick={clearSearch} className={styles.clearSearchButton}>
+            Clear Search
+          </button>
+        </div>
+      )}
+
       <div className={styles.coursesGrid}>
-        {courseData.map((course) => (
+        {filteredCourseData.map((course) => (
           <div key={course.courseId} className={styles.courseCard}>
             <div className={styles.courseHeader}>
               <h3>{course.courseName}</h3>

@@ -186,6 +186,12 @@
   color: #7c4dff;
 }
 
+.sectionMetadata{
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
 .expandIcon {
   font-size: 1.5rem;
   font-weight: bold;
