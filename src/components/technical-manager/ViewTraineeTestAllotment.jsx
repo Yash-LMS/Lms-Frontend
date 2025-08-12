@@ -8,7 +8,9 @@ import {
   VIEW_TRAINEE_ALLOTED_TEST_URL,
   SHOW_RESULT_PERMISSION_URL,
   SHOW_DETAIL_RESULT_PERMISSION_URL,
-  EXTEND_TEST_END_DATE_URL, // Add this to your apiConstants
+  EXTEND_TEST_END_DATE_URL,
+  RESET_TEST_URL,
+  DELETE_TEST_ALLOTMENT_URL
 } from "../../constants/apiConstants";
 import Sidebar from "./Sidebar";
 
@@ -312,6 +314,10 @@ const ViewTraineeTestAllotment = () => {
     setShowExtendModal(true);
   };
 
+
+ 
+
+
   // New function to handle date extension submission
   const handleExtendDate = async () => {
     // Clear previous messages
@@ -385,8 +391,139 @@ const ViewTraineeTestAllotment = () => {
       setModalMessageType("error");
     } finally {
       setExtending(false);
+      fetchUserList();
+      fetchTestList();
+      fetchFilteredResults();
     }
   };
+
+    const handleTestReset = async (allotmentId) => {
+    // Clear previous messages
+    setModalMessage("");
+    setModalMessageType("");
+
+    try {
+      setExtending(true);
+      const { user, token } = getUserData();
+      
+      const response = await axios.post(RESET_TEST_URL, {
+        user,
+        token,
+        testAllotmentId: allotmentId,
+    
+      });
+
+      if (response.data.response === "success") {
+        // Update the local state to reflect the change
+        const updatedResults = filteredResults.map(result => {
+          if (result.allotmentId === selectedAllotment.allotmentId) {
+            return { ...result, endDate: newEndDate };
+          }
+          return result;
+        });
+        
+        setFilteredResults(updatedResults);
+        
+        // Also update displayed results if they're being filtered
+        if (searchTerm) {
+          const updatedDisplayed = displayedResults.map(result => {
+            if (result.allotmentId === selectedAllotment.allotmentId) {
+              return { ...result, endDate: newEndDate };
+            }
+            return result;
+          });
+          setDisplayedResults(updatedDisplayed);
+        } else {
+          setDisplayedResults(updatedResults);
+        }
+
+        setModalMessage(response.data.message);
+        setModalMessageType("success");
+        
+        // Auto-close modal after 2 seconds on success
+        setTimeout(() => {
+          handleCloseExtendModal();
+        }, 2000);
+      } else {
+        setModalMessage(response.data.message || "Failed to reset test");
+        setModalMessageType("error");
+      }
+    } catch (error) {
+      console.error("Error in reseting test:", error);
+      setModalMessage("Error in reseting test");
+      setModalMessageType("error");
+    } finally {
+       setSelectedAllotment(null);
+       fetchUserList();
+       fetchTestList();
+       fetchFilteredResults();
+    }
+  };
+
+
+  const handleDeleteTest = async (allotmentId) => {
+    // Clear previous messages
+    setModalMessage("");
+    setModalMessageType("");
+
+    try {
+      setExtending(true);
+      const { user, token } = getUserData();
+      
+      const response = await axios.post(DELETE_TEST_ALLOTMENT_URL, {
+        user,
+        token,
+        testAllotmentId: allotmentId,
+    
+      });
+
+      if (response.data.response === "success") {
+        // Update the local state to reflect the change
+        const updatedResults = filteredResults.map(result => {
+          if (result.allotmentId === selectedAllotment.allotmentId) {
+            return { ...result, endDate: newEndDate };
+          }
+          return result;
+        });
+        
+        setFilteredResults(updatedResults);
+        
+        // Also update displayed results if they're being filtered
+        if (searchTerm) {
+          const updatedDisplayed = displayedResults.map(result => {
+            if (result.allotmentId === selectedAllotment.allotmentId) {
+              return { ...result, endDate: newEndDate };
+            }
+            return result;
+          });
+          setDisplayedResults(updatedDisplayed);
+        } else {
+          setDisplayedResults(updatedResults);
+        }
+
+        setModalMessage(response.data.message);
+        setModalMessageType("success");
+        
+        // Auto-close modal after 2 seconds on success
+        setTimeout(() => {
+          handleCloseExtendModal();
+        }, 2000);
+      } else {
+        setModalMessage(response.data.message || "Failed to reset test");
+        setModalMessageType("error");
+      }
+    } catch (error) {
+      console.error("Error in reseting test:", error);
+      setModalMessage("Error in reseting test");
+      setModalMessageType("error");
+    } finally {
+       setSelectedAllotment(null);
+       fetchUserList();
+       fetchTestList();
+       fetchFilteredResults();
+    }
+  };
+
 
   // Function to close the extend modal
   const handleCloseExtendModal = () => {
@@ -849,6 +986,30 @@ const ViewTraineeTestAllotment = () => {
                                 >
                                   Extend
                                 </button>
+
+                              {/* Reset button - only show if completionStatus is 'completed' */}
+{result.completionStatus === 'completed' && (
+  <button
+    className={styles.resetButton}
+    onClick={() => handleTestReset(result.allotmentId)}
+    title="Reset test"
+  >
+    Reset
+  </button>
+)}
+
+{/* Delete button - only show if testType is not 'internal' */}
+{result.testType !== 'internal' && (
+  <button
+    className={styles.resetButton}
+    onClick={() => handleDeleteTest(result.allotmentId)}
+    title="Delete test allotment"
+  >
+    Delete
+  </button>
+)}
+
+
                               </td>
                             </tr>
                           ))}
