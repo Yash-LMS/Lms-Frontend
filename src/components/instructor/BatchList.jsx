@@ -13,6 +13,7 @@ import AddCandidateToBatch from "./AddCandidateToBatch";
 import AddBatchTestModal from "./AddBatchTestModal";
 import ViewCandidatesModal from "./ViewCandidatesModal";
 import AddBatchAssignmentModal from "./AddBatchAssignmentModal";
+import ViewTestsModal from "./ViewTestsModal";
 
 const BatchList = ({
   batches,
@@ -48,6 +49,9 @@ const [selectedBatchForAssignment, setSelectedBatchForAssignment] = useState(nul
   // Modal state for View Candidates
   const [isViewCandidatesModalOpen, setIsViewCandidatesModalOpen] = useState(false);
   const [selectedBatchForView, setSelectedBatchForView] = useState(null);
+
+  const [isViewTestsModalOpen, setIsViewTestsModalOpen] = useState(false);
+  const [selectedBatchForViewTest, setSelectedBatchForViewTest] = useState(null);
 
   // Calculate pagination
   const indexOfLastBatch = currentPage * cardsPerPage;
@@ -155,6 +159,16 @@ const [selectedBatchForAssignment, setSelectedBatchForAssignment] = useState(nul
     setSelectedBatchForView(null);
   };
 
+   const handleViewTests = (batch) => {
+    setSelectedBatchForViewTest(batch);
+    setIsViewTestsModalOpen(true);
+  };
+
+  const handleCloseViewTestsModal = () => {
+    setIsViewTestsModalOpen(false);
+    setSelectedBatchForViewTest(null);
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -213,6 +227,13 @@ const [selectedBatchForAssignment, setSelectedBatchForAssignment] = useState(nul
               >
                 <FontAwesomeIcon icon={faEye} />
                 <span style={{ marginLeft: "5px" }}>Preview Candidates</span>
+              </button>
+              <button
+                className={styles.previewButton}
+                onClick={() => handleViewTests(batch)}
+              >
+                <FontAwesomeIcon icon={faEye} />
+                <span style={{ marginLeft: "5px" }}>Preview Tests</span>
               </button>
               <button
                 className={styles.addButton}
@@ -295,15 +316,18 @@ const [selectedBatchForAssignment, setSelectedBatchForAssignment] = useState(nul
         batchName={selectedBatchForView?.batchName}
       />
 
-          <AddBatchAssignmentModal
+      <AddBatchAssignmentModal
         isOpen={isBatchModalOpen}
         onClose={handleCloseBatchModal}
         selectedBatch={selectedBatchForAssignment}
       />
 
-      
-
-
+      <ViewTestsModal
+        isOpen={isViewTestsModalOpen}
+        onClose={handleCloseViewTestsModal}
+        batchId={selectedBatchForViewTest?.batchId}
+        batchName={selectedBatchForViewTest?.batchName}
+      />
 
     </div>
   );
