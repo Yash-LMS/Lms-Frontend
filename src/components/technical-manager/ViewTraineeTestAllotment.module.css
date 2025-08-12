@@ -491,6 +491,23 @@ input:checked + .slider:before {
   gap: 4px;
 }
 
+.resetButton {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 5px;
+  gap: 4px;
+}
+
+
 .extendButton:hover:not(:disabled) {
   background-color: #7559ce;
 }
