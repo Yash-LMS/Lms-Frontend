@@ -8,6 +8,7 @@ const CourseBulkAllotment = () => {
   const [file, setFile] = useState(null);
   const [courseList, setCourseList] = useState([]);
   const [selectedCourseId, setSelectedCourseId] = useState("");
+  const [endDate, setEndDate] = useState(""); // New state for end date
   const [userTable, setUserTable] = useState([]);
   const [message, setMessage] = useState({ show: false, type: "", text: "" });
 
@@ -53,8 +54,8 @@ const CourseBulkAllotment = () => {
   };
 
   const handleUpload = async () => {
-    if (!file || !selectedCourseId) {
-      showMessage("error", "Please select a file and a course.");
+    if (!file || !selectedCourseId || !endDate) {
+      showMessage("error", "Please select a file, a course, and an end date.");
       return;
     }
 
@@ -96,6 +97,7 @@ const CourseBulkAllotment = () => {
             officeId: response.data.payload.officeId,
             courseId: selectedCourseId,
             courseName: courseList.find((c) => c.courseId === selectedCourseId)?.courseName || "",
+            endDate: endDate, // Include end date in verified users
             status: "Approved",
           });
         } else {
@@ -105,6 +107,7 @@ const CourseBulkAllotment = () => {
             officeId: "N/A",
             courseId: selectedCourseId,
             courseName: courseList.find((c) => c.courseId === selectedCourseId)?.courseName || "",
+            endDate: endDate, // Include end date even for not found users
             status: "Not Found",
           });
         }
@@ -130,11 +133,16 @@ const CourseBulkAllotment = () => {
       await axios.post(ALLOT_COURSE_URL, {
         user: userData.user,
         token: userData.token,
-        allotmentList: approvedUsers.map(({ emailId, courseId }) => ({ emailId, courseId })),
+        allotmentList: approvedUsers.map(({ emailId, courseId, endDate }) => ({ 
+          emailId, 
+          courseId, 
+          endDate: new Date(endDate) // Convert string to Date object
+        })),
       });
 
       showMessage("success", "Courses successfully allotted.");
       setUserTable([]);
+      setEndDate(""); // Reset end date
       if (typeof onUploadSuccess === 'function') {
         onUploadSuccess();
       }
@@ -150,6 +158,12 @@ const CourseBulkAllotment = () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Template");
     XLSX.writeFile(wb, "Course_Bulk_Allotment_Template.xlsx"); // Download the file
+  };
+
+  // Helper function to get today's date in YYYY-MM-DD format for min date
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   };
 
   return (
@@ -173,6 +187,18 @@ const CourseBulkAllotment = () => {
           </select>
         </div>
 
+        {/* New end date input field */}
+        <div className={styles.formGroup}>
+          <label>Course End Date:</label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            min={getTodayDate()} // Prevent selecting past dates
+            required
+          />
+        </div>
+
         <div className={styles.formGroup}>
           <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
           <button onClick={handleUpload}>Upload & Verify</button>
@@ -194,6 +220,7 @@ const CourseBulkAllotment = () => {
                     <th>Employee Name</th>
                     <th>Course ID</th>
                     <th>Course Name</th>
+                    <th>End Date</th>
                     <th>Status</th>
                     <th>Office ID</th>
                   </tr>
@@ -206,6 +233,7 @@ const CourseBulkAllotment = () => {
                       <td>{user.name}</td>
                       <td>{user.courseId}</td>
                       <td>{user.courseName}</td>
+                      <td>{new Date(user.endDate).toLocaleDateString()}</td>
                       <td>
                         <span className={`${styles.statusBadge} ${user.status === "Approved" ? styles.approvedBadge : styles.notFoundBadge}`}>
                           {user.status}
