@@ -16,7 +16,7 @@ const CourseAllotment = () => {
   const navigate = useNavigate();
   const [userList, setUserList] = useState([]);
   const [courseList, setCourseList] = useState([]);
-  const [rows, setRows] = useState([{ emailId: "", courseId: "" }]);
+  const [rows, setRows] = useState([{ emailId: "", courseId: "", endDate: "" }]);
   const [errorRows, setErrorRows] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [popupStatus, setPopupStatus] = useState("");
@@ -97,6 +97,22 @@ const CourseAllotment = () => {
     fetchCourseList();
   }, []);
 
+  // Helper function to format date for input field (YYYY-MM-DD format)
+  const formatDateForInput = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    return d.toISOString().split('T')[0];
+  };
+
+  // Helper function to validate date
+  const isValidDate = (dateString) => {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to compare only dates
+    return date instanceof Date && !isNaN(date) && date >= today;
+  };
+
   const handleUpdate = async () => {
     try {
       const userData = getUserData();
@@ -108,23 +124,35 @@ const CourseAllotment = () => {
         return;
       }
 
-      // Remove any rows with empty fields
-      const validRows = rows.filter((row) => row.emailId && row.courseId);
+      // Remove any rows with empty fields and validate dates
+      const validRows = rows.filter((row) => {
+        if (!row.emailId || !row.courseId || !row.endDate) {
+          return false;
+        }
+        return isValidDate(row.endDate);
+      });
 
       if (validRows.length === 0) {
         setPopupStatus(
-          "Please select both employee and course for at least one row."
+          "Please select employee, course, and a valid end date (today or future) for at least one row."
         );
         setShowPopup(true);
         return;
       }
+
+      // Transform the data to match backend expectations
+      const allotmentList = validRows.map(row => ({
+        emailId: row.emailId,
+        courseId: parseInt(row.courseId),
+        endDate: new Date(row.endDate).toISOString()
+      }));
 
       const response = await axios.post(
         `${ALLOT_COURSE_URL}`,
         {
           user: userData.user,
           token: userData.token,
-          allotmentList: validRows,
+          allotmentList: allotmentList,
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -133,7 +161,7 @@ const CourseAllotment = () => {
 
       if (response.data && (response.data.response === "success")) {
         setPopupStatus("Success! Courses have been allotted.");
-        setRows([{ emailId: "", courseId: "" }]); // Reset rows
+        setRows([{ emailId: "", courseId: "", endDate: "" }]); // Reset rows
         setShowPopup(true);
       }
       else {
@@ -151,7 +179,7 @@ const CourseAllotment = () => {
   };
 
   const addRow = () => {
-    setRows([...rows, { emailId: "", courseId: "" }]);
+    setRows([...rows, { emailId: "", courseId: "", endDate: "" }]);
   };
 
   const deleteRow = (index) => {
@@ -202,6 +230,7 @@ const CourseAllotment = () => {
                     <tr>
                       <th>Employee</th>
                       <th>Course</th>
+                      <th>End Date</th>
                       <th className={styles.actionColumn}>Action</th>
                     </tr>
                   </thead>
@@ -241,6 +270,16 @@ const CourseAllotment = () => {
                             styles={selectStyles}
                             menuPortalTarget={document.body}
                             className={styles.reactSelect}
+                          />
+                        </td>
+                        <td className={styles.formField}>
+                          <input
+                            type="date"
+                            value={formatDateForInput(row.endDate)}
+                            onChange={(e) => handleRowChange(index, "endDate", e.target.value)}
+                            className={styles.dateInput}
+                            min={new Date().toISOString().split('T')[0]} // Prevent selecting past dates
+                            required
                           />
                         </td>
                         <td className={styles.actionColumn}>
