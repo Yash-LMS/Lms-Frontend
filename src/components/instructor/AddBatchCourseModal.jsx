@@ -27,6 +27,7 @@ const AddBatchCourseModal = ({
 }) => {
   const [courseList, setCourseList] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [validity, setValidity] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -39,6 +40,7 @@ const AddBatchCourseModal = ({
       setError("");
       setSuccessMessage("");
       setSelectedCourse(null);
+      setValidity("");
     }
   }, [isOpen]);
 
@@ -76,11 +78,25 @@ const AddBatchCourseModal = ({
     }
   };
 
+  const handleValidityChange = (e) => {
+    const value = e.target.value;
+    // Allow only positive integers >= 1
+    if (value === "" || (Number.isInteger(Number(value)) && Number(value) >= 1)) {
+      setValidity(value);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!selectedCourse) {
       setError("Please select a course");
+      setSuccessMessage("");
+      return;
+    }
+
+    if (!validity || validity === "" || Number(validity) < 1) {
+      setError("Please enter a valid validity period (minimum 1 day)");
       setSuccessMessage("");
       return;
     }
@@ -104,6 +120,7 @@ const AddBatchCourseModal = ({
         token: userData.token,
         batchId: selectedBatch.batchId,
         courseId: selectedCourse.value,
+        validity: parseInt(validity, 10), // Convert to integer
       };
 
       console.log(requestData);
@@ -124,6 +141,7 @@ const AddBatchCourseModal = ({
         
         // Reset form
         setSelectedCourse(null);
+        setValidity("");
         
         // Close modal after a delay to show success message
         setTimeout(() => {
@@ -161,6 +179,7 @@ const AddBatchCourseModal = ({
     if (!submitting) {
       onClose();
       setSelectedCourse(null);
+      setValidity("");
       setError("");
       setSuccessMessage("");
     }
@@ -228,6 +247,21 @@ const AddBatchCourseModal = ({
               />
             </div>
 
+            <div className={styles.formGroup}>
+              <label htmlFor="validity-input">Validity (days):</label>
+              <input
+                id="validity-input"
+                type="number"
+                value={validity}
+                onChange={handleValidityChange}
+                placeholder="Enter validity period in days"
+                className={styles.validityInput}
+                disabled={submitting}
+                min="1"
+                step="1"
+              />
+            </div>
+
             {successMessage && (
               <div className={styles.successMessage}>
                 {successMessage}
@@ -252,7 +286,7 @@ const AddBatchCourseModal = ({
               <button
                 type="submit"
                 className={styles.submitButton}
-                disabled={loading || submitting || !selectedCourse}
+                disabled={loading || submitting || !selectedCourse || !validity}
               >
                 {submitting ? (
                   <>
