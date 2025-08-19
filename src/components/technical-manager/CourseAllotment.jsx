@@ -277,7 +277,7 @@ const CourseAllotment = () => {
                             type="date"
                             value={formatDateForInput(row.endDate)}
                             onChange={(e) => handleRowChange(index, "endDate", e.target.value)}
-                            className={styles.dateInput}
+                            className={styles.dateField}
                             min={new Date().toISOString().split('T')[0]} // Prevent selecting past dates
                             required
                           />

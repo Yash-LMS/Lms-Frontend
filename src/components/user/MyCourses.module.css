@@ -293,6 +293,30 @@
   background-color: #28a745;
 }
 
+.statusContainer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline
+}
+
+.trainingStatus{
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  background-color: #6c757d;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.due {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.overdue{
+  background-color: #ae2727;
+}
+
 /* Table View Styles */
 .tableContainer {
   overflow-x: auto;
