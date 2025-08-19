@@ -317,6 +317,10 @@
   background-color: #ae2727;
 }
 
+.completed{
+  background-color: #1aca58;
+}
+
 /* Table View Styles */
 .tableContainer {
   overflow-x: auto;

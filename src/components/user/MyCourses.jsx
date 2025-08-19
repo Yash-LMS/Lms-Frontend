@@ -87,6 +87,16 @@ const MyCourses = () => {
     }
   };
 
+  function formatDate(dateString) {
+  const date = new Date(dateString);
+  const day = ("0" + date.getDate()).slice(-2);
+  const month = ("0" + (date.getMonth() + 1)).slice(-2);
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+}
+
+
+
   useEffect(() => {
     const{user,token}=getUserData();
     redirectUser(user);
@@ -313,6 +323,7 @@ const MyCourses = () => {
     const trainingStatusClasses = {
       DUE: styles.due,
       OVERDUE: styles.overdue,
+      COMPLETED: styles.completed,
     };
     return trainingStatusClasses[status] || styles.due;
   };
@@ -509,7 +520,7 @@ const MyCourses = () => {
                       Total Hours: {course.course.totalHours}
                     </p>
                     <p className={styles.courseDuration}>
-                      End Date: {course.endDate}
+                      End Date: {formatDate(course.endDate)}
                     </p>
                     <p className={styles.courseDuration}>
                       Validity: {course.validity} days
@@ -593,7 +604,8 @@ const MyCourses = () => {
                           {course.allotmentStatus.toUpperCase()}
                         </span>
                       </td>
-                      <td>{course.endDate}</td>
+                    
+                      <td>{formatDate(course.endDate)}</td>
                       <td>{course.validity} days</td>
                       <td>
                         <span
