@@ -309,6 +309,14 @@ const MyCourses = () => {
     return statusClasses[status] || styles.approved;
   };
 
+   const getTrainingStatusClass = (status) => {
+    const trainingStatusClasses = {
+      DUE: styles.due,
+      OVERDUE: styles.overdue,
+    };
+    return trainingStatusClasses[status] || styles.due;
+  };
+
   // Check if feedback has been submitted for a course
   const isFeedbackSubmitted = (allotmentId) => {
     return submittedFeedback.has(allotmentId);
@@ -500,6 +508,24 @@ const MyCourses = () => {
                     <p className={styles.courseDuration}>
                       Total Hours: {course.course.totalHours}
                     </p>
+                    <p className={styles.courseDuration}>
+                      End Date: {course.endDate}
+                    </p>
+                    <p className={styles.courseDuration}>
+                      Validity: {course.validity} days
+                    </p>
+                    <div className={styles.statusContainer}>
+                    <p className={styles.courseDuration}>
+                      Training Status: 
+                    </p>
+                    <span
+                      className={`${styles.trainingStatus} ${getTrainingStatusClass(
+                        course.trainingStatus
+                      )}`}
+                    >
+                      {course.trainingStatus.toUpperCase()}
+                    </span>
+                    </div>
 
                     <div className={styles.progressContainer}>
                       <div className={styles.progressInfo}>
@@ -532,6 +558,9 @@ const MyCourses = () => {
                     <th>Instructor</th>
                     <th>Total Hours</th>
                     <th>Status</th>
+                    <th>End Date</th>
+                    <th>Validity</th>
+                    <th>Training Status</th>
                     <th>Progress</th>
                     <th>Feedback Status</th>
                     <th>Actions</th>
@@ -563,6 +592,17 @@ const MyCourses = () => {
                         >
                           {course.allotmentStatus.toUpperCase()}
                         </span>
+                      </td>
+                      <td>{course.endDate}</td>
+                      <td>{course.validity} days</td>
+                      <td>
+                        <span
+                      className={`${styles.trainingStatus} ${getTrainingStatusClass(
+                        course.trainingStatus
+                      )}`}
+                    >
+                      {course.trainingStatus.toUpperCase()}
+                    </span>
                       </td>
                       <td>
                         <div className={styles.tableProgressContainer}>

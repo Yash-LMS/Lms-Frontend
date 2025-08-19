@@ -430,3 +430,13 @@
 .reactSelect {
   width: 100%;
 }
+
+.dateField {
+  width: 90%;
+  padding: 10px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #fff;
+  font-size: 14px;
+}
+
