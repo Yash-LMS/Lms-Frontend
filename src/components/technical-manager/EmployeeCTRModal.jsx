@@ -118,7 +118,7 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
       
       // Get filename from response headers or create default
       const contentDisposition = response.headers['content-disposition'];
-      let filename = `CTR_Report_${reportType.toLowerCase()}_${selectedEmployee.userName.replace(/\s+/g, '_')}.xlsx`;
+      let filename = `CTR_Report_${selectedEmployee.firstName.replace(/\s+/g, '_')}_${selectedEmployee.lastName.replace(/\s+/g, '_')}.xlsx`;
       
       if (contentDisposition) {
         const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
@@ -138,7 +138,7 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
       
       // Call success callback
       if (onDownloadSuccess) {
-        onDownloadSuccess(`${reportType} CTR Report for ${selectedEmployee.userName} downloaded successfully!`);
+        onDownloadSuccess(`${reportType} CTR Report for ${selectedEmployee.firstName} ${selectedEmployee.lastName.replace(/\s+/g, '_')} downloaded successfully!`);
       }
       
       // Close modal
