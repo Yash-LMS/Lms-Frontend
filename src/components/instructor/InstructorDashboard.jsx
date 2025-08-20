@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import styles from './InstructorDashboard.module.css';
 import CourseDetailsForm from './CourseDetails';
 import AddCourseModal from './AddCourseModal';
@@ -8,9 +9,10 @@ import CourseList from './CourseList';
 import SuccessModal from '../../assets/SuccessModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewCourse, viewCourse, editCourseDetail } from '../../features/course/courseActions';
+import { COURSE_CTR_DOWNLOAD} from "../../constants/apiConstants";
 import InstructorSidebar from './InstructorSidebar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faDownload, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const InstructorDashboard = () => {
   const dispatch = useDispatch();
@@ -21,10 +23,12 @@ const InstructorDashboard = () => {
   const [showEditCourse, setShowEditCourse] = useState(false); // State for edit modal
   const [showCourseDetails, setShowCourseDetails] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false); // State for success modal
+  const [showCtrModal, setShowCtrModal] = useState(false); // State for CTR modal
   const [successMessage, setSuccessMessage] = useState(''); // State for success message
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isDownloading, setIsDownloading] = useState(false); // Loading state for download
 
   const courseStatusOptions = ["APPROVED", "NOT_APPROVED", "PENDING", "REJECTED", "HOLD"];
 
@@ -149,6 +153,84 @@ const InstructorDashboard = () => {
       alert("Failed to update course.");
     }
   };
+
+  // Handle showing the CTR modal
+  const handleShowCtrModal = () => {
+    setShowCtrModal(true);
+  };
+
+  // Download CTR Report function with report type
+  const handleDownloadCTR = async (reportType) => {
+    const { user, token } = getUserData();
+    
+    if (!user || !token) {
+      alert("User session data is missing. Please log in again.");
+      return;
+    }
+
+    setIsDownloading(true);
+    setShowCtrModal(false);
+    
+    try {
+      const requestData = {
+        user,
+        token,
+        ctrFetchType: reportType // Add the report type to the request
+      };
+
+      const response = await axios.post(`${COURSE_CTR_DOWNLOAD}`, requestData, {
+        responseType: 'blob', // Important for downloading files
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Create blob link to download
+      const blob = new Blob([response.data], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
+      
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      
+      // Get filename from response headers or create default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = `CTR_Report_${reportType.toLowerCase()}.xlsx`;
+      
+      if (contentDisposition) {
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(contentDisposition);
+        if (matches != null && matches[1]) {
+          filename = matches[1].replace(/['"]/g, '');
+        }
+      }
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the blob URL
+      window.URL.revokeObjectURL(link.href);
+      
+      setSuccessMessage(`${reportType} CTR Report downloaded successfully!`);
+      setShowSuccessModal(true);
+      
+    } catch (error) {
+      console.error("Failed to download CTR report:", error);
+      let errorMessage = "Failed to download CTR report.";
+      
+      if (error.response?.status === 401) {
+        errorMessage = "Unauthorized. Please log in again.";
+      } else if (error.response?.status === 500) {
+        errorMessage = "Server error. Please try again later.";
+      }
+      
+      alert(errorMessage);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
   
   // Filter courses based on search term and status filter
   const getFilteredCourses = () => {
@@ -185,13 +267,29 @@ const InstructorDashboard = () => {
         <header className={styles.contentHeader}>
           <div className={styles.headerLeft}>
             <h1>Course Management</h1>
-            <button 
-              className={styles.addCourseBtn}
-              onClick={() => setShowAddCourse(true)}
-            >
-              <FontAwesomeIcon icon={faPlus} />
-              <span style={{marginLeft:'5px'}}>Create Course</span>
-            </button>
+            <div className={styles.buttonGroup}>
+              <button 
+                className={styles.addCourseBtn}
+                onClick={() => setShowAddCourse(true)}
+              >
+                <FontAwesomeIcon icon={faPlus} />
+                <span style={{marginLeft:'5px'}}>Create Course</span>
+              </button>
+              
+              <button 
+                className={`${styles.downloadCtrBtn} ${isDownloading ? styles.downloading : ''}`}
+                onClick={handleShowCtrModal}
+                disabled={isDownloading}
+              >
+                <FontAwesomeIcon 
+                  icon={faDownload} 
+                  className={isDownloading ? styles.spinning : ''}
+                />
+                <span style={{marginLeft:'5px'}}>
+                  {isDownloading ? 'Downloading...' : 'Download CTR Report'}
+                </span>
+              </button>
+            </div>
           </div>
           <div className={styles.headerRight}>
             <input 
@@ -261,6 +359,66 @@ const InstructorDashboard = () => {
           onSubmit={handleEditSubmit}
           course={selectedCourse} // Pass the selected course
         />
+
+        {/* CTR Report Type Selection Modal */}
+        {showCtrModal && (
+          <div className={styles.ctrModal}>
+            <div className={styles.ctrModalContent}>
+              <header className={styles.ctrModalHeader}>
+                <h2>Select Report Type</h2>
+                <button 
+                  className={styles.ctrModalCloseButton}
+                  onClick={() => setShowCtrModal(false)}
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                </button>
+              </header>
+              
+              <div className={styles.ctrModalBody}>
+                <p className={styles.ctrModalDescription}>
+                  Choose the type of CTR report you want to download:
+                </p>
+                
+                <div className={styles.ctrReportOptions}>
+                  <div 
+                    className={styles.ctrReportOption}
+                    onClick={() => handleDownloadCTR('CURRENT')}
+                  >
+                    <div className={styles.ctrReportOptionIcon}>
+                      <FontAwesomeIcon icon={faDownload} />
+                    </div>
+                    <div className={styles.ctrReportOptionInfo}>
+                      <h3>Current Report</h3>
+                      <p>Download report for current/ongoing courses</p>
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className={styles.ctrReportOption}
+                    onClick={() => handleDownloadCTR('COMPLETE')}
+                  >
+                    <div className={styles.ctrReportOptionIcon}>
+                      <FontAwesomeIcon icon={faDownload} />
+                    </div>
+                    <div className={styles.ctrReportOptionInfo}>
+                      <h3>Complete Report</h3>
+                      <p>Download report for all completed courses</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className={styles.ctrModalActions}>
+                  <button 
+                    className={styles.ctrCancelBtn}
+                    onClick={() => setShowCtrModal(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Course Details Modal */}
         {showCourseDetails && selectedCourse && (

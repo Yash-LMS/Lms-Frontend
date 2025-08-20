@@ -197,6 +197,8 @@ export const DELETE_TEST_URL = `${API_BASE_URL}/manager/test/delete`;
 export const COURSE_ANALYSIS_URL = `${API_BASE_URL}/analysis/course`;
 export const TEST_ANALYSIS_URL = `${API_BASE_URL}/analysis/test`;
 
+export const COURSE_CTR_DOWNLOAD = `${API_BASE_URL}/course/remainder/day`;
+
 
 
 // Question Library
