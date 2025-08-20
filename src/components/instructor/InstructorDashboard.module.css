@@ -799,6 +799,7 @@
   display: flex;
   gap: 12px;
   align-items: center;
+  margin-right: 20px;
 }
 
 /* Download CTR Button styling */
@@ -869,36 +870,6 @@
     justify-content: center;
   }
 }
-
-/* Enhanced styling for existing add course button to match */
-.addCourseBtn {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-  min-width: 140px;
-  justify-content: center;
-}
-
-.addCourseBtn:hover {
-  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-}
-
-.addCourseBtn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-}
-
 
 /* CTR Modal Styles */
 .ctrModal {
