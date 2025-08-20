@@ -792,3 +792,326 @@
   gap: 17px;
   flex-wrap: wrap; /* Allow buttons to wrap */
 }
+
+
+/* Button group styling */
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Download CTR Button styling */
+.downloadCtrBtn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+  min-width: 160px;
+  justify-content: center;
+}
+
+.downloadCtrBtn:hover {
+  background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.downloadCtrBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+}
+
+.downloadCtrBtn:disabled {
+  background: linear-gradient(135deg, #6c757d 0%, #6c757d 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.downloadCtrBtn.downloading {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+}
+
+/* Spinning animation for download icon */
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive design for button group */
+@media (max-width: 768px) {
+  .buttonGroup {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .addCourseBtn,
+  .downloadCtrBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Enhanced styling for existing add course button to match */
+.addCourseBtn {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+  min-width: 140px;
+  justify-content: center;
+}
+
+.addCourseBtn:hover {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.addCourseBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+
+/* CTR Modal Styles */
+.ctrModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.ctrModalContent {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.ctrModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 0 24px;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 0;
+}
+
+.ctrModalHeader h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #495057;
+  font-weight: 600;
+}
+
+.ctrModalCloseButton {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.ctrModalCloseButton:hover {
+  background: #f8f9fa;
+  color: #495057;
+}
+
+.ctrModalBody {
+  padding: 24px;
+}
+
+.ctrModalDescription {
+  font-size: 16px;
+  color: #6c757d;
+  margin-bottom: 28px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.ctrReportOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.ctrReportOption {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.ctrReportOption::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(138, 43, 226, 0.05), rgba(30, 144, 255, 0.05));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ctrReportOption:hover {
+  border-color: #8a2be2;
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(138, 43, 226, 0.15);
+}
+
+.ctrReportOption:hover::before {
+  opacity: 1;
+}
+
+.ctrReportOptionIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8a2be2, #1e90ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 22px;
+  margin-right: 20px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.ctrReportOption:hover .ctrReportOptionIcon {
+  transform: scale(1.1);
+}
+
+.ctrReportOptionInfo {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.ctrReportOptionInfo h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #495057;
+  font-weight: 600;
+}
+
+.ctrReportOptionInfo p {
+  margin: 0;
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.4;
+}
+
+.ctrModalActions {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.ctrCancelBtn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.ctrCancelBtn:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .ctrModalContent {
+    margin: 20px;
+    width: calc(100% - 40px);
+  }
+  
+  .ctrModalHeader {
+    padding: 20px 20px 0 20px;
+  }
+  
+  .ctrModalBody {
+    padding: 20px;
+  }
+  
+  .ctrReportOption {
+    padding: 16px;
+  }
+  
+  .ctrReportOptionIcon {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+    margin-right: 16px;
+  }
+  
+  .ctrReportOptionInfo h3 {
+    font-size: 16px;
+  }
+  
+  .ctrReportOptionInfo p {
+    font-size: 13px;
+  }
+}
