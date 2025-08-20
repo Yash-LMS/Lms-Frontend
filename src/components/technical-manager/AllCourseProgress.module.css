@@ -350,8 +350,10 @@
 
 .headerActions {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
   margin-bottom: 20px;
 }
 
@@ -382,4 +384,31 @@
     gap: 10px;
     align-items: stretch;
   }
+}
+
+.ctrDownloadButton {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.975rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-bottom: 20px;
+  margin-right: 12px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.ctrDownloadButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -8px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #5a67d8 0%, #667eea 100%);
+}
+
+.ctrDownloadButton:active {
+  transform: translateY(0);
 }

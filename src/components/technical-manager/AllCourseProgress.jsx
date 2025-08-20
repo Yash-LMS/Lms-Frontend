@@ -4,7 +4,11 @@ import Sidebar from './Sidebar';
 import styles from './AllCourseProgress.module.css';
 import { ALL_USER_TRACKING_DETAIL_URL } from '../../constants/apiConstants'; 
 import DetailedTrackingModal from './DetailedTrackingModal';
+import EmployeeCTRModal from './EmployeeCTRModal';
+import SuccessModal from '../../assets/SuccessModal';
 import ExportToExcel from "../../assets/ExportToExcel";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
 
 const AllCourseProgressTracker = () => {
   const [activeTab, setActiveTab] = useState("progress");
@@ -15,6 +19,11 @@ const AllCourseProgressTracker = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // CTR Modal states
+  const [showEmployeeSelectionModal, setShowEmployeeSelectionModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   
   // Updated date filter states
   const [dateFilterType, setDateFilterType] = useState('none'); // 'none', 'allotment', 'completion'
@@ -87,6 +96,25 @@ const AllCourseProgressTracker = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedStudent(null);
+  };
+
+  // Handle CTR Modal functions
+  const handleShowEmployeeSelectionModal = () => {
+    setShowEmployeeSelectionModal(true);
+  };
+
+  const handleCloseEmployeeSelectionModal = () => {
+    setShowEmployeeSelectionModal(false);
+  };
+
+  const handleDownloadSuccess = (message) => {
+    setSuccessMessage(message);
+    setShowSuccessModal(true);
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    setSuccessMessage('');
   };
 
   // Handle date filter type change
@@ -241,6 +269,16 @@ const AllCourseProgressTracker = () => {
       </div>
 
       <div className={styles.headerActions}>
+        {/* CTR Report Download Button */}
+        <button 
+          className={styles.ctrDownloadButton}
+          onClick={handleShowEmployeeSelectionModal}
+          title="Download CTR Report for specific instructor"
+        >
+          <FontAwesomeIcon icon={faDownload} />
+          <span style={{marginLeft:'8px'}}>Download CTR Report</span>
+        </button>
+        
         <ExportToExcel
           data={filteredStudents} 
           headers={excelHeaders}
@@ -332,6 +370,22 @@ const AllCourseProgressTracker = () => {
         )}
       </div>
 
+      {/* Employee Selection Modal for CTR Download */}
+      <EmployeeCTRModal
+        isOpen={showEmployeeSelectionModal}
+        onClose={handleCloseEmployeeSelectionModal}
+        onDownloadSuccess={handleDownloadSuccess}
+      />
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <SuccessModal 
+          message={successMessage} 
+          onClose={handleCloseSuccessModal} 
+        />
+      )}
+
+      {/* Detailed Tracking Modal */}
       {isModalOpen && selectedStudent && (
         <DetailedTrackingModal
           student={selectedStudent} 
