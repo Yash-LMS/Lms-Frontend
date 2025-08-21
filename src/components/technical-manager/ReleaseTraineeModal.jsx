@@ -47,7 +47,7 @@ const ReleaseTraineeModal = ({ isOpen, onClose, student, onReleaseSuccess }) => 
       const response = await axios.post(RELEASE_TRAINEE_FROM_COURSE_URL, requestData);
       
       if (response.data.response === 'success') {
-        onReleaseSuccess(`${student.traineeName} has been successfully released from ${student.courseName}`);
+        onReleaseSuccess(response.data.message);
         handleClose();
       } else {
         setError(response.data.message || 'Failed to release trainee');

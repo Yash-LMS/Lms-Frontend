@@ -179,7 +179,7 @@ const AllCourseProgressTracker = () => {
   const canReleaseTrainee = (student) => {
     // Can release if not completed and not already released
     return student.courseCompletionStatus !== 'completed' && 
-           student.courseCompletionStatus !== 'released';
+           student.courseTrainingStatus !== 'RELEASED';
   };
 
   const excelHeaders = {
