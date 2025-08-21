@@ -141,6 +141,8 @@ export const ALLOT_ASSIGNMENT_BATCH_URL = `${API_BASE_URL}/batch/addAssignmentTo
 export const EMPLOYEE_PROFILE_IMAGE_URL = `${API_BASE_URL}/manager/employee/image`;
 export const DOWNLOAD_RESUME_URL = `${API_BASE_URL}/manager/document/resume/download`;
 
+export const RELEASE_TRAINEE_FROM_COURSE_URL = `${API_BASE_URL}/manager/course/releaseTrainee`;
+
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
 export const VIEW_ALLOTED_TEST_URL = `${API_BASE_URL}/user/viewAllotedTest`;

@@ -210,6 +210,12 @@
   color: #c62828;
 }
 
+.actionButtons {
+  display: flex;
+  gap: 8px;
+  flex-direction: row;
+}
+
 /* New view button style */
 .viewButton {
   background-color: #6c5ce7;
@@ -225,6 +231,36 @@
 .viewButton:hover {
   background-color: #5a4acf;
 }
+
+/* New release button styles */
+.releaseButton {
+  padding: 6px 12px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.releaseButton:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.releaseButton:disabled,
+.disabledButton {
+  background-color: #6c757d !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+.releaseButton:disabled:hover,
+.disabledButton:hover {
+  background-color: #6c757d !important;
+}
+
 
 /* Loading and error states */
 .loadingState, .errorState {
@@ -271,6 +307,17 @@
   .container {
     margin-left: 0;
     padding-top: 60px;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .viewButton,
+  .releaseButton {
+    width: 100%;
+    font-size: 0.75rem;
   }
 }
 

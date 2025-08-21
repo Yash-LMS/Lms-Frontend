@@ -5,6 +5,7 @@ import styles from './AllCourseProgress.module.css';
 import { ALL_USER_TRACKING_DETAIL_URL } from '../../constants/apiConstants'; 
 import DetailedTrackingModal from './DetailedTrackingModal';
 import EmployeeCTRModal from './EmployeeCTRModal';
+import ReleaseTraineeModal from './ReleaseTraineeModal';
 import SuccessModal from '../../assets/SuccessModal';
 import ExportToExcel from "../../assets/ExportToExcel";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,6 +25,10 @@ const AllCourseProgressTracker = () => {
   const [showEmployeeSelectionModal, setShowEmployeeSelectionModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  
+  // Release Trainee Modal states
+  const [showReleaseModal, setShowReleaseModal] = useState(false);
+  const [selectedStudentForRelease, setSelectedStudentForRelease] = useState(null);
   
   // Updated date filter states
   const [dateFilterType, setDateFilterType] = useState('none'); // 'none', 'allotment', 'completion'
@@ -98,6 +103,24 @@ const AllCourseProgressTracker = () => {
     setSelectedStudent(null);
   };
 
+  // Handle Release Trainee Modal functions
+  const handleShowReleaseModal = (student) => {
+    setSelectedStudentForRelease(student);
+    setShowReleaseModal(true);
+  };
+
+  const handleCloseReleaseModal = () => {
+    setShowReleaseModal(false);
+    setSelectedStudentForRelease(null);
+  };
+
+  const handleReleaseSuccess = (message) => {
+    setSuccessMessage(message);
+    setShowSuccessModal(true);
+    // Refresh the data to show updated status
+    fetchCourseTrackingData();
+  };
+
   // Handle CTR Modal functions
   const handleShowEmployeeSelectionModal = () => {
     setShowEmployeeSelectionModal(true);
@@ -150,6 +173,13 @@ const AllCourseProgressTracker = () => {
       return date <= to;
     }
     return true;
+  };
+
+  // Helper function to check if release button should be disabled
+  const canReleaseTrainee = (student) => {
+    // Can release if not completed and not already released
+    return student.courseCompletionStatus !== 'completed' && 
+           student.courseTrainingStatus !== 'RELEASED';
   };
 
   const excelHeaders = {
@@ -314,7 +344,7 @@ const AllCourseProgressTracker = () => {
                 <th>Completion Status</th>
                 <th>Completion Date</th>
                 <th>Certificate Status</th>
-                <th>Action</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -351,12 +381,27 @@ const AllCourseProgressTracker = () => {
                       {(student.certificateStatus ? student.certificateStatus.replace(/_/g, ' ') : 'Not Available').toUpperCase()}
                     </td>
                     <td>
-                      <button 
-                        className={styles.viewButton}
-                        onClick={() => handleViewDetails(student)}
-                      >
-                        View
-                      </button>
+                      <div className={styles.actionButtons}>
+                        <button 
+                          className={styles.viewButton}
+                          onClick={() => handleViewDetails(student)}
+                          title="View Details"
+                        >
+                          View
+                        </button>
+                        <button 
+                          className={`${styles.releaseButton} ${!canReleaseTrainee(student) ? styles.disabledButton : ''}`}
+                          onClick={() => handleShowReleaseModal(student)}
+                          disabled={!canReleaseTrainee(student)}
+                          title={
+                            canReleaseTrainee(student) 
+                              ? "Release trainee from course" 
+                              : "Cannot release - trainee already completed or released"
+                          }
+                        >
+                          Release
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -375,6 +420,14 @@ const AllCourseProgressTracker = () => {
         isOpen={showEmployeeSelectionModal}
         onClose={handleCloseEmployeeSelectionModal}
         onDownloadSuccess={handleDownloadSuccess}
+      />
+
+      {/* Release Trainee Modal */}
+      <ReleaseTraineeModal
+        isOpen={showReleaseModal}
+        onClose={handleCloseReleaseModal}
+        student={selectedStudentForRelease}
+        onReleaseSuccess={handleReleaseSuccess}
       />
 
       {/* Success Modal */}
