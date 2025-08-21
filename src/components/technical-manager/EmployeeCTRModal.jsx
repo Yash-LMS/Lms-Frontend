@@ -15,6 +15,7 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Retrieves user, token, and role from session storage
   const getUserData = () => {
     try {
       return {
@@ -28,14 +29,17 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
     }
   };
 
+  // Fetch employees when modal is opened
   useEffect(() => {
     if (isOpen) {
       fetchEmployees();
+      setSelectedEmployee(null);
+      setSearchTerm('');
     }
   }, [isOpen]);
 
+  // Filter employees when employees list or search term changes
   useEffect(() => {
-    // Filter employees based on search term
     const filtered = employees.filter(employee =>
       employee.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.emailId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -44,27 +48,24 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
     setFilteredEmployees(filtered);
   }, [employees, searchTerm]);
 
+  // Fetch employee list from backend
   const fetchEmployees = async () => {
     setIsLoadingEmployees(true);
     setError(null);
-    
     try {
       const { user, token } = getUserData();
-      
       if (!user || !token) {
         setError("User session data is missing. Please log in again.");
         return;
       }
-
       const requestData = {
         user,
         token,
-        role: "instructor", // Filter for instructors only
-        status: "active" // Only active employees
+        role: "instructor", // Filter instructors only
+        status: "active"    // Only active employees
       };
-
       const response = await axios.post(FIND_EMPLOYEE_LIST_URL, requestData);
-      
+
       if (response.data.response === 'success') {
         setEmployees(response.data.payload || []);
       } else {
@@ -78,6 +79,17 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
     }
   };
 
+  // Handle clicking on an employee to select them (only one selection at a time)
+  const handleEmployeeSelect = (employee) => {
+    setSelectedEmployee(employee);
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Download CTR report for selected employee
   const handleDownloadCTR = async () => {
     if (!selectedEmployee) {
       alert('Please select an instructor first.');
@@ -85,20 +97,19 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
     }
 
     const { user, token } = getUserData();
-    
     if (!user || !token) {
       alert("User session data is missing. Please log in again.");
       return;
     }
 
     setIsDownloading(true);
-    
+
     try {
       const requestData = {
         user,
         token,
         ctrFetchType: reportType,
-        instructorId: selectedEmployee.employeeId // Add instructor ID to the request
+        instructorId: selectedEmployee.employeeId
       };
 
       const response = await axios.post(COURSE_CTR_DOWNLOAD, requestData, {
@@ -108,64 +119,51 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
         }
       });
 
-      // Create blob link to download
-      const blob = new Blob([response.data], { 
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       });
-      
+
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
-      
-      // Get filename from response headers or create default
+
+      // Extract filename from Content-Disposition header if present
       const contentDisposition = response.headers['content-disposition'];
-      let filename = `CTR_Report_${selectedEmployee.firstName.replace(/\s+/g, '_')}_${selectedEmployee.lastName.replace(/\s+/g, '_')}.xlsx`;
-      
+      let filename = `CTR_Report_${selectedEmployee.firstName?.replace(/\s+/g, '_') || 'instructor'}_${selectedEmployee.lastName?.replace(/\s+/g, '_') || ''}.xlsx`;
+
       if (contentDisposition) {
         const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
         const matches = filenameRegex.exec(contentDisposition);
         if (matches != null && matches[1]) {
-          filename = matches[1].replace(/['"]/g, '');
+          filename = matches.replace(/['"]/g, '');
         }
       }
-      
+
       link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
-      // Clean up the blob URL
+
       window.URL.revokeObjectURL(link.href);
-      
-      // Call success callback
+
+      // Notify success
       if (onDownloadSuccess) {
-        onDownloadSuccess(`${reportType} CTR Report for ${selectedEmployee.firstName} ${selectedEmployee.lastName.replace(/\s+/g, '_')} downloaded successfully!`);
+        onDownloadSuccess(`${reportType} CTR Report for ${selectedEmployee.firstName} ${selectedEmployee.lastName} downloaded successfully!`);
       }
-      
-      // Close modal
+
       onClose();
-      
+
     } catch (error) {
       console.error("Failed to download CTR report:", error);
       let errorMessage = "Failed to download CTR report.";
-      
       if (error.response?.status === 401) {
         errorMessage = "Unauthorized. Please log in again.";
       } else if (error.response?.status === 500) {
         errorMessage = "Server error. Please try again later.";
       }
-      
       alert(errorMessage);
     } finally {
       setIsDownloading(false);
     }
-  };
-
-  const handleEmployeeSelect = (employee) => {
-    setSelectedEmployee(employee);
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
   };
 
   if (!isOpen) return null;
@@ -178,16 +176,18 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
             <FontAwesomeIcon icon={faDownload} className={styles.headerIcon} />
             Download Instructor CTR Report
           </h2>
-          <button 
+          <button
             className={styles.closeButton}
             onClick={onClose}
             disabled={isDownloading}
+            aria-label="Close modal"
           >
             <FontAwesomeIcon icon={faTimes} />
           </button>
         </header>
-        
+
         <div className={styles.modalBody}>
+
           {error && (
             <div className={styles.errorMessage}>
               {error}
@@ -196,7 +196,7 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
               </button>
             </div>
           )}
-          
+
           {/* Report Type Selection */}
           <div className={styles.reportTypeSection}>
             <h3>Select Report Type</h3>
@@ -229,7 +229,7 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
           {/* Employee Selection */}
           <div className={styles.employeeSection}>
             <h3>Select Instructor</h3>
-            
+
             {/* Search Input */}
             <div className={styles.searchContainer}>
               <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
@@ -240,6 +240,7 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
                 value={searchTerm}
                 onChange={handleSearchChange}
                 disabled={isLoadingEmployees || isDownloading}
+                aria-label="Search instructors"
               />
             </div>
 
@@ -262,6 +263,10 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
                       selectedEmployee?.employeeId === employee.employeeId ? styles.selected : ''
                     }`}
                     onClick={() => handleEmployeeSelect(employee)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleEmployeeSelect(employee); }}
+                    aria-pressed={selectedEmployee?.employeeId === employee.employeeId}
                   >
                     <div className={styles.employeeIcon}>
                       <FontAwesomeIcon icon={faUser} />
@@ -286,23 +291,23 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
         </div>
 
         <div className={styles.modalFooter}>
-          <button 
+          <button
             className={styles.cancelButton}
             onClick={onClose}
             disabled={isDownloading}
           >
             Cancel
           </button>
-          <button 
+          <button
             className={`${styles.downloadButton} ${isDownloading ? styles.downloading : ''}`}
             onClick={handleDownloadCTR}
             disabled={!selectedEmployee || isDownloading || isLoadingEmployees}
           >
-            <FontAwesomeIcon 
-              icon={faDownload} 
+            <FontAwesomeIcon
+              icon={faDownload}
               className={isDownloading ? styles.spinning : ''}
             />
-            <span style={{marginLeft:'8px'}}>
+            <span style={{ marginLeft: '8px' }}>
               {isDownloading ? 'Downloading...' : 'Download Report'}
             </span>
           </button>
