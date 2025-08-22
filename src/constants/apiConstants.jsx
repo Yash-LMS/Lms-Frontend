@@ -177,6 +177,8 @@ export const USER_FEEDBACK_QUESTIONS_VIEW_URL = `${API_BASE_URL}/user/feedback/v
 export const USER_FEEDBACK_QUESTIONS_SUBMIT_URL = `${API_BASE_URL}/user/feedback/submit`;
 
 export const PROFILE_UPDATE_URL = `${API_BASE_URL}/user/employee/documentUpdate`;
+export const EMPLOYEE_UPDATE_URL = `${API_BASE_URL}/user/employee/update/employeeId`;
+
 export const DOWNLOAD_YOUR_RESUME_URL = `${API_BASE_URL}/user/document/resume/download`
 export const UPDATE_RESUME_URL = `${API_BASE_URL}/user/document/resume/update`;
 export const USER_PROFILE_IMAGE_URL = `${API_BASE_URL}/user/employee/image`;

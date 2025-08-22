@@ -67,11 +67,24 @@ const MyCourses = () => {
     return resumeNotUpdated || photoNotUpdated;
   };
 
+    const updateEmployeeId = (userData) => {
+    const employeeIdNotUpdated =   userData.employeeId === null || userData.employeeId === 0 ;
+   
+    
+    return employeeIdNotUpdated;
+  };
+
   const redirectUser = (userData) => {
     if (userData.role === 'user' && needsProfileCompletion(userData)) {
       navigate("/complete-profile");
       return;
     }
+
+ if (userData.role === 'user' && updateEmployeeId(userData)) {
+      navigate("/update-employeeId");
+      return;
+    }
+
 
     if (userData.role === 'instructor' && needsProfileCompletion(userData)) {
       navigate("/complete-profile");

@@ -63,6 +63,7 @@ import TraineeAssignmentList from "./components/user/TraineeAssignmentList";
 import ProfileCompletion from "./components/auth/ProfileCompletion";
 import { USER_PROFILE_IMAGE_URL } from "./constants/apiConstants";
 import AnalyticsView from "./components/graph/AnalyticsView";
+import UpdateEmployeeId from "./components/auth/UpdateEmployeeId";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -390,6 +391,15 @@ const AppContent = () => {
             element={
               <ProtectedRoute>
                 <AllCourseProgressTracker />
+              </ProtectedRoute>
+            }
+          />
+
+            <Route
+            path="/update-employeeId"
+            element={
+              <ProtectedRoute>
+                <UpdateEmployeeId />
               </ProtectedRoute>
             }
           />
