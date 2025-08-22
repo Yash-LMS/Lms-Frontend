@@ -45,6 +45,31 @@ const InstructorDashboard = () => {
     }
   };
 
+   const redirectUser = (userData) => {
+   
+    if (userData.role === 'instructor' && needsProfileCompletion(userData)) {
+      navigate("/complete-profile");
+      return;
+    }
+
+     if (userData.role === 'instructor' && updateEmployeeId(userData)) {
+      navigate("/update-employeeId");
+      return;
+    }
+ 
+    if (userData.role === 'instructor') {
+      navigate("/instructor-dashboard");
+    } else if (userData.role === 'user') {
+      navigate("/user-dashboard");
+    } else {
+      navigate("/manager-dashboard");
+    }
+  };
+
+  useEffect(() => {
+    redirectUser();
+  }, []);
+
   // Fixed useEffect to avoid infinite loop by using an empty dependency array
   useEffect(() => {
     const fetchCourses = async () => {
