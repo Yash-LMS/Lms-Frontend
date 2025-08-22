@@ -43,23 +43,6 @@ const UpdateEmployeeId = ({ setLoginStatus }) => {
         navigate('/login');
     };
 
-    // Check if user should be on this page
-    useEffect(() => {
-        const { user, token } = getUserData();
-        
-        if (!user || !token) {
-            navigate('/login');
-            return;
-        }
-        
-        // Allow both users and instructors to access this page
-        if (user.role === 'user' || user.role === 'instructor') {
-            setUserRole(user.role);
-        } else {
-            // Redirect managers to their dashboard
-            navigate("/manager-dashboard");
-        }
-    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -131,18 +114,12 @@ const UpdateEmployeeId = ({ setLoginStatus }) => {
             if (response.data.response === "success") {
                 // Update user data in sessionStorage
                 const updatedUser = { ...user, employeeId: formData.employeeId, hasEmployeeId: true };
-                sessionStorage.setItem('user', JSON.stringify(updatedUser));
                 
-                setUpdateSuccess('Employee ID updated successfully! You will be redirected in 3 seconds...');
+                setUpdateSuccess('Employee ID updated successfully! You will be logged out redirected in 3 seconds...');
                 
                 // Redirect after a short delay
                 setTimeout(() => {
-                    // Navigate based on user role
-                    if (userRole === 'instructor') {
-                        navigate('/instructor-dashboard');
-                    } else {
-                        navigate('/dashboard');
-                    }
+                    handleLogout();
                 }, 3000);
                 
             } else {
