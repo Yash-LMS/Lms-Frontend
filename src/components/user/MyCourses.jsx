@@ -90,6 +90,12 @@ const MyCourses = () => {
       navigate("/complete-profile");
       return;
     }
+
+     if (userData.role === 'instructor' && updateEmployeeId(userData)) {
+      navigate("/update-employeeId");
+      return;
+    }
+
     
     if (userData.role === 'instructor') {
       navigate("/instructor-dashboard");
