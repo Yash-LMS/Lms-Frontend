@@ -190,6 +190,7 @@ const AllCourseProgressTracker = () => {
     courseAllotmentDate: "Allotment Date",
     completionPercentage: "Completion %",
     courseCompletionStatus: "Completion Status",
+    courseTrainingStatus: "Training Status",
     courseCompletionDate: "Completion Date",
     certificateStatus: "Certificate Status",
   };
@@ -342,6 +343,7 @@ const AllCourseProgressTracker = () => {
                 <th>Allotment Date</th>
                 <th>Completion %</th>
                 <th>Completion Status</th>
+                <th>Training Status</th>
                 <th>Completion Date</th>
                 <th>Certificate Status</th>
                 <th>Actions</th>
@@ -374,6 +376,11 @@ const AllCourseProgressTracker = () => {
                     <td>
                       <span className={`${styles.statusBadge} ${styles[student.courseCompletionStatus] || styles.notstarted}`}>
                         {(student.courseCompletionStatus || 'not_started').toUpperCase()}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`${styles.statusBadge} ${styles[student.courseTrainingStatus] || styles.RELEASED}`}>
+                        {(student.courseTrainingStatus || 'N/A').toUpperCase()}
                       </span>
                     </td>
                     <td>{formatDate(student.completionDate)}</td>
