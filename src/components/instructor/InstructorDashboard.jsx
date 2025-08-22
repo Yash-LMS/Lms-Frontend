@@ -45,21 +45,23 @@ const InstructorDashboard = () => {
     }
   };
 
-   const redirectUser = (userData) => {
+   const redirectUser = () => {
    
-    if (userData.role === 'instructor' && needsProfileCompletion(userData)) {
+    const {user,token}=getUserData();
+
+    if (user.role === 'instructor' && needsProfileCompletion(user)) {
       navigate("/complete-profile");
       return;
     }
 
-     if (userData.role === 'instructor' && updateEmployeeId(userData)) {
+     if (user.role === 'instructor' && updateEmployeeId(user)) {
       navigate("/update-employeeId");
       return;
     }
  
-    if (userData.role === 'instructor') {
+    if (user.role === 'instructor') {
       navigate("/instructor-dashboard");
-    } else if (userData.role === 'user') {
+    } else if (user.role === 'user') {
       navigate("/user-dashboard");
     } else {
       navigate("/manager-dashboard");
