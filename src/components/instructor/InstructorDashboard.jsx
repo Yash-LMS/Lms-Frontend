@@ -45,6 +45,13 @@ const InstructorDashboard = () => {
     }
   };
 
+
+     const updateEmployeeId = (user) => {
+    const employeeIdNotUpdated =   user.employeeId === null || user.employeeId === 0 ;
+   
+    
+    return employeeIdNotUpdated;
+  };
    const redirectUser = () => {
    
     const {user,token}=getUserData();
