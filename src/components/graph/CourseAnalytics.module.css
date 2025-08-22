@@ -276,7 +276,8 @@
   width: 90%;
   max-width: 700px;
   max-height: 80vh;
-  overflow: hidden;
+  overflow-y: auto;
+   overflow-x: auto;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   position: relative;
   animation: modalSlideIn 0.3s ease-out;
@@ -375,6 +376,7 @@
   margin-top: 15px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow-y: auto;
 }
 
 .usersTable {
@@ -382,7 +384,8 @@
   border-collapse: collapse;
   background: white;
   border-radius: 8px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: auto;
   min-width: 800px;
 }
 
