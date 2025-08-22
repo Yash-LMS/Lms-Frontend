@@ -109,7 +109,7 @@ const EmployeeCTRModal = ({ isOpen, onClose, onDownloadSuccess }) => {
         user,
         token,
         ctrFetchType: reportType,
-        instructorId: selectedEmployee.employeeId
+        instructorId: selectedEmployee.emailId
       };
 
       const response = await axios.post(COURSE_CTR_DOWNLOAD, requestData, {
