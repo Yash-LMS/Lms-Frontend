@@ -49,10 +49,6 @@ const InstructorDashboard = () => {
    
     const {user,token}=getUserData();
 
-    if (user.role === 'instructor' && needsProfileCompletion(user)) {
-      navigate("/complete-profile");
-      return;
-    }
 
      if (user.role === 'instructor' && updateEmployeeId(user)) {
       navigate("/update-employeeId");
