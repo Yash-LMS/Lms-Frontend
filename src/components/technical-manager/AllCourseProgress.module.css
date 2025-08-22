@@ -210,6 +210,21 @@
   color: #c62828;
 }
 
+ .DUE {
+  background-color: #fff8e1;
+  color: #ff8f00;
+}
+
+.COMPLETED {
+  background-color: #e3f7e3;
+  color: #2e7d32;
+}
+
+.OVERDUE, .RELEASED {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
 .actionButtons {
   display: flex;
   gap: 8px;
