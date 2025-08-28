@@ -64,6 +64,7 @@ import ProfileCompletion from "./components/auth/ProfileCompletion";
 import { USER_PROFILE_IMAGE_URL } from "./constants/apiConstants";
 import AnalyticsView from "./components/graph/AnalyticsView";
 import UpdateEmployeeId from "./components/auth/UpdateEmployeeId";
+import CodingTasks from "./components/instructor/CodingTasks";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -227,6 +228,16 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+           <Route
+            path="/instructor/view/codingTask"
+            element={
+              <ProtectedRoute>
+                <CodingTasks />
+              </ProtectedRoute>
+            }
+          />
+
 
           <Route
             path="/instructor/view/result"
