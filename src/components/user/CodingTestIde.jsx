@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from './CodingTestIde.module.css';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { VIEW_ALLOTED_CODING_TASK,SUBMIT_CODING_TASK } from '../../constants/apiConstants';
-
+import { VIEW_ALLOTED_CODING_TASK, SUBMIT_CODING_TASK } from '../../constants/apiConstants';
 
 const CodingTestIde = () => {
   const [testDetails, setTestDetails] = useState(null);
@@ -36,16 +35,17 @@ const CodingTestIde = () => {
   const [isTestStarted, setIsTestStarted] = useState(false);
   const [userData, setUserData] = useState(null);
   const [recommendedTechnology, setRecommendedTechnology] = useState('python');
+  const [isLanguageLocked, setIsLanguageLocked] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Language configurations
+  // Enhanced language configurations with package import support
   const languageConfigs = {
     python: {
       name: 'Python',
       extension: '.py',
-      defaultCode: '# Write your Python code here\ndef solution():\n    pass\n',
+      defaultCode: '# Write your Python code here\n# You can import any package you need\n# Example: import numpy as np, pandas as pd, matplotlib.pyplot as plt\n\ndef solution():\n    pass\n',
       indentSize: 4,
       useTabs: false,
       autoIndent: true,
@@ -58,17 +58,35 @@ const CodingTestIde = () => {
         '"': '"',
         "'": "'"
       },
-      keywords: ['def', 'class', 'if', 'else', 'elif', 'for', 'while', 'try', 'except', 'return', 'import', 'from']
+      keywords: ['def', 'class', 'if', 'else', 'elif', 'for', 'while', 'try', 'except', 'return', 'import', 'from'],
+      packageImports: [
+        'import numpy as np',
+        'import pandas as pd',
+        'import matplotlib.pyplot as plt',
+        'import scipy',
+        'import sklearn',
+        'import requests',
+        'import json',
+        'import os',
+        'import sys',
+        'import re',
+        'import math',
+        'import collections',
+        'import itertools',
+        'import functools',
+        'import datetime',
+        'import random'
+      ]
     },
     java: {
       name: 'Java',
       extension: '.java',
-      defaultCode: 'public class Main {\n    \n    public static void main(String[] args) {\n        \n    }\n}',
+      defaultCode: '// You can import any Java packages you need\n// Examples: import java.util.*, import java.io.*, import java.math.*\nimport java.util.*;\nimport java.io.*;\nimport java.math.*;\n\npublic class Main {\n    \n    public static void main(String[] args) {\n        \n    }\n}',
       indentSize: 4,
       useTabs: false,
       autoIndent: true,
       editableStartLine: 1,
-      protectedLines: [0, 5],
+      protectedLines: [0, 7],
       mainClassPattern: /^public class Main \{[\s]*$/,
       closingBracePattern: /^\}[\s]*$/,
       brackets: {
@@ -77,12 +95,24 @@ const CodingTestIde = () => {
         '{': '}',
         '"': '"'
       },
-      keywords: ['public', 'private', 'class', 'static', 'void', 'int', 'String', 'if', 'else', 'for', 'while', 'return', 'import']
+      keywords: ['public', 'private', 'class', 'static', 'void', 'int', 'String', 'if', 'else', 'for', 'while', 'return', 'import'],
+      packageImports: [
+        'import java.util.*;',
+        'import java.io.*;',
+        'import java.math.*;',
+        'import java.time.*;',
+        'import java.util.concurrent.*;',
+        'import java.util.stream.*;',
+        'import java.text.*;',
+        'import java.security.*;',
+        'import java.net.*;',
+        'import java.nio.*'
+      ]
     },
     javascript: {
       name: 'JavaScript',
       extension: '.js',
-      defaultCode: '// Write your JavaScript code here\nfunction solution() {\n    \n}\n',
+      defaultCode: '// Write your JavaScript code here\n// You can import any Node.js modules or use ES6 imports\n// Examples: const fs = require(\'fs\'), import axios from \'axios\'\n\nfunction solution() {\n    \n}\n',
       indentSize: 2,
       useTabs: false,
       autoIndent: true,
@@ -95,12 +125,22 @@ const CodingTestIde = () => {
         '"': '"',
         "'": "'"
       },
-      keywords: ['function', 'const', 'let', 'var', 'if', 'else', 'for', 'while', 'return', 'class', 'import', 'export']
+      keywords: ['function', 'const', 'let', 'var', 'if', 'else', 'for', 'while', 'return', 'class', 'import', 'export'],
+      packageImports: [
+        'const fs = require(\'fs\');',
+        'const path = require(\'path\');',
+        'const axios = require(\'axios\');',
+        'const lodash = require(\'lodash\');',
+        'const moment = require(\'moment\');',
+        'import axios from \'axios\';',
+        'import _ from \'lodash\';',
+        'import moment from \'moment\';'
+      ]
     },
     cpp: {
       name: 'C++',
       extension: '.cpp',
-      defaultCode: '#include <iostream>\nusing namespace std;\n\nint main() {\n    \n    return 0;\n}',
+      defaultCode: '// You can include any standard C++ libraries\n// Examples: #include <vector>, #include <algorithm>, #include <map>\n#include <iostream>\n#include <vector>\n#include <algorithm>\n#include <map>\n#include <set>\n#include <string>\nusing namespace std;\n\nint main() {\n    \n    return 0;\n}',
       indentSize: 4,
       useTabs: false,
       autoIndent: true,
@@ -113,7 +153,20 @@ const CodingTestIde = () => {
         '"': '"',
         "'": "'"
       },
-      keywords: ['int', 'char', 'float', 'double', 'if', 'else', 'for', 'while', 'return', 'include', 'using', 'namespace']
+      keywords: ['int', 'char', 'float', 'double', 'if', 'else', 'for', 'while', 'return', 'include', 'using', 'namespace'],
+      packageImports: [
+        '#include <vector>',
+        '#include <algorithm>',
+        '#include <map>',
+        '#include <set>',
+        '#include <string>',
+        '#include <queue>',
+        '#include <stack>',
+        '#include <unordered_map>',
+        '#include <unordered_set>',
+        '#include <cmath>',
+        '#include <climits>'
+      ]
     }
   };
 
@@ -128,6 +181,34 @@ const CodingTestIde = () => {
       console.error("Error parsing user data:", error);
       return { user: null, token: null, role: null };
     }
+  };
+
+  // Check if language should be locked based on technology
+  const checkLanguageLock = (technology) => {
+    if (!technology) return false;
+    
+    const techLower = technology.toLowerCase();
+    const specificTechs = ['java', 'python', 'javascript', 'cpp', 'c++'];
+    
+    return specificTechs.some(tech => 
+      techLower === tech || 
+      (tech === 'cpp' && techLower === 'c++') ||
+      (tech === 'c++' && techLower === 'cpp')
+    );
+  };
+
+  // Get locked language based on technology
+  const getLockedLanguage = (technology) => {
+    if (!technology) return null;
+    
+    const techLower = technology.toLowerCase();
+    
+    if (techLower === 'java') return 'java';
+    if (techLower === 'python') return 'python';
+    if (techLower === 'javascript' || techLower === 'js') return 'javascript';
+    if (techLower === 'cpp' || techLower === 'c++') return 'cpp';
+    
+    return null;
   };
 
   // Validation and initialization
@@ -167,7 +248,7 @@ const CodingTestIde = () => {
   // Fetch test details from API
   const fetchTestDetails = async () => {
     try {
-          requestFullScreen();
+      requestFullScreen();
       setLoading(true);
       setError(null);
       
@@ -184,23 +265,38 @@ const CodingTestIde = () => {
       if (response.data.response === 'success') {
         const taskData = response.data.payload;
         
+        // Check if language should be locked
+        const isLocked = checkLanguageLock(taskData.technology);
+        setIsLanguageLocked(isLocked);
+        
         // Set recommended technology based on API response
         const recommendedTech = taskData.technology?.toLowerCase() || 'python';
         setRecommendedTechnology(recommendedTech);
         
-        // Set selected language to recommended if it exists in our configs
-        if (languageConfigs[recommendedTech]) {
-          setSelectedLanguage(recommendedTech);
-          setCode(languageConfigs[recommendedTech].defaultCode);
-          updateLineCount(languageConfigs[recommendedTech].defaultCode);
+        // If language is locked, force the specific language
+        let finalLanguage = selectedLanguage;
+        if (isLocked) {
+          const lockedLang = getLockedLanguage(taskData.technology);
+          if (lockedLang && languageConfigs[lockedLang]) {
+            finalLanguage = lockedLang;
+            setSelectedLanguage(finalLanguage);
+          }
+        } else if (languageConfigs[recommendedTech]) {
+          // If not locked but recommended language exists, suggest it
+          finalLanguage = recommendedTech;
+          setSelectedLanguage(finalLanguage);
         }
+        
+        // Set code based on final language
+        setCode(languageConfigs[finalLanguage].defaultCode);
+        updateLineCount(languageConfigs[finalLanguage].defaultCode);
         
         const testInfo = {
           taskName: 'Algorithm Challenge',
-          description: taskData.description, // This will be HTML from react-quill
-          duration: taskData.timeInMinutes / 60, // Convert minutes to hours
+          description: taskData.description,
+          duration: taskData.timeInMinutes / 60,
           maxMarks: 100,
-          language: selectedLanguage,
+          language: finalLanguage,
           technology: taskData.technology,
           allotmentId: taskData.allotmentId
         };
@@ -209,13 +305,12 @@ const CodingTestIde = () => {
         setTestDetails(testInfo);
         
         // Set up timer
-        const totalSeconds = Math.floor(taskData.timeInMinutes * 60); // Convert minutes to seconds
+        const totalSeconds = Math.floor(taskData.timeInMinutes * 60);
         setTimeRemaining(totalSeconds);
         setTotalTime(totalSeconds);
         
         setIsTestStarted(true);
         setTestStarted(true);
-      
         
       } else {
         // Handle API errors
@@ -252,9 +347,9 @@ const CodingTestIde = () => {
     setLineCount(lines.length);
   };
 
-  // Handle language change - always reset to template
+  // Handle language change - only allow if not locked
   const handleLanguageChange = (language) => {
-    if (!isPaused && !showSubmitConfirmation) {
+    if (!isPaused && !showSubmitConfirmation && !isLanguageLocked) {
       setSelectedLanguage(language);
       setCode(languageConfigs[language].defaultCode);
       updateLineCount(languageConfigs[language].defaultCode);
@@ -278,26 +373,6 @@ const CodingTestIde = () => {
     const currentLineNumber = beforeCursor.split('\n').length - 1;
     
     return !languageConfigs.java.protectedLines.includes(currentLineNumber);
-  };
-
-  // Generate text file content
-  const generateFileContent = () => {
-    const { user } = getUserData();
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const config = languageConfigs[selectedLanguage];
-    
-    return {
-      filename: `coding_solution_${timestamp}${config.extension}`,
-      content: code,
-      metadata: {
-        language: config.name,
-        timestamp: new Date().toISOString(),
-        studentName: `${user.firstName} ${user.lastName}`,
-        allotmentId: testAllotmentId,
-        totalLines: lineCount,
-        codeLength: code.length
-      }
-    };
   };
 
   // Get indentation for current language
@@ -636,10 +711,9 @@ const CodingTestIde = () => {
     setShowNotification(false);
   };
 
+  // Modified handleSubmit - removed file download functionality
   const handleSubmit = async (description) => {
     try {
-      const fileData = generateFileContent();
-      
       const { user, token } = getUserData();
 
       const submitData = {
@@ -656,18 +730,10 @@ const CodingTestIde = () => {
 
       console.log("Submitting coding task:", submitData);
       
-      // Create file blob for multipart upload
-      const blob = new Blob([fileData.content], { type: 'text/plain' });
-      
-      // Create FormData for multipart request
-      const formData = new FormData();
-      formData.append('requestData', JSON.stringify(submitData));
-      formData.append('file', blob, fileData.filename);
-      
-      // Submit to API
-      const response = await axios.post(`${SUBMIT_CODING_TASK}`, formData, {
+      // Submit to API without file upload
+      const response = await axios.post(`${SUBMIT_CODING_TASK}`, submitData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       });
       
@@ -690,7 +756,6 @@ const CodingTestIde = () => {
       alert("Error submitting test. Please try again.");
     }
   };
-
 
   const formatTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
@@ -742,6 +807,17 @@ const CodingTestIde = () => {
     );
   };
 
+  // Get available languages based on technology lock
+  const getAvailableLanguages = () => {
+    if (isLanguageLocked) {
+      const lockedLang = getLockedLanguage(recommendedTechnology);
+      if (lockedLang && languageConfigs[lockedLang]) {
+        return { [lockedLang]: languageConfigs[lockedLang] };
+      }
+    }
+    return languageConfigs;
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -790,7 +866,8 @@ const CodingTestIde = () => {
             <h3>Important Instructions:</h3>
             <ul>
               <li>This test must be taken in full-screen mode.</li>
-              <li>Copy, paste, and other shortcuts are disabled.</li>
+              <li>You can import any packages/libraries you need for your solution.</li>
+              <li>Copy, paste, and other shortcuts are disabled for security.</li>
               <li>Exiting full-screen mode will pause the test.</li>
               <li>After exiting full-screen 4 times, your test will be automatically submitted.</li>
               <li>Developer tools are monitored and will result in auto-submission.</li>
@@ -799,8 +876,8 @@ const CodingTestIde = () => {
               <li>Test your solution with the provided examples.</li>
               <li>Language-specific features: Auto-indentation and bracket matching are enabled.</li>
               <li><strong>Java Specific:</strong> The main class structure is protected and cannot be edited.</li>
-              <li>Your code will be automatically downloaded as a text file upon submission.</li>
-              <li>You can switch programming languages, but the recommended technology will be suggested.</li>
+              <li><strong>Language Selection:</strong> If a specific technology is required, language selection will be locked.</li>
+              <li>Your code will be submitted directly without file download.</li>
             </ul>
           </div>
 
@@ -820,6 +897,8 @@ const CodingTestIde = () => {
   if (!testDetails) {
     return <div className={styles.loading}>Starting coding test...</div>;
   }
+
+  const availableLanguages = getAvailableLanguages();
 
   return (
     <div className={styles.fullScreenContainer} ref={mainContainerRef}>
@@ -853,8 +932,12 @@ const CodingTestIde = () => {
               <p>Language: <strong>{languageConfigs[selectedLanguage].name}</strong></p>
               <p>Code length: <strong>{code.length}</strong> characters</p>
               <p>Total lines: <strong>{lineCount}</strong></p>
-              <p>File: <strong>coding_solution_{new Date().toISOString().split('T')[0]}{languageConfigs[selectedLanguage].extension}</strong></p>
               <p>Allotment ID: <strong>{testAllotmentId}</strong></p>
+              {isLanguageLocked && (
+                <p className={styles.lockedLanguageNote}>
+                  <strong>Language Locked:</strong> {testDetails.technology} technology required
+                </p>
+              )}
             </div>
             <div className={styles.confirmationButtons}>
               <button
@@ -883,7 +966,6 @@ const CodingTestIde = () => {
               <p>Language: <strong>{languageConfigs[selectedLanguage].name}</strong></p>
               <p>Code length: <strong>{code.length}</strong> characters</p>
               <p>Total lines: <strong>{lineCount}</strong></p>
-              <p>File: <strong>coding_solution_{new Date().toISOString().split('T')[0]}{languageConfigs[selectedLanguage].extension}</strong></p>
               <p>Allotment ID: <strong>{testAllotmentId}</strong></p>
             </div>
             <div className={styles.confirmationButtons}>
@@ -929,7 +1011,10 @@ const CodingTestIde = () => {
             </div>
             <div className={styles.infoItem}>
               Language: {languageConfigs[selectedLanguage].name}
-              {selectedLanguage === recommendedTechnology && (
+              {isLanguageLocked && (
+                <span className={styles.lockedBadge}> (Locked)</span>
+              )}
+              {!isLanguageLocked && selectedLanguage === recommendedTechnology && (
                 <span className={styles.recommendedBadge}> (Recommended)</span>
               )}
             </div>
@@ -938,7 +1023,8 @@ const CodingTestIde = () => {
             <div className={styles.infoItem}>Exits: {fullScreenExitCount}/4</div>
             {testDetails.technology && (
               <div className={styles.infoItem}>
-                Recommended Tech: {testDetails.technology}
+                Required Tech: {testDetails.technology}
+                {isLanguageLocked && <span className={styles.lockIcon}> 🔒</span>}
               </div>
             )}
           </div>
@@ -972,6 +1058,21 @@ const CodingTestIde = () => {
               {testDetails.description || 'Loading problem description...'}
             </div>
           )}
+          
+          {/* Package import suggestions */}
+          <div className={styles.packageSuggestions}>
+            <h4>📦 Available Packages/Libraries:</h4>
+            <div className={styles.packageList}>
+              {languageConfigs[selectedLanguage].packageImports.map((importStatement, index) => (
+                <code key={index} className={styles.packageItem}>
+                  {importStatement}
+                </code>
+              ))}
+            </div>
+            <p className={styles.packageNote}>
+              💡 You can use any of these or other packages in your solution. Simply add the import statements in your code.
+            </p>
+          </div>
         </div>
 
         {/* Code editor */}
@@ -986,20 +1087,29 @@ const CodingTestIde = () => {
                 id="languageSelect"
                 value={selectedLanguage}
                 onChange={(e) => handleLanguageChange(e.target.value)}
-                className={styles.languageDropdown}
-                disabled={isPaused || showSubmitConfirmation}
+                className={`${styles.languageDropdown} ${isLanguageLocked ? styles.lockedDropdown : ''}`}
+                disabled={isPaused || showSubmitConfirmation || isLanguageLocked}
+                title={isLanguageLocked ? `Language locked to ${testDetails.technology}` : 'Select programming language'}
               >
-                {Object.entries(languageConfigs).map(([key, config]) => (
+                {Object.entries(availableLanguages).map(([key, config]) => (
                   <option key={key} value={key}>
                     {config.name} ({config.extension})
-                    {key === recommendedTechnology ? ' - Recommended' : ''}
+                    {isLanguageLocked ? ' - Required' : ''}
+                    {!isLanguageLocked && key === recommendedTechnology ? ' - Recommended' : ''}
                   </option>
                 ))}
               </select>
-              {selectedLanguage !== recommendedTechnology && (
-                <span className={styles.techNote}>
-                  💡 Recommended: {languageConfigs[recommendedTechnology]?.name || recommendedTechnology}
+              
+              {isLanguageLocked ? (
+                <span className={styles.lockNotice}>
+                  🔒 Language locked for {testDetails.technology}
                 </span>
+              ) : (
+                selectedLanguage !== recommendedTechnology && (
+                  <span className={styles.techNote}>
+                    💡 Recommended: {languageConfigs[recommendedTechnology]?.name || recommendedTechnology}
+                  </span>
+                )
               )}
             </div>
             
@@ -1029,7 +1139,7 @@ const CodingTestIde = () => {
               onScroll={handleScroll}
               disabled={isPaused || showSubmitConfirmation}
               className={styles.codeEditor}
-              placeholder={`Write your ${languageConfigs[selectedLanguage].name} code here...`}
+              placeholder={`Write your ${languageConfigs[selectedLanguage].name} code here...\nYou can import any packages you need!`}
               spellCheck="false"
               style={{
                 tabSize: languageConfigs[selectedLanguage].indentSize,
