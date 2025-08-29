@@ -191,6 +191,12 @@ export const DOWNLOAD_YOUR_RESUME_URL = `${API_BASE_URL}/user/document/resume/do
 export const UPDATE_RESUME_URL = `${API_BASE_URL}/user/document/resume/update`;
 export const USER_PROFILE_IMAGE_URL = `${API_BASE_URL}/user/employee/image`;
 
+export const VIEW_CODING_TASK = `${API_BASE_URL}/user/coding/viewCodingList`;
+
+
+export const VIEW_ALLOTED_CODING_TASK = `${API_BASE_URL}/user/coding/viewAllotedTask`;
+
+
 //Test
 export const CREATE_TEST_URL = `${API_BASE_URL}/test/createTest`;
 export const VIEW_TEST_URL = `${API_BASE_URL}/test/instructor/view/test`;

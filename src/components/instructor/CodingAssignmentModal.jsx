@@ -7,41 +7,41 @@ import axios from "axios";
 
 const CodingAssignmentModal = ({ isOpen, onClose }) => {
   const quillRef = useRef(null);
-  
+
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  
+
   const [assignment, setAssignment] = useState({
+    taskName: "",
     description: "",
     technology: "",
-    maxMarks: 10
+    maxMarks: 10,
   });
 
-  // Enhanced Quill editor modules and formats (same as your implementation)
+  // Quill editor modules and formats
   const modules = {
     toolbar: [
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      [{ 'script': 'sub' }, { 'script': 'super' }],
-      [{ 'indent': '-1' }, { 'indent': '+1' }],
-      [{ 'color': [] }, { 'background': [] }],
-      ['link'],
-      ['clean']
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ script: "sub" }, { script: "super" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ color: [] }, { background: [] }],
+      ["link"],
+      ["clean"],
     ],
   };
 
   const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet', 'indent',
-    'script',
-    'color', 'background',
-    'link'
+    "header",
+    "bold", "italic", "underline", "strike",
+    "list", "bullet", "indent",
+    "script",
+    "color", "background",
+    "link",
   ];
 
-  // If modal is not open, don't render anything
   if (!isOpen) return null;
 
   const getUserData = () => {
@@ -57,33 +57,51 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleTaskNameChange = (e) => {
+    if (e.target.value.length <= 500) {
+      setAssignment((prev) => ({
+        ...prev,
+        taskName: e.target.value,
+      }));
+    }
+  };
+
   const handleDescriptionChange = (content) => {
-    setAssignment(prev => ({
+    setAssignment((prev) => ({
       ...prev,
-      description: content
+      description: content,
     }));
   };
 
   const handleTechnologyChange = (e) => {
-    setAssignment(prev => ({
+    setAssignment((prev) => ({
       ...prev,
-      technology: e.target.value
+      technology: e.target.value,
     }));
   };
 
   const handleMaxMarksChange = (e) => {
-    setAssignment(prev => ({
+    setAssignment((prev) => ({
       ...prev,
-      maxMarks: Number(e.target.value)
+      maxMarks: Number(e.target.value),
     }));
   };
 
   const validateAssignment = () => {
-    // Check if there's any content (including HTML tags)
-    const hasContent = assignment.description.trim() !== "" && 
-                       assignment.description !== "<p><br></p>" &&
-                       assignment.description !== "<p></p>";
-                       
+    if (!assignment.taskName.trim()) {
+      setErrorMessage("Task name is required");
+      return false;
+    }
+    if (assignment.taskName.length > 500) {
+      setErrorMessage("Task name cannot exceed 500 characters");
+      return false;
+    }
+    // Check if there's any content for description, including HTML tags
+    const hasContent =
+      assignment.description.trim() !== "" &&
+      assignment.description !== "<p><br></p>" &&
+      assignment.description !== "<p></p>";
+
     if (!hasContent) {
       setErrorMessage("Assignment description is required");
       return false;
@@ -111,7 +129,6 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
       return;
     }
 
-    // Get user data from session storage
     const { user, token } = getUserData();
 
     if (!user || !token) {
@@ -123,40 +140,40 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
     setLoading(true);
 
     try {
-      // Prepare the request payload
       const requestPayload = {
         user: user,
         token: token,
         codingTask: {
-          description: assignment.description, // HTML content from React Quill
+          taskName: assignment.taskName,
+          description: assignment.description,
           technology: assignment.technology,
-          maxMarks: assignment.maxMarks
+          maxMarks: assignment.maxMarks,
           // instructorName and instructorId will be set from backend
-        }
+        },
       };
 
-      // Make API call to your backend using axios
       const response = await axios.post(`${CREATE_CODING_ASSIGNMENT_URL}`, requestPayload, {
         headers: {
-          'Content-Type': 'application/json',
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       const result = response.data.payload;
 
-      if (response.data.response === 'success') {
+      if (response.data.response === "success") {
         setSuccessMessage(response.data.message);
-        
+
         // Reset form after successful save
         setAssignment({
+          taskName: "",
           description: "",
           technology: "",
-          maxMarks: 10
+          maxMarks: 10,
         });
 
         setTimeout(() => {
           setSuccessMessage("");
-          onClose(); // Close modal after successful save
+          onClose();
         }, 2000);
       } else {
         setErrorMessage(result.message || "Failed to create coding assignment");
@@ -183,14 +200,24 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        {errorMessage && (
-          <div className={styles.errorMessage}>{errorMessage}</div>
-        )}
-        {successMessage && (
-          <div className={styles.successMessage}>{successMessage}</div>
-        )}
+        {errorMessage && <div className={styles.errorMessage}>{errorMessage}</div>}
+        {successMessage && <div className={styles.successMessage}>{successMessage}</div>}
 
         <div className={styles.assignmentContainer}>
+          <div className={styles.formGroup}>
+            <label htmlFor="taskName">Task Name</label>
+            <input
+              id="taskName"
+              type="text"
+              value={assignment.taskName}
+              onChange={handleTaskNameChange}
+              className={styles.assignmentInput}
+              placeholder="Enter task name (max 500 characters)"
+              required
+            />
+            <small>{assignment.taskName.length}/500 characters</small>
+          </div>
+
           <div className={styles.formGroup}>
             <label htmlFor="description">Assignment Description</label>
             <div className={styles.quillContainer}>
@@ -236,19 +263,10 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
         </div>
 
         <div className={styles.modalActions}>
-          <button
-            type="button"
-            onClick={onClose}
-            className={styles.cancelButton}
-          >
+          <button type="button" onClick={onClose} className={styles.cancelButton}>
             Cancel
           </button>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className={styles.saveButton}
-            disabled={loading}
-          >
+          <button type="button" onClick={handleSubmit} className={styles.saveButton} disabled={loading}>
             {loading ? "Creating..." : "Create Assignment"}
           </button>
         </div>

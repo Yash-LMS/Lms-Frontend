@@ -24,6 +24,13 @@ const DashboardSidebar = ({ activeTab }) => {
             </Link>
           </li>
 
+                <li className={`${styles.navItem} ${activeTab === "codingTask" ? styles.active : ""}`}>
+            <Link to="/test/coding/viewAssignmentList">
+              <FontAwesomeIcon icon={faClipboardList} />
+              <span>Coding Task</span>
+            </Link>
+          </li>
+
                 <li className={`${styles.navItem} ${activeTab === "assignment" ? styles.active : ""}`}>
             <Link to="/user/assignment">
               <FontAwesomeIcon icon={faClipboardList} />
