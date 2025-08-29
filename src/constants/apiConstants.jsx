@@ -195,6 +195,7 @@ export const VIEW_CODING_TASK = `${API_BASE_URL}/user/coding/viewCodingList`;
 
 
 export const VIEW_ALLOTED_CODING_TASK = `${API_BASE_URL}/user/coding/viewAllotedTask`;
+export const SUBMIT_CODING_TASK = `${API_BASE_URL}/user/coding/submit`;
 
 
 //Test

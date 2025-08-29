@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from './CodingTestIde.module.css';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { VIEW_ALLOTED_CODING_TASK } from '../../constants/apiConstants';
+import { VIEW_ALLOTED_CODING_TASK,SUBMIT_CODING_TASK } from '../../constants/apiConstants';
 
 
 const CodingTestIde = () => {
@@ -167,6 +167,7 @@ const CodingTestIde = () => {
   // Fetch test details from API
   const fetchTestDetails = async () => {
     try {
+          requestFullScreen();
       setLoading(true);
       setError(null);
       
@@ -214,7 +215,7 @@ const CodingTestIde = () => {
         
         setIsTestStarted(true);
         setTestStarted(true);
-        requestFullScreen();
+      
         
       } else {
         // Handle API errors
@@ -649,42 +650,47 @@ const CodingTestIde = () => {
           code: code,
           language: selectedLanguage,
           lineCount: lineCount,
-          file: fileData
+          description: description
         }
       };
 
       console.log("Submitting coding task:", submitData);
       
-      // Create and download the code file
+      // Create file blob for multipart upload
       const blob = new Blob([fileData.content], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileData.filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
       
-      // TODO: Replace with actual submission endpoint
-      // const response = await axios.post('/coding/submit', submitData);
+      // Create FormData for multipart request
+      const formData = new FormData();
+      formData.append('requestData', JSON.stringify(submitData));
+      formData.append('file', blob, fileData.filename);
       
-      // Mock success response
-      alert(`Code submitted successfully and downloaded as ${fileData.filename}!\nLanguage: ${languageConfigs[selectedLanguage].name}\nReason: ${description}\nCode length: ${code.length} characters\nTotal lines: ${lineCount}`);
+      // Submit to API
+      const response = await axios.post(`${SUBMIT_CODING_TASK}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       
-      // Exit fullscreen after submission
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
+      if (response.data.response === 'success') {
+        alert(`Code submitted successfully!\nLanguage: ${languageConfigs[selectedLanguage].name}\nReason: ${description}\nCode length: ${code.length} characters\nTotal lines: ${lineCount}`);
+        
+        // Exit fullscreen after successful submission
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+        
+        // Navigate back to tests page
+        navigate("/my-test");
+      } else {
+        throw new Error(response.data.message || 'Submission failed');
       }
-      
-      // Navigate back to tests page
-      navigate("/my-test");
       
     } catch (err) {
       console.error("Submission error:", err);
       alert("Error submitting test. Please try again.");
     }
   };
+
 
   const formatTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
