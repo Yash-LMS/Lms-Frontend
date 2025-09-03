@@ -46,29 +46,26 @@ const InstructorDashboard = () => {
   };
 
 
-     const updateEmployeeId = (user) => {
+  const updateEmployeeId = (user) => {
     const employeeIdNotUpdated =   user.employeeId === null || user.employeeId === 0 ;
-   
-    
     return employeeIdNotUpdated;
   };
-   const redirectUser = () => {
+
+  const redirectUser = () => {
    
-    const {user,token}=getUserData();
-
-
-     if (user.role === 'instructor' && updateEmployeeId(user)) {
-      navigate("/update-employeeId");
-      return;
-    }
- 
-    if (user.role === 'instructor') {
-      navigate("/instructor-dashboard");
-    } else if (user.role === 'user') {
-      navigate("/user-dashboard");
-    } else {
-      navigate("/manager-dashboard");
-    }
+  const {user,token}=getUserData();
+  
+      if (user.role === 'instructor' && updateEmployeeId(user)) {
+        navigate("/update-employeeId");
+        return;
+      }
+      if (user.role === 'instructor') {
+        navigate("/instructor-dashboard");
+      } else if (user.role === 'user') {
+        navigate("/user-dashboard");
+      } else {
+        navigate("/manager-dashboard");
+      }
   };
 
   useEffect(() => {

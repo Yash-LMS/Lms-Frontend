@@ -64,6 +64,9 @@ import ProfileCompletion from "./components/auth/ProfileCompletion";
 import { USER_PROFILE_IMAGE_URL } from "./constants/apiConstants";
 import AnalyticsView from "./components/graph/AnalyticsView";
 import UpdateEmployeeId from "./components/auth/UpdateEmployeeId";
+import CodingTasks from "./components/instructor/CodingTasks";
+import CodingTestIde from "./components/user/CodingTestIDE";
+import CodingTestsList from "./components/user/CodingTestsList";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -228,6 +231,17 @@ const AppContent = () => {
             }
           />
 
+           <Route
+            path="/instructor/view/codingTask"
+            element={
+              <ProtectedRoute>
+                <CodingTasks />
+              </ProtectedRoute>
+            }
+          />
+          
+
+
           <Route
             path="/instructor/view/result"
             element={
@@ -280,6 +294,25 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+
+                  <Route
+            path="/test/coding/viewAssignmentList"
+            element={
+              <ProtectedRoute>
+                <CodingTestsList />
+              </ProtectedRoute>
+            }
+          />
+
+                 <Route
+            path="/test/coding/preview/:testId"
+            element={
+              <ProtectedRoute>
+                <CodingTestIde />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/test/view/:testId"
             element={

@@ -256,7 +256,7 @@ const Sidebar = ({ activeTab }) => {
               onClick={(e) => handleNavigation('/manager/update/password', 'password', e)}
             >
               <FontAwesomeIcon icon={faFingerprint} />
-              <span className={styles.navText}>Update Password</span>
+              <span className={styles.navText}>Update Profile</span>
      
             </a>
           </li>

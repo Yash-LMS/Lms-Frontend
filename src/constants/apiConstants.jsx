@@ -44,6 +44,12 @@ export const FIND_TEST_FOR_BATCH_URL = `${API_BASE_URL}/batch/findTests`;
 export const FIND_EMPLOYEE_LIST_FOR_BATCH_URL = `${API_BASE_URL}/batch/findEmployeeList`;
 export const FIND_CANDIDATE_LIST_FOR_BATCH_URL = `${API_BASE_URL}/batch/candidate/view`;
 export const CREATE_ASSIGNMENT_URL = `${API_BASE_URL}/assignment/create`;
+export const CREATE_CODING_ASSIGNMENT_URL = `${API_BASE_URL}/assignment/code/create`;
+
+export const GET_ALL_CODING_TASK = `${API_BASE_URL}/assignment/getAllTask`;
+
+
+
 export const VIEW_ASSIGNMENT_URL = `${API_BASE_URL}/assignment/user/viewAssignmentListByUser`;
 export const ASSIGNMENT_SUBMISSION_FEEDBACK_URL = `${API_BASE_URL}/assignment/instructor/evaluate/assignment`;
 export const VIEW_ASSIGNMENT_SUBMISSION_URL = `${API_BASE_URL}/assignment/instructor/submissionList`;
@@ -55,6 +61,7 @@ export const VIEW_FEEDBACK_FOR_ALLOTMENT_URL = `${API_BASE_URL}/feedback/allotme
 
 export const RELEASE_CANDIDATE_URL = `${API_BASE_URL}/batch/candidate/release`;
 export const VIEW_BATCH_TEST_URL = `${API_BASE_URL}/batch/viewBatchTest`;
+export const VIEW_BATCH_COURSE_URL = `${API_BASE_URL}/batch/viewBatchCourse`;
 export const DELETE_BATCH_TEST_URL = `${API_BASE_URL}/batch/test/deleteTest`;
 
 //Intern
@@ -184,6 +191,13 @@ export const EMPLOYEE_UPDATE_URL = `${API_BASE_URL}/user/employee/update/employe
 export const DOWNLOAD_YOUR_RESUME_URL = `${API_BASE_URL}/user/document/resume/download`
 export const UPDATE_RESUME_URL = `${API_BASE_URL}/user/document/resume/update`;
 export const USER_PROFILE_IMAGE_URL = `${API_BASE_URL}/user/employee/image`;
+
+export const VIEW_CODING_TASK = `${API_BASE_URL}/user/coding/viewCodingList`;
+
+
+export const VIEW_ALLOTED_CODING_TASK = `${API_BASE_URL}/user/coding/viewAllotedTask`;
+export const SUBMIT_CODING_TASK = `${API_BASE_URL}/user/coding/submit`;
+
 
 //Test
 export const CREATE_TEST_URL = `${API_BASE_URL}/test/createTest`;

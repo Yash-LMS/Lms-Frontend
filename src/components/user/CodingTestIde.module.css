@@ -1,0 +1,681 @@
+/* Loading and Error States */
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.error {
+  color: #dc3545;
+}
+
+/* Start Screen */
+.startScreen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 20px;
+}
+
+.startCard {
+  background-color: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 800px;
+  width: 100%;
+}
+
+.startCard h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.testInfoStart {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.infoItem {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+  color: black;
+  font-weight: 500;
+}
+
+.testRules {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.testRules h3 {
+  color: #856404;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.testRules ul {
+  color: #856404;
+  line-height: 1.6;
+  padding-left: 20px;
+}
+
+.testRules li {
+  margin-bottom: 8px;
+}
+
+.startButton {
+  width: 100%;
+  padding: 15px 30px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.startButton:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* Full Screen Container */
+.fullScreenContainer {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #1e1e1e;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Header */
+.testHeader {
+  background-color: #2d2d2d;
+  padding: 15px 20px;
+  border-bottom: 1px solid #404040;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.headerLeft h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.testInfo {
+  display: flex;
+  gap: 20px;
+  margin-top: 5px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.timerDisplay {
+  text-align: center;
+}
+
+.timeValue {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+}
+
+.timeLabel {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.submitButton {
+  padding: 10px 20px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.submitButton:hover:not(.disabled) {
+  background-color: #c82333;
+  transform: translateY(-1px);
+}
+
+.submitButton.disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Main Content */
+.mainContent {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.mainContent.blurred {
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+/* Problem Panel */
+.problemPanel {
+  width: 400px;
+  background-color: #252526;
+  padding: 20px;
+  overflow-y: auto;
+  border-right: 1px solid #404040;
+  flex-shrink: 0;
+}
+
+.problemPanel h3 {
+  margin-top: 0;
+  color: #4fc3f7;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.problemDescription {
+  white-space: pre-line;
+  line-height: 1.6;
+  font-size: 14px;
+  color: #d4d4d4;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Editor Panel */
+.editorPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #1e1e1e;
+}
+
+.editorHeader {
+  background-color: #2d2d2d;
+  padding: 10px 20px;
+  border-bottom: 1px solid #404040;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.languageTag {
+  background-color: #007acc;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.charCount {
+  margin-left: auto;
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+.codeEditor {
+  flex: 1;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border: none;
+  padding: 20px;
+  font-size: 14px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  line-height: 1.6;
+  outline: none;
+  resize: none;
+  tab-size: 2;
+}
+
+.codeEditor:focus {
+  background-color: #1e1e1e;
+}
+
+.codeEditor::placeholder {
+  color: #6a6a6a;
+  font-style: italic;
+}
+
+.codeEditor:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Notification Overlays */
+.fullscreenNotification {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.notificationContent {
+  background-color: white;
+  color: black;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 500px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.notificationContent h3 {
+  margin-top: 0;
+  color: #dc3545;
+  font-size: 24px;
+}
+
+.notificationContent p {
+  margin: 15px 0;
+  line-height: 1.5;
+}
+
+.returnToFullscreenBtn {
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.returnToFullscreenBtn:hover {
+  background-color: #0056b3;
+}
+
+/* Confirmation Overlays */
+.confirmationOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.confirmationPopup {
+  background-color: white;
+  color: black;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 500px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.confirmationPopup h3 {
+  margin-top: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.confirmationPopup p {
+  margin: 15px 0;
+  line-height: 1.5;
+  color: #666;
+}
+
+.codeSummary {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+  border-left: 4px solid #007bff;
+}
+
+.codeSummary p {
+  margin: 8px 0;
+  color: #333;
+}
+
+.confirmationButtons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.confirmSubmitBtn {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.confirmSubmitBtn:hover {
+  background-color: #218838;
+}
+
+
+/* Add these styles to your existing CodingTestIde.module.css file */
+
+/* Editor Container with Line Numbers */
+.editorContainer {
+  display: flex;
+  flex: 1;
+  background-color: #1e1e1e;
+}
+
+/* Line Numbers */
+.lineNumbers {
+  background-color: #2d2d2d;
+  color: #858585;
+  padding: 20px 10px 20px 20px;
+  font-size: 14px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  line-height: 1.6;
+  text-align: right;
+  border-right: 1px solid #404040;
+  min-width: 50px;
+  user-select: none;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.lineNumber {
+  height: 22.4px; /* Match line height of code editor (14px * 1.6) */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-weight: 400;
+}
+
+/* Updated Code Editor */
+.codeEditor {
+  flex: 1;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border: none;
+  padding: 20px;
+  font-size: 14px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  line-height: 1.6;
+  outline: none;
+  resize: none;
+  tab-size: 2;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.codeEditor:focus {
+  background-color: #1e1e1e;
+}
+
+.codeEditor::placeholder {
+  color: #6a6a6a;
+  font-style: italic;
+}
+
+.codeEditor:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* Editor Header Styling */
+.editorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #2d3748;
+  border-bottom: 1px solid #4a5568;
+  color: #e2e8f0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Language Dropdown Container */
+.languageDropdownContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  margin-left: 20px;
+}
+
+.languageDropdownContainer label {
+  color: #cbd5e0;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Language Dropdown Styling */
+.languageDropdown {
+  background: #1a202c;
+  color: #e2e8f0;
+  border: 1px solid #4a5568;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  min-width: 180px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.languageDropdown:hover {
+  border-color: #63b3ed;
+  background: #2d3748;
+}
+
+.languageDropdown:focus {
+  outline: none;
+  border-color: #63b3ed;
+  box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.2);
+  background: #2d3748;
+}
+
+.languageDropdown:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.languageDropdown option {
+  background: #1a202c;
+  color: #e2e8f0;
+  padding: 6px;
+}
+
+/* Technology Note */
+.techNote {
+  color: #fbb6ce;
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+/* Reset Button Styling */
+.resetButton {
+  background: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 16px;
+}
+
+.resetButton:hover {
+  background: #c53030;
+  transform: translateY(-1px);
+}
+
+.resetButton:active {
+  background: #9c2626;
+  transform: translateY(0);
+}
+
+.resetButton:disabled {
+  background: #718096;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+
+/* Character and Line Count Styling */
+.charCount, .lineCountDisplay {
+  color: #a0aec0;
+  font-size: 12px;
+  margin-left: 16px;
+  white-space: nowrap;
+}
+
+/* Responsive Design for Editor Header */
+@media (max-width: 1200px) {
+  .editorHeader {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .languageDropdownContainer {
+    flex: none;
+    margin-left: 12px;
+  }
+  
+  .resetButton {
+    margin-left: 8px;
+  }
+  
+  .charCount, .lineCountDisplay {
+    margin-left: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .editorHeader {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .languageDropdown {
+    min-width: 140px;
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+  
+  .resetButton {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+  
+  .charCount, .lineCountDisplay {
+    font-size: 11px;
+  }
+}
+
+/* Recommended Badge Styling */
+.recommendedBadge {
+  background: #38a169;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+/* Alternative Header Layout for Better Organization */
+.editorHeaderAlt {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: #2d3748;
+  border-bottom: 1px solid #4a5568;
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.editorHeaderAlt .languageDropdownContainer {
+  margin-left: 0;
+}
+
+.editorHeaderAlt .resetButton {
+  margin-left: 0;
+}
+
+.editorHeaderAlt .charCount, 
+.editorHeaderAlt .lineCountDisplay {
+  margin-left: 0;
+}
+
+/* Dark theme adjustments for better contrast */
+.languageDropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.languageDropdown::-webkit-scrollbar-track {
+  background: #1a202c;
+}
+
+.languageDropdown::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 4px;
+}
+
+.languageDropdown::-webkit-scrollbar-thumb:hover {
+  background: #63b3ed;
+}
