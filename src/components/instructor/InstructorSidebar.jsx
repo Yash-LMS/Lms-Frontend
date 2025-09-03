@@ -42,7 +42,7 @@ const InstructorSidebar = ({ activeTab }) => {
             </a>
           </li>
 
-          <li
+          {/* <li
             className={`${styles.navItem} ${
               activeTab === "codingTask" ? styles.active : ""
             }`}
@@ -54,7 +54,7 @@ const InstructorSidebar = ({ activeTab }) => {
               <FontAwesomeIcon icon={faListCheck} />
               Coding Task
             </a>
-          </li>
+          </li> */}
 
 
           <li
@@ -151,7 +151,7 @@ const InstructorSidebar = ({ activeTab }) => {
               onClick={(e) => handleNavigation('/user/update/password', 'password', e)}
             >
               <FontAwesomeIcon icon={faFingerprint} />
-              Update Password
+              Update Profile
             </a>
           </li>
 

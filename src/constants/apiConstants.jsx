@@ -61,6 +61,7 @@ export const VIEW_FEEDBACK_FOR_ALLOTMENT_URL = `${API_BASE_URL}/feedback/allotme
 
 export const RELEASE_CANDIDATE_URL = `${API_BASE_URL}/batch/candidate/release`;
 export const VIEW_BATCH_TEST_URL = `${API_BASE_URL}/batch/viewBatchTest`;
+export const VIEW_BATCH_COURSE_URL = `${API_BASE_URL}/batch/viewBatchCourse`;
 export const DELETE_BATCH_TEST_URL = `${API_BASE_URL}/batch/test/deleteTest`;
 
 //Intern

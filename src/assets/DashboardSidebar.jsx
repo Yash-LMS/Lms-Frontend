@@ -24,12 +24,12 @@ const DashboardSidebar = ({ activeTab }) => {
             </Link>
           </li>
 
-                <li className={`${styles.navItem} ${activeTab === "codingTask" ? styles.active : ""}`}>
+                {/* <li className={`${styles.navItem} ${activeTab === "codingTask" ? styles.active : ""}`}>
             <Link to="/test/coding/viewAssignmentList">
               <FontAwesomeIcon icon={faClipboardList} />
               <span>Coding Task</span>
             </Link>
-          </li>
+          </li> */}
 
                 <li className={`${styles.navItem} ${activeTab === "assignment" ? styles.active : ""}`}>
             <Link to="/user/assignment">
@@ -41,7 +41,7 @@ const DashboardSidebar = ({ activeTab }) => {
      <li className={`${styles.navItem} ${activeTab === "password" ? styles.active : ""}`}>
   <Link to="/user/update/password">
     <FontAwesomeIcon icon={faKey} />
-    <span>Update Password</span>
+    <span>Update Profile</span>
   </Link>
 </li>
 

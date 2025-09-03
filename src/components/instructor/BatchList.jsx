@@ -14,6 +14,7 @@ import AddBatchTestModal from "./AddBatchTestModal";
 import ViewCandidatesModal from "./ViewCandidatesModal";
 import AddBatchAssignmentModal from "./AddBatchAssignmentModal";
 import ViewTestsModal from "./ViewTestsModal";
+import ViewCourseHistoryModal from "./ViewCourseHistoryModal";
 
 const BatchList = ({
   batches,
@@ -52,6 +53,9 @@ const [selectedBatchForAssignment, setSelectedBatchForAssignment] = useState(nul
 
   const [isViewTestsModalOpen, setIsViewTestsModalOpen] = useState(false);
   const [selectedBatchForViewTest, setSelectedBatchForViewTest] = useState(null);
+
+  const [isViewCourseHistoryModalOpen, setIsViewCourseHistoryModalOpen] = useState(false);
+  const [selectedBatchForViewCourseHistory, setSelectedBatchForViewCourseHistory] = useState(null);
 
   // Calculate pagination
   const indexOfLastBatch = currentPage * cardsPerPage;
@@ -169,6 +173,16 @@ const [selectedBatchForAssignment, setSelectedBatchForAssignment] = useState(nul
     setSelectedBatchForViewTest(null);
   };
 
+  const handleViewCourseHistory = (batch) => {
+    setSelectedBatchForViewCourseHistory(batch);
+    setIsViewCourseHistoryModalOpen(true);
+  }
+
+  const handleCloseViewCourseHistoryModal = () => {
+    setIsViewCourseHistoryModalOpen(false);
+    setSelectedBatchForViewCourseHistory(null);
+  }
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -234,6 +248,13 @@ const [selectedBatchForAssignment, setSelectedBatchForAssignment] = useState(nul
               >
                 <FontAwesomeIcon icon={faEye} />
                 <span style={{ marginLeft: "5px" }}>Preview Tests</span>
+              </button>
+              <button
+                className={styles.previewButton}
+                onClick={() => handleViewCourseHistory(batch)}
+              >
+                <FontAwesomeIcon icon={faEye} />
+                <span style={{ marginLeft: "5px" }}>Preview Courses</span>
               </button>
               <button
                 className={styles.addButton}
@@ -327,6 +348,13 @@ const [selectedBatchForAssignment, setSelectedBatchForAssignment] = useState(nul
         onClose={handleCloseViewTestsModal}
         batchId={selectedBatchForViewTest?.batchId}
         batchName={selectedBatchForViewTest?.batchName}
+      />
+
+      <ViewCourseHistoryModal
+        isOpen={isViewCourseHistoryModalOpen}
+        onClose={handleCloseViewCourseHistoryModal}
+        batchId={selectedBatchForViewCourseHistory?.batchId}
+        batchName={selectedBatchForViewCourseHistory?.batchName}
       />
 
     </div>
