@@ -251,3 +251,91 @@
     padding: 12px 20px;
   }
 }
+
+
+/* Add these styles to your existing CodingAssignmentModal.module.css file */
+
+.technologyDropdown {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  min-height: 40px;
+}
+
+.selectedTechnologies {
+  padding: 8px 12px;
+  min-height: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.technologyTag {
+  background-color: #007bff;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.removeTag {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.removeTag:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.technologyOptions {
+  padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.technologyOption {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.technologyOption:hover {
+  background-color: #e9ecef;
+  border-color: #007bff;
+}
+
+.technologyOption.selected {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.technologyOption.selected:hover {
+  background-color: #0056b3;
+}
