@@ -144,6 +144,9 @@ export const ALLOT_ASSIGNMENT_URL = `${API_BASE_URL}/manager/allotAssignmentToTr
 
 export const DOWNLOAD_ASSIGNMENT_FILES = `${API_BASE_URL}/assignment/file/download`;
 
+export const VIEW_CODING_SUBMISSION_LIST = `${API_BASE_URL}/assignment/viewSubmissionList`;
+
+
 export const ALLOT_ASSIGNMENT_BATCH_URL = `${API_BASE_URL}/batch/addAssignmentToBatch`;
 export const EMPLOYEE_PROFILE_IMAGE_URL = `${API_BASE_URL}/manager/employee/image`;
 export const DOWNLOAD_RESUME_URL = `${API_BASE_URL}/manager/document/resume/download`;
@@ -200,6 +203,7 @@ export const VIEW_CODING_TASK = `${API_BASE_URL}/user/coding/viewCodingList`;
 
 export const VIEW_ALLOTED_CODING_TASK = `${API_BASE_URL}/user/coding/viewAllotedTask`;
 export const SUBMIT_CODING_TASK = `${API_BASE_URL}/user/coding/submit`;
+
 
 
 //Test
