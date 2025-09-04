@@ -4,6 +4,7 @@ import styles from "./CodingTasks.module.css";
 import InstructorSidebar from "./InstructorSidebar";
 import { GET_ALL_CODING_TASK } from "../../constants/apiConstants";
 import axios from "axios";
+import ViewCodeSubmissionModal from "./ViewCodeSubmissionModal";
 
 const CodingTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -14,6 +15,10 @@ const CodingTasks = () => {
   const [activeTab, setActiveTab] = useState("codingTask");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTechnology, setSelectedTechnology] = useState("");
+  
+  // States for submission modal
+  const [showSubmissionModal, setShowSubmissionModal] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
 
   const technologies = ["java", "c++", "python", "javascript"];
 
@@ -108,6 +113,17 @@ const CodingTasks = () => {
   const handleModalClose = () => {
     setShowModal(false);
     fetchTasks();
+  };
+
+  // Handle submission modal
+  const handleViewSubmissions = (taskId) => {
+    setSelectedTaskId(taskId);
+    setShowSubmissionModal(true);
+  };
+
+  const handleSubmissionModalClose = () => {
+    setShowSubmissionModal(false);
+    setSelectedTaskId(null);
   };
 
   const formatDate = (dateString) => {
@@ -269,12 +285,21 @@ const CodingTasks = () => {
                         <span className={styles.metaLabel}>Instructor:</span>
                         <span className={styles.metaValue}>{task.instructorName}</span>
                       </div>
+                      {task.dueDate && (
+                        <div className={styles.metaItem}>
+                          <span className={styles.metaLabel}>Due Date:</span>
+                          <span className={styles.metaValue}>{formatDate(task.dueDate)}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div className={styles.taskActions}>
-                    <button className={styles.viewButton}>
-                      View Submission
+                    <button 
+                      className={styles.viewButton}
+                      onClick={() => handleViewSubmissions(task.taskId)}
+                    >
+                      View Submissions
                     </button>
                   </div>
                 </div>
@@ -288,6 +313,15 @@ const CodingTasks = () => {
           isOpen={showModal}
           onClose={handleModalClose}
         />
+
+        {/* Modal for viewing submissions */}
+        {showSubmissionModal && (
+          <ViewCodeSubmissionModal 
+            taskId={selectedTaskId}
+            isOpen={showSubmissionModal}
+            onClose={handleSubmissionModalClose}
+          />
+        )}
       </div>
     </div>
   );

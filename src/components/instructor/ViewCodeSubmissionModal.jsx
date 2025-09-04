@@ -45,7 +45,7 @@ const ViewCodeSubmissionModal = ({ taskId, onClose, isOpen }) => {
       const response = await axios.post(`${VIEW_CODING_SUBMISSION_LIST}`, requestData);
       
       if (response.data && response.data.response === 'success') {
-        setSubmissions(response.data.data || []);
+        setSubmissions(response.data.payload || []);
       } else {
         setError(response.data?.message || 'Failed to fetch submissions');
       }
