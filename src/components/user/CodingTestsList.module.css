@@ -1,0 +1,253 @@
+.codingTestsContainer {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Main content area */
+.testContent {
+  flex: 1;
+  margin-left: 250px;
+  padding: 2rem;
+}
+
+/* Header styles */
+.pageHeader {
+  display: flex;
+  gap: 15rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.pageHeader h1 {
+  font-size: 1.75rem;
+  margin: 0;
+  color: #8e6cef;
+  font-weight: 600;
+}
+
+/* Filter controls */
+.filters {
+  display: flex;
+  gap: 1rem;
+}
+
+.searchInput {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  width: 220px;
+  font-size: 14px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.filterSelect {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background-color: white;
+  font-size: 14px;
+  min-width: 150px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+/* Table styles */
+.tableContainer {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: 450px;
+  max-width: 89%;
+}
+
+.testTable {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.testTable th,
+.testTable td {
+  padding: 1rem 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.testTable th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.testTable tr:last-child td {
+  border-bottom: none;
+}
+
+.testTable tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Status badge styles */
+.statusBadge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pendingBadge {
+  background-color: #e9ecef;
+  color: #6c757d;
+}
+
+.startedBadge {
+  background-color: #fff8e6;
+  color: #ff9800;
+}
+
+.completedBadge {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.expiredBadge {
+  background-color: #fee8e7;
+  color: #f44336;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-direction: row;
+}
+
+/* Action button styles */
+.actionButton {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.activeButton {
+  background-color: #6c5ce7;
+  color: white;
+}
+
+.activeButton:hover {
+  background-color: #5a4bd1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.viewButton {
+  background-color: #f0e6ff;
+  color: #8e6cef;
+  border: 1px solid #8e6cef;
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: center;
+}
+
+.viewButton:hover {
+  background-color: #e0d6ff;
+}
+
+.disabledButton {
+  background-color: #e2e8f0;
+  color: #a0aec0;
+  cursor: not-allowed;
+}
+
+/* State indicators */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 16px;
+  color: #718096;
+}
+
+.error {
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.noData {
+  text-align: center;
+  padding: 2rem;
+  color: #718096;
+  font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .testContent {
+    margin-left: 200px;
+  }
+
+  .searchInput {
+    width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .filters {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .searchInput,
+  .filterSelect {
+    width: 100%;
+  }
+
+  .testTable {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .codingTestsContainer {
+    flex-direction: column;
+  }
+
+  .testContent {
+    margin-left: 0;
+    padding: 1rem;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .testTable {
+    min-width: 700px;
+  }
+}
