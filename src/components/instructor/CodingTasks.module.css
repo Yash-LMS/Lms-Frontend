@@ -51,92 +51,11 @@
     margin: 0;
   }
 
-/* Search and Filter Section */
-.filterSection {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-  padding: 20px;
-  background: var(--background-card);
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--border-color);
-}
-
-.searchContainer {
-  flex: 1;
-  position: relative;
-}
-
-.searchInput {
-  width: 100%;
-  padding: 12px 16px;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 14px;
-  background-color: var(--background-card);
-  color: var(--text-primary);
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(142, 108, 239, 0.1);
-}
-
-.searchInput::placeholder {
-  color: var(--text-secondary);
-}
-
-.filterContainer {
-  min-width: 180px;
-}
-
-.technologyFilter {
-  width: 100%;
-  padding: 12px 16px;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 14px;
-  background-color: var(--background-card);
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.technologyFilter:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(142, 108, 239, 0.1);
-}
-
-.clearFiltersButton {
-  padding: 12px 16px;
-  background-color: var(--background-card);
-  color: var(--text-secondary);
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.clearFiltersButton:hover {
-  background-color: var(--text-secondary);
-  color: var(--background-card);
-  border-color: var(--text-secondary);
-}
-
-.resultsInfo {
-  margin-bottom: 16px;
-  color: var(--text-secondary);
-  font-size: 14px;
-  text-align: center;
-  padding: 8px;
-}
+  .headerRight {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
 
 /* Create Button - Updated with theme colors */
 .createButton {
@@ -163,6 +82,54 @@
   font-size: 18px;
   font-weight: bold;
 }
+
+.searchInput,
+  .filterSelect {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  
+  .searchInput {
+    min-width: 250px;
+  }
+  
+  /* Search Results Info */
+  .searchResultsInfo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--background-card);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+  
+  .searchResultsInfo p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  
+  .clearFiltersBtn {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .clearFiltersBtn:hover {
+    background-color: var(--background-main);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+  
 
 /* Loading State */
 .loadingContainer {
@@ -407,16 +374,6 @@
     font-size: 1.5rem;
   }
 
-  .filterSection {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .filterContainer {
-    min-width: auto;
-  }
-
   .tasksGrid {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -441,34 +398,6 @@
 @media (max-width: 480px) {
   .mainContent {
     padding: 12px;
-  }
-
-  .contentHeader {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
-  }
-
-  .headerRight {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .searchInput {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 13px;
-  }
-
-  .technologyFilter {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 13px;
-  }
-
-  .clearFiltersButton {
-    padding: 8px 12px;
-    font-size: 13px;
   }
 
   .taskHeader {

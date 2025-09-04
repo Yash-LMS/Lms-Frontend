@@ -101,11 +101,6 @@ const CodingTasks = () => {
     setFilteredTasks(filtered);
   }, [tasks, searchTerm, selectedTechnology]);
 
-  const clearFilters = () => {
-    setSearchTerm("");
-    setSelectedTechnology("");
-  };
-
   useEffect(() => {
     fetchTasks();
   }, []);
@@ -169,7 +164,7 @@ const CodingTasks = () => {
     <div className={styles.pageContainer}>
       <InstructorSidebar activeTab={activeTab} />
       <div className={styles.mainContent}>
-        <div className={styles.contentHeader}>
+        <header className={styles.contentHeader}>
           <div className={styles.headerLeft}>
             <h1>Coding Assignments</h1>
           </div>
@@ -180,11 +175,8 @@ const CodingTasks = () => {
             <span className={styles.plusIcon}>+</span>
             Create New Assignment
           </button>
-        </div>
 
-        {/* Search and Filter Section */}
-        <div className={styles.filterSection}>
-          <div className={styles.searchContainer}>
+          <div className={styles.headerRight}>
             <input
               type="text"
               placeholder="Search assignments..."
@@ -194,11 +186,10 @@ const CodingTasks = () => {
             />
           </div>
           
-          <div className={styles.filterContainer}>
             <select
               value={selectedTechnology}
               onChange={(e) => setSelectedTechnology(e.target.value)}
-              className={styles.technologyFilter}
+              className={styles.filterSelect}
             >
               <option value="">All Technologies</option>
               {technologies.map(tech => (
@@ -207,52 +198,30 @@ const CodingTasks = () => {
                 </option>
               ))}
             </select>
-          </div>
+          </header>
 
           {(searchTerm || selectedTechnology) && (
-            <button className={styles.clearFiltersButton} onClick={clearFilters}>
-              Clear Filters
-            </button>
+            <div className={styles.searchResultsInfo}>
+                        <p>
+                          {filteredTasks.length === 0
+                            ? "No Tasks match your search criteria"
+                            : `Found ${filteredTasks.length} batch${
+                                filteredTasks.length !== 1 ? "es" : ""
+                              }`}
+                        </p>
+                        {(searchTerm || selectedTechnology !== "all") && (
+                          <button
+                            className={styles.clearFiltersBtn}
+                            onClick={() => {
+                              setSearchTerm("");
+                              setSelectedTechnology("");
+                            }}
+                          >
+                            Clear Filters
+                          </button>
+                        )}
+                      </div>
           )}
-        </div>
-
-        {error && (
-          <div className={styles.errorMessage}>
-            {error}
-            <button 
-              className={styles.retryButton}
-              onClick={fetchTasks}
-            >
-              Retry
-            </button>
-          </div>
-        )}
-
-        {filteredTasks.length === 0 && !loading && !error ? (
-          <div className={styles.emptyState}>
-            {searchTerm || selectedTechnology ? (
-              <>
-                <h3>No assignments match your search criteria</h3>
-                <p>Try adjusting your search or filters</p>
-                <button className={styles.clearFiltersButton} onClick={clearFilters}>
-                  Clear Filters
-                </button>
-              </>
-            ) : (
-              <>
-                <h3>No Coding Assignments Yet</h3>
-                <p>Get started by creating your first coding assignment</p>
-                <button 
-                  className={styles.createButton}
-                  onClick={() => setShowModal(true)}
-                >
-                  <span className={styles.plusIcon}>+</span>
-                  Create Your First Assignment
-                </button>
-              </>
-            )}
-          </div>
-        ) : (
           <>
             {(searchTerm || selectedTechnology) && (
               <div className={styles.resultsInfo}>
@@ -306,7 +275,6 @@ const CodingTasks = () => {
               ))}
             </div>
           </>
-        )}
 
         {/* Modal for creating new assignments */}
         <CodingAssignmentModal 
