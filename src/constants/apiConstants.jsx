@@ -144,11 +144,21 @@ export const ALLOT_ASSIGNMENT_URL = `${API_BASE_URL}/manager/allotAssignmentToTr
 
 export const DOWNLOAD_ASSIGNMENT_FILES = `${API_BASE_URL}/assignment/file/download`;
 
+export const VIEW_CODING_SUBMISSION_LIST = `${API_BASE_URL}/assignment/viewSubmissionList`;
+export const VIEW_CODING_SUBMISSION_FILE = `${API_BASE_URL}/assignment/viewSubmittedFile`;
+export const EVALUATE_CODE_ASSIGNMENT = `${API_BASE_URL}/assignment/evaluate`;
+
+
+
+
 export const ALLOT_ASSIGNMENT_BATCH_URL = `${API_BASE_URL}/batch/addAssignmentToBatch`;
 export const EMPLOYEE_PROFILE_IMAGE_URL = `${API_BASE_URL}/manager/employee/image`;
 export const DOWNLOAD_RESUME_URL = `${API_BASE_URL}/manager/document/resume/download`;
 
 export const RELEASE_TRAINEE_FROM_COURSE_URL = `${API_BASE_URL}/manager/course/releaseTrainee`;
+
+export const VIEW_CODING_TASK_URL = `${API_BASE_URL}/manager/coding/taskView`;
+export const ALLOT_CODING_TASK_URL = `${API_BASE_URL}/manager/coding/allotTestToTrainee`;
 
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
@@ -197,6 +207,7 @@ export const VIEW_CODING_TASK = `${API_BASE_URL}/user/coding/viewCodingList`;
 
 export const VIEW_ALLOTED_CODING_TASK = `${API_BASE_URL}/user/coding/viewAllotedTask`;
 export const SUBMIT_CODING_TASK = `${API_BASE_URL}/user/coding/submit`;
+
 
 
 //Test

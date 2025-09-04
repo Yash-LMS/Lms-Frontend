@@ -15,9 +15,13 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
   const [assignment, setAssignment] = useState({
     taskName: "",
     description: "",
-    technology: "",
+    technology: [], // Changed to array for multiple selection
     maxMarks: 10,
+    timeInMinutes: "",
   });
+
+  // Technology options
+  const technologyOptions = ["JAVA", "PYTHON", "C++", "JAVASCRIPT", "ANY"];
 
   // Quill editor modules and formats
   const modules = {
@@ -73,11 +77,32 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
     }));
   };
 
-  const handleTechnologyChange = (e) => {
-    setAssignment((prev) => ({
-      ...prev,
-      technology: e.target.value,
-    }));
+  const handleTechnologyChange = (selectedTech) => {
+    setAssignment((prev) => {
+      let newTechnology = [...prev.technology];
+
+      if (selectedTech === "ANY") {
+        // If ANY is selected, clear all other selections and set only ANY
+        newTechnology = ["ANY"];
+      } else {
+        // If ANY was previously selected, remove it when selecting specific technologies
+        if (prev.technology.includes("ANY")) {
+          newTechnology = [selectedTech];
+        } else {
+          // Toggle the selected technology
+          if (newTechnology.includes(selectedTech)) {
+            newTechnology = newTechnology.filter(tech => tech !== selectedTech);
+          } else {
+            newTechnology.push(selectedTech);
+          }
+        }
+      }
+
+      return {
+        ...prev,
+        technology: newTechnology,
+      };
+    });
   };
 
   const handleMaxMarksChange = (e) => {
@@ -85,6 +110,14 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
       ...prev,
       maxMarks: Number(e.target.value),
     }));
+  };
+
+  // Format technology for API submission
+  const formatTechnologyForAPI = () => {
+    if (assignment.technology.includes("ANY")) {
+      return "ANY";
+    }
+    return assignment.technology.join(", ");
   };
 
   const validateAssignment = () => {
@@ -107,8 +140,8 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
       return false;
     }
 
-    if (!assignment.technology.trim()) {
-      setErrorMessage("Technology is required");
+    if (assignment.technology.length === 0) {
+      setErrorMessage("At least one technology must be selected");
       return false;
     }
 
@@ -146,9 +179,9 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
         codingTask: {
           taskName: assignment.taskName,
           description: assignment.description,
-          technology: assignment.technology,
+          technology: formatTechnologyForAPI(), // Format technology for API
           maxMarks: assignment.maxMarks,
-          // instructorName and instructorId will be set from backend
+          timeInMinutes: assignment.timeInMinutes,
         },
       };
 
@@ -167,8 +200,9 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
         setAssignment({
           taskName: "",
           description: "",
-          technology: "",
+          technology: [],
           maxMarks: 10,
+          timeInMinutes: "",
         });
 
         setTimeout(() => {
@@ -235,15 +269,41 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
 
           <div className={styles.formGroup}>
             <label htmlFor="technology">Technology/Language</label>
-            <input
-              id="technology"
-              type="text"
-              value={assignment.technology}
-              onChange={handleTechnologyChange}
-              className={styles.assignmentInput}
-              placeholder="e.g., Java, Python, React, Node.js"
-              required
-            />
+            <div className={styles.technologyDropdown}>
+              <div className={styles.selectedTechnologies}>
+                {assignment.technology.length > 0 ? (
+                  assignment.technology.map((tech) => (
+                    <span key={tech} className={styles.technologyTag}>
+                      {tech}
+                      <button
+                        type="button"
+                        onClick={() => handleTechnologyChange(tech)}
+                        className={styles.removeTag}
+                        aria-label={`Remove ${tech}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))
+                ) : (
+                  <span className={styles.placeholder}>Select technologies...</span>
+                )}
+              </div>
+              <div className={styles.technologyOptions}>
+                {technologyOptions.map((tech) => (
+                  <button
+                    key={tech}
+                    type="button"
+                    onClick={() => handleTechnologyChange(tech)}
+                    className={`${styles.technologyOption} ${
+                      assignment.technology.includes(tech) ? styles.selected : ""
+                    }`}
+                  >
+                    {tech}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className={styles.formGroup}>
@@ -257,6 +317,19 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
               onChange={handleMaxMarksChange}
               className={styles.assignmentInput}
               placeholder="Enter maximum marks"
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="timeInMinutes">Test Time (in minutes)</label>
+            <input
+              id="timeInMinute"
+              type="number"
+              value={assignment.timeInMinutes}
+              onChange={handleMaxMarksChange}
+              className={styles.assignmentInput}
+              placeholder="Enter test time"
               required
             />
           </div>

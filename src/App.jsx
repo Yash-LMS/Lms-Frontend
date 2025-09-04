@@ -232,7 +232,7 @@ const AppContent = () => {
           />
 
            <Route
-            path="/instructor/view/codingTask"
+            path="/view/codingTask"
             element={
               <ProtectedRoute>
                 <CodingTasks />
@@ -296,7 +296,7 @@ const AppContent = () => {
           />
 
                   <Route
-            path="/test/coding/viewAssignmentList"
+            path="/codingTask"
             element={
               <ProtectedRoute>
                 <CodingTestsList />

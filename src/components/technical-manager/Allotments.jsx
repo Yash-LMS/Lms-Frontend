@@ -4,6 +4,7 @@ import styles from "./ResultComponent.module.css";
 import CourseAllotment from "./CourseAllotment";
 import TestAllotment from "./TestAllotment";
 import AssignmentAllotment from "./AssignmentAllotment";
+import CodingTaskAllotment from "./CodingTaskAllotment";
 
 const Allotments = () => {
   const [activeView, setActiveView] = useState("course");
@@ -21,6 +22,8 @@ const Allotments = () => {
         return <TestAllotment />;
       case "assignment":
         return <AssignmentAllotment />;
+      case "codingTask":
+        return <CodingTaskAllotment />;
       default:
         return <CourseAllotment />;
     }
@@ -56,6 +59,14 @@ const Allotments = () => {
           onClick={() => handleViewChange("assignment")}
         >
           Assignment Allotment
+        </button>
+        <button
+          className={`${styles.actionButton} ${
+            activeView === "codingTask" ? styles.activeButton : ""
+          }`}
+          onClick={() => handleViewChange("codingTask")}
+        >
+          Coding Task Allotment
         </button>
       </div>
 

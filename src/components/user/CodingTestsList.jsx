@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import DashboardSidebar from "../../assets/DashboardSidebar";
-import styles from "./MyTests.module.css"; // Reusing the same CSS file
+import styles from "./CodingTestsList.module.css"; 
 import { VIEW_CODING_TASK } from "../../constants/apiConstants";
 
 const CodingTestsList = () => {
@@ -17,6 +17,7 @@ const CodingTestsList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [evaluationFilter, setEvaluationFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState("codingTask");
 
   // Get user data from session storage
   const getUserData = () => {
@@ -152,8 +153,8 @@ const CodingTestsList = () => {
   });
 
   return (
-    <div className={styles.myTestsContainer}>
-      <DashboardSidebar activeTab="coding-tests" />
+    <div className={styles.codingTestsContainer}>
+      <DashboardSidebar activeTab="codingTask" />
 
       <div className={styles.testContent}>
         <header className={styles.pageHeader}>
@@ -230,7 +231,6 @@ const CodingTestsList = () => {
                   <th>Score</th>
                   <th>Completion Status</th>
                   <th>Evaluation Status</th>
-                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -269,31 +269,6 @@ const CodingTestsList = () => {
                           >
                             {(test.evaluationStatus || "pending").toUpperCase()}
                           </span>
-                        </td>
-                        <td>
-                          <div className={styles.actionButtons}>
-                            <button
-                              className={`${styles.actionButton} ${
-                                buttonEnabled
-                                  ? styles.activeButton
-                                  : styles.disabledButton
-                              }`}
-                              onClick={() => handleActionButtonClick(test)}
-                              disabled={!buttonEnabled}
-                            >
-                              {buttonText}
-                            </button>
-
-                            {test.completionStatus === "completed" && test.evaluationStatus === "evaluated" && (
-                              <button
-                                className={styles.viewButton}
-                                onClick={() => console.log("View detailed results for:", test.allotmentId)}
-                                title="View detailed test results and feedback"
-                              >
-                                View Details
-                              </button>
-                            )}
-                          </div>
                         </td>
                       </tr>
                     );

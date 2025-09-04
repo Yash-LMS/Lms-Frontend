@@ -1,0 +1,293 @@
+/* ViewCodeSubmissionModal.module.css */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 1200px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.modalBody {
+  flex: 1;
+  padding: 24px;
+  overflow: auto;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+.error {
+  text-align: center;
+  padding: 40px;
+  color: #dc2626;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  margin: 20px 0;
+}
+
+.error p {
+  margin: 0 0 16px 0;
+  font-weight: 500;
+}
+
+.retryButton {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.retryButton:hover {
+  background-color: #b91c1c;
+}
+
+.noData {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+  font-size: 1.1rem;
+  background-color: #f8fafc;
+  border-radius: 6px;
+}
+
+.tableContainer {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.submissionsTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.submissionsTable thead {
+  background-color: #f1f5f9;
+}
+
+.submissionsTable th,
+.submissionsTable td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.submissionsTable th {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.submissionsTable td {
+  color: #1f2937;
+}
+
+.submissionsTable tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.submissionsTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.taskName {
+  font-weight: 500;
+  min-width: 150px;
+}
+
+.technology {
+  font-family: 'Monaco', 'Menlo', monospace;
+  background-color: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.time {
+  text-align: center;
+  font-weight: 500;
+}
+
+.score {
+  text-align: center;
+  font-weight: 600;
+  color: #059669;
+}
+
+.maxMarks {
+  text-align: center;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Test Completion Status Colors */
+.statusPending {
+  background-color: #fed7aa;
+  color: #ea580c;
+}
+
+.statusStarted {
+  background-color: #bae6fd;
+  color: #0284c7;
+}
+
+.statusCompleted {
+  background-color: #bbf7d0;
+  color: #059669;
+}
+
+/* Evaluation Status Colors */
+.statusEvaluated {
+  background-color: #bbf7d0;
+  color: #059669;
+}
+
+.statusDefault {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.actions {
+  text-align: center;
+  min-width: 100px;
+}
+
+.evaluateButton {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.evaluateButton:hover {
+  background-color: #2563eb;
+}
+
+.modalFooter {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.closeFooterButton {
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.closeFooterButton:hover {
+  background-color: #4b5563;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modalContent {
+    width: 95vw;
+    max-height: 95vh;
+  }
+
+  .tableContainer {
+    font-size: 0.875rem;
+  }
+
+  .submissionsTable th,
+  .submissionsTable td {
+    padding: 8px 12px;
+  }
+
+  .modalHeader {
+    padding: 16px 20px;
+  }
+
+  .modalBody {
+    padding: 16px 20px;
+  }
+
+  .modalHeader h2 {
+    font-size: 1.25rem;
+  }
+}

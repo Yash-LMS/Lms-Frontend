@@ -34,8 +34,9 @@ const CodingTestIde = () => {
   const [testAllotmentId, setTestAllotmentId] = useState(null);
   const [isTestStarted, setIsTestStarted] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [recommendedTechnology, setRecommendedTechnology] = useState('python');
-  const [isLanguageLocked, setIsLanguageLocked] = useState(false);
+  const [allowedLanguages, setAllowedLanguages] = useState(['python', 'java', 'javascript', 'cpp']);
+  const [recommendedLanguage, setRecommendedLanguage] = useState('python');
+  const [technologyString, setTechnologyString] = useState('');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -183,32 +184,76 @@ const CodingTestIde = () => {
     }
   };
 
-  // Check if language should be locked based on technology
-  const checkLanguageLock = (technology) => {
-    if (!technology) return false;
+  // Enhanced technology parsing functions
+  const parseTechnologyString = (technologyStr) => {
+    if (!technologyStr || typeof technologyStr !== 'string') {
+      return {
+        allowedLanguages: ['python', 'java', 'javascript', 'cpp'],
+        recommendedLanguage: 'python',
+        isAnyAllowed: true
+      };
+    }
+
+    const techStr = technologyStr.trim().toUpperCase();
     
-    const techLower = technology.toLowerCase();
-    const specificTechs = ['java', 'python', 'javascript', 'cpp', 'c++'];
+    // Handle "ANY" case - all languages allowed
+    if (techStr === 'ANY') {
+      return {
+        allowedLanguages: ['python', 'java', 'javascript', 'cpp'],
+        recommendedLanguage: 'python',
+        isAnyAllowed: true
+      };
+    }
+
+    // Parse comma-separated technologies
+    const technologies = techStr.split(',').map(tech => tech.trim());
+    const allowedLangs = [];
     
-    return specificTechs.some(tech => 
-      techLower === tech || 
-      (tech === 'cpp' && techLower === 'c++') ||
-      (tech === 'c++' && techLower === 'cpp')
-    );
+    // Map technologies to language keys
+    const techMap = {
+      'PYTHON': 'python',
+      'JAVA': 'java',
+      'JAVASCRIPT': 'javascript',
+      'JS': 'javascript',
+      'C++': 'cpp',
+      'CPP': 'cpp'
+    };
+
+    technologies.forEach(tech => {
+      const mappedLang = techMap[tech];
+      if (mappedLang && languageConfigs[mappedLang] && !allowedLangs.includes(mappedLang)) {
+        allowedLangs.push(mappedLang);
+      }
+    });
+
+    // If no valid technologies found, default to all
+    if (allowedLangs.length === 0) {
+      return {
+        allowedLanguages: ['python', 'java', 'javascript', 'cpp'],
+        recommendedLanguage: 'python',
+        isAnyAllowed: true
+      };
+    }
+
+    // Recommend first language in the list
+    const recommendedLang = allowedLangs[0];
+
+    return {
+      allowedLanguages: allowedLangs,
+      recommendedLanguage: recommendedLang,
+      isAnyAllowed: false
+    };
   };
 
-  // Get locked language based on technology
-  const getLockedLanguage = (technology) => {
-    if (!technology) return null;
-    
-    const techLower = technology.toLowerCase();
-    
-    if (techLower === 'java') return 'java';
-    if (techLower === 'python') return 'python';
-    if (techLower === 'javascript' || techLower === 'js') return 'javascript';
-    if (techLower === 'cpp' || techLower === 'c++') return 'cpp';
-    
-    return null;
+  // Get display name for technology
+  const getTechnologyDisplayName = (langKey) => {
+    const displayMap = {
+      'python': 'Python',
+      'java': 'Java',
+      'javascript': 'JavaScript',
+      'cpp': 'C++'
+    };
+    return displayMap[langKey] || langKey;
   };
 
   // Validation and initialization
@@ -239,7 +284,7 @@ const CodingTestIde = () => {
 
   // Initialize code based on selected language
   useEffect(() => {
-    if (!testStarted) {
+    if (!testStarted && languageConfigs[selectedLanguage]) {
       setCode(languageConfigs[selectedLanguage].defaultCode);
       updateLineCount(languageConfigs[selectedLanguage].defaultCode);
     }
@@ -265,39 +310,33 @@ const CodingTestIde = () => {
       if (response.data.response === 'success') {
         const taskData = response.data.payload;
         
-        // Check if language should be locked
-        const isLocked = checkLanguageLock(taskData.technology);
-        setIsLanguageLocked(isLocked);
+        // Parse technology string and set allowed languages
+        const technologyConfig = parseTechnologyString(taskData.technology);
+        setTechnologyString(taskData.technology || 'ANY');
+        setAllowedLanguages(technologyConfig.allowedLanguages);
+        setRecommendedLanguage(technologyConfig.recommendedLanguage);
         
-        // Set recommended technology based on API response
-        const recommendedTech = taskData.technology?.toLowerCase() || 'python';
-        setRecommendedTechnology(recommendedTech);
-        
-        // If language is locked, force the specific language
-        let finalLanguage = selectedLanguage;
-        if (isLocked) {
-          const lockedLang = getLockedLanguage(taskData.technology);
-          if (lockedLang && languageConfigs[lockedLang]) {
-            finalLanguage = lockedLang;
-            setSelectedLanguage(finalLanguage);
-          }
-        } else if (languageConfigs[recommendedTech]) {
-          // If not locked but recommended language exists, suggest it
-          finalLanguage = recommendedTech;
-          setSelectedLanguage(finalLanguage);
+        // Set initial language - use recommended if current selection is not allowed
+        let initialLanguage = selectedLanguage;
+        if (!technologyConfig.allowedLanguages.includes(selectedLanguage)) {
+          initialLanguage = technologyConfig.recommendedLanguage;
+          setSelectedLanguage(initialLanguage);
         }
         
-        // Set code based on final language
-        setCode(languageConfigs[finalLanguage].defaultCode);
-        updateLineCount(languageConfigs[finalLanguage].defaultCode);
+        // Set code based on initial language
+        setCode(languageConfigs[initialLanguage].defaultCode);
+        updateLineCount(languageConfigs[initialLanguage].defaultCode);
         
         const testInfo = {
           taskName: 'Algorithm Challenge',
           description: taskData.description,
           duration: taskData.timeInMinutes / 60,
           maxMarks: 100,
-          language: finalLanguage,
-          technology: taskData.technology,
+          language: initialLanguage,
+          technology: taskData.technology || 'ANY',
+          allowedLanguages: technologyConfig.allowedLanguages,
+          recommendedLanguage: technologyConfig.recommendedLanguage,
+          isAnyAllowed: technologyConfig.isAnyAllowed,
           allotmentId: taskData.allotmentId
         };
         
@@ -347,9 +386,9 @@ const CodingTestIde = () => {
     setLineCount(lines.length);
   };
 
-  // Handle language change - only allow if not locked
+  // Handle language change - only allow if language is in allowed list
   const handleLanguageChange = (language) => {
-    if (!isPaused && !showSubmitConfirmation && !isLanguageLocked) {
+    if (!isPaused && !showSubmitConfirmation && allowedLanguages.includes(language)) {
       setSelectedLanguage(language);
       setCode(languageConfigs[language].defaultCode);
       updateLineCount(languageConfigs[language].defaultCode);
@@ -711,51 +750,60 @@ const CodingTestIde = () => {
     setShowNotification(false);
   };
 
-  // Modified handleSubmit - removed file download functionality
-  const handleSubmit = async (description) => {
-    try {
-      const { user, token } = getUserData();
 
-      const submitData = {
-        user: user,
-        token: token,
-        codingTask: {
-          allotmentId: testAllotmentId,
-          code: code,
-          language: selectedLanguage,
-          lineCount: lineCount,
-          description: description
-        }
-      };
+const handleSubmit = async (description) => {
+  try {
+    const { user, token } = getUserData();
 
-      console.log("Submitting coding task:", submitData);
-      
-      // Submit to API without file upload
-      const response = await axios.post(`${SUBMIT_CODING_TASK}`, submitData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (response.data.response === 'success') {
-        alert(`Code submitted successfully!\nLanguage: ${languageConfigs[selectedLanguage].name}\nReason: ${description}\nCode length: ${code.length} characters\nTotal lines: ${lineCount}`);
-        
-        // Exit fullscreen after successful submission
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
-        
-        // Navigate back to tests page
-        navigate("/my-test");
-      } else {
-        throw new Error(response.data.message || 'Submission failed');
+    // File name must be allotmentId + extension
+    const fileName = `${testAllotmentId}${languageConfigs[selectedLanguage].extension}`;
+
+    // Prepare ApiRequestModel
+    const apiRequestModel = {
+      user,
+      token,
+      fileName,
+      allotmentId: testAllotmentId
+    };
+
+    // Prepare file (convert code string → Blob → File)
+    const codeFile = new File([code], fileName, { type: "text/plain" });
+
+    // Prepare FormData
+    const formData = new FormData();
+    formData.append("requestData", new Blob([JSON.stringify(apiRequestModel)], { type: "application/json" }));
+    formData.append("file", codeFile);
+
+    console.log("Submitting coding task:", apiRequestModel, codeFile);
+
+    // Submit using multipart/form-data
+    const response = await axios.post(`${SUBMIT_CODING_TASK}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    if (response.data.response === "success") {
+      alert(
+        `Code submitted successfully!\nLanguage: ${languageConfigs[selectedLanguage].name}\nReason: ${description}\nCode length: ${code.length} characters\nTotal lines: ${lineCount}`
+      );
+
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
       }
-      
-    } catch (err) {
-      console.error("Submission error:", err);
-      alert("Error submitting test. Please try again.");
+
+      // Navigate back
+      navigate("/my-test");
+    } else {
+      throw new Error(response.data.message || "Submission failed");
     }
-  };
+  } catch (err) {
+    console.error("Submission error:", err);
+    alert("Error submitting test. Please try again.");
+  }
+};
+
 
   const formatTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
@@ -807,15 +855,44 @@ const CodingTestIde = () => {
     );
   };
 
-  // Get available languages based on technology lock
+  // Get available languages based on technology configuration
   const getAvailableLanguages = () => {
-    if (isLanguageLocked) {
-      const lockedLang = getLockedLanguage(recommendedTechnology);
-      if (lockedLang && languageConfigs[lockedLang]) {
-        return { [lockedLang]: languageConfigs[lockedLang] };
+    const availableConfigs = {};
+    allowedLanguages.forEach(langKey => {
+      if (languageConfigs[langKey]) {
+        availableConfigs[langKey] = languageConfigs[langKey];
       }
+    });
+    return availableConfigs;
+  };
+
+  // Get language status for display
+  const getLanguageStatus = (langKey) => {
+    if (langKey === recommendedLanguage) {
+      return testDetails?.isAnyAllowed ? 'recommended' : 'primary';
     }
-    return languageConfigs;
+    return 'allowed';
+  };
+
+  // Get technology display string
+  const getTechnologyDisplayString = () => {
+    if (!technologyString || technologyString === 'ANY') {
+      return 'Any Language (Choose your preferred language)';
+    }
+    
+    const techArray = technologyString.split(',').map(tech => tech.trim());
+    const displayTechs = techArray.map(tech => {
+      const techUpper = tech.toUpperCase();
+      if (techUpper === 'CPP') return 'C++';
+      if (techUpper === 'JS') return 'JavaScript';
+      return tech;
+    });
+    
+    if (displayTechs.length === 1) {
+      return `Required: ${displayTechs[0]}`;
+    } else {
+      return `Allowed: ${displayTechs.join(', ')}`;
+    }
   };
 
   // Loading state
@@ -876,7 +953,7 @@ const CodingTestIde = () => {
               <li>Test your solution with the provided examples.</li>
               <li>Language-specific features: Auto-indentation and bracket matching are enabled.</li>
               <li><strong>Java Specific:</strong> The main class structure is protected and cannot be edited.</li>
-              <li><strong>Language Selection:</strong> If a specific technology is required, language selection will be locked.</li>
+              <li><strong>Language Selection:</strong> Available languages are based on the test requirements.</li>
               <li>Your code will be submitted directly without file download.</li>
             </ul>
           </div>
@@ -933,11 +1010,7 @@ const CodingTestIde = () => {
               <p>Code length: <strong>{code.length}</strong> characters</p>
               <p>Total lines: <strong>{lineCount}</strong></p>
               <p>Allotment ID: <strong>{testAllotmentId}</strong></p>
-              {isLanguageLocked && (
-                <p className={styles.lockedLanguageNote}>
-                  <strong>Language Locked:</strong> {testDetails.technology} technology required
-                </p>
-              )}
+              <p>Technology: <strong>{getTechnologyDisplayString()}</strong></p>
             </div>
             <div className={styles.confirmationButtons}>
               <button
@@ -967,6 +1040,7 @@ const CodingTestIde = () => {
               <p>Code length: <strong>{code.length}</strong> characters</p>
               <p>Total lines: <strong>{lineCount}</strong></p>
               <p>Allotment ID: <strong>{testAllotmentId}</strong></p>
+              <p>Technology: <strong>{getTechnologyDisplayString()}</strong></p>
             </div>
             <div className={styles.confirmationButtons}>
               <button
@@ -1011,22 +1085,19 @@ const CodingTestIde = () => {
             </div>
             <div className={styles.infoItem}>
               Language: {languageConfigs[selectedLanguage].name}
-              {isLanguageLocked && (
-                <span className={styles.lockedBadge}> (Locked)</span>
+              {getLanguageStatus(selectedLanguage) === 'primary' && (
+                <span className={styles.primaryBadge}> (Required)</span>
               )}
-              {!isLanguageLocked && selectedLanguage === recommendedTechnology && (
+              {getLanguageStatus(selectedLanguage) === 'recommended' && (
                 <span className={styles.recommendedBadge}> (Recommended)</span>
               )}
             </div>
             <div className={styles.infoItem}>Max Marks: {testDetails.maxMarks}</div>
             <div className={styles.infoItem}>Allotment ID: {testAllotmentId}</div>
             <div className={styles.infoItem}>Exits: {fullScreenExitCount}/4</div>
-            {testDetails.technology && (
-              <div className={styles.infoItem}>
-                Required Tech: {testDetails.technology}
-                {isLanguageLocked && <span className={styles.lockIcon}> 🔒</span>}
-              </div>
-            )}
+            <div className={styles.infoItem}>
+              Tech: {getTechnologyDisplayString()}
+            </div>
           </div>
         </div>
         
@@ -1087,30 +1158,35 @@ const CodingTestIde = () => {
                 id="languageSelect"
                 value={selectedLanguage}
                 onChange={(e) => handleLanguageChange(e.target.value)}
-                className={`${styles.languageDropdown} ${isLanguageLocked ? styles.lockedDropdown : ''}`}
-                disabled={isPaused || showSubmitConfirmation || isLanguageLocked}
-                title={isLanguageLocked ? `Language locked to ${testDetails.technology}` : 'Select programming language'}
+                className={styles.languageDropdown}
+                disabled={isPaused || showSubmitConfirmation}
+                title="Select programming language"
               >
                 {Object.entries(availableLanguages).map(([key, config]) => (
                   <option key={key} value={key}>
                     {config.name} ({config.extension})
-                    {isLanguageLocked ? ' - Required' : ''}
-                    {!isLanguageLocked && key === recommendedTechnology ? ' - Recommended' : ''}
+                    {getLanguageStatus(key) === 'primary' ? ' - Required' : 
+                     getLanguageStatus(key) === 'recommended' ? ' - Recommended' : ''}
                   </option>
                 ))}
               </select>
               
-              {isLanguageLocked ? (
-                <span className={styles.lockNotice}>
-                  🔒 Language locked for {testDetails.technology}
-                </span>
-              ) : (
-                selectedLanguage !== recommendedTechnology && (
-                  <span className={styles.techNote}>
-                    💡 Recommended: {languageConfigs[recommendedTechnology]?.name || recommendedTechnology}
+              {/* Technology status display */}
+              <span className={styles.techStatusDisplay}>
+                {!testDetails?.isAnyAllowed && allowedLanguages.length === 1 ? (
+                  <span className={styles.lockedNotice}>
+                    🔒 Language restricted for this test
                   </span>
-                )
-              )}
+                ) : allowedLanguages.length < 4 ? (
+                  <span className={styles.limitedNotice}>
+                    ⚡ Limited to: {allowedLanguages.map(lang => getTechnologyDisplayName(lang)).join(', ')}
+                  </span>
+                ) : (
+                  <span className={styles.openNotice}>
+                    🌟 Any language allowed - {getTechnologyDisplayName(recommendedLanguage)} recommended
+                  </span>
+                )}
+              </span>
             </div>
             
             {/* Reset Button */}
