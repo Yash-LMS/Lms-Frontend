@@ -4,6 +4,7 @@ import styles from "./ResultComponent.module.css";
 import CourseAllotment from "./CourseAllotment";
 import TestAllotment from "./TestAllotment";
 import AssignmentAllotment from "./AssignmentAllotment";
+import CodingTaskAllotment from "./CodingTaskAllotment";
 
 const Allotments = () => {
   const [activeView, setActiveView] = useState("course");

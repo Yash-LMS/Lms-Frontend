@@ -150,6 +150,9 @@ export const DOWNLOAD_RESUME_URL = `${API_BASE_URL}/manager/document/resume/down
 
 export const RELEASE_TRAINEE_FROM_COURSE_URL = `${API_BASE_URL}/manager/course/releaseTrainee`;
 
+export const VIEW_CODING_TASK_URL = `${API_BASE_URL}/manager/coding/taskView`;
+export const ALLOT_CODING_TASK_URL = `${API_BASE_URL}/manager/coding/allotTestToTrainee`;
+
 //User
 export const VIEW_ALLOTED_COURSE_URL = `${API_BASE_URL}/user/viewAllotedCourse`;
 export const VIEW_ALLOTED_TEST_URL = `${API_BASE_URL}/user/viewAllotedTest`;
