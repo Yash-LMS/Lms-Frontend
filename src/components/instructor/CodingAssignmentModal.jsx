@@ -17,6 +17,7 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
     description: "",
     technology: [], // Changed to array for multiple selection
     maxMarks: 10,
+    timeInMinutes: "",
   });
 
   // Technology options
@@ -180,7 +181,7 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
           description: assignment.description,
           technology: formatTechnologyForAPI(), // Format technology for API
           maxMarks: assignment.maxMarks,
-          // instructorName and instructorId will be set from backend
+          timeInMinutes: assignment.timeInMinutes,
         },
       };
 
@@ -201,6 +202,7 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
           description: "",
           technology: [],
           maxMarks: 10,
+          timeInMinutes: "",
         });
 
         setTimeout(() => {
@@ -315,6 +317,19 @@ const CodingAssignmentModal = ({ isOpen, onClose }) => {
               onChange={handleMaxMarksChange}
               className={styles.assignmentInput}
               placeholder="Enter maximum marks"
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="timeInMinutes">Test Time (in minutes)</label>
+            <input
+              id="timeInMinute"
+              type="number"
+              value={assignment.timeInMinutes}
+              onChange={handleMaxMarksChange}
+              className={styles.assignmentInput}
+              placeholder="Enter test time"
               required
             />
           </div>

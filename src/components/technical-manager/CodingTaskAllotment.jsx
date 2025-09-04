@@ -160,7 +160,7 @@ const CodingTaskAllotment = () => {
         user: userData.user,
         token: userData.token,
         codingTestAllotmentList: validRows.map((row) => ({
-          emailId: row.emailId,
+          traineeEmailId: row.emailId,
           taskId: parseInt(row.taskId),
         })),
       };
@@ -174,7 +174,7 @@ const CodingTaskAllotment = () => {
         (response.data.response === "success")
       ) {
         setPopupStatus("Success! Coding tasks have been allotted.");
-        setRows([{ emailId: "", taskId: "" }]);
+        setRows([{ traineeEmailId: "", taskId: "" }]);
         setShowPopup(true);
       } else {
         setPopupStatus("Failed to allot coding tasks. Please try again.");
@@ -192,7 +192,7 @@ const CodingTaskAllotment = () => {
     setRows([
       ...rows,
       {
-        emailId: "",
+        traineeEmailId: "",
         taskId: "",
       },
     ]);
