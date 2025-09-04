@@ -1,10 +1,34 @@
-/* Page Container */
+:root {
+  --primary-color: #8e6cef;
+  --primary-hover: #7559ce;
+  --secondary-color: #1c1d1f;
+  --text-primary: #1c1d1f;
+  --text-secondary: #6a6f73;
+  --border-color: #e5e7eb;
+  --background-main: #f5f7f9;
+  --background-card: #ffffff;
+  --sidebar-active: #f0e6ff;
+  --success-color: #1e7f2c;
+  --warning-color: #8b6f1c;
+  --error-color: #dc3545;
+  --info-color: #0d6efd;
+  --hold-color: #6c757d;
+}
+
+/* Page Container - Fixed for sidebar overlap */
 .pageContainer {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
+  display: flex;
   min-height: 100vh;
-  background-color: #f9fafb;
+  background-color: var(--background-main);
+}
+
+/* Main Content Area */
+.mainContent {
+  flex: 1;
+  margin-left: 250px; /* Space for sidebar */
+  padding: 24px;
+  max-width: calc(100vw - 250px);
+  transition: margin-left 0.3s ease;
 }
 
 /* Header Section */
@@ -14,28 +38,28 @@
   align-items: flex-end;
   margin-bottom: 32px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .titleSection h1 {
   margin: 0 0 8px 0;
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .titleSection p {
   margin: 0;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 1rem;
 }
 
-/* Create Button */
+/* Create Button - Updated with theme colors */
 .createButton {
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #3b82f6;
+  background-color: var(--primary-color);
   color: white;
   border: none;
   padding: 12px 20px;
@@ -47,7 +71,7 @@
 }
 
 .createButton:hover {
-  background-color: #2563eb;
+  background-color: var(--primary-hover);
   transform: translateY(-1px);
 }
 
@@ -70,7 +94,7 @@
   width: 40px;
   height: 40px;
   border: 4px solid #f3f4f6;
-  border-top: 4px solid #3b82f6;
+  border-top: 4px solid var(--primary-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;
@@ -85,7 +109,7 @@
 .errorMessage {
   background-color: #fef2f2;
   border: 1px solid #fecaca;
-  color: #dc2626;
+  color: var(--error-color);
   padding: 16px;
   border-radius: 8px;
   margin-bottom: 24px;
@@ -95,7 +119,7 @@
 }
 
 .retryButton {
-  background-color: #dc2626;
+  background-color: var(--error-color);
   color: white;
   border: none;
   padding: 6px 12px;
@@ -113,9 +137,10 @@
 .emptyState {
   text-align: center;
   padding: 80px 20px;
-  background: white;
+  background: var(--background-card);
   border-radius: 12px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
 }
 
 .emptyIcon {
@@ -126,12 +151,12 @@
 .emptyState h3 {
   margin: 0 0 12px 0;
   font-size: 1.5rem;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .emptyState p {
   margin: 0 0 32px 0;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 1rem;
 }
 
@@ -145,12 +170,12 @@
 
 /* Task Card */
 .taskCard {
-  background: white;
+  background: var(--background-card);
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.2s, transform 0.1s;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
 }
 
 .taskCard:hover {
@@ -167,17 +192,17 @@
 }
 
 .taskIdBadge {
-  background-color: #f3f4f6;
-  color: #374151;
+  background-color: var(--sidebar-active);
+  color: var(--primary-color);
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .technologyBadge {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: rgba(142, 108, 239, 0.1);
+  color: var(--primary-color);
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
@@ -190,7 +215,7 @@
 }
 
 .taskDescription {
-  color: #374151;
+  color: var(--text-primary);
   line-height: 1.6;
   margin-bottom: 16px;
   font-size: 14px;
@@ -210,12 +235,12 @@
 }
 
 .metaLabel {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .metaValue {
-  color: #1f2937;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -224,7 +249,7 @@
   display: flex;
   gap: 8px;
   padding-top: 16px;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--border-color);
 }
 
 .viewButton,
@@ -241,41 +266,50 @@
 }
 
 .viewButton {
-  background-color: white;
-  color: #3b82f6;
-  border-color: #3b82f6;
+  background-color: var(--background-card);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 .viewButton:hover {
-  background-color: #3b82f6;
+  background-color: var(--primary-color);
   color: white;
 }
 
 .editButton {
-  background-color: white;
-  color: #059669;
-  border-color: #059669;
+  background-color: var(--background-card);
+  color: var(--success-color);
+  border-color: var(--success-color);
 }
 
 .editButton:hover {
-  background-color: #059669;
+  background-color: var(--success-color);
   color: white;
 }
 
 .deleteButton {
-  background-color: white;
-  color: #dc2626;
-  border-color: #dc2626;
+  background-color: var(--background-card);
+  color: var(--error-color);
+  border-color: var(--error-color);
 }
 
 .deleteButton:hover {
-  background-color: #dc2626;
+  background-color: var(--error-color);
   color: white;
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .mainContent {
+    margin-left: 200px;
+    max-width: calc(100vw - 200px);
+  }
+}
+
 @media (max-width: 768px) {
-  .pageContainer {
+  .mainContent {
+    margin-left: 0;
+    max-width: 100vw;
     padding: 16px;
   }
 
@@ -311,7 +345,7 @@
 }
 
 @media (max-width: 480px) {
-  .pageContainer {
+  .mainContent {
     padding: 12px;
   }
 

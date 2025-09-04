@@ -296,7 +296,7 @@ const AppContent = () => {
           />
 
                   <Route
-            path="/test/coding/viewAssignmentList"
+            path="/codingTask"
             element={
               <ProtectedRoute>
                 <CodingTestsList />
