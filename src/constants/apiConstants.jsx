@@ -145,6 +145,10 @@ export const ALLOT_ASSIGNMENT_URL = `${API_BASE_URL}/manager/allotAssignmentToTr
 export const DOWNLOAD_ASSIGNMENT_FILES = `${API_BASE_URL}/assignment/file/download`;
 
 export const VIEW_CODING_SUBMISSION_LIST = `${API_BASE_URL}/assignment/viewSubmissionList`;
+export const VIEW_CODING_SUBMISSION_FILE = `${API_BASE_URL}/assignment/viewSubmittedFile`;
+export const EVALUATE_CODE_ASSIGNMENT = `${API_BASE_URL}/assignment/evaluate`;
+
+
 
 
 export const ALLOT_ASSIGNMENT_BATCH_URL = `${API_BASE_URL}/batch/addAssignmentToBatch`;
