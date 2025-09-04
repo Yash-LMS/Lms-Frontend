@@ -232,7 +232,7 @@ const AppContent = () => {
           />
 
            <Route
-            path="/instructor/view/codingTask"
+            path="/view/codingTask"
             element={
               <ProtectedRoute>
                 <CodingTasks />

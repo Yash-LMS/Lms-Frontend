@@ -44,21 +44,6 @@ const InstructorSidebar = ({ activeTab }) => {
 
           <li
             className={`${styles.navItem} ${
-              activeTab === "codingTask" ? styles.active : ""
-            }`}
-          >
-            <a
-              href="#codingTask"
-              onClick={(e) => handleNavigation('/instructor/view/codingTask', 'codingTask', e)}
-            >
-              <FontAwesomeIcon icon={faListCheck} />
-              Coding Task
-            </a>
-          </li>
-
-
-          <li
-            className={`${styles.navItem} ${
               activeTab === "library" ? styles.active : ""
             }`}
           >
@@ -122,6 +107,20 @@ const InstructorSidebar = ({ activeTab }) => {
             >
               <FontAwesomeIcon icon={faTasks} />
               Assignments
+            </a>
+          </li>
+
+          <li
+            className={`${styles.navItem} ${
+              activeTab === "codingTask" ? styles.active : ""
+            }`}
+          >
+            <a
+              href="#codingTask"
+              onClick={(e) => handleNavigation('/view/codingTask', 'codingTask', e)}
+            >
+              <FontAwesomeIcon icon={faListCheck} />
+              Coding Task
             </a>
           </li>
 

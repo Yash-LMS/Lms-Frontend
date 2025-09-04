@@ -162,6 +162,17 @@ const Sidebar = ({ activeTab }) => {
             </a>
           </li>
 
+          <li className={`${styles.navItem} ${activeTab === "codingTask" ? styles.active : ""}`}>
+            <a
+              href="#codingTask"
+              onClick={(e) => handleNavigation('/view/codingTask', 'codingTask', e)}
+            >
+              <FontAwesomeIcon icon={faTasks} />
+              <span className={styles.navText}>Coding Task</span>
+        
+            </a>
+          </li>
+
           <li className={`${styles.navItem} ${activeTab === "feedback" ? styles.active : ""}`}>
             <a
               href="#feedback"
